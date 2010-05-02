@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:bpmn="http://stp.eclipse.org/bpmn" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.1/notation" xmi:id="_wjugwGxkEd2l15DmCVFLoQ" type="Bpmn" name="TravelReservation.bpmn_diagram" measurementUnit="Pixel">
+  <children xmi:type="notation:Node" xmi:id="_wlur4GxkEd2l15DmCVFLoQ" type="1001">
+    <children xmi:type="notation:Node" xmi:id="_wl0ygGxkEd2l15DmCVFLoQ" type="4008"/>
+    <children xmi:type="notation:Node" xmi:id="_wl65IGxkEd2l15DmCVFLoQ" type="5001">
+      <children xmi:type="notation:Node" xmi:id="_ODqwkmxlEd2l15DmCVFLoQ" type="2001">
+        <children xmi:type="notation:Node" xmi:id="_ODqwmGxlEd2l15DmCVFLoQ" type="4001"/>
+        <styles xmi:type="notation:FontStyle" xmi:id="_ODqwk2xlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+        <styles xmi:type="notation:DescriptionStyle" xmi:id="_ODqwlGxlEd2l15DmCVFLoQ"/>
+        <styles xmi:type="notation:FillStyle" xmi:id="_ODqwlWxlEd2l15DmCVFLoQ"/>
+        <styles xmi:type="notation:LineStyle" xmi:id="_ODqwlmxlEd2l15DmCVFLoQ" lineColor="0"/>
+        <element xmi:type="bpmn:Activity" href="TravelReservation.bpmn#_ODqwkWxlEd2l15DmCVFLoQ"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_ODqwl2xlEd2l15DmCVFLoQ" x="5" y="115"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_R1rCkGxlEd2l15DmCVFLoQ" type="2002">
+        <children xmi:type="notation:Node" xmi:id="_R1rClmxlEd2l15DmCVFLoQ" type="4006"/>
+        <children xmi:type="notation:Node" xmi:id="_R1rCl2xlEd2l15DmCVFLoQ" type="5002">
+          <children xmi:type="notation:Node" xmi:id="_YCTj8GxlEd2l15DmCVFLoQ" type="2001">
+            <children xmi:type="notation:Node" xmi:id="_YCTj9mxlEd2l15DmCVFLoQ" type="4001"/>
+            <styles xmi:type="notation:FontStyle" xmi:id="_YCTj8WxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+            <styles xmi:type="notation:DescriptionStyle" xmi:id="_YCTj8mxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:FillStyle" xmi:id="_YCTj82xlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:LineStyle" xmi:id="_YCTj9GxlEd2l15DmCVFLoQ" lineColor="0"/>
+            <element xmi:type="bpmn:Activity" href="TravelReservation.bpmn#_YCNdUWxlEd2l15DmCVFLoQ"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_YCTj9WxlEd2l15DmCVFLoQ" x="15" y="51"/>
+          </children>
+          <children xmi:type="notation:Node" xmi:id="_b_rYcmxlEd2l15DmCVFLoQ" type="2001">
+            <children xmi:type="notation:Node" xmi:id="_b_xfFGxlEd2l15DmCVFLoQ" type="4001"/>
+            <styles xmi:type="notation:FontStyle" xmi:id="_b_rYc2xlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+            <styles xmi:type="notation:DescriptionStyle" xmi:id="_b_xfEGxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:FillStyle" xmi:id="_b_xfEWxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:LineStyle" xmi:id="_b_xfEmxlEd2l15DmCVFLoQ" lineColor="0"/>
+            <element xmi:type="bpmn:Activity" href="TravelReservation.bpmn#_b_rYcWxlEd2l15DmCVFLoQ"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_b_xfE2xlEd2l15DmCVFLoQ" x="130" y="15"/>
+          </children>
+          <children xmi:type="notation:Node" xmi:id="_hekDAmxlEd2l15DmCVFLoQ" type="2001">
+            <children xmi:type="notation:Node" xmi:id="_hekDCGxlEd2l15DmCVFLoQ" type="4001"/>
+            <styles xmi:type="notation:FontStyle" xmi:id="_hekDA2xlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+            <styles xmi:type="notation:DescriptionStyle" xmi:id="_hekDBGxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:FillStyle" xmi:id="_hekDBWxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:LineStyle" xmi:id="_hekDBmxlEd2l15DmCVFLoQ" lineColor="0"/>
+            <element xmi:type="bpmn:Activity" href="TravelReservation.bpmn#_hekDAWxlEd2l15DmCVFLoQ"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_hekDB2xlEd2l15DmCVFLoQ" x="36" y="110"/>
+          </children>
+          <children xmi:type="notation:Node" xmi:id="_m1nnQmxlEd2l15DmCVFLoQ" type="2001">
+            <children xmi:type="notation:Node" xmi:id="_m1nnSGxlEd2l15DmCVFLoQ" type="4001"/>
+            <styles xmi:type="notation:FontStyle" xmi:id="_m1nnQ2xlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+            <styles xmi:type="notation:DescriptionStyle" xmi:id="_m1nnRGxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:FillStyle" xmi:id="_m1nnRWxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:LineStyle" xmi:id="_m1nnRmxlEd2l15DmCVFLoQ" lineColor="0"/>
+            <element xmi:type="bpmn:Activity" href="TravelReservation.bpmn#_m1nnQWxlEd2l15DmCVFLoQ"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_m1nnR2xlEd2l15DmCVFLoQ" x="220" y="85"/>
+          </children>
+          <children xmi:type="notation:Node" xmi:id="_raPpAmxlEd2l15DmCVFLoQ" type="2001">
+            <children xmi:type="notation:Node" xmi:id="_raVvoGxlEd2l15DmCVFLoQ" type="4001"/>
+            <styles xmi:type="notation:FontStyle" xmi:id="_raPpA2xlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+            <styles xmi:type="notation:DescriptionStyle" xmi:id="_raPpBGxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:FillStyle" xmi:id="_raPpBWxlEd2l15DmCVFLoQ"/>
+            <styles xmi:type="notation:LineStyle" xmi:id="_raPpBmxlEd2l15DmCVFLoQ" lineColor="0"/>
+            <element xmi:type="bpmn:Activity" href="TravelReservation.bpmn#_raPpAWxlEd2l15DmCVFLoQ"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_raPpB2xlEd2l15DmCVFLoQ" x="410" y="60"/>
+          </children>
+          <styles xmi:type="notation:DrawerStyle" xmi:id="_R1rCmGxlEd2l15DmCVFLoQ"/>
+          <styles xmi:type="notation:SortingStyle" xmi:id="_R1rCmWxlEd2l15DmCVFLoQ"/>
+          <styles xmi:type="notation:FilteringStyle" xmi:id="_R1rCmmxlEd2l15DmCVFLoQ"/>
+        </children>
+        <children xmi:type="notation:Node" xmi:id="_R1xJMGxlEd2l15DmCVFLoQ" type="5003">
+          <styles xmi:type="notation:SortingStyle" xmi:id="_R1xJMWxlEd2l15DmCVFLoQ"/>
+          <styles xmi:type="notation:FilteringStyle" xmi:id="_R1xJMmxlEd2l15DmCVFLoQ"/>
+        </children>
+        <styles xmi:type="notation:FontStyle" xmi:id="_R1rCkWxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+        <styles xmi:type="notation:DescriptionStyle" xmi:id="_R1rCkmxlEd2l15DmCVFLoQ"/>
+        <styles xmi:type="notation:FillStyle" xmi:id="_R1rCk2xlEd2l15DmCVFLoQ"/>
+        <styles xmi:type="notation:LineStyle" xmi:id="_R1rClGxlEd2l15DmCVFLoQ" lineColor="0"/>
+        <element xmi:type="bpmn:SubProcess" href="TravelReservation.bpmn#_R1k78WxlEd2l15DmCVFLoQ"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_R1rClWxlEd2l15DmCVFLoQ" x="122" y="20" width="478" height="220"/>
+      </children>
+      <children xmi:type="notation:Node" xmi:id="_0qFcsGxlEd2l15DmCVFLoQ" type="2001">
+        <children xmi:type="notation:Node" xmi:id="_0qFctmxlEd2l15DmCVFLoQ" type="4001"/>
+        <styles xmi:type="notation:FontStyle" xmi:id="_0qFcsWxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+        <styles xmi:type="notation:DescriptionStyle" xmi:id="_0qFcsmxlEd2l15DmCVFLoQ"/>
+        <styles xmi:type="notation:FillStyle" xmi:id="_0qFcs2xlEd2l15DmCVFLoQ"/>
+        <styles xmi:type="notation:LineStyle" xmi:id="_0qFctGxlEd2l15DmCVFLoQ" lineColor="0"/>
+        <element xmi:type="bpmn:Activity" href="TravelReservation.bpmn#_0p_WEWxlEd2l15DmCVFLoQ"/>
+        <layoutConstraint xmi:type="notation:Bounds" xmi:id="_0qFctWxlEd2l15DmCVFLoQ" x="673" y="115"/>
+      </children>
+      <styles xmi:type="notation:DrawerStyle" xmi:id="_wl65IWxkEd2l15DmCVFLoQ"/>
+      <styles xmi:type="notation:SortingStyle" xmi:id="_wl65ImxkEd2l15DmCVFLoQ"/>
+      <styles xmi:type="notation:FilteringStyle" xmi:id="_wl65I2xkEd2l15DmCVFLoQ"/>
+    </children>
+    <styles xmi:type="notation:FontStyle" xmi:id="_wlur4WxkEd2l15DmCVFLoQ" fontName="Arial"/>
+    <styles xmi:type="notation:DescriptionStyle" xmi:id="_wlur4mxkEd2l15DmCVFLoQ"/>
+    <styles xmi:type="notation:FillStyle" xmi:id="_wlur42xkEd2l15DmCVFLoQ" fillColor="16771304"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_wlur5GxkEd2l15DmCVFLoQ" lineColor="11119017"/>
+    <element xmi:type="bpmn:Pool" href="TravelReservation.bpmn#_wkG7QWxkEd2l15DmCVFLoQ"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_wl65JGxkEd2l15DmCVFLoQ" x="16" y="232" width="855" height="262"/>
+  </children>
+  <children xmi:type="notation:Node" xmi:id="_wZbqYmxmEd2l15DmCVFLoQ" type="1002">
+    <children xmi:type="notation:Node" xmi:id="_wZbqaGxmEd2l15DmCVFLoQ" type="4009"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_wZbqY2xmEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:DescriptionStyle" xmi:id="_wZbqZGxmEd2l15DmCVFLoQ"/>
+    <styles xmi:type="notation:FillStyle" xmi:id="_wZbqZWxmEd2l15DmCVFLoQ"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_wZbqZmxmEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:TextAnnotation" href="TravelReservation.bpmn#_wZbqYWxmEd2l15DmCVFLoQ"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_wZbqZ2xmEd2l15DmCVFLoQ" x="295" y="165"/>
+  </children>
+  <children xmi:type="notation:Node" xmi:id="_9OGPsmxmEd2l15DmCVFLoQ" type="1002">
+    <children xmi:type="notation:Node" xmi:id="_9OGPuGxmEd2l15DmCVFLoQ" type="4009"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_9OGPs2xmEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:DescriptionStyle" xmi:id="_9OGPtGxmEd2l15DmCVFLoQ"/>
+    <styles xmi:type="notation:FillStyle" xmi:id="_9OGPtWxmEd2l15DmCVFLoQ"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_9OGPtmxmEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:TextAnnotation" href="TravelReservation.bpmn#_9OGPsWxmEd2l15DmCVFLoQ"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_9OGPt2xmEd2l15DmCVFLoQ" x="480" y="185"/>
+  </children>
+  <styles xmi:type="notation:PageStyle" xmi:id="_wjugwWxkEd2l15DmCVFLoQ"/>
+  <styles xmi:type="notation:GuideStyle" xmi:id="_wjugwmxkEd2l15DmCVFLoQ"/>
+  <styles xmi:type="notation:DescriptionStyle" xmi:id="_wjugw2xkEd2l15DmCVFLoQ"/>
+  <element xmi:type="bpmn:BpmnDiagram" href="TravelReservation.bpmn#_wh6i4WxkEd2l15DmCVFLoQ"/>
+  <edges xmi:type="notation:Edge" xmi:id="_R4WjIGxlEd2l15DmCVFLoQ" type="3001" source="_ODqwkmxlEd2l15DmCVFLoQ" target="_R1rCkGxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_R4WjJWxlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_R4WjJmxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_R4WjJ2xlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_R4WjKGxlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_R4WjIWxlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_R4WjImxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_R4WjI2xlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_R3-IoWxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_R4WjJGxlEd2l15DmCVFLoQ" points="[-7, -15, 40, 87]$[-45, -98, 2, 4]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_dr5ComxlEd2l15DmCVFLoQ" type="3001" source="_YCTj8GxlEd2l15DmCVFLoQ" target="_b_rYcmxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_dr5Cp2xlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_dr5CqGxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_dr5CqWxlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_dr5CqmxlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_dr5Co2xlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_dr5CpGxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_dr5CpWxlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_dr5CoWxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_dr5CpmxlEd2l15DmCVFLoQ" points="[15, -2, -111, 7]$[73, -9, -53, 0]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_lI18YmxlEd2l15DmCVFLoQ" type="3001" source="_YCTj8GxlEd2l15DmCVFLoQ" target="_hekDAmxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_lI18Z2xlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_lI18aGxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_lI18aWxlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_lI18amxlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_lI18Y2xlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_lI18ZGxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_lI18ZWxlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_lI18YWxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_lI18ZmxlEd2l15DmCVFLoQ" points="[15, 10, -60, -49]$[65, 44, -10, -15]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_m1z0gGxlEd2l15DmCVFLoQ" type="3001" source="_hekDAmxlEd2l15DmCVFLoQ" target="_m1nnQmxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_m1z0hWxlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_m1z0hmxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_m1z0h2xlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_m1z0iGxlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_m1z0gWxlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_m1z0gmxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_m1z0g2xlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_m1tt4WxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_m1z0hGxlEd2l15DmCVFLoQ" points="[-12, -14, 95, 113]$[-105, -125, 2, 2]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_sLPBEmxlEd2l15DmCVFLoQ" type="3001" source="_b_rYcmxlEd2l15DmCVFLoQ" target="_raPpAmxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_sLPBF2xlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_sLPBGGxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_sLPBGWxlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_sLPBGmxlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_sLPBE2xlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_sLPBFGxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_sLPBFWxlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_sLPBEWxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_sLPBFmxlEd2l15DmCVFLoQ" points="[54, 8, -217, -39]$[256, 33, -15, -14]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_tCWPQmxlEd2l15DmCVFLoQ" type="3001" source="_m1nnQmxlEd2l15DmCVFLoQ" target="_raPpAmxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_tCWPR2xlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_tCWPSGxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_tCWPSWxlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_tCWPSmxlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_tCWPQ2xlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_tCWPRGxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_tCWPRWxlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_tCWPQWxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_tCWPRmxlEd2l15DmCVFLoQ" points="[60, -11, -95, 27]$[170, -30, 15, 8]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_uGudYmxlEd2l15DmCVFLoQ" type="3001" source="_hekDAmxlEd2l15DmCVFLoQ" target="_raPpAmxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_uG0kAGxlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_uG0kAWxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_uG0kAmxlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_uG0kA2xlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_uGudY2xlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_uGudZGxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_uGudZWxlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_uGudYWxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_uGudZmxlEd2l15DmCVFLoQ" points="[0, 0, -320, 75]$[0, 16, -320, 91]$[320, 16, 0, 91]$[320, -75, 0, 0]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_1KXfQmxlEd2l15DmCVFLoQ" type="3001" source="_R1rCkGxlEd2l15DmCVFLoQ" target="_0qFcsGxlEd2l15DmCVFLoQ">
+    <children xmi:type="notation:Node" xmi:id="_1KXfR2xlEd2l15DmCVFLoQ" type="4012">
+      <styles xmi:type="notation:FillStyle" xmi:id="_1KXfSGxlEd2l15DmCVFLoQ" fillColor="16776959"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_1KXfSWxlEd2l15DmCVFLoQ" lineColor="16776959"/>
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_1KXfSmxlEd2l15DmCVFLoQ" y="-10"/>
+    </children>
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_1KXfQ2xlEd2l15DmCVFLoQ" routing="Rectilinear" smoothness="Normal" closestDistance="true"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_1KXfRGxlEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_1KXfRWxlEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:SequenceEdge" href="TravelReservation.bpmn#_1KXfQWxlEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_1KXfRmxlEd2l15DmCVFLoQ" points="[237, 3, -99, -9]$[321, -2, -15, -14]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_wZn3oGxmEd2l15DmCVFLoQ" type="3003" source="_wZbqYmxmEd2l15DmCVFLoQ" target="_b_rYcmxlEd2l15DmCVFLoQ">
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_wZn3oWxmEd2l15DmCVFLoQ"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_wZn3omxmEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_wZn3o2xmEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:Association" href="TravelReservation.bpmn#_wZhxAGxmEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_wZn3pGxmEd2l15DmCVFLoQ" points="[0, 0, -358, -306]$[325, 278, -33, -28]"/>
+  </edges>
+  <edges xmi:type="notation:Edge" xmi:id="_9OM9YWxmEd2l15DmCVFLoQ" type="3003" source="_9OGPsmxmEd2l15DmCVFLoQ" target="_m1nnQmxlEd2l15DmCVFLoQ">
+    <styles xmi:type="notation:RoutingStyle" xmi:id="_9OM9YmxmEd2l15DmCVFLoQ"/>
+    <styles xmi:type="notation:FontStyle" xmi:id="_9OM9Y2xmEd2l15DmCVFLoQ" fontName="ＭＳ ゴシック"/>
+    <styles xmi:type="notation:LineStyle" xmi:id="_9OM9ZGxmEd2l15DmCVFLoQ" lineColor="0"/>
+    <element xmi:type="bpmn:Association" href="TravelReservation.bpmn#_9OM9YGxmEd2l15DmCVFLoQ"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_9OM9ZWxmEd2l15DmCVFLoQ" points="[0, 0, -455, -376]$[421, 348, -34, -28]"/>
+  </edges>
+</notation:Diagram>
