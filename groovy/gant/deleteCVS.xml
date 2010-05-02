@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+
+<project default="default">
+	<target name="default">
+
+		<delete includeemptydirs="true" verbose="true">
+			<fileset dir="testdir" includes="**/CVS/**" defaultexcludes="false" />
+		</delete>
+
+	</target>
+</project>

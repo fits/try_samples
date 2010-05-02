@@ -1,0 +1,10 @@
+
+target(default: "") {
+
+	echo(message: "${targetDir}")
+
+	delete(includeemptydirs: true, verbose: true) {
+		fileset (dir : "${targetDir}", includes : '**/.svn/**', defaultexcludes: false)
+	}
+
+}
