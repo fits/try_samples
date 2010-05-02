@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Geolocation API を使った現在地の取得サンプル</title>
+<script type="text/javascript">
+
+function showPosition(position) {
+	document.getElementById("location").innerHTML = "(" + position.coords.latitude + ", " + position.coords.longitude + ")";
+}
+
+function handleError(error) {
+	document.getElementById("location").innerHTML = error.message;
+}
+
+function getPosition() {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(showPosition, handleError);
+	}
+}
+
+window.addEventListener("load", getPosition, false);
+
+</script>
+
+</head>
+<body>
+
+<h1>現在地</h1>
+<span id="location"></span>
+
+</body>
+</html>
