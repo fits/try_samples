@@ -1,0 +1,12 @@
+
+環境変数 VOLDEMORT_HOME に Voldemort のホームディレクトリを設定しておき、
+以下のコマンドで実行。
+（config ディレクトリにファイルを設定ファイルを準備しておく）
+
+
+・サーバー実行
+	>gant -f server_start.gant -D config=.
+
+・シェル
+	>gant -f shell.gant -D config=.
+

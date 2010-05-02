@@ -1,0 +1,15 @@
+
+ant.property(environment: "env")
+voldemortHome = ant.antProject.properties."env.VOLDEMORT_HOME"
+
+target(default: "") {
+	java(classname: "jline.ConsoleRunner") {
+		classpath {
+			fileset(dir: "${voldemortHome}/dist", includes: "*.jar")
+			fileset(dir: "${voldemortHome}/lib", includes: "*.jar")
+			fileset(dir: "${voldemortHome}/contrib/hadoop-store-builder/lib", includes: "*.jar")
+			pathelement(path: "${voldemortHome}/dist/resources")
+		}
+		arg(line: "voldemort.VoldemortClientShell ${store} ${url}")
+	}
+}
