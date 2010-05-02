@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:BpmnDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:bpmn="http://stp.eclipse.org/bpmn" xmi:id="_wh6i4WxkEd2l15DmCVFLoQ" iD="_wh6i4GxkEd2l15DmCVFLoQ">
+  <artifacts xmi:type="bpmn:TextAnnotation" xmi:id="_wZbqYWxmEd2l15DmCVFLoQ" iD="_wZbqYGxmEd2l15DmCVFLoQ" name="ホテル予約サービス呼び出し">
+    <associations xmi:type="bpmn:Association" xmi:id="_wZhxAGxmEd2l15DmCVFLoQ" target="_b_rYcWxlEd2l15DmCVFLoQ"/>
+  </artifacts>
+  <artifacts xmi:type="bpmn:TextAnnotation" xmi:id="_9OGPsWxmEd2l15DmCVFLoQ" iD="_9OGPsGxmEd2l15DmCVFLoQ" name="レンタカー予約サービス呼び出し">
+    <associations xmi:type="bpmn:Association" xmi:id="_9OM9YGxmEd2l15DmCVFLoQ" target="_m1nnQWxlEd2l15DmCVFLoQ"/>
+  </artifacts>
+  <pools xmi:type="bpmn:Pool" xmi:id="_wkG7QWxkEd2l15DmCVFLoQ" iD="_wkG7QGxkEd2l15DmCVFLoQ" name="予約システム">
+    <vertices xmi:type="bpmn:Activity" xmi:id="_ODqwkWxlEd2l15DmCVFLoQ" iD="_ODqwkGxlEd2l15DmCVFLoQ" outgoingEdges="_R3-IoWxlEd2l15DmCVFLoQ" name="旅程を受信する" activityType="EventStartMessage"/>
+    <vertices xmi:type="bpmn:SubProcess" xmi:id="_R1k78WxlEd2l15DmCVFLoQ" iD="_R1k78GxlEd2l15DmCVFLoQ" outgoingEdges="_1KXfQWxlEd2l15DmCVFLoQ" incomingEdges="_R3-IoWxlEd2l15DmCVFLoQ" name="予約" activityType="SubProcess">
+      <vertices xmi:type="bpmn:Activity" xmi:id="_YCNdUWxlEd2l15DmCVFLoQ" iD="_YCNdUGxlEd2l15DmCVFLoQ" outgoingEdges="_dr5CoWxlEd2l15DmCVFLoQ _lI18YWxlEd2l15DmCVFLoQ" activityType="EventStartEmpty"/>
+      <vertices xmi:type="bpmn:Activity" xmi:id="_b_rYcWxlEd2l15DmCVFLoQ" iD="_b_rYcGxlEd2l15DmCVFLoQ" associations="_wZhxAGxmEd2l15DmCVFLoQ" outgoingEdges="_sLPBEWxlEd2l15DmCVFLoQ" incomingEdges="_dr5CoWxlEd2l15DmCVFLoQ" name="ホテルを予約する"/>
+      <vertices xmi:type="bpmn:Activity" xmi:id="_hekDAWxlEd2l15DmCVFLoQ" iD="_hekDAGxlEd2l15DmCVFLoQ" outgoingEdges="_m1tt4WxlEd2l15DmCVFLoQ _uGudYWxlEd2l15DmCVFLoQ" incomingEdges="_lI18YWxlEd2l15DmCVFLoQ" name="レンタカーを予約するか" activityType="GatewayDataBasedExclusive"/>
+      <vertices xmi:type="bpmn:Activity" xmi:id="_m1nnQWxlEd2l15DmCVFLoQ" iD="_m1nnQGxlEd2l15DmCVFLoQ" associations="_9OM9YGxmEd2l15DmCVFLoQ" outgoingEdges="_tCWPQWxlEd2l15DmCVFLoQ" incomingEdges="_m1tt4WxlEd2l15DmCVFLoQ" name="レンタカーを予約する" activityType="Task"/>
+      <vertices xmi:type="bpmn:Activity" xmi:id="_raPpAWxlEd2l15DmCVFLoQ" iD="_raPpAGxlEd2l15DmCVFLoQ" incomingEdges="_sLPBEWxlEd2l15DmCVFLoQ _tCWPQWxlEd2l15DmCVFLoQ _uGudYWxlEd2l15DmCVFLoQ" activityType="EventEndEmpty"/>
+      <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_dr5CoWxlEd2l15DmCVFLoQ" iD="_dr5CoGxlEd2l15DmCVFLoQ" source="_YCNdUWxlEd2l15DmCVFLoQ" target="_b_rYcWxlEd2l15DmCVFLoQ"/>
+      <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_lI18YWxlEd2l15DmCVFLoQ" iD="_lI18YGxlEd2l15DmCVFLoQ" source="_YCNdUWxlEd2l15DmCVFLoQ" target="_hekDAWxlEd2l15DmCVFLoQ"/>
+      <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_m1tt4WxlEd2l15DmCVFLoQ" iD="_m1tt4GxlEd2l15DmCVFLoQ" name="はい" source="_hekDAWxlEd2l15DmCVFLoQ" target="_m1nnQWxlEd2l15DmCVFLoQ"/>
+      <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_sLPBEWxlEd2l15DmCVFLoQ" iD="_sLPBEGxlEd2l15DmCVFLoQ" source="_b_rYcWxlEd2l15DmCVFLoQ" target="_raPpAWxlEd2l15DmCVFLoQ"/>
+      <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_tCWPQWxlEd2l15DmCVFLoQ" iD="_tCWPQGxlEd2l15DmCVFLoQ" source="_m1nnQWxlEd2l15DmCVFLoQ" target="_raPpAWxlEd2l15DmCVFLoQ"/>
+      <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_uGudYWxlEd2l15DmCVFLoQ" iD="_uGudYGxlEd2l15DmCVFLoQ" name="いいえ" source="_hekDAWxlEd2l15DmCVFLoQ" target="_raPpAWxlEd2l15DmCVFLoQ"/>
+    </vertices>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_0p_WEWxlEd2l15DmCVFLoQ" iD="_0p_WEGxlEd2l15DmCVFLoQ" incomingEdges="_1KXfQWxlEd2l15DmCVFLoQ" name="予約結果を通知する" activityType="EventEndMessage"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_R3-IoWxlEd2l15DmCVFLoQ" iD="_R3-IoGxlEd2l15DmCVFLoQ" source="_ODqwkWxlEd2l15DmCVFLoQ" target="_R1k78WxlEd2l15DmCVFLoQ"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_1KXfQWxlEd2l15DmCVFLoQ" iD="_1KXfQGxlEd2l15DmCVFLoQ" source="_R1k78WxlEd2l15DmCVFLoQ" target="_0p_WEWxlEd2l15DmCVFLoQ"/>
+  </pools>
+</bpmn:BpmnDiagram>

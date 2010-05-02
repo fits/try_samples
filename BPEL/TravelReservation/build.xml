@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="TravelReservation" default="deploy">
+	<property name="processDir" value="../server/webapps/ode/WEB-INF/processes" />
+	<property name="destDir" value="${processDir}/travelReservation" />
+
+	<target name="deploy">
+		<mkdir dir="${destDir}" />
+		<copy todir="${destDir}">
+			<fileset dir=".">
+				<include name="*.bpel" />
+				<include name="*.wsdl" />
+				<include name="deploy.xml" />
+			</fileset>
+		</copy>
+		<echo message="dest ${destDir}" />
+	</target>
+	
+	<target name="undeploy">
+		<echo message="delete ${destDir}" />
+		<delete dir="${destDir}" />
+	</target>
+
+</project>
