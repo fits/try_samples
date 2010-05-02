@@ -1,0 +1,10 @@
+
+def targetDir = "testdir"
+
+target(default: "") {
+
+	delete(includeemptydirs: true, verbose: true) {
+		fileset (dir : "${targetDir}", includes : '**/CVS/**', defaultexcludes: false)
+	}
+
+}

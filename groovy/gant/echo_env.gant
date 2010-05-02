@@ -1,0 +1,15 @@
+
+Ant.property(environment: "env")
+//‰º‹L‚Å‚à‰Â
+//ant.property(environment: "env")
+
+javaHome = Ant.antProject.properties."env.JAVA_HOME"
+//‰º‹L‚Å‚à‰Â
+//javaHome = ant.antProject.properties."env.JAVA_HOME"
+//javaHome = Ant.antProject.properties["env.JAVA_HOME"]
+
+target(default: "") {
+
+	println "$javaHome"
+
+}

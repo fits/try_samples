@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<project name="Java Groovy Shell Test1" default="compile" basedir=".">
+	<property environment="env" />
+
+	<property name="src.dir" value="src" />
+	<property name="dest.dir" value="dest" />
+
+	<path id="project.classpath">
+		<pathelement path="${dest.dir}" />
+
+		<fileset dir="${env.GROOVY_HOME}/embeddable">
+			<include name="*.jar" />
+		</fileset>
+
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${dest.dir}"/>	
+		<javac srcdir="${src.dir}" destdir="${dest.dir}" >
+			<classpath refid="project.classpath" />
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="run" depends="compile">
+		<java classname="sample.Tester" fork="yes">
+			<classpath refid="project.classpath" />
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dest.dir}" />
+	</target>
+
+</project>
