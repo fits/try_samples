@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+
+<project name="JBOSS AOP caller" default="compile" basedir=".">
+	<property environment="env" />
+
+	<property name="src.dir" value="src" />
+	<property name="dest.dir" value="dest" />
+
+	<path id="jboss.aop.classpath">
+		<fileset dir="${env.JBOSSAOP_LIB}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<path id="project.classpath">
+		<pathelement path="${dest.dir}" />
+		<path refid="jboss.aop.classpath" />
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${dest.dir}" />
+
+		<javac srcdir="${src.dir}" destdir="${dest.dir}">
+			<classpath refid="jboss.aop.classpath" />
+		</javac>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dest.dir}" />
+	</target>
+
+</project>
