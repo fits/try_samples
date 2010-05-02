@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>Geolocation API を使った現在地の取得サンプル</title>
+<script type="text/javascript" src="http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6.1"></script>
+<script type="text/javascript">
+
+function showPosition(position) {
+	document.getElementById("location").innerHTML = "(" + position.coords.latitude + ", " + position.coords.longitude + ")";
+
+	var pos = new VELatLong(position.coords.latitude, position.coords.longitude);
+	
+	var map = new VEMap("map");
+	map.LoadMap(pos);
+
+	map.FindLocations(pos, function(places) {
+		if (places != null) {
+			var address = "";
+
+			places.forEach(function(pl) {
+				address += pl.Name;
+			});
+
+			document.getElementById("address").innerHTML = address;
+		}
+	});
+}
+
+function handleError(error) {
+	document.getElementById("location").innerHTML = error.message;
+}
+
+function getPosition() {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(showPosition, handleError);
+	}
+}
+
+window.addEventListener("load", getPosition, false);
+
+</script>
+
+</head>
+<body>
+
+<h1>現在地</h1>
+<div id="location"></div>
+<div id="address"></div>
+
+<div id="map" style="position:relative; width:300px; height:300px;"></div>
+
+</body>
+</html>
