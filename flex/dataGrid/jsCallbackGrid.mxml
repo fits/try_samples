@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+    <mx:Script>
+    <![CDATA[
+
+		import mx.controls.Alert;
+		import mx.events.ListEvent;
+
+		private function initApp(): void {
+		}
+
+		private function selectionChange(e: ListEvent): void {
+			ExternalInterface.call("onSelect", grid.selectedItems);
+		}
+
+    ]]>
+    </mx:Script>
+    <mx:DataGrid id="grid" percentWidth="100" horizontalScrollPolicy="auto" allowMultipleSelection="true" change="selectionChange(event)">
+        <mx:columns>
+            <mx:DataGridColumn dataField="title" headerText="Title" width="50" />
+            <mx:DataGridColumn dataField="point" headerText="Point" width="100" />
+            <mx:DataGridColumn dataField="date" headerText="Date" width="100" />
+            <mx:DataGridColumn dataField="name" headerText="Name" width="300" />            <mx:DataGridColumn dataField="note" headerText="Note" width="200" />            <mx:DataGridColumn dataField="version" headerText="Version" width="100" />
+        </mx:columns>
+        <mx:dataProvider>
+            <mx:Array>
+                <mx:Object title="てすとでーた" point="10" date="2008/01/01" name="bbbbbbbbbbbbb" note="aaaaaaa" version="1.5" />
+                <mx:Object title="abc" point="100" date="2008/01/01" name="" note="" version="" />
+                <mx:Object title="aaaaaaaaaaaaa" point="2" date="2008/02/02" name="" note="" version="" />
+                <mx:Object title="てすとでーた1" point="10" date="2008/02/01" name="" note="" version="" />
+                <mx:Object title="てすとでーた10" point="100" date="2008/02/10" name="" note="" version="2.5" />
+                <mx:Object title="てすとでーた2" point="3" date="2008/03/01" name="" note="" version="1.4" />
+            </mx:Array>
+        </mx:dataProvider>
+    </mx:DataGrid>
+</mx:Application>
+

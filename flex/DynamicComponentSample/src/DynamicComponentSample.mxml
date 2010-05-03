@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	creationComplete="initApp()" width="400" height="200">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.VRule;
+			import mx.controls.Spacer;
+			import mx.controls.Label;
+			import mx.controls.CheckBox;
+			private function initApp(): void {
+				var f1: VBox = new VBox();
+
+				var l1: Label = new Label();
+				l1.text = "Title";
+				f1.addChild(l1);
+
+				var a1: CheckBox = new CheckBox();
+				a1.label = "A1";
+				f1.addChild(a1);
+
+				var a2: CheckBox = new CheckBox();
+				a2.label = "B1";
+				f1.addChild(a2);
+				
+				this.dynamicArea.addChild(f1);
+				this.dynamicArea.addChild(new VRule());
+
+				var f2: VBox = new VBox();
+
+				var l2: Label = new Label();
+				l2.text = "Second";
+				f2.addChild(l2);
+
+				var r1: CheckBox = new CheckBox();
+				r1.label = "Test5";
+				f2.addChild(r1);
+
+				var r2: CheckBox = new CheckBox();
+				r2.label = "Check7";
+				f2.addChild(r2);
+
+				this.dynamicArea.addChild(f2);
+				this.dynamicArea.addChild(new VRule());
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox paddingLeft="10" paddingTop="10" width="100%" height="100%" backgroundColor="white">
+		<mx:HBox id="dynamicArea" width="100%" height="70%">
+			
+		</mx:HBox>
+		<mx:HBox width="100%" height="30%">
+			<mx:Button label="OK" />
+			<mx:Button label="Cancel" />
+		</mx:HBox>
+	</mx:VBox>
+</mx:Application>

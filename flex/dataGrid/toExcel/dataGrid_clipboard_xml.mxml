@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+    <mx:Script>
+    <![CDATA[
+    	import flash.system.System;
+    	import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent;
+
+		private function copyToClipboard(): void {
+			var textData: Object = {
+				columns: [],
+				headerText: "",
+				dataText: "",
+				initHeader: function(): void {
+					var nonFirst: Boolean = false;
+
+					for each (var column: Object in grid.columns) {
+						if (column.visible) {
+							if (nonFirst) {
+								this.headerText += "\t";
+							}
+
+							this.headerText += column.headerText;
+							nonFirst = true;
+
+							this.columns.push(column);
+	    				}
+	    			}
+				},
+				toText: function(): String {
+					this.initHeader();
+
+					var data: XMLList = grid.dataProvider.source;
+
+					for each (var item: XML in data) {
+
+						var nonFirst: Boolean = false;
+
+						for each (var column: Object in this.columns) {
+							if (nonFirst) {
+								this.dataText += "\t";
+							}
+
+							this.dataText += item[column.dataField];
+							nonFirst = true;
+						}
+
+						this.dataText += "\n";
+					}
+
+					return this.headerText + "\n" + this.dataText;
+				}
+			};
+
+			System.setClipboard(textData.toText());
+		}
+
+    	private function initApp(): void {
+			service.url = "data.xml";
+			service.send();
+
+			if (ExternalInterface.available) {
+				try {
+            		ExternalInterface.addCallback("copyTo", copyToClipboard);
+            	}
+            	catch(e : Error) {
+					Alert.show("error : " + e);
+				}
+            }
+		}
+
+		private function onXMLLoad(e: ResultEvent): void {
+			grid.dataProvider = e.result.data;
+		}
+
+    ]]>
+    </mx:Script>
+    <mx:HTTPService id="service" resultFormat="e4x" result="onXMLLoad(event)" showBusyCursor="true" />
+    <mx:DataGrid id="grid">
+        <mx:columns>
+            <mx:DataGridColumn dataField="@no" headerText="No" />
+            <mx:DataGridColumn dataField="@name" headerText="Name" />
+            <mx:DataGridColumn dataField="@address" headerText="Address" />
+            <mx:DataGridColumn dataField="@birthday" headerText="Birthday" />
+            <mx:DataGridColumn dataField="@id" visible="false"  />
+        </mx:columns>
+    </mx:DataGrid>
+
+	<mx:Button label="copy to clipboard" click="copyToClipboard()" />
+
+</mx:Application>

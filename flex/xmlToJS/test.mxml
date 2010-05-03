@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+
+    <mx:Script>
+        <![CDATA[
+
+		import flash.external.ExternalInterface;
+		import mx.controls.Alert;
+
+		private var listData: XML = <list>
+				<data id="1" name="test" address="神奈川" />
+				<data id="2" name="bbb" address="大阪" />
+				<data id="3" name="check" address="東京" />
+			</list>
+		;
+
+		private function onClick(): void {
+			if (ExternalInterface.available) {
+				try {
+					ExternalInterface.call("callFrom", listData.toXMLString());
+				}
+				catch (e: Error) {
+					Alert.show("error: " + e);
+				}
+			}
+			else {
+				Alert.show("no available");
+			}
+		}
+
+        ]]>
+    </mx:Script>
+
+
+	<mx:Button label="push" buttonDown="onClick()" />
+
+</mx:Application>

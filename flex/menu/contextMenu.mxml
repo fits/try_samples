@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application styleName="plain" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="initApp()">
+
+    <mx:Script>
+    <![CDATA[
+    	import flash.ui.ContextMenu;
+    	import flash.ui.ContextMenuItem;
+    	import flash.events.ContextMenuEvent;
+		import flash.events.MouseEvent;
+		import mx.controls.Alert;
+
+		private var myMenu: ContextMenu;
+		private var exeMenu: ContextMenuItem;
+		private var debugMenu: ContextMenuItem;
+
+        private function initApp() : void {
+
+			myMenu = new ContextMenu();
+			myMenu.hideBuiltInItems();
+
+			exeMenu = new ContextMenuItem("実行");
+			exeMenu.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(event: ContextMenuEvent): void {
+				Alert.show("execute");
+			});
+
+			debugMenu = new ContextMenuItem("デバッグ");
+			debugMenu.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(event: ContextMenuEvent): void {
+				Alert.show("debug");
+			});
+
+
+			myMenu.customItems.push(exeMenu);
+			myMenu.customItems.push(debugMenu);
+
+			grid.contextMenu = myMenu;
+        }
+
+    ]]>
+    </mx:Script>
+
+	<mx:VBox percentWidth="100" percentHeight="100">
+	    <mx:DataGrid id="grid" horizontalScrollPolicy="auto" allowMultipleSelection="true" percentWidth="100" percentHeight="100">
+	        <mx:columns>
+	            <mx:DataGridColumn dataField="title" headerText="Title" />
+	            <mx:DataGridColumn dataField="point" headerText="Point" />
+	            <mx:DataGridColumn dataField="date" headerText="Date" />
+	        </mx:columns>
+	    </mx:DataGrid>
+	    <mx:Button label="ボタン" />
+	</mx:VBox>
+
+</mx:Application>
+

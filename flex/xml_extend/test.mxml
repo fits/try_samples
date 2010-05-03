@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="view.*"
+    pageTitle="Test" creationComplete="initApp()">
+
+    <mx:Script>
+        <![CDATA[
+
+		import mx.controls.*;
+
+        private function initApp():void
+        {
+			XMLDocument.prototype.createChild = function(name:String) : XMLNode {
+				var node = this.createElement(name);
+				this.appendChild(node);
+				return node;
+			};
+
+			XMLNode.prototype.createChild = function(doc:XMLDocument, name:String) : XMLNode {
+				var node = doc.createElement(name);
+				this.appendChild(node);
+				return node;
+			};
+
+			var doc = new XMLDocument();
+			doc.createChild("root").createChild(doc, "data").createChild(doc, "てすと");
+
+			Alert.show(doc.toString());
+        }
+
+        ]]>
+    </mx:Script>
+
+    <mx:Panel height="100" width="550" title="test">
+    </mx:Panel>
+
+</mx:Application>

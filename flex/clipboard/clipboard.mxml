@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+    <mx:Script>
+    <![CDATA[
+
+        import flash.system.System;
+
+        private function copyToClipboard(): void {
+            System.setClipboard("テスト\t1\t2\ttest\nチェックデータ");
+        }
+
+    ]]>
+    </mx:Script>
+
+    <mx:Button label="copy to clipboard" click="copyToClipboard()" />
+
+</mx:Application>
+

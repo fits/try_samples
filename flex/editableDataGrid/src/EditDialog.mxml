@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="70">
+	<mx:Metadata>
+		[Event(name="editEnd", type="EditEvent")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			private var _rowIndex: int = -1;
+
+			public function set text(val: String): void {
+				this.editValue.text = val;
+			}
+
+			public function set rowIndex(val: int): void {
+				this._rowIndex = val;
+			}
+
+			private function onEditEnd(): void {
+				dispatchEvent(new EditEvent("editEnd", this._rowIndex, this.editValue.text));
+				this.close();	
+			}
+			
+			private function onEditCancel(): void {
+				this.close();
+			}
+			
+			private function close(): void {
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>	
+	<mx:HBox>
+		<mx:Label text="Title: " />
+		<mx:TextInput id="editValue" />
+		<mx:Button label="OK" click="onEditEnd()" />
+		<mx:Button label="Cancel" click="onEditCancel()" />
+	</mx:HBox>
+</mx:TitleWindow>

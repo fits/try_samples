@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+    <mx:Script>
+    <![CDATA[
+
+		import flash.net.SharedObject;
+		import mx.controls.Alert;
+		import mx.events.DataGridEvent;
+		import mx.events.IndexChangedEvent;
+
+		private var gridSo: SharedObject;
+		private var cachedColumns: Array;
+
+		private function initApp(): void {
+			gridSo = SharedObject.getLocal("sampleGrid");
+
+			cachedColumns = serializeStateData(grid.columns);
+
+			loadState();
+		}
+
+		private function loadState(): void {
+			if (gridSo.data.myGridColumns) {
+				traceColumns(gridSo.data.myGridColumns);
+
+				grid.columns = deserializeStateData(grid.columns, gridSo.data.myGridColumns);
+			}
+		}
+
+		private function saveState(): void {
+			traceColumns(grid.columns);
+
+			gridSo.data.myGridColumns = serializeStateData(grid.columns);
+			gridSo.flush();
+		}
+
+		private function serializeStateData(columns: Array): Array {
+			var result: Array = [];
+
+			for (var i: int = 0; i < columns.length; i++) {
+				var obj:Object = new Object();
+				obj.dataField = columns[i].dataField;
+				obj.width = columns[i].width;
+
+				result.push(obj);
+			}
+
+			return result;
+		}
+
+		private function deserializeStateData(srcColumns: Array, savedColumns: Array): Array {
+			var result: Array = srcColumns;
+
+			for (var i: int = 0; i < savedColumns.length; i++) {
+				for (var j: int = 0; j < result.length; j++) {
+
+					if (savedColumns[i].dataField == result[j].dataField) {
+
+						var temp: Object = result[j];
+						temp.width = savedColumns[i].width;
+
+						if (i != j) {
+							result[j] = result[i];
+							result[i] = temp;
+						}
+						break;
+					}
+				}
+			}
+			return result;
+		}
+
+		private function traceColumns(cols: Array): void {
+			var data: String = "";
+
+			for (var i: int = 0; i < cols.length; i++) {
+				data += "dataField:" + cols[i].dataField + ", headerText: " + cols[i].headerText + ", width: " + cols[i].width + "\n";
+			}
+
+			Alert.show(data);
+		}
+
+		private function clearState(): void {
+
+			traceColumns(cachedColumns);
+
+			gridSo.clear();
+
+			grid.columns = deserializeStateData(grid.columns, cachedColumns);
+		}
+
+		private function onColumnStretch(e: DataGridEvent): void {
+			saveState();
+		}
+
+		private function onHeaderShift(e: IndexChangedEvent): void {
+			saveState();
+		}
+
+    ]]>
+    </mx:Script>
+    <mx:DataGrid id="grid" percentWidth="60" horizontalScrollPolicy="auto" columnStretch="onColumnStretch(event)" headerShift="onHeaderShift(event)">
+        <mx:columns>
+            <mx:DataGridColumn dataField="title" headerText="Title" width="50" />
+            <mx:DataGridColumn dataField="point" headerText="Point" width="100" />
+            <mx:DataGridColumn dataField="date" headerText="Date" width="100" />
+            <mx:DataGridColumn dataField="name" headerText="Name" width="300" />            <mx:DataGridColumn dataField="note" headerText="Note" width="200" />            <mx:DataGridColumn dataField="version" headerText="Version" width="100" />
+        </mx:columns>
+        <mx:dataProvider>
+            <mx:Array>
+                <mx:Object title="てすとでーた" point="10" date="2008/01/01" name="bbbbbbbbbbbbb" note="aaaaaaa" version="1.5" />
+                <mx:Object title="abc" point="100" date="2008/01/01" name="" note="" version="" />
+                <mx:Object title="aaaaaaaaaaaaa" point="2" date="2008/02/02" name="" note="" version="" />
+                <mx:Object title="てすとでーた1" point="10" date="2008/02/01" name="" note="" version="" />
+                <mx:Object title="てすとでーた10" point="100" date="2008/02/10" name="" note="" version="2.5" />
+                <mx:Object title="てすとでーた2" point="3" date="2008/03/01" name="" note="" version="1.4" />
+            </mx:Array>
+        </mx:dataProvider>
+    </mx:DataGrid>
+
+	<mx:Button label="clear state" click="clearState()" />
+
+</mx:Application>
+

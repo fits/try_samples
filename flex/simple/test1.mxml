@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<mx:Label id="label1" text="テスト" />
+
+	<mx:Button label="クリック" click="updateLabel()" />
+
+	<mx:Script>
+		<![CDATA[
+			private function updateLabel():void {
+				label1.text = "test";
+			}
+		]]>
+	</mx:Script>
+
+
+</mx:Application>
+

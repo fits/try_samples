@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
+	creationComplete="initApp()">
+    <mx:Script>
+    <![CDATA[
+    	import mx.controls.ComboBox;
+    	import mx.controls.Alert;
+    	import mx.collections.ICollectionView;
+    	import mx.events.ListEvent;
+    	import mx.events.AdvancedDataGridEvent;    	
+    	import mx.controls.advancedDataGridClasses.*;
+
+		[Bindable]
+    	private var testData: XML =
+    	<root>
+    		<data id="1" title="test1" point="1" date="2008/1/1">
+	    		<data id="5" title="test1-1" point="3" date="2008/2/1" />
+	    		<data id="6" title="test1-2" point="100" date="2008/5/1">
+		    		<data id="7" title="test1-2-1" point="-10" date="2008/6/1" />
+		    		<data id="8" title="test1-2-2" point="5" date="2008/7/1" />
+	    		</data>
+    		</data>
+    		<data id="2" title="test2" point="2" date="2008/2/1" />
+    		<data id="3" title="test3" point="3" date="2008/3/1">
+	    		<data id="9" title="test3-1" point="3" date="2008/7/1" />
+    		</data>
+    		<data id="4" title="test4" point="4" date="2008/4/1" />
+    	</root>
+    	;
+
+		private function initApp(): void {
+		}
+
+		private function selectionChange(e: ListEvent): void {
+			
+			var res: String = "";
+			var items: Array = grid.selectedItems;
+
+			for (var i: int = 0; i < items.length; i++) {
+				res += items[i].@title + ", ";
+			}
+
+			resultText.text = res;
+		}
+
+		private function setFilter(filterText: String): void {
+        	var dp: Object = grid.dataProvider;
+
+            dp.filterFunction = function(item: Object): Boolean {
+	            return (item.@title.indexOf(filterText) > -1)? true: false;
+            };
+
+            dp.refresh();
+		}
+
+		private function addContents(): void {
+			var items: Array = grid.selectedItems;
+			
+			if (items.length > 0 &&
+				items[0].parent().localName() == "root") {
+
+				var chdata: XML = 
+					<root>
+	    				<data id="101" title="テスト1" point="1" date="2008/1/1">
+		    				<data id="102" title="テスト1-1" point="3" date="2008/2/1" />
+		    				<data id="103" title="テスト1-2" point="100" date="2008/5/1">
+			    				<data id="104" title="ABC" point="-10" date="2008/6/1" />
+			    				<data id="105" title="チェック" point="5" date="2008/7/1" />
+		    				</data>
+	    				</data>
+	    				<data id="201" title="テスト2" point="1000" date="2008/11/1" />
+	    				<data id="301" title="テスト3" point="0" date="2008/11/1">
+	    					<data id="302" title="テスト3-1" point="3" date="2008/2/1" />
+	    				</data>
+    				</root>
+				;
+				items[0].appendChild(chdata.data);
+			}
+		}
+
+		private function removeContents(): void {
+			var items: Array = grid.selectedItems;
+			
+			if (items.length > 0) {
+				delete items[0].data;
+			}
+		}
+    ]]>
+    </mx:Script>
+    <mx:VBox>
+		<mx:AdvancedDataGrid id="grid" 
+			treeColumn="{title}" 
+			allowMultipleSelection="true"
+			sortExpertMode="true"
+			editable="true"
+			change="selectionChange(event)"
+			folderOpenIcon="@Embed(source='Assets.swf', symbol='TreeNodeIcon')" 
+			folderClosedIcon="@Embed(source='Assets.swf', symbol='TreeNodeIcon')"
+			>
+			<mx:columns>
+				<mx:AdvancedDataGridColumn dataField="@id" headerText="ID" editable="false" />
+				<mx:AdvancedDataGridColumn id="title" dataField="@title" headerText="Title" />
+	            <mx:AdvancedDataGridColumn dataField="@point" headerText="Point">
+	            	<mx:itemEditor>
+	            		<mx:Component>
+	            			<mx:ComboBox>
+	            				<mx:String>1</mx:String>
+	            				<mx:String>2</mx:String>
+	            				<mx:String>3</mx:String>
+	            				<mx:String>4</mx:String>
+	            			</mx:ComboBox>
+	            		</mx:Component>
+	            	</mx:itemEditor>
+	            </mx:AdvancedDataGridColumn>
+	            <mx:AdvancedDataGridColumn dataField="@date" headerText="Date" editable="false" />
+			</mx:columns>
+			<mx:dataProvider>
+				<mx:HierarchicalData source="{testData.data}" />
+			</mx:dataProvider>
+		</mx:AdvancedDataGrid>
+		<mx:Text id="resultText" text="テストデータ" />
+		<mx:HBox>
+            <mx:Button label="Filter" click="setFilter(filterSrc.text)" />
+            <mx:TextInput id="filterSrc" text="" />
+		</mx:HBox>
+		<mx:Button label="AddChildren" click="addContents()" />
+		<mx:Button label="RemoveChildren" click="removeContents()" />
+    </mx:VBox>
+
+</mx:Application>

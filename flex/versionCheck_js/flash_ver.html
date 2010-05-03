@@ -1,0 +1,25 @@
+<html>
+<script type="text/javascript" src="flash_ver.js"></script>
+<body>
+
+<H1>
+Flash Player Version : <span id="flashVer" style="color: red"></span>
+</H1>
+
+<script type="text/javascript">
+<!--
+
+	var flashVerMsg = "unknown";
+    var version = getFlashVersion();
+
+    if (version) {
+    	flashVerMsg = version.majorVersion + "." + version.minorVersion + "." + version.revision;
+    }
+
+	document.getElementById("flashVer").innerHTML = flashVerMsg;
+
+//-->
+</script>
+
+</body>
+</html>

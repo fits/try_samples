@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+    <mx:Script>
+    <![CDATA[
+    	import mx.collections.ICollectionView;
+    
+    	private function setFilter(filterText: String): void {
+
+			var dp: Object = grid.dataProvider;
+
+			dp.filterFunction = function(item: Object): Boolean {
+				return (item["title"].indexOf(filterText) > -1)? true: false;
+			};
+
+			dp.refresh();
+		}
+
+		private function selectAll(): void {
+			grid.selectedItems = grid.dataProvider.toArray();
+		}
+    ]]>
+    </mx:Script>
+    <mx:DataGrid id="grid">
+        <mx:columns>
+            <mx:DataGridColumn dataField="title" headerText="Title" />
+            <mx:DataGridColumn dataField="point" headerText="Point" />
+            <mx:DataGridColumn dataField="date" headerText="Date" />
+        </mx:columns>
+        <mx:dataProvider>
+            <mx:Array>
+                <mx:Object title="てすとでーた" point="10" date="2008/01/01" />
+                <mx:Object title="abc" point="100" date="2008/01/01" />
+                <mx:Object title="aaaaaaaaaaaaa" point="2" date="2008/02/02" />
+                <mx:Object title="てすとでーた1" point="10" date="2008/02/01" />
+                <mx:Object title="てすとでーた10" point="100" date="2008/02/10" />
+                <mx:Object title="てすとでーた2" point="3" date="2008/03/01" />
+            </mx:Array>
+        </mx:dataProvider>
+    </mx:DataGrid>
+
+	<mx:Button label="Filter" click="setFilter(filterSrc.text)" />
+	<mx:TextInput id="filterSrc" text="" />
+	<mx:Button label="Select ALL" click="selectAll()" />
+
+</mx:Application>
+

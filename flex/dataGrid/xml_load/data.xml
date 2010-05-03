@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Shift_JIS" ?>
+<root>
+	<data no="1" name="testdata'\a" date="2008/01/01" />
+	<data no="2" name="aaaaa" date="2008/02/01" />
+	<data no="3" name="10a" date="2008/02/11" />
+	<data no="4" name="100a" date="2008/02/03" />
+	<data no="5" name="20a" date="2008/03/01" />
+	<data no="6" name="testag" date="2008/03/03" />
+	<data no="7" name="testdata'\a" date="2008/01/04" />
+	<data no="11" name="tesatdata'\a" date="2008/01/04" />
+	<data no="20" name="abc" date="2008/03/09" />
+</root>

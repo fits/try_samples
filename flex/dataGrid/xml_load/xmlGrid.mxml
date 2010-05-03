@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application styleName="plain" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="initApp()">
+
+    <mx:Script>
+    <![CDATA[
+    	import mx.collections.Sort;
+    	import mx.collections.SortField;
+        import mx.controls.Alert;
+		import mx.rpc.events.ResultEvent;
+        import mx.events.FlexEvent;
+
+		var startDate:Date = null;
+
+        private function initApp() : void {
+			service.send();
+        }
+
+		private function onXMLLoad(e:ResultEvent):void {
+			try {
+				startDate = new Date();
+				
+				grid.dataProvider = e.result.data;
+/*
+				//以下の設定では別のソートを実施すると無効化される
+				var sort:Sort = new Sort();
+				var sortNo:SortField = new SortField("@no", true, false, true);
+				sort.fields = [sortNo];
+
+				grid.dataProvider.sort = sort;
+*/
+			}
+			catch (e:Error) {
+				Alert.show("error : " + e);
+			}
+		}
+
+		private function renderComp(e : FlexEvent) : void {
+			var time:int = (startDate)? new Date().getTime() - startDate.getTime(): -1;
+	
+			Alert.show("render complete : " + time);
+		}
+    ]]>
+    </mx:Script>
+
+	<mx:HTTPService id="service" resultFormat="e4x"
+		url="./data.xml" result="onXMLLoad(event)" />
+
+    <mx:DataGrid id="grid" horizontalScrollPolicy="auto" allowMultipleSelection="true" percentWidth="100" percentHeight="100" creationComplete="renderComp(event)">
+        <mx:columns>
+            <mx:DataGridColumn dataField="@no" headerText="No" />
+            <mx:DataGridColumn dataField="@name" headerText="Name" />
+            <mx:DataGridColumn dataField="@date" headerText="Date" />
+        </mx:columns>
+    </mx:DataGrid>
+
+</mx:Application>
+

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<mx:Label id="label1" text="カメラの録画・再生テスト" />
+	<mx:Label id="result" text="" />
+	<mx:Label id="code" text="" />
+
+	<mx:VideoDisplay id="videoView" width="320" height="240" />
+
+	<mx:HBox>
+		<mx:Button label="保存" click="saveMovie()" />
+		<mx:Button label="停止" click="stopSave()" />
+	</mx:HBox>
+
+	<mx:Script>
+		<![CDATA[
+			private var nc:NetConnection;
+			private var ns:NetStream;
+
+			private function saveMovie():void {
+
+				nc = new NetConnection();
+				//必須、これを指定しないと接続に失敗する
+				nc.objectEncoding = 0;
+
+				nc.addEventListener("netStatus", onNCStatus);
+
+				nc.connect("rtmp://localhost/oflaDemo");
+			}
+
+			private function onNCStatus(event:NetStatusEvent):void {
+				code.text = event.info.code;
+
+				if (event.info.code == "NetConnection.Connect.Success") {
+
+					result.text = "接続完了";
+
+					ns = new NetStream(nc);
+
+					var camera:Camera = Camera.getCamera();
+
+					videoView.attachCamera(camera);
+
+					ns.attachCamera(camera);
+
+					ns.publish("test1", "record");
+
+				}
+				else {
+					result.text = "接続失敗";
+				}
+			}
+
+			private function stopSave():void {
+				ns.close();
+
+				ns.attachCamera(null);
+
+				videoView.attachCamera(null);
+			}
+
+		]]>
+	</mx:Script>
+
+
+</mx:Application>
+

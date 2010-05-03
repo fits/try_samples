@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" >
+	<mx:XML id="dataList" xmlns="">
+		<list>
+	        <data title="てすとでーた" point="10" date="2008/01/01" />
+	        <data title="abc" point="100" date="2008/01/01" />
+	        <data title="aaaaaaaaaaaaa" point="2" date="2008/02/02" />
+	        <data title="てすとでーた1" point="10" date="2008/02/01" />
+	        <data title="てすとでーた10" point="100" date="2008/02/10" />
+	        <data title="てすとでーた2" point="3" date="2008/03/01" />
+		</list>
+	</mx:XML>
+
+	<mx:DataGrid id="grid" editable="true">
+	    <mx:columns>
+	        <mx:DataGridColumn dataField="@title" headerText="Title" editable="true" />
+	        <mx:DataGridColumn dataField="@point" headerText="Point" editable="true" />
+	        <mx:DataGridColumn dataField="@date" headerText="Date" editable="false" />
+	    </mx:columns>
+	    <mx:dataProvider>
+	    	{dataList.data}
+	    </mx:dataProvider>
+	</mx:DataGrid>
+
+	<mx:Button label="All Select">
+		<mx:click>
+			grid.selectedItems = grid.dataProvider.toArray();
+		</mx:click>
+	</mx:Button>
+
+</mx:Application>

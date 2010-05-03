@@ -1,0 +1,42 @@
+<html>
+<body>
+
+<script type="text/javascript">
+<!--
+
+  alert("appName=" + navigator.appName + ", appVersion=" + navigator.appVersion + ", userAgent=" + navigator.userAgent);
+
+  try {
+    var flash = new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
+
+    var version = flash.FlashVersion();
+    version = Math.floor(version / 0x10000);
+
+    if (version >= 7) {
+        alert("flash version : " + flash.GetVariable("$version"));
+    }
+    else {
+        //Flash v6.0.22-29 ‚Å GetVariable ‚ðŒÄ‚Ño‚·‚Æ
+        //IE ‚ª—Ž‚¿‚é–Í—lB
+        alert("flash version : " + version);
+    }
+  }
+  catch (e) {
+    alert(e.message);
+
+    try {
+      flash = navigator.plugins["Shockwave Flash"];
+      alert("flash version : " + flash.description);
+    }
+    catch (e2) {
+      alert(e2.message);
+    }
+
+  }
+
+
+//-->
+</script>
+
+</body>
+</html>
