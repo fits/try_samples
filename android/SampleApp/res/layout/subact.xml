@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+<AnalogClock android:id="@+id/AnalogClock01" android:layout_width="wrap_content" android:layout_height="wrap_content"></AnalogClock>
+<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Close" android:id="@+id/Button02"></Button>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/TextView02"></TextView>
+</LinearLayout>
