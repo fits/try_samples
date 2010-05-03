@@ -1,0 +1,39 @@
+<html>
+<head>
+<script type="text/javascript">
+<!--
+
+	function readClipboard() {
+		var wsh = new ActiveXObject("WScript.Shell");
+
+		wsh.CurrentDirectory = getCurrentPath();
+
+		var result = wsh.Run("clipboard_set.pls");
+
+	//	alert(result);
+
+		document.getElementById("content").innerHTML = window.clipboardData.getData("text");
+	}
+
+	//カレントディレクトリのパスを取得
+	function getCurrentPath() {
+		var path = location.href;
+		path = path.replace("file:///", "");
+		path = path.substring(0, path.lastIndexOf("/"));
+
+		return path;
+	}
+
+//-->
+</script>
+</head>
+<body>
+
+<input type="button" onclick="readClipboard()" value="クリップボードの内容を取得" />
+
+<div id="content" style="color: red">
+</div>
+
+
+</body>
+</html>
