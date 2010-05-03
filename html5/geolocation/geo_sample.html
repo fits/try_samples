@@ -1,31 +1,52 @@
 <html>
 <head>
 <title>Geolocation API を使った現在地の取得サンプル</title>
+<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAnfs7bKE82qgb3Zc2YyS-oBT2yXp_ZAY8_ufC3CFXhHIE1NvwkxSySz_REpPq-4WZA27OwgbtyR3VcA"></script>
 <script type="text/javascript">
+	google.load("maps", "2.x");
 
-function showPosition(position) {
-	document.getElementById("location").innerHTML = "(" + position.coords.latitude + ", " + position.coords.longitude + ")";
-}
-
-function handleError(error) {
-	document.getElementById("location").innerHTML = error.message;
-}
-
-function getPosition() {
-	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(showPosition, handleError);
+	function initialize() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(showPosition, handleError);
+		}
 	}
-}
 
-window.addEventListener("load", getPosition, false);
+	function showPosition(position) {
+		document.getElementById("location").innerHTML = "(" + position.coords.latitude + ", " + position.coords.longitude + ")";
+
+		showAddress(position.coords.latitude, position.coords.longitude);
+	}
+
+	function handleError(error) {
+		document.getElementById("location").innerHTML = error.message;
+	}
+
+	function showAddress(latitude, longitude) {
+		try {
+			var gclient = new google.maps.ClientGeocoder();
+			var pos = new google.maps.LatLng(latitude, longitude);
+
+			gclient.getLocations(pos, function(response) {
+				if (response && response.Status.code == 200) {
+					document.getElementById("address").innerHTML = response.Placemark[0].address;
+				}
+			});
+		}
+		catch (e) {
+			alert(e.message);
+		}
+	}
+
+	google.setOnLoadCallback(initialize);
 
 </script>
 
 </head>
-<body>
+<body onunload="GUnload()">
 
 <h1>現在地</h1>
-<span id="location"></span>
+<div id="location"></div>
+<div id="address"></div>
 
 </body>
 </html>
