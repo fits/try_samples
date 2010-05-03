@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE components PUBLIC "-//SEASAR2.1//DTD S2Container//EN"
+"http://www.seasar.org/dtd/components21.dtd">
+<components>
+
+    <component name="trace" class="TraceInterceptor" />
+
+    <component name="append" class="TestInterceptor">
+        <property name="AppendString">"123456789"</property>
+    </component>
+
+    <component name="data" class="Data">
+    		<!-- 
+    			S2Container.NET 1.2.0 では引数を伴うコンストラクタを使った場合に
+    			アスペクトが適用されない
+    		<arg>"BBBB1"</arg>
+        -->
+        <property name="Id">"A1"</property>
+        <property name="Name">"test"</property>
+        <property name="Point">100</property>
+        <aspect pointcut="*_Name, *_Note">trace</aspect>
+        <aspect>append</aspect>
+    </component>
+
+    <component name="wrapper" class="DataWrapper">
+        <property name="Target">data</property>
+    </component>
+
+</components>

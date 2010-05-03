@@ -1,0 +1,68 @@
+<html>
+<head>
+<script type="text/javascript">
+<!--
+	var procObj = null;
+
+	window.attachEvent("onunload", function() {
+		alert("unload");
+		stopProcess();
+	});
+
+	function stopProcess() {
+		if (procObj != null) {
+			if (procObj.Status == 0) {
+				procObj.Terminate();
+
+				alert("terminate");
+			}
+			procObj = null;
+		}
+	}
+
+	function callCom() {
+		stopProcess();
+
+		var wsh = new ActiveXObject("WScript.Shell");
+		wsh.CurrentDirectory = getCurrentPath();
+
+		try {
+			procObj = wsh.Exec("wscript.exe test_wsh.js");
+			checkResult();
+		}
+		catch (e) {
+			alert(e.message);
+		}
+	}
+
+	function checkResult() {
+		if (procObj != null) {
+			if (procObj.Status == 0) {
+				window.setTimeout(checkResult, 1000);
+			}
+			else {
+				var result = procObj.StdOut.ReadAll();
+				alert(result);
+			}
+		}
+	}
+
+	//カレントディレクトリのパスを取得
+	function getCurrentPath() {
+		var path = location.href;
+		path = path.replace("file:///", "");
+		path = path.substring(0, path.lastIndexOf("/"));
+
+		return path;
+	}
+
+//-->
+</script>
+</head>
+<body>
+
+<input type="button" value="alert" onclick="alert('test')" />
+<input type="button" value="COM call" onclick="callCom()" />
+
+</body>
+</html>

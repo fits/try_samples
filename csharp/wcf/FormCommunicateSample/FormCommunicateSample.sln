@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainForm", "MainForm\MainForm.csproj", "{058CE293-AA42-456D-8717-F88C57A128CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadForm", "DownloadForm\DownloadForm.csproj", "{5E23B382-D895-418A-9B89-9596F390F1CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib", "CommonLib\CommonLib.csproj", "{4E3092C8-A587-4A2F-9AA8-EC2DDA4223C1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{058CE293-AA42-456D-8717-F88C57A128CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{058CE293-AA42-456D-8717-F88C57A128CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{058CE293-AA42-456D-8717-F88C57A128CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{058CE293-AA42-456D-8717-F88C57A128CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E23B382-D895-418A-9B89-9596F390F1CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E23B382-D895-418A-9B89-9596F390F1CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E23B382-D895-418A-9B89-9596F390F1CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E23B382-D895-418A-9B89-9596F390F1CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E3092C8-A587-4A2F-9AA8-EC2DDA4223C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E3092C8-A587-4A2F-9AA8-EC2DDA4223C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E3092C8-A587-4A2F-9AA8-EC2DDA4223C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E3092C8-A587-4A2F-9AA8-EC2DDA4223C1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
