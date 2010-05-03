@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<composite xmlns="http://www.osoa.org/xmlns/sca/1.0" targetNamespace="http://simple" name="simple">
+
+    <component name="SimpleServiceComponent">
+        <service name="SimpleService">
+            <interface.wsdl interface="http://simple#wsdl.interface(SimplePort)" />
+            <binding.ws uri="http://localhost:8085/SimpleService" />
+        </service>
+        <implementation.java class="simple.SimpleServiceImpl"/>
+    </component>
+
+</composite>

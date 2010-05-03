@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="SampleTestComponent.client" targetNamespace="http://fits/SampleTestComponent/client" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://fits/sample" xmlns:ns0="http://fits/sample" xmlns:soap11="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:import namespace="http://fits/sample" location="SampleTest_deployed.wsdl">
+    </wsdl:import>
+  <wsdl:binding name="SampleTestBinding" type="ns0:SampleTest">
+    <soap11:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="hello">
+      <soap11:operation soapAction=""/>
+      <wsdl:input>
+        <soap11:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap11:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SampleTestService">
+    <wsdl:port name="SampleTestPort" binding="tns:SampleTestBinding">
+      <soap11:address location="http://127.0.0.1:8080/SampleTestComponent"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

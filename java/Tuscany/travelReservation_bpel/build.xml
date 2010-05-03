@@ -1,0 +1,44 @@
+
+<project name="travelReservation" default="compile">
+    <property environment="env" />
+    <property name="test.class" value="reservation.BPELClient" />
+    <property name="dest.jar" value="testReservation-bpel.jar" />
+    <property name="manifest.jar" value="${env.TUSCANY_HOME}/lib/tuscany-sca-manifest.jar" />
+
+    <target name="init">
+        <mkdir dir="target/classes"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac destdir="target/classes" debug="on" source="1.5" target="1.5">
+            <src path="src/main/java"/>
+            <classpath>
+                <pathelement location="${manifest.jar}"/>
+            </classpath>
+        </javac>
+        <copy todir="target/classes">
+            <fileset dir="src/main/resources"/>
+        </copy>
+        <jar destfile="target/${dest.jar}" basedir="target/classes">
+            <manifest>
+                <attribute name="Main-Class" value="${test.class}" /> 
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="compile">
+        <java classname="${test.class}" fork="true">
+            <classpath>
+                <pathelement location="target/classes"/>
+                <pathelement location="${manifest.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="clean">
+        <delete includeemptydirs="true">
+            <fileset dir="target"/>
+        </delete>
+    </target>
+
+</project>

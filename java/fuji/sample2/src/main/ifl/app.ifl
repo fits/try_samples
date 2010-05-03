@@ -1,0 +1,11 @@
+#IFL - Integration Flow Language
+
+file "infile"
+file "outfile"
+jruby "filterruby"
+
+route do
+	from "infile"
+	to "filterruby"
+	to "outfile"
+end

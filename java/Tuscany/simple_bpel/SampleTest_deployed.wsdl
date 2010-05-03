@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="SampleTest" targetNamespace="http://fits/sample" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:plnk="http://schemas.xmlsoap.org/ws/2004/03/partner-link/" xmlns:tns="http://fits/sample" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/">
+  <types>
+    <schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://fits/sample" xmlns="http://www.w3.org/2001/XMLSchema">
+
+            <element name="SampleTestRequest">
+                <complexType>
+                    <sequence>
+                        <element name="input" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="SampleTestResponse">
+                <complexType>
+                    <sequence>
+                        <element name="result" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+        </schema>
+  </types>
+  <message name="SampleTestRequestMessage">
+    <part name="payload" element="tns:SampleTestRequest">
+    </part>
+  </message>
+  <message name="SampleTestResponseMessage">
+    <part name="payload" element="tns:SampleTestResponse">
+    </part>
+  </message>
+  <portType name="SampleTest">
+    <operation name="hello">
+      <input message="tns:SampleTestRequestMessage">
+    </input>
+      <output message="tns:SampleTestResponseMessage">
+    </output>
+    </operation>
+  </portType>
+  <binding name="SampleTestBinding" type="tns:SampleTest">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="hello">
+      <soap:operation soapAction="http://fits/sample/process"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="SampleTestService">
+    <port name="SamplePort" binding="tns:SampleTestBinding">
+      <soap:address location="http://localhost:8080/ode/processes/sample"/>
+    </port>
+  </service>
+<plnk:partnerLinkType name="SampleTest">
+<plnk:role name="SampleTestProvider" portType="tns:SampleTest" />
+</plnk:partnerLinkType>
+</definitions>

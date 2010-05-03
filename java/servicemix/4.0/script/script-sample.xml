@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:http="http://servicemix.apache.org/http/1.0"
+	xmlns:scripting="http://servicemix.apache.org/scripting/1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:my="http://fits/sample"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://servicemix.apache.org/http/1.0 servicemix-http.xsd
+    "> 
+
+	<http:consumer service="my:HttpService" endpoint="jbi" targetEndpoint="scriptEndpoint" locationURI="http://0.0.0.0:8192/test/" />
+
+	<scripting:endpoint endpoint="scriptEndpoint" script="classpath:test.groovy" />
+
+</beans>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://fuji.dev.java.net/service/message/sample2"
+            xmlns:tns="http://fuji.dev.java.net/service/message/sample2"
+            elementFormDefault="qualified">
+    <!-- This is just a generic message description to allow any type of 
+         content to pass through.  In practice, it's much better to strongly
+         type the messages you pass around.
+     -->
+    <xsd:element name="AnyMessage" type="xsd:anyType"/>
+</xsd:schema>

@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Spring XML Beans DTD
+  Authors: Rod Johnson, Juergen Hoeller, Alef Arendsen, Colin Sampaleanu
+  
+  This defines a simple and consistent way of creating a namespace
+  of JavaBeans objects, managed by a Spring BeanFactory, read by
+  XmlBeanDefinitionReader (with DefaultXmlBeanDefinitionParser).
+  
+  This document type is used by most Spring functionality, including
+  web application contexts, which are based on bean factories.
+  
+  Each "bean" element in this document defines a JavaBean.
+  Typically the bean class is specified, along with JavaBean properties
+  and/or constructor arguments.
+  
+  Bean instances can be "singletons" (shared instances) or "prototypes"
+  (independent instances). Further scopes are supposed to be built on top
+  of the core BeanFactory infrastructure and are therefore not part of it.
+  
+  References among beans are supported, i.e. setting a JavaBean property
+  or a constructor argument to refer to another bean in the same factory
+  (or an ancestor factory).
+  
+  As alternative to bean references, "inner bean definitions" can be used.
+  Singleton flags of such inner bean definitions are effectively ignored:
+  Inner beans are typically anonymous prototypes.
+  
+  There is also support for lists, sets, maps, and java.util.Properties
+  as bean property types or constructor argument types.
+  
+  As the format is simple, a DTD is sufficient, and there's no need
+  for a schema at this point.
+  
+  XML documents that conform to this DTD should declare the following doctype:
+  
+  <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  	"http://www.springframework.org/dtd/spring-beans.dtd">
+-->
+<!--
+  The document root. A document can contain bean definitions only,
+  imports only, or a mixture of both (typically with imports first).
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://xbean.org/schemas/spring/1.0" xmlns:spring="http://xbean.org/schemas/spring/1.0">
+  <xs:element name="beans">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="spring:description"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="spring:import"/>
+          <xs:element ref="spring:alias"/>
+          <xs:element ref="spring:bean"/>
+          <xs:any namespace="##other" processContents="lax"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="default-lazy-init" default="false">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="default-autowire" default="no">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="no"/>
+            <xs:enumeration value="byName"/>
+            <xs:enumeration value="byType"/>
+            <xs:enumeration value="constructor"/>
+            <xs:enumeration value="autodetect"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="default-dependency-check" default="none">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="none"/>
+            <xs:enumeration value="objects"/>
+            <xs:enumeration value="simple"/>
+            <xs:enumeration value="all"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Default values for all bean definitions. Can be overridden at
+    the "bean" level. See those attribute definitions for details.
+  -->
+  <!--
+    Element containing informative text describing the purpose of the enclosing
+    element. Always optional.
+    Used primarily for user documentation of XML bean definition documents.
+  -->
+  <xs:element name="description" type="xs:string"/>
+  <!-- Specifies an XML bean definition resource to import. -->
+  <xs:element name="import">
+    <xs:complexType>
+      <xs:attribute name="resource" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    The relative resource location of the XML bean definition file to import,
+    for example "myImport.xml" or "includes/myImport.xml" or "../myImport.xml".
+  -->
+  <!-- Defines an alias for a bean, which can reside in a different definition file. -->
+  <xs:element name="alias">
+    <xs:complexType>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="alias" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- The name of the bean to define an alias for. -->
+  <!-- The alias name to define for the bean. -->
+  <!--
+    Defines a single (usually named) bean.
+    
+    A bean definition may contain nested tags for constructor arguments,
+    property values, lookup methods, and replaced methods. Mixing constructor
+    injection and setter injection on the same bean is explicitly supported.
+  -->
+  <xs:element name="bean">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="spring:description"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="spring:constructor-arg"/>
+          <xs:element ref="spring:property"/>
+          <xs:element ref="spring:lookup-method"/>
+          <xs:element ref="spring:replaced-method"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:ID"/>
+      <xs:attribute name="name"/>
+      <xs:attribute name="class"/>
+      <xs:attribute name="parent"/>
+      <xs:attribute name="abstract" default="false">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="singleton" default="true">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="lazy-init" default="default">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+            <xs:enumeration value="default"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="autowire" default="default">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="no"/>
+            <xs:enumeration value="byName"/>
+            <xs:enumeration value="byType"/>
+            <xs:enumeration value="constructor"/>
+            <xs:enumeration value="autodetect"/>
+            <xs:enumeration value="default"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="dependency-check" default="default">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="none"/>
+            <xs:enumeration value="objects"/>
+            <xs:enumeration value="simple"/>
+            <xs:enumeration value="all"/>
+            <xs:enumeration value="default"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="depends-on"/>
+      <xs:attribute name="init-method"/>
+      <xs:attribute name="destroy-method"/>
+      <xs:attribute name="factory-method"/>
+      <xs:attribute name="factory-bean"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Beans can be identified by an id, to enable reference checking.
+    
+    There are constraints on a valid XML id: if you want to reference your bean
+    in Java code using a name that's illegal as an XML id, use the optional
+    "name" attribute. If neither is given, the bean class name is used as id
+    (with an appended counter like "#2" if there is already a bean with that name).
+  -->
+  <!--
+    Optional. Can be used to create one or more aliases illegal in an id.
+    Multiple aliases can be separated by any number of spaces or commas.
+  -->
+  <!--
+    Each bean definition must specify the fully qualified name of the class,
+    except if it pure serves as parent for child bean definitions.
+  -->
+  <!--
+    Optionally specify a parent bean definition.
+    
+    Will use the bean class of the parent if none specified, but can
+    also override it. In the latter case, the child bean class must be
+    compatible with the parent, i.e. accept the parent's property values
+    and constructor argument values, if any.
+    
+    A child bean definition will inherit constructor argument values,
+    property values and method overrides from the parent, with the option
+    to add new values. If init method, destroy method, factory bean and/or factory
+    method are specified, they will override the corresponding parent settings.
+    
+    The remaining settings will always be taken from the child definition:
+    depends on, autowire mode, dependency check, singleton, lazy init.
+  -->
+  <!--
+    Is this bean "abstract", i.e. not meant to be instantiated itself but
+    rather just serving as parent for concrete child bean definitions.
+    Default is "false". Specify "true" to tell the bean factory to not try to
+    instantiate that particular bean in any case.
+  -->
+  <!--
+    Is this bean a "singleton" (one shared instance, which will
+    be returned by all calls to getBean() with the id),
+    or a "prototype" (independent instance resulting from each call to
+    getBean(). Default is singleton.
+    
+    Singletons are most commonly used, and are ideal for multi-threaded
+    service objects.
+  -->
+  <!--
+    If this bean should be lazily initialized.
+    If false, it will get instantiated on startup by bean factories
+    that perform eager initialization of singletons.
+  -->
+  <!--
+    Optional attribute controlling whether to "autowire" bean properties.
+    This is an automagical process in which bean references don't need to be coded
+    explicitly in the XML bean definition file, but Spring works out dependencies.
+    
+    There are 5 modes:
+    
+    1. "no"
+    The traditional Spring default. No automagical wiring. Bean references
+    must be defined in the XML file via the <ref> element. We recommend this
+    in most cases as it makes documentation more explicit.
+    
+    2. "byName"
+    Autowiring by property name. If a bean of class Cat exposes a dog property,
+    Spring will try to set this to the value of the bean "dog" in the current factory.
+    If there is no matching bean by name, nothing special happens;
+    use dependency-check="objects" to raise an error in that case.
+    
+    3. "byType"
+    Autowiring if there is exactly one bean of the property type in the bean factory.
+    If there is more than one, a fatal error is raised, and you can't use byType
+    autowiring for that bean. If there is none, nothing special happens;
+    use dependency-check="objects" to raise an error in that case.
+    
+    4. "constructor"
+    Analogous to "byType" for constructor arguments. If there isn't exactly one bean
+    of the constructor argument type in the bean factory, a fatal error is raised.
+    
+    5. "autodetect"
+    Chooses "constructor" or "byType" through introspection of the bean class.
+    If a default constructor is found, "byType" gets applied.
+    
+    The latter two are similar to PicoContainer and make bean factories simple to
+    configure for small namespaces, but doesn't work as well as standard Spring
+    behaviour for bigger applications.
+    
+    Note that explicit dependencies, i.e. "property" and "constructor-arg" elements,
+    always override autowiring. Autowire behaviour can be combined with dependency
+    checking, which will be performed after all autowiring has been completed.
+  -->
+  <!--
+    Optional attribute controlling whether to check whether all this
+    beans dependencies, expressed in its properties, are satisfied.
+    Default is no dependency checking.
+    
+    "simple" type dependency checking includes primitives and String
+    "object" includes collaborators (other beans in the factory)
+    "all" includes both types of dependency checking
+  -->
+  <!--
+    The names of the beans that this bean depends on being initialized.
+    The bean factory will guarantee that these beans get initialized before.
+    
+    Note that dependencies are normally expressed through bean properties or
+    constructor arguments. This property should just be necessary for other kinds
+    of dependencies like statics (*ugh*) or database preparation on startup.
+  -->
+  <!--
+    Optional attribute for the name of the custom initialization method
+    to invoke after setting bean properties. The method must have no arguments,
+    but may throw any exception.
+  -->
+  <!--
+    Optional attribute for the name of the custom destroy method to invoke
+    on bean factory shutdown. The method must have no arguments,
+    but may throw any exception. Note: Only invoked on singleton beans!
+  -->
+  <!--
+    Optional attribute specifying the name of a factory method to use to
+    create this object. Use constructor-arg elements to specify arguments
+    to the factory method, if it takes arguments. Autowiring does not apply
+    to factory methods.
+    
+    If the "class" attribute is present, the factory method will be a static
+    method on the class specified by the "class" attribute on this bean
+    definition. Often this will be the same class as that of the constructed
+    object - for example, when the factory method is used as an alternative
+    to a constructor. However, it may be on a different class. In that case,
+    the created object will *not* be of the class specified in the "class"
+    attribute. This is analogous to FactoryBean behavior.
+    
+    If the "factory-bean" attribute is present, the "class" attribute is not
+    used, and the factory method will be an instance method on the object
+    returned from a getBean call with the specified bean name. The factory
+    bean may be defined as a singleton or a prototype.
+    
+    The factory method can have any number of arguments. Autowiring is not
+    supported. Use indexed constructor-arg elements in conjunction with the
+    factory-method attribute.
+    
+    Setter Injection can be used in conjunction with a factory method.
+    Method Injection cannot, as the factory method returns an instance,
+    which will be used when the container creates the bean.
+  -->
+  <!--
+    Alternative to class attribute for factory-method usage.
+    If this is specified, no class attribute should be used.
+    This should be set to the name of a bean in the current or
+    ancestor factories that contains the relevant factory method.
+    This allows the factory itself to be configured using Dependency
+    Injection, and an instance (rather than static) method to be used.
+  -->
+  <!--
+    Bean definitions can specify zero or more constructor arguments.
+    This is an alternative to "autowire constructor".
+    Arguments correspond to either a specific index of the constructor argument
+    list or are supposed to be matched generically by type.
+    
+    Note: A single generic argument value will just be used once, rather than
+    potentially matched multiple times (as of Spring 1.1).
+    
+    constructor-arg elements are also used in conjunction with the factory-method
+    element to construct beans using static or instance factory methods.
+  -->
+  <xs:element name="constructor-arg">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="spring:description"/>
+        <xs:choice minOccurs="0">
+          <xs:element ref="spring:bean"/>
+          <xs:element ref="spring:ref"/>
+          <xs:element ref="spring:idref"/>
+          <xs:element ref="spring:value"/>
+          <xs:element ref="spring:null"/>
+          <xs:element ref="spring:list"/>
+          <xs:element ref="spring:set"/>
+          <xs:element ref="spring:map"/>
+          <xs:element ref="spring:props"/>
+          <xs:any namespace="##other" processContents="lax"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="index"/>
+      <xs:attribute name="type"/>
+      <xs:attribute name="ref"/>
+      <xs:attribute name="value"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    The constructor-arg tag can have an optional index attribute,
+    to specify the exact index in the constructor argument list. Only needed
+    to avoid ambiguities, e.g. in case of 2 arguments of the same type.
+  -->
+  <!--
+    The constructor-arg tag can have an optional type attribute,
+    to specify the exact type of the constructor argument. Only needed
+    to avoid ambiguities, e.g. in case of 2 single argument constructors
+    that can both be converted from a String.
+  -->
+  <!-- A short-cut alternative to a child element "ref bean=". -->
+  <!-- A short-cut alternative to a child element "value". -->
+  <!--
+    Bean definitions can have zero or more properties.
+    Property elements correspond to JavaBean setter methods exposed
+    by the bean classes. Spring supports primitives, references to other
+    beans in the same or related factories, lists, maps and properties.
+  -->
+  <xs:element name="property">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="spring:description"/>
+        <xs:choice minOccurs="0">
+          <xs:element ref="spring:bean"/>
+          <xs:element ref="spring:ref"/>
+          <xs:element ref="spring:idref"/>
+          <xs:element ref="spring:value"/>
+          <xs:element ref="spring:null"/>
+          <xs:element ref="spring:list"/>
+          <xs:element ref="spring:set"/>
+          <xs:element ref="spring:map"/>
+          <xs:element ref="spring:props"/>
+          <xs:any namespace="##other" processContents="lax"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="name" use="required"/>
+      <xs:attribute name="ref"/>
+      <xs:attribute name="value"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    The property name attribute is the name of the JavaBean property.
+    This follows JavaBean conventions: a name of "age" would correspond
+    to setAge()/optional getAge() methods.
+  -->
+  <!-- A short-cut alternative to a child element "ref bean=". -->
+  <!-- A short-cut alternative to a child element "value". -->
+  <!--
+    A lookup method causes the IoC container to override the given method and return
+    the bean with the name given in the bean attribute. This is a form of Method Injection.
+    It's particularly useful as an alternative to implementing the BeanFactoryAware
+    interface, in order to be able to make getBean() calls for non-singleton instances
+    at runtime. In this case, Method Injection is a less invasive alternative.
+  -->
+  <xs:element name="lookup-method">
+    <xs:complexType>
+      <xs:attribute name="name"/>
+      <xs:attribute name="bean"/>
+    </xs:complexType>
+  </xs:element>
+  <!-- Name of a lookup method. This method should take no arguments. -->
+  <!--
+    Name of the bean in the current or ancestor factories that the lookup method
+    should resolve to. Often this bean will be a prototype, in which case the
+    lookup method will return a distinct instance on every invocation. This
+    is useful for single-threaded objects.
+  -->
+  <!--
+    Similar to the lookup method mechanism, the replaced-method element is used to control
+    IoC container method overriding: Method Injection. This mechanism allows the overriding
+    of a method with arbitrary code. 
+  -->
+  <xs:element name="replaced-method">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="spring:arg-type"/>
+      </xs:sequence>
+      <xs:attribute name="name"/>
+      <xs:attribute name="replacer"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Name of the method whose implementation should be replaced by the IoC container.
+    If this method is not overloaded, there's no need to use arg-type subelements.
+    If this method is overloaded, arg-type subelements must be used for all 
+    override definitions for the method.
+  -->
+  <!--
+    Bean name of an implementation of the MethodReplacer interface
+    in the current or ancestor factories. This may be a singleton or prototype
+    bean. If it's a prototype, a new instance will be used for each method replacement.
+    Singleton usage is the norm.
+  -->
+  <!--
+    Subelement of replaced-method identifying an argument for a replaced method
+    in the event of method overloading.
+  -->
+  <xs:element name="arg-type">
+    <xs:complexType mixed="true">
+      <xs:attribute name="match"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Specification of the type of an overloaded method argument as a String. 
+    For convenience, this may be a substring of the FQN. E.g. all the
+    following would match "java.lang.String":
+    - java.lang.String
+    - String
+    - Str
+    
+    As the number of arguments will be checked also, this convenience can often
+    be used to save typing.
+  -->
+  <!--
+    Defines a reference to another bean in this factory or an external
+    factory (parent or included factory).
+  -->
+  <xs:element name="ref">
+    <xs:complexType>
+      <xs:attribute name="bean"/>
+      <xs:attribute name="local" type="xs:IDREF"/>
+      <xs:attribute name="parent"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    References must specify a name of the target bean.
+    The "bean" attribute can reference any name from any bean in the context,
+    to be checked at runtime.
+    Local references, using the "local" attribute, have to use bean ids;
+    they can be checked by this DTD, thus should be preferred for references
+    within the same bean factory XML file.
+  -->
+  <!--
+    Defines a string property value, which must also be the id of another
+    bean in this factory or an external factory (parent or included factory).
+    While a regular 'value' element could instead be used for the same effect,
+    using idref in this case allows validation of local bean ids by the xml
+    parser, and name completion by helper tools.
+  -->
+  <xs:element name="idref">
+    <xs:complexType>
+      <xs:attribute name="bean"/>
+      <xs:attribute name="local" type="xs:IDREF"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    ID refs must specify a name of the target bean.
+    The "bean" attribute can reference any name from any bean in the context,
+    potentially to be checked at runtime by bean factory implementations.
+    Local references, using the "local" attribute, have to use bean ids;
+    they can be checked by this DTD, thus should be preferred for references
+    within the same bean factory XML file.
+  -->
+  <!--
+    Contains a string representation of a property value.
+    The property may be a string, or may be converted to the
+    required type using the JavaBeans PropertyEditor
+    machinery. This makes it possible for application developers
+    to write custom PropertyEditor implementations that can
+    convert strings to objects.
+    
+    Note that this is recommended for simple objects only.
+    Configure more complex objects by populating JavaBean
+    properties with references to other beans.
+  -->
+  <xs:element name="value">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    The value tag can have an optional type attribute, to specify the
+    exact type that the value should be converted to. Only needed
+    if the type of the target property or constructor argument is
+    too generic: for example, in case of a collection element.
+  -->
+  <!--
+    Denotes a Java null value. Necessary because an empty "value" tag
+    will resolve to an empty String, which will not be resolved to a
+    null value unless a special PropertyEditor does so.
+  -->
+  <xs:element name="null" type="xs:string"/>
+  <!--
+    A list can contain multiple inner bean, ref, collection, or value elements.
+    Java lists are untyped, pending generics support in Java 1.5,
+    although references will be strongly typed.
+    A list can also map to an array type. The necessary conversion
+    is automatically performed by the BeanFactory.
+  -->
+  <xs:element name="list">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="spring:bean"/>
+        <xs:element ref="spring:ref"/>
+        <xs:element ref="spring:idref"/>
+        <xs:element ref="spring:value"/>
+        <xs:element ref="spring:null"/>
+        <xs:element ref="spring:list"/>
+        <xs:element ref="spring:set"/>
+        <xs:element ref="spring:map"/>
+        <xs:element ref="spring:props"/>
+        <xs:any namespace="##other" processContents="lax"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    A set can contain multiple inner bean, ref, collection, or value elements.
+    Java sets are untyped, pending generics support in Java 1.5,
+    although references will be strongly typed.
+  -->
+  <xs:element name="set">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="spring:bean"/>
+        <xs:element ref="spring:ref"/>
+        <xs:element ref="spring:idref"/>
+        <xs:element ref="spring:value"/>
+        <xs:element ref="spring:null"/>
+        <xs:element ref="spring:list"/>
+        <xs:element ref="spring:set"/>
+        <xs:element ref="spring:map"/>
+        <xs:element ref="spring:props"/>
+        <xs:any namespace="##other" processContents="lax"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    A Spring map is a mapping from a string key to object.
+    Maps may be empty.
+  -->
+  <xs:element name="map">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="spring:entry"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    A map entry can be an inner bean, ref, value, or collection.
+    The key of the entry is given by the "key" attribute or child element.
+  -->
+  <xs:element name="entry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="spring:key"/>
+        <xs:choice minOccurs="0">
+          <xs:element ref="spring:bean"/>
+          <xs:element ref="spring:ref"/>
+          <xs:element ref="spring:idref"/>
+          <xs:element ref="spring:value"/>
+          <xs:element ref="spring:null"/>
+          <xs:element ref="spring:list"/>
+          <xs:element ref="spring:set"/>
+          <xs:element ref="spring:map"/>
+          <xs:element ref="spring:props"/>
+          <xs:any namespace="##other" processContents="lax"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="key"/>
+      <xs:attribute name="key-ref"/>
+      <xs:attribute name="value"/>
+      <xs:attribute name="value-ref"/>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Each map element must specify its key as attribute or as child element.
+    A key attribute is always a String value.
+  -->
+  <!-- A short-cut alternative to a "key" element with a "ref bean=" child element. -->
+  <!-- A short-cut alternative to a child element "value". -->
+  <!-- A short-cut alternative to a child element "ref bean=". -->
+  <!-- A key element can contain an inner bean, ref, value, or collection. -->
+  <xs:element name="key">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="spring:bean"/>
+        <xs:element ref="spring:ref"/>
+        <xs:element ref="spring:idref"/>
+        <xs:element ref="spring:value"/>
+        <xs:element ref="spring:null"/>
+        <xs:element ref="spring:list"/>
+        <xs:element ref="spring:set"/>
+        <xs:element ref="spring:map"/>
+        <xs:element ref="spring:props"/>
+        <xs:any namespace="##other" processContents="lax"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Props elements differ from map elements in that values must be strings.
+    Props may be empty.
+  -->
+  <xs:element name="props">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="spring:prop"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Element content is the string value of the property.
+    Note that whitespace is trimmed off to avoid unwanted whitespace
+    caused by typical XML formatting.
+  -->
+  <xs:element name="prop">
+    <xs:complexType mixed="true">
+      <xs:attribute name="key" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+<!-- Each property element must specify its key. -->

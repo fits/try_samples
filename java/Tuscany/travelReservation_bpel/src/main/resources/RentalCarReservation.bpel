@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpws:process exitOnStandardFault="yes" name="RentalCarReservation"
+    suppressJoinFailure="yes" targetNamespace="http://fits/reservation"
+    xmlns:bpws="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:tns="http://fits/reservation">
+    <bpws:import importType="http://schemas.xmlsoap.org/wsdl/"
+        location="RentalCarReservation.wsdl" namespace="http://fits/reservation"/>
+    <bpws:partnerLinks>
+        <bpws:partnerLink myRole="RentalCarReservationProvider"
+            name="client" partnerLinkType="tns:RentalCarReservation"/>
+    </bpws:partnerLinks>
+    <bpws:variables>
+        <bpws:variable
+            messageType="tns:RentalCarReservationRequestMessage" name="input"/>
+        <bpws:variable
+            messageType="tns:RentalCarReservationResponseMessage" name="output"/>
+    </bpws:variables>
+    <bpws:sequence name="main">
+        <bpws:receive createInstance="yes" name="receiveInput"
+            operation="reserve" partnerLink="client"
+            portType="tns:RentalCarReservation" variable="input"/>
+        <bpws:assign name="createOutput" validate="no">
+            <bpws:copy>
+                <bpws:from>
+                    <bpws:literal>
+                        <RentalCarReservationResponse xmlns="http://fits/reservation">
+                            <reservationId/>
+                            <dateFrom/>
+                            <dateTo/>
+                        </RentalCarReservationResponse>
+                    </bpws:literal>
+                </bpws:from>
+                <bpws:to part="payload" variable="output"/>
+            </bpws:copy>
+            <bpws:copy>
+                <bpws:from part="payload" variable="input">
+                    <bpws:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/tns:dateFrom]]></bpws:query>
+                </bpws:from>
+                <bpws:to part="payload" variable="output">
+                    <bpws:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/tns:dateFrom]]></bpws:query>
+                </bpws:to>
+            </bpws:copy>
+            <bpws:copy>
+                <bpws:from part="payload" variable="input">
+                    <bpws:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/tns:dateTo]]></bpws:query>
+                </bpws:from>
+                <bpws:to part="payload" variable="output">
+                    <bpws:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/tns:dateTo]]></bpws:query>
+                </bpws:to>
+            </bpws:copy>
+            <bpws:copy>
+                <bpws:from><![CDATA[concat('resid:', string-length($input.payload/tns:customerName))]]></bpws:from>
+                <bpws:to part="payload" variable="output">
+                    <bpws:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/tns:reservationId]]></bpws:query>
+                </bpws:to>
+            </bpws:copy>
+        </bpws:assign>
+        <bpws:reply name="replyOutput" operation="reserve"
+            partnerLink="client" portType="tns:RentalCarReservation" variable="output"/>
+    </bpws:sequence>
+</bpws:process>

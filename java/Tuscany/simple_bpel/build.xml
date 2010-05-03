@@ -1,0 +1,63 @@
+
+<project name="SampleTest BPEL" default="compile">
+    <property environment="env" />
+
+	<property name="dest.dir" value="target" />
+	<property name="wsdl.file" value="src/main/resources/SampleTest.wsdl" />
+    <property name="manifest.jar" value="${env.TUSCANY_HOME}/lib/tuscany-sca-manifest.jar" />
+
+
+    <target name="init">
+        <mkdir dir="${dest.dir}" />
+    </target>
+
+    <target name="generate-wsdl" depends="init">
+        <java classname="org.apache.tuscany.tools.wsdl2java.generate.WSDL2JavaGenerator" fork="true">
+            <arg value="-targetDirectory"/>
+            <arg value="${dest.dir}"/>
+            <arg value="${wsdl.file}"/>
+
+            <classpath>
+                <pathelement location="${manifest.jar}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="unzip-ode-db" depends="init">
+        <unzip src="${env.TUSCANY_HOME}/lib/ode-dao-jpa-ojpa-derby-1.1.zip" dest="${dest.dir}"/>
+    </target>
+
+    <target name="compile" depends="init, unzip-ode-db, deploy-resources, generate-wsdl">
+        <javac destdir="${dest.dir}" debug="on" source="1.5" target="1.5">
+            <src path="${dest.dir}"/>
+            <classpath>
+                <pathelement location="${manifest.jar}"/>
+            </classpath>
+        </javac>
+    </target>
+
+	<target name="deploy-resources" depends="init">
+        <copy todir="${dest.dir}">
+            <fileset dir="src/main/resources"/>
+        </copy>
+	</target>
+
+	<target name="deploy-scripts" depends="compile">
+		<copy todir="${dest.dir}">
+			<fileset dir=".">
+				<include name="*.rb" />
+			</fileset>
+		</copy>
+	</target>
+
+    <target name="run" depends="deploy-scripts">
+
+    </target>
+
+    <target name="clean">
+        <delete includeemptydirs="true">
+            <fileset dir="${dest.dir}" />
+        </delete>
+    </target>
+
+</project>

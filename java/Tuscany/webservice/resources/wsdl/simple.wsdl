@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<wsdl:definitions targetNamespace="http://simple" xmlns:tns="http://simple" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    name="simple">
+
+    <wsdl:types>
+        <schema elementFormDefault="qualified" targetNamespace="http://simple" xmlns="http://www.w3.org/2001/XMLSchema">
+
+            <element name="getGreetings">
+                <complexType>
+                    <sequence>
+                        <element name="name" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="getGreetingsResponse">
+                <complexType>
+                    <sequence>
+                        <element name="getGreetingsReturn" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="calculate">
+                <complexType>
+                    <sequence>
+                        <element name="arg0" type="xsd:int" />
+                        <element name="arg1" type="xsd:int" />
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="calculateResponse">
+                <complexType>
+                    <sequence>
+                        <element name="calcurateReturn" type="xsd:int" />
+                    </sequence>
+                </complexType>
+            </element>
+
+        </schema>
+    </wsdl:types>
+
+    <wsdl:message name="getGreetingsRequest">
+        <wsdl:part element="tns:getGreetings" name="parameters"/>
+    </wsdl:message>
+
+    <wsdl:message name="getGreetingsResponse">
+        <wsdl:part element="tns:getGreetingsResponse" name="parameters"/>
+    </wsdl:message>
+
+    <wsdl:message name="calculateRequest">
+        <wsdl:part element="tns:calculate" name="parameters"/>
+    </wsdl:message>
+
+    <wsdl:message name="calculateResponse">
+        <wsdl:part element="tns:calculateResponse" name="parameters"/>
+    </wsdl:message>
+
+
+    <wsdl:portType name="SimplePort">
+        <wsdl:operation name="getGreetings">
+            <wsdl:input message="tns:getGreetingsRequest" name="getGreetingsRequest"/>
+            <wsdl:output message="tns:getGreetingsResponse" name="getGreetingsResponse"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="calculate">
+            <wsdl:input message="tns:calculateRequest" name="calculateRequest"/>
+            <wsdl:output message="tns:calculateResponse" name="calculateResponse"/>
+        </wsdl:operation>
+
+    </wsdl:portType>
+
+    <wsdl:binding name="SimpleSoapBinding" type="tns:SimplePort">
+        <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="getGreetings">
+            <wsdlsoap:operation soapAction=""/>
+            <wsdl:input name="getGreetingsRequest">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getGreetingsResponse">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="calculate">
+            <wsdlsoap:operation soapAction=""/>
+            <wsdl:input name="calculateRequest">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="calculateResponse">
+                <wsdlsoap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+
+    </wsdl:binding>
+
+    <wsdl:service name="SimpleService">
+        <wsdl:port binding="tns:SimpleSoapBinding" name="SimpleSoapPort" />
+    </wsdl:service>
+
+</wsdl:definitions>

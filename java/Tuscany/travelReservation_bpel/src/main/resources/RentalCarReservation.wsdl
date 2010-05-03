@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<definitions name="RentalCarReservation"
+        targetNamespace="http://fits/reservation"
+        xmlns:tns="http://fits/reservation"
+        xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <types>
+        <schema attributeFormDefault="unqualified" elementFormDefault="qualified" 
+                targetNamespace="http://fits/reservation" 
+                xmlns="http://www.w3.org/2001/XMLSchema">
+
+            <element name="RentalCarReservationRequest">
+                <complexType>
+                    <sequence>
+                        <element name="customerName" type="xsd:string"></element>
+                        <element name="dateFrom" type="xsd:date" />
+                    	<element name="dateTo" type="xsd:date"></element>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="RentalCarReservationResponse">
+                <complexType>
+                    <sequence>
+                    	<element name="reservationId" type="xsd:string" />
+                    	<element name="dateFrom" type="xsd:date"></element>
+                    	<element name="dateTo" type="xsd:date"></element>
+                    </sequence>
+                </complexType>
+            </element>
+        </schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="RentalCarReservationRequestMessage">
+        <part name="payload" element="tns:RentalCarReservationRequest"/>
+    </message>
+    <message name="RentalCarReservationResponseMessage">
+        <part name="payload" element="tns:RentalCarReservationResponse"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the RentalCarReservation BPEL process -->
+    <portType name="RentalCarReservation">
+        <operation name="reserve">
+            <input  message="tns:RentalCarReservationRequestMessage" />
+            <output message="tns:RentalCarReservationResponseMessage"/>
+        </operation>
+    </portType>
+  
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="RentalCarReservation">
+        <plnk:role name="RentalCarReservationProvider" portType="tns:RentalCarReservation"/>
+    </plnk:partnerLinkType>
+    
+    <binding name="RentalCarReservation"
+    	type="tns:RentalCarReservation">
+    	<soap:binding style="document"
+    		transport="http://schemas.xmlsoap.org/soap/http">
+    	</soap:binding>
+    	<operation name="reserve">
+    		<soap:operation
+    			soapAction="http://fits/reservation/reserve">
+    		</soap:operation>
+    		<input>
+    			<soap:body use="literal"></soap:body>
+    		</input>
+    		<output>
+    			<soap:body use="literal"></soap:body>
+    		</output>
+    	</operation>
+    </binding>
+    <service name="RentalCarReservationService">
+    	<port name="RentalCarReservationPort" binding="tns:RentalCarReservation">
+    		<soap:address location="http://localhost:8080/ode/processes/rentalCarReservation" />
+    	</port>
+    </service>
+</definitions>

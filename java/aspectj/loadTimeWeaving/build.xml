@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+
+<project name="AspectJ Test" default="compile" basedir=".">
+
+	<property environment="env" />
+	<property name="src.dir" value="src"/>
+	<property name="class.dir" value="classes"/>
+
+	<path id="project.classpath">
+		<fileset dir="${env.ASPECTJ_HOME}/lib">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement location="${class.dir}" />
+		<pathelement location="." />
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${class.dir}"/>
+
+		<javac srcdir="${src.dir}" destdir="${class.dir}" debug="true">
+		</javac>
+	</target>
+
+	<target name="run" depends="compile">
+		<java fork="yes" classname="test.Test">
+			<classpath refid="project.classpath" />
+			<jvmarg value="-javaagent:${env.ASPECTJ_HOME}/lib/aspectjweaver.jar" />
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="${class.dir}" />
+	</target>
+
+</project>

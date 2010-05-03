@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <actionName>CUSTOM-Generate from IFL</actionName>
+        <displayName>Generate from IFL</displayName>
+        <goals>
+            <goal>fuji:generate-artifacts</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>CUSTOM-Create Distribution</actionName>
+        <displayName>Create Distribution</displayName>
+        <goals>
+            <goal>fuji:dist</goal>
+        </goals>
+    </action>
+    <action>
+        <actionName>CUSTOM-Run Application</actionName>
+        <displayName>Run Application</displayName>
+        <goals>
+            <goal>fuji:run</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>dist</activatedProfile>
+        </activatedProfiles>
+    </action>
+    <action>
+        <actionName>run</actionName>
+        <goals>
+            <goal>fuji:run</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>dist</activatedProfile>
+        </activatedProfiles>
+    </action>
+</actions>

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<project name="Seasar Test1" default="compile" basedir=".">
+	<property environment="env" />
+
+	<property name="src.dir" value="src" />
+	<property name="dest.dir" value="dest" />
+	<property name="conf.dir" value="conf" />
+
+	<path id="project.classpath">
+		<pathelement path="${dest.dir}" />
+
+		<fileset dir="${env.SEASAR_HOME}/lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${dest.dir}"/>	
+		<javac srcdir="${src.dir}" destdir="${dest.dir}" >
+			<classpath refid="project.classpath" />
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="run" depends="compile">
+		<copy todir="${dest.dir}">
+			<fileset dir="${conf.dir}" />
+		</copy>
+
+		<java classname="test.Tester" fork="yes">
+			<classpath refid="project.classpath" />
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dest.dir}" />
+	</target>
+
+</project>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<composite xmlns="http://www.osoa.org/xmlns/sca/1.0"
+	targetNamespace="http://fits/reservation"
+    xmlns:hns="http://fits/reservation"
+    name="bpel">
+
+    <component name="TravelReservationComponent">
+        <implementation.bpel process="hns:TravelReservation"/>
+
+        <service name="client">
+        	<interface.wsdl interface="http://fits/reservation#wsdl.interface(TravelReservation)" />
+        	<binding.ws />
+        </service>
+    </component>
+
+</composite>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="wsdl" targetNamespace="http://fuji.dev.java.net/application/sample2"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:tns="http://fuji.dev.java.net/application/sample2"
+    xmlns:msg="http://fuji.dev.java.net/service/message/sample2">
+    <types>
+        <xsd:schema targetNamespace="http://fuji.dev.java.net/service/message/sample2">
+            <xsd:import schemaLocation="message.xsd"
+                namespace="http://fuji.dev.java.net/service/message/sample2"/>
+        </xsd:schema>
+    </types>
+    <message name="anyMsg">
+        <part name="part1" element="tns:AnyMessage"/>
+    </message>
+    <portType name="sample2_interface">
+        <operation name="oneWay">
+            <input name="in" message="tns:anyMsg"/>
+        </operation>
+        <operation name="requestReply">
+            <input name="in" message="tns:anyMsg"/>
+            <output name="out" message="tns:anyMsg"/>
+        </operation>
+    </portType>
+</definitions>

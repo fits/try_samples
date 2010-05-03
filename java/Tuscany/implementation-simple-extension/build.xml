@@ -1,0 +1,72 @@
+
+<project name="implementation-simple-extension" default="compile">
+
+	<property environment="env" />
+	<property name="dest.file" value="simple-ext.jar" />
+	<property name="test.dest.file" value="simple-test.jar" />
+
+    <target name="init">
+        <mkdir dir="target/classes"/>
+    </target>
+
+    <target name="testinit">
+        <mkdir dir="dest/classes"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="src/main/java"
+               destdir="target/classes"
+               debug="on"
+               source="1.5"
+               target="1.5">
+            <classpath>
+            	<pathelement location="${env.TUSCANY_HOME}/lib/tuscany-sca-manifest.jar"/>
+            </classpath>
+        </javac> 
+        <copy todir="target/classes">
+            <fileset dir="src/main/resources"/>
+        </copy>
+        <jar destfile="target/${dest.file}" basedir="target/classes">
+            <manifest>
+                <attribute name="Main-Class" value="" /> 
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="testcompile" depends="testinit">
+        <javac srcdir="src/test/java"
+               destdir="dest/classes"
+               debug="on"
+               source="1.5"
+               target="1.5">
+            <classpath>
+            	<pathelement location="${env.TUSCANY_HOME}/lib/tuscany-sca-manifest.jar"/>
+            </classpath>
+        </javac> 
+        <copy todir="dest/classes">
+            <fileset dir="src/test/resources"/>
+        </copy>
+        <jar destfile="dest/${test.dest.file}" basedir="dest/classes">
+            <manifest>
+                <attribute name="Main-Class" value="" /> 
+            </manifest>
+        </jar>
+    </target>
+
+	<target name="run" depends="compile, testcompile">
+        <java classname="simple.SimpleClient" fork="yes">
+            <classpath>
+                <pathelement location="dest/${test.dest.file}" />
+                <pathelement location="target/${dest.file}" />
+            	<pathelement location="${env.TUSCANY_HOME}/lib/tuscany-sca-manifest.jar"/>
+            </classpath>
+        </java>
+	</target>
+
+    <target name="clean">
+        <delete quiet="true" includeemptydirs="true">
+            <fileset dir="target" />
+            <fileset dir="dest" />
+        </delete>
+    </target>
+</project>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="wsdl" targetNamespace="http://fuji.dev.java.net/application/sample2"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://fuji.dev.java.net/application/sample2"
+    xmlns:if="http://fuji.dev.java.net/application/sample2">
+    
+    <import location="interface.wsdl" namespace="http://fuji.dev.java.net/application/sample2"/>
+    <binding name="ServiceBinding" type="if:sample2_interface"/>
+    <service name="sample2_service">
+        <port name="sample2_endpoint" binding="tns:ServiceBinding"/>
+    </service>
+</definitions>

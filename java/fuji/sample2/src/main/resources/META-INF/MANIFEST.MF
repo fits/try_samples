@@ -1,0 +1,7 @@
+Bundle-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: sample2
+Bundle-Name: ${name}
+Bundle-UpdateLocation: file:${project.build.directory}/app.jar
+Dynamic-Update: false
+DynamicImport-Package: *

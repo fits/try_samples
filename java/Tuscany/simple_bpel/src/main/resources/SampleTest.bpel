@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpws:process exitOnStandardFault="yes" name="SampleTest"
+    suppressJoinFailure="yes" targetNamespace="http://fits/sample"
+    xmlns:bpws="http://schemas.xmlsoap.org/ws/2004/03/business-process/" xmlns:tns="http://fits/sample">
+    <bpws:import importType="http://schemas.xmlsoap.org/wsdl/"
+        location="SampleTest.wsdl" namespace="http://fits/sample"/>
+    <bpws:partnerLinks>
+        <bpws:partnerLink myRole="SampleTestProvider" name="client" partnerLinkType="tns:SampleTest"/>
+    </bpws:partnerLinks>
+    <bpws:variables>
+        <bpws:variable messageType="tns:SampleTestRequestMessage" name="input"/>
+        <bpws:variable messageType="tns:SampleTestResponseMessage" name="output"/>
+    </bpws:variables>
+    <bpws:sequence name="main">
+        <bpws:receive createInstance="yes" name="receiveInput"
+            operation="hello" partnerLink="client"
+            portType="tns:SampleTest" variable="input"/>
+        <bpws:assign name="Assign" validate="no">
+            <bpws:copy>
+                <bpws:from><![CDATA[concat($input.payload/tns:input, " world!")]]></bpws:from>
+                <bpws:to part="payload" variable="output"/>
+            </bpws:copy>
+        </bpws:assign>
+        <bpws:reply name="replyOutput" operation="hello"
+            partnerLink="client" portType="tns:SampleTest" variable="output"/>
+    </bpws:sequence>
+</bpws:process>

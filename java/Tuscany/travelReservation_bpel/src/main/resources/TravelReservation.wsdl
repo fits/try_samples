@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<definitions name="TravelReservation"
+        targetNamespace="http://fits/reservation"
+        xmlns:tns="http://fits/reservation"
+        xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <types>
+        <schema attributeFormDefault="unqualified" elementFormDefault="qualified" 
+                targetNamespace="http://fits/reservation" 
+                xmlns="http://www.w3.org/2001/XMLSchema">
+
+            <element name="TravelReservationRequest">
+                <complexType>
+                    <sequence>
+                    	<element name="customerName" type="xsd:string" />
+                    	<element name="dateFrom" type="xsd:date" />
+                    	<element name="dateTo" type="xsd:date" />
+                    	<element name="doCarRental" type="xsd:int" />
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="TravelReservationResponse">
+                <complexType>
+                    <sequence>
+                    	<element name="hotelReservation" type="xsd:string" />
+                    	<element name="rentalCarReservation" type="xsd:string" />
+                    </sequence>
+                </complexType>
+            </element>
+        </schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="TravelReservationRequestMessage">
+        <part name="payload" element="tns:TravelReservationRequest"/>
+    </message>
+    <message name="TravelReservationResponseMessage">
+        <part name="payload" element="tns:TravelReservationResponse"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the TravelReservation BPEL process -->
+    <portType name="TravelReservation">
+        <operation name="reserve">
+            <input  message="tns:TravelReservationRequestMessage" />
+            <output message="tns:TravelReservationResponseMessage"/>
+        </operation>
+    </portType>
+  
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="TravelReservation">
+        <plnk:role name="TravelReservationProvider" portType="tns:TravelReservation"/>
+    </plnk:partnerLinkType>
+    
+    <binding name="TravelReservationBinding"
+    	type="tns:TravelReservation">
+    	<soap:binding style="document"
+    		transport="http://schemas.xmlsoap.org/soap/http">
+    	</soap:binding>
+    	<operation name="reserve">
+    		<soap:operation
+    			soapAction="http://fits/reservation/reserve">
+    		</soap:operation>
+    		<input>
+    			<soap:body use="literal"></soap:body>
+    		</input>
+    		<output>
+    			<soap:body use="literal"></soap:body>
+    		</output>
+    	</operation>
+    </binding>
+    <service name="TravelReservationService">
+    	<port name="TravelReservationPort" binding="tns:TravelReservationBinding">
+    		<soap:address location="http://localhost:8080/ode/processes/travelReservation" />
+    	</port>
+    </service>
+</definitions>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<componentType xmlns="http://www.osoa.org/xmlns/sca/1.0" 
+	xmlns:wsdli="http://www.w3.org/2006/01/wsdl-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<service name="client">
+		<interface.wsdl interface="http://fits/sample#wsdl.interface(SampleTest)" />
+	</service>
+
+</componentType>
