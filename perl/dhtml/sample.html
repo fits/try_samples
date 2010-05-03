@@ -1,0 +1,26 @@
+<html>
+<body>
+
+<div id="ab"></div>
+
+<script language="javascript">
+	var ab = document.getElementById("ab");
+	alert(ab);
+	
+	ab.innerHTML = "<h1>test</h1>";
+	
+</script>
+
+<script language="PerlScript">
+	use Config;
+
+	$ab = $window->document->getElementById("ab");
+	alert($ab);
+
+	$ab->{innerHTML} = "<h2>‚Ä‚·‚Æ</h2>";
+
+</script>
+
+
+</body>
+</html>

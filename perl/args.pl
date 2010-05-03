@@ -1,0 +1,2 @@
+
+print $ARGV[0];
