@@ -1,0 +1,34 @@
+
+contextFile = "test-camel.xml"
+
+Ant.property(environment: "env")
+camelHome = Ant.antProject.properties."env.CAMEL_HOME"
+groovyHome = Ant.antProject.properties."env.GROOVY_HOME"
+
+target("default": "") {
+	camelRun()
+}
+
+target(init: "") {
+	path(id: "project.classpath") {
+		pathelement(path: ".")
+
+		fileset(dir: camelHome) {
+			include(name: "**/*.jar")
+		}
+
+		fileset(dir: groovyHome) {
+			include(name: "**/groovy*.jar")
+		}
+	}
+}
+
+target(camelRun: "") {
+	depends(init)
+
+	Ant.java(classname: "org.apache.camel.spring.Main", fork: true) {
+		arg(line: "-fa ${contextFile}")
+		classpath(refid: "project.classpath")
+	}
+}
+
