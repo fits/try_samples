@@ -1,0 +1,55 @@
+CmdUtils.CreateCommand({
+  names: ["hatena-book"],
+  icon: "",
+  homepage: "http://b.hatena.ne.jp/fits/",
+  author: { name: "fits", email: ""},
+  license: "GPL",
+  description: "はてなブックマークのタグ検索",
+  help: "はてなブックマーク",
+  arguments: [{role: 'object', nountype: noun_arb_text}],
+  preview: function( pblock, arguments ) {
+    arguments.text = arguments.object.text;
+    if (arguments.text) {
+      var params = jQuery.map(arguments.text.split(" "), function(item) {
+        return "tag=" + item;
+      }).join("&");
+
+      //パラメータのログ出力
+      CmdUtils.log(params);
+
+      CmdUtils.previewAjax(pblock, {
+        type: "GET",
+        url: "http://b.hatena.ne.jp/fits/atomfeed?" + params,
+        dataType: "xml",
+        error: function() {
+          pblock.innerHTML = "Search Error";
+        },
+        success: function(responseData) {
+          pblock.innerHTML = "Search Success";
+
+          var data = jQuery(responseData);
+          var resultHtml = "";
+
+          data.find("entry").each(function(index) {
+            var entry = jQuery(this);
+
+            var tempParams = {
+              title: entry.find("title").text(),
+              url: entry.find("link[rel=related]").attr("href")
+            };
+
+            //ログ出力
+            //CmdUtils.log(tempParams.title + ", " + tempParams.url);
+
+            var tempHtml = '<div><a href=\"${url}\">${title}</a></div>';
+            resultHtml += CmdUtils.renderTemplate(tempHtml, tempParams);
+          });
+
+          pblock.innerHTML = resultHtml;
+        }
+      });
+    }
+  },
+  execute: function(arguments) {
+  }
+});
