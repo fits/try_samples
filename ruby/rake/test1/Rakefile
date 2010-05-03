@@ -1,0 +1,9 @@
+task :default => :echo
+
+task :echo => :before do
+	puts "echo call"
+end
+
+task :before do
+	puts "before task call"
+end

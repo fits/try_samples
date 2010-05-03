@@ -1,0 +1,11 @@
+<html>
+<body>
+
+<%= form_tag({:action => 'regist'}, :multipart => true) %>
+    <%= hidden_field_tag('username', 'aaa') %>
+    ファイル選択 : <%= file_field(:save, 'userfile') %>
+    <%= submit_tag('保存') %>
+<%= end_form_tag %>
+
+</body>
+</html>
