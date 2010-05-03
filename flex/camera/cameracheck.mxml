@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<mx:Label id="label1" text="カメラ映像表示テスト" />
+
+	<mx:VideoDisplay id="videoView" width="320" height="240" />
+
+	<mx:HBox>
+		<mx:Button label="開始" click="startCapture()" />
+		<mx:Button label="停止" click="stopCapture()" />
+	</mx:HBox>
+
+	<mx:Script>
+		<![CDATA[
+
+			private function startCapture():void {
+				var camera:Camera = Camera.getCamera();
+				videoView.attachCamera(camera);
+			}
+
+			private function stopCapture():void {
+				videoView.attachCamera(null);
+			}
+
+		]]>
+	</mx:Script>
+
+</mx:Application>
+

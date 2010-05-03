@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application styleName="plain" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="initApp()">
+
+    <mx:Script>
+    <![CDATA[
+    	import flash.system.Security;
+        import flash.external.ExternalInterface;
+        import mx.controls.Alert;
+     //   import mx.events.FlexEvent;
+
+		private var startDate : Date = null;
+
+        public function updateDataFunc(list : Array) : void {
+            startDate = new Date();
+            
+            grid.dataProvider = list;
+        }
+
+        private function initApp() : void {
+
+			Security.allowDomain("*");
+
+			Alert.show("initApp : " + Security.sandboxType);
+
+			if (ExternalInterface.available) {
+				try {
+            		ExternalInterface.addCallback("updateData", updateDataFunc);
+            		Alert.show("updateData");
+            	}
+            	catch(e : Error) {
+					Alert.show("error : " + e);
+				}
+            }
+            else {
+				Alert.show("can not use");
+			}
+        }
+        
+		private function renderComp(e : Object) : void {
+			var time:int = (startDate)? new Date().getTime() - startDate.getTime(): -1;
+
+			Alert.show("render complete : " + time);
+		}
+
+		private function stateChange() : void {
+			var time:int = (startDate)? new Date().getTime() - startDate.getTime(): -1;
+
+			Alert.show("state change : " + time);
+		}
+		
+		private function changeData() : void {
+			var time:int = (startDate)? new Date().getTime() - startDate.getTime(): -1;
+
+			Alert.show("change data : " + time);
+		}
+
+		private function updateComp() : void {
+			var time:int = (startDate)? new Date().getTime() - startDate.getTime(): -1;
+
+			Alert.show("update complete : " + time + "ms");
+		}
+
+    ]]>
+    </mx:Script>
+
+    <mx:DataGrid id="grid" horizontalScrollPolicy="auto" allowMultipleSelection="true" percentWidth="100" percentHeight="100" creationComplete="renderComp(event)" currentStateChange="stateChange()" dataChange="changeData()" updateComplete="updateComp()">
+        <mx:columns>
+            <mx:DataGridColumn dataField="title" headerText="Title" />
+            <mx:DataGridColumn dataField="point" headerText="Point" />
+            <mx:DataGridColumn dataField="date" headerText="Date" />
+        </mx:columns>
+    </mx:DataGrid>
+
+</mx:Application>
+

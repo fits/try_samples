@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+
+    <mx:Script>
+    <![CDATA[
+    	import flash.system.Security;
+        import flash.external.ExternalInterface;
+        import mx.controls.Alert;
+
+        private function initApp() : void {
+			var valName:String = Application.application.parameters.name;
+			var valPoint:String = Application.application.parameters.point;
+
+			Alert.show("name:" + valName + ", point:" + valPoint);
+        }
+    ]]>
+    </mx:Script>
+
+    <mx:DataGrid id="grid">
+        <mx:columns>
+            <mx:DataGridColumn dataField="title" headerText="Title" />
+            <mx:DataGridColumn dataField="point" headerText="Point" />
+            <mx:DataGridColumn dataField="date" headerText="Date" />
+        </mx:columns>
+        <mx:dataProvider>
+            <mx:Array>
+                <mx:Object title="てすとでーた" point="10" date="2008/01/01" />
+                <mx:Object title="abc" point="100" date="2008/01/01" />
+                <mx:Object title="aaaaaaaaaaaaa" point="2" date="2008/02/02" />
+                <mx:Object title="てすとでーた1" point="10" date="2008/02/01" />
+                <mx:Object title="てすとでーた10" point="100" date="2008/02/10" />
+                <mx:Object title="てすとでーた2" point="3" date="2008/03/01" />
+            </mx:Array>
+        </mx:dataProvider>
+    </mx:DataGrid>
+
+</mx:Application>

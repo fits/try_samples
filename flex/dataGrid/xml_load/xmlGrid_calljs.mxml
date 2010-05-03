@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+	<![CDATA[
+		import mx.controls.Alert;
+		import mx.events.ListEvent;
+
+		private function selectionChange(e: ListEvent): void {
+			//データが XML の場合、以下のように直接 selectedItems を渡すと、
+			//JavaScript 側では空オブジェクト [] として取得されるため
+			//変換を施す必要がある
+			//ExternalInterface.call("onSelect", grid.selectedItems);
+
+			var items: Array = grid.selectedItems;
+
+			var objItems: Array = new Array();
+
+			try{
+				for each (var item: XML in items) {
+					var obj: Object = {};
+
+					for each (var attr: XML in item.attributes()) {
+
+						var data: String = attr.toString();
+
+						data = data.replace(/\\/g, '\\\\');
+						data = data.replace(/"/g, '\\\\"');
+
+						obj[attr.name().toString()] = data;
+					}
+
+					objItems.push(obj);
+				}
+
+				ExternalInterface.call("onSelect", objItems);
+			}
+			catch (e: Error) {
+				Alert.show(e.message);
+			}
+		}
+	]]>
+	</mx:Script>
+	<mx:XML format="e4x" id="testData">
+		<root>
+			<data id="1" title="test1" point="1" date="2008/1/1" />
+			<data id="2" title="test2\\abc" point="2" date="2008/2/1" />
+			<data id="3" title="te'&amp;t3" point="3" date="2008/3/1" />
+			<data id="4" title="test4" point="4" date="2008/4/1" />
+		</root>
+	</mx:XML>
+	<mx:DataGrid id="grid" 
+		percentWidth="100" 
+		horizontalScrollPolicy="auto" 
+		allowMultipleSelection="true" 
+		change="selectionChange(event)" 
+		dataProvider="{testData.data}">
+	    <mx:columns>
+	        <mx:DataGridColumn dataField="@id" headerText="ID" width="50" />
+
+	        <mx:DataGridColumn dataField="@title" headerText="Title" width="50" />
+	        <mx:DataGridColumn dataField="@point" headerText="Point" width="100" />
+	        <mx:DataGridColumn dataField="@date" headerText="Date" width="100" />
+	    </mx:columns>
+	</mx:DataGrid>
+</mx:Application>

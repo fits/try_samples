@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:creationComplete>
+    <![CDATA[
+    	import mx.controls.Alert;
+
+		var itemXml: XML = 
+			<itemList>
+				<item id="A1" price="100" />
+				<item id="B2" price="50">
+					<detail>abc</detail>
+				</item>
+				<item id="C3" price="30" />
+				<item id="A2" price="120" />
+				<item id="C4" price="80" />
+			</itemList>
+		;
+
+		var list: XMLList = itemXml.item.(@price < 100);
+		for (var i: Number = list.length(); i > 0; i--) {
+			delete list[i - 1];
+		}
+
+		Alert.show(itemXml);
+	]]>
+	</mx:creationComplete>
+</mx:Application>

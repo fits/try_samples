@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+    <mx:Script>
+    <![CDATA[
+    	import mx.managers.PopUpManager;
+    	import flash.utils.getTimer;
+    	import mx.controls.Alert;
+    	import mx.events.DataGridEvent;
+		import mx.controls.TextInput;
+
+		//ダブルクリックと判断する有効時間（ミリ秒）
+		private const DOUBLE_CLICK_TIME: int = 1000;
+
+		private var beforeEvent: DataGridEvent;
+		private var beforeTime: int;
+
+		private function onItemEditBegin(event: DataGridEvent): void {
+			var column: DataGridColumn = grid.columns[event.columnIndex];
+
+			switch (column.dataField) {
+				case "@check":
+					event.preventDefault();
+					var target: XML = grid.dataProvider[event.rowIndex] as XML;
+
+					target.@check = (target.attribute("check") == "○")? "×": "○";
+				//	grid.invalidateList();
+					grid.validateDisplayList();
+					break;
+			}
+		}
+
+
+    	private function onItemEditBeginning(event: DataGridEvent): void {
+    		if (!validateDoubleClick(event)) {
+    			//イベントをキャンセル
+    			event.preventDefault();
+    		}
+    	}
+
+    	private function onItemEditEnd(event: DataGridEvent): void {
+
+			var obj: Object = grid.itemEditorInstance;
+
+			if (obj && obj.hasOwnProperty("text")) {
+				resultShow.text = obj.text;
+			}
+
+    	}
+
+
+		/**
+		 * ダブルクリックか否かを判定する
+		 */
+		private function validateDoubleClick(event: DataGridEvent): Boolean {
+			var now: int = getTimer();
+
+			var result: Boolean = (
+				beforeEvent != null && 
+				event.columnIndex == beforeEvent.columnIndex &&
+				event.rowIndex == beforeEvent.rowIndex &&
+				(now - beforeTime) <= DOUBLE_CLICK_TIME
+			);
+
+    		beforeEvent = (result)? null: event;
+    		beforeTime = now;
+
+			return result;
+		}
+    ]]>
+    </mx:Script>
+
+	<mx:XML id="dataList" xmlns="">
+		<list>
+            <data title="てすとでーた" point="10" date="2008/01/01" check="○" />
+            <data title="abc" point="100" date="2008/01/01" check="×" />
+            <data title="aaaaaaaaaaaaa" point="2" date="2008/02/02" check="○" />
+            <data title="てすとでーた1" point="10" date="2008/02/01" check="×" />
+            <data title="てすとでーた10" point="100" date="2008/02/10" check="○" />
+            <data title="てすとでーた2" point="3" date="2008/03/01" check="×" />
+		</list>
+	</mx:XML>
+
+    <mx:DataGrid id="grid" editable="true" 
+    	itemEditBeginning="onItemEditBeginning(event)"
+    	itemEditBegin="onItemEditBegin(event)"
+    	itemEditEnd="onItemEditEnd(event)">
+        <mx:columns>
+            <mx:DataGridColumn dataField="@title" headerText="Title" />
+            <mx:DataGridColumn dataField="@point" headerText="Point" />
+            <mx:DataGridColumn dataField="@date" headerText="Date" editable="false" />
+            <mx:DataGridColumn dataField="@check" headerText="Check" />
+        </mx:columns>
+        <mx:dataProvider>
+        	{dataList.data}
+        </mx:dataProvider>
+    </mx:DataGrid>
+    <mx:TextInput id="resultShow" />
+
+</mx:Application>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Tree 表示のサンプル -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+    <mx:Script>
+    <![CDATA[
+    	import mx.controls.Alert;
+		import mx.events.ListEvent;
+
+		private function onChange(event: ListEvent): void {
+			//Alert.show(sampleTree1.selectedItem.@label);
+
+			var data: XML = sampleTree1.selectedItem as XML;
+			idText.text = data.@id;
+			nameText.text = data.@name;
+			detailText.text = data.@detail;
+		}
+
+    ]]>
+    </mx:Script>
+
+	<mx:HDividedBox width="400" height="300">
+		<mx:Tree id="sampleTree1" dataProvider="{testData}" labelField="@name" width="50%" height="100%" horizontalScrollPolicy="on" change="onChange(event)" folderOpenIcon="@Embed(source='Assets.swf', symbol='TreeNodeIcon')" folderClosedIcon="@Embed(source='Assets.swf', symbol='TreeNodeIcon')" />
+		<mx:VBox width="50%" height="100%" backgroundColor="#FFFFFF">
+			<mx:HBox>
+				<mx:VBox>
+					<mx:Image />
+				</mx:VBox>
+				<mx:VBox>
+					<mx:HBox>
+						<mx:Label text="ID:" />
+						<mx:Text id="idText" text="" />
+					</mx:HBox>
+					<mx:HBox>
+						<mx:Label text="Name:" />
+						<mx:Text id="nameText" text="" />
+					</mx:HBox>
+					<mx:HBox>
+						<mx:Label text="Detail:" />
+						<mx:Text id="detailText" text="" />
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+		</mx:VBox>
+	</mx:HDividedBox>
+
+	<mx:XMLList id="testData">
+		<node id="001" name="test box" detail="てすとでーた">
+			<node id="002" name="data1" detail="特になし" />
+			<node id="003" name="data box" detail="・・・・・・・・・">
+				<node id="004" name="aaa" detail="ABCDEFGAJKLJTAj" />
+				<node id="005" name="bbb" />
+				<node id="006" name="テストデータ">
+					<node id="007" name="1234" />
+					<node id="008" name="9876" />
+				</node>
+				<node id="009" name="テストデータ">
+					<node id="010" name="1234" />
+					<node id="011" name="9876" />
+					<node id="012" name="テストデータ" detail="ああああああああああああああああああああああああああ">
+						<node id="013" name="1234" />
+						<node id="014" name="9876" />
+					</node>
+				</node>
+			</node>
+		</node>
+	</mx:XMLList>
+
+</mx:Application>
+

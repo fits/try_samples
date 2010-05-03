@@ -1,0 +1,29 @@
+<html>
+<head>
+<script type="text/javascript">
+
+	function onSelect(items) {
+		var msg = "";
+
+		for (var i = 0; i < items.length; i++) {
+			for (var key in items[i]) {
+				msg += key + ":" + items[i][key] + ", ";
+			}
+			msg += "\n";
+		}
+
+		alert(msg);
+	}
+
+</script>
+</head>
+<body>
+
+  <object id="gridView" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab" width="500" height="200">
+    <param name="src" value="xmlGrid_calljs.swf" />
+
+    <embed name="gridView" src="xmlGrid_calljs.swf" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" menu="false" width="500" height="200" >
+    </embed>
+  </object>
+</body>
+</html>

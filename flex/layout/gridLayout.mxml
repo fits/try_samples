@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Grid レイアウトのサンプル -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+
+	<mx:Grid backgroundColor="#FFFFFF">
+		<mx:GridRow>
+			<mx:GridItem>
+				<mx:Image source="test.png" />
+			</mx:GridItem>
+			<mx:GridItem>
+				<mx:Grid>
+					<mx:GridRow>
+						<mx:GridItem>
+							<mx:Label text="ID:" />
+						</mx:GridItem>
+						<mx:GridItem>
+							<mx:Text text="0001" />
+						</mx:GridItem>
+					</mx:GridRow>
+					<mx:GridRow>
+						<mx:GridItem>
+							<mx:Label text="Name:" />
+						</mx:GridItem>
+						<mx:GridItem>
+							<mx:Text text="テストデータ" />
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</mx:GridItem>
+		</mx:GridRow>
+		<mx:GridRow>
+		</mx:GridRow>
+
+	</mx:Grid>
+
+</mx:Application>
+

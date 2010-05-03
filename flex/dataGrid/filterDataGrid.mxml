@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onLoad()">
+    <mx:Script>
+    <![CDATA[
+    	import mx.controls.Alert;
+    	import mx.collections.ArrayCollection;
+    	import mx.events.DataGridEvent;
+
+		private var functions: ArrayCollection = new ArrayCollection();
+
+		private function getFilterFunction(item: Object): Boolean {
+			var result: Boolean = true;
+
+			for each (var func: Function in functions) {
+				if (!func(item)) {
+					result = false;
+					break;
+				}
+			}
+
+			return result;
+		}
+
+		private function refreshData(): void {
+			grid.dataProvider.refresh();
+		}
+
+		private function onLoad(): void {
+			grid.dataProvider.filterFunction = getFilterFunction;
+			refreshData();
+		}
+
+		private function onClickAddFilter(): void {
+			var filterString: String = filterText.text;
+			filterText.text = "";
+
+			this.functions.addItem(function(item: Object): Boolean {
+				return (item.@title.indexOf(filterString) > -1);
+			});
+
+			refreshData();
+			Alert.show("filter count: " + this.functions.length);
+		}
+
+		private function onClickClear(): void {
+			this.functions.removeAll();
+			refreshData();
+		}
+
+    ]]>
+    </mx:Script>
+
+	<mx:XML id="dataList" xmlns="">
+		<list>
+            <data title="てすとでーた" point="10" date="2008/01/01" check="○" />
+            <data title="abc" point="100" date="2008/01/01" check="×" />
+            <data title="aaaaaaaaaaaaa" point="2" date="2008/02/02" check="○" />
+            <data title="てすとでーた1" point="10" date="2008/02/01" check="×" />
+            <data title="てすとでーた10" point="100" date="2008/02/10" check="○" />
+            <data title="てすとでーた2" point="3" date="2008/03/01" check="×" />
+		</list>
+	</mx:XML>
+
+    <mx:DataGrid id="grid">
+        <mx:columns>
+            <mx:DataGridColumn dataField="@title" headerText="Title" />
+            <mx:DataGridColumn dataField="@point" headerText="Point" />
+            <mx:DataGridColumn dataField="@date" headerText="Date" />
+            <mx:DataGridColumn dataField="@check" headerText="Check" />
+        </mx:columns>
+        <mx:dataProvider>
+        	{dataList.data}
+        </mx:dataProvider>
+    </mx:DataGrid>
+
+	<mx:TextInput id="filterText" />
+	<mx:Button label="AddFilter" click="onClickAddFilter()" />
+	<mx:Button label="Clear" click="onClickClear()" />
+</mx:Application>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+    <mx:Script>
+    <![CDATA[
+    	import mx.collections.ArrayCollection;
+
+		[Bindable]
+    	private var testData: ArrayCollection = new ArrayCollection([
+    		{id: 1, title: "test1", point: 1, date: "2008/1/1", children:[
+    			{id: 2, title: "test1-1", point: 5, date: "2008/2/2"},
+    			{id: 3, title: "test1-2", point: 10, date: "2008/3/3", children:[
+    				{id: 4, title: "test1-2-1", point: 100, date: "2008/3/2"}
+    			]}
+    		]},
+    		{id: 5, title: "test2", point: 1, date: "2008/4/4"}
+    	]);
+    ]]>
+    </mx:Script>
+	<mx:AdvancedDataGrid id="grid" treeColumn="{title}">
+		<mx:columns>
+			<mx:AdvancedDataGridColumn dataField="id" headerText="ID" />
+			<mx:AdvancedDataGridColumn id="title" dataField="title" headerText="Title" />
+            <mx:AdvancedDataGridColumn dataField="point" headerText="Point" />
+            <mx:AdvancedDataGridColumn dataField="date" headerText="Date" />
+		</mx:columns>
+		<mx:dataProvider>
+			<mx:HierarchicalData source="{testData}" />
+		</mx:dataProvider>
+	</mx:AdvancedDataGrid>
+</mx:Application>

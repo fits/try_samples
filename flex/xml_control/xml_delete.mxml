@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
+    <mx:Script>
+    <![CDATA[
+    	import mx.controls.Alert;
+
+    	private function onClick(): void {
+    		var dataXml: XML = <root>
+				<data id="1" ext="xls">
+					<data id="1-1" />
+					<data id="1-2" />
+				</data>
+				<data id="2" ext="part">
+					<data id="2-1" />
+					<data id="2-2">
+						<data id="2-2-1" />
+					</data>
+				</data>
+				<data id ="3" ext="product" />
+				<data id ="4" ext="draw" />
+			</root>
+			;
+
+			var list: XMLList = dataXml.data.(@ext != "product" && @ext != "part");
+			for (var i: Number = list.length(); i > 0; i--) {
+				delete list[i - 1];
+			}
+
+			Alert.show(dataXml);
+		}
+	]]>
+    </mx:Script>
+    <mx:Button click="onClick()" label="test" />
+
+</mx:Application>

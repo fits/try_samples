@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:sample="sample.*"
+	creationComplete="initApp()">
+	<mx:Script>
+	<![CDATA[
+		import mx.collections.ICollectionView;
+    	import flash.ui.ContextMenu;
+    	import flash.ui.ContextMenuItem;
+    	import flash.events.ContextMenuEvent;
+		import mx.controls.Alert;
+		import mx.events.AdvancedDataGridEvent;
+		import mx.events.ListEvent;
+		import sample.CustomHierarchicalData;
+
+		private var myMenu: ContextMenu;
+
+		private function initApp(): void {
+
+			myMenu = new ContextMenu();
+			myMenu.hideBuiltInItems();
+
+			myMenu.addEventListener(ContextMenuEvent.MENU_SELECT, function(event: ContextMenuEvent): void {
+				myMenu.customItems = new Array();
+
+				if (grid.selectedItems.length > 0) {
+					var item: XML = grid.selectedItems[0];
+
+					if (item.parent().localName() == "root") {
+	
+						var exeMenu: ContextMenuItem = new ContextMenuItem("do");
+						exeMenu.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function(event: ContextMenuEvent): void {
+							var chdata: XML = 
+								<root>
+									<data id="child" title="child1" point="1" date="2008/1/1" hasChild="true" />
+									<data id="child" title="child2" point="1000" date="2008/11/1" hasChild="true" />
+								</root>
+							;
+							//既存の子要素を全削除
+							delete item.data;
+							//新規の子要素を追加
+							item.appendChild(chdata.data);
+						});
+					}
+
+					myMenu.customItems.push(exeMenu);
+				}
+			});
+			grid.contextMenu = myMenu;
+		}
+
+		//属性で子の存在をあると設定した要素に対して動的に子要素を追加する
+		private function openItem(event: AdvancedDataGridEvent): void {
+			if (event.opening && event.item is XML) {
+				var node: XML = event.item as XML;
+
+				if (node.parent().localName() != "root" && 
+					node.children().length() == 0) {
+
+					var str: String = ExternalInterface.call("createXml");
+					var chdata: XML = new XML(str);
+
+	    			node.appendChild(chdata.data);
+				}
+			}
+		}
+		
+		private function toText(): void {
+			try{
+				var result: String = "";
+
+				Alert(grid.dataProvider.source.hasOwnProperty("getRoot"));
+
+				for each (var item: XML in grid.dataProvider.source.getRoot()) {
+					result += ", " + item["@title"];
+				}
+
+				Alert.show("result:" + result);
+			}
+			catch (e: Error) {
+				Alert.show(e.message);
+			}	
+			
+		}
+
+		private function onSelectionChange(e: ListEvent): void {
+			var items: Array = grid.selectedItems;
+			var result: String = "";
+	
+			try {
+				for each (var item: XML in items) {
+					
+					var obj: Object = {};
+					
+					for each (var attr: XML in item.attributes()) {
+						result += attr.name() + "=" + attr.toString() + ",";
+						
+						obj[attr.name().toString()] = attr.toString();
+					}
+					result += "\n";
+				}
+				Alert.show(result);
+
+			}
+			catch (e: Error) {
+				Alert.show(e.message);
+			}
+		}
+
+	]]>
+	</mx:Script>
+	<mx:XML format="e4x" id="testData">
+    	<root>
+    		<data id="1" title="test1" point="1" date="2008/1/1">
+    			<data />
+    		</data>
+    		<data id="2" title="test2\\abc" point="2" date="2008/2/1" />
+    		<data id="3" title="te'&amp;t3" point="3" date="2008/3/1" />
+    		<data id="4" title="test4" point="4" date="2008/4/1" />
+    	</root>
+	</mx:XML>
+	<mx:AdvancedDataGrid id="grid" 
+		treeColumn="{title}" 
+		allowMultipleSelection="true"
+		sortExpertMode="true"
+		itemOpening="openItem(event)"
+		change="onSelectionChange(event)" 
+		width="80%"
+		height="60%"
+		horizontalScrollPolicy="auto"
+		folderOpenIcon="@Embed(source='Assets.swf', symbol='TreeNodeIcon')" 
+		folderClosedIcon="@Embed(source='Assets.swf', symbol='TreeNodeIcon')"
+		>
+		<mx:columns>
+			<mx:AdvancedDataGridColumn dataField="@id" headerText="ID" />
+			<mx:AdvancedDataGridColumn id="title" dataField="@title" headerText="Title" width="200" />
+            <mx:AdvancedDataGridColumn dataField="@point" headerText="Point" />
+            <mx:AdvancedDataGridColumn dataField="@date" headerText="Date" />
+		</mx:columns>
+		<mx:dataProvider>
+			<sample:CustomHierarchicalData source="{testData.data}" />
+		</mx:dataProvider>
+	</mx:AdvancedDataGrid>
+	<mx:Button name="toText" click="toText()" label="toText" /> 
+</mx:Application>

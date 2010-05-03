@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Tree 表示のサンプル -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml">
+    <mx:Script>
+    <![CDATA[
+    	import mx.controls.Alert;
+		import mx.events.ListEvent;
+
+		private function onChange(event: ListEvent): void {
+			Alert.show(sampleTree1.selectedItem.@label);
+		}
+
+    ]]>
+    </mx:Script>
+
+	<mx:Tree id="sampleTree1" dataProvider="{testData}" labelField="@label" width="300" height="200" horizontalScrollPolicy="on" change="onChange(event)">
+	</mx:Tree>
+
+	<mx:XMLList id="testData">
+		<node label="test box">
+			<node label="data1" />
+			<node label="data box">
+				<node label="aaa" />
+				<node label="bbb" />
+				<node label="テストデータ">
+					<node label="1234" />
+					<node label="9876" />
+				</node>
+				<node label="テストデータ">
+					<node label="1234" />
+					<node label="9876" />
+					<node label="テストデータ">
+						<node label="1234" />
+						<node label="9876" />
+					</node>
+				</node>
+			</node>
+		</node>
+	</mx:XMLList>
+
+</mx:Application>
+

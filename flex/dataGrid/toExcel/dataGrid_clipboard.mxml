@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+    <mx:Script>
+    <![CDATA[
+    	import flash.system.System;
+    	import mx.controls.Alert;
+
+		private function copyToClipboard(): void {
+			var header: String = "";
+			var data: String = "";
+
+			var items: Object = grid.dataProvider;
+			var columns: Array = grid.columns;
+
+    		for (var i: int = 0; i < items.length; i++) {
+    			for (var j: int = 0; j < columns.length; j++) {
+
+    				if (i == 0) {
+    					if (j != 0) {
+    						header += "\t";
+    					}
+    					header += columns[j].headerText;
+
+						System.setClipboard("header set : " + j);
+    				}
+
+					if (j != 0) {
+						data += "\t";
+					}
+    				data += items[i][columns[j].dataField];
+    			}
+				data += "\n";
+    		}
+
+			System.setClipboard(header + "\n" + data);
+		}
+
+    	private function initApp(): void {
+
+			if (ExternalInterface.available) {
+				try {
+            		ExternalInterface.addCallback("copyTo", copyToClipboard);
+            	}
+            	catch(e : Error) {
+					Alert.show("error : " + e);
+				}
+            }
+		}
+
+    ]]>
+    </mx:Script>
+    <mx:DataGrid id="grid">
+        <mx:columns>
+            <mx:DataGridColumn dataField="no" headerText="No" />
+            <mx:DataGridColumn dataField="name" headerText="Name" />
+            <mx:DataGridColumn dataField="address" headerText="Address" />
+            <mx:DataGridColumn dataField="birdthday" headerText="Birthday" />
+        </mx:columns>
+        <mx:dataProvider>
+            <mx:Array>
+                <mx:Object no="1" name="テストデータ" address="" birdthday="1970/01/01" />
+                <mx:Object no="2" name="abc" address="" birdthday="1980/11/5" />
+                <mx:Object no="3" name="チェッカー" address="" birdthday="1970/01/01" />
+                <mx:Object no="4" name="" address="東京都" birdthday="1980/02/19" />
+                <mx:Object no="5" name="12345" address="・・・" birdthday="2000/06/23" />
+                <mx:Object no="6" name="aaaaaaaa" address="bbbb" birdthday="1999/07/10" />
+            </mx:Array>
+        </mx:dataProvider>
+    </mx:DataGrid>
+
+	<mx:Button label="copy to clipboard" click="copyToClipboard()" />
+
+</mx:Application>

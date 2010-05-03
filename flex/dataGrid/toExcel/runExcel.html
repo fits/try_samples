@@ -1,0 +1,59 @@
+<html>
+<head>
+<script type="text/javascript">
+
+    var excel = null;
+
+    function copyToClipboard() {
+        try {
+            document["gridView"].copyTo();
+        }
+        catch (e) {
+            alert(e.message);
+        }
+    }
+
+    function runExcel() {
+        if (!excel) {
+            excel = new ActiveXObject("Excel.Application");
+        }
+
+        excel.Visible = true;
+
+        copyToClipboard();
+
+        excel.SheetsInNewWorkbook = 1;
+        excel.Workbooks.Add();
+
+        //クリップボードのデータを貼り付け
+        excel.ActiveSheet.Paste();
+
+        //列幅を自動調整
+        excel.Rows(1).EntireColumn.AutoFit();
+    }
+
+    function quitExcel() {
+        if (excel) {
+            try {
+                excel.Quit();
+                excel = null;
+            }
+            catch (e) {
+            }
+        }
+    }
+
+</script>
+</head>
+<body onunload="quitExcel()">
+
+<object id="gridView" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab" width="500" height="300">
+    <param name="src" value="dataGrid_clipboard.swf" />
+</object>
+<br />
+<div>
+    <input type="button" value="Excel 起動" onclick="runExcel()" />
+</div>
+
+</body>
+</html>

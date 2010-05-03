@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mx:Application styleName="plain" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	creationComplete="initApp()">
+
+    <mx:Script>
+    <![CDATA[
+        import mx.controls.Alert;
+        import mx.utils.ObjectUtil;
+
+        private function initApp(): void {
+
+			displayObjectInfo(testGrid);
+			displayObjectInfo(testText);
+        }
+
+		private function displayObjectInfo(obj: Object): void {
+			var info: Object = ObjectUtil.getClassInfo(obj);
+			Alert.show("class= " + info.name);
+		}
+    ]]>
+    </mx:Script>
+
+	<mx:VBox>
+	    <mx:DataGrid id="testGrid" />
+	    <mx:Text id="testText" text="テストデータ" />
+	</mx:VBox>
+</mx:Application>
+
