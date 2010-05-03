@@ -1,0 +1,23 @@
+<html>
+<body>
+
+<h1>ProfD path</h1>
+<div id="profd"></div>
+<script type="text/javascript">
+
+	try {
+		netscape.security.PrivilegeManager.enablePrivilege ('UniversalXPConnect');
+
+		var dir = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+
+		document.getElementById("profd").innerHTML = dir.path;
+
+	}
+	catch (e) {
+		alert(e.message);
+	}
+
+</script>
+
+</body>
+</html>

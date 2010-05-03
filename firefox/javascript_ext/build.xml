@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+
+<project name="Mozilla Extension" default="build" basedir=".">
+
+	<property name="package.name" value="jschecker" />
+
+	<property environment="env" />
+	<property name="content.dir" value="content" />
+	<property name="chrome.dir" value="chrome" />
+	<property name="dest.dir" value="dest" />
+
+	<target name="build" depends="clean">
+		<!--<mkdir dir="${dest.dir}"/>-->
+
+		<mkdir dir="${dest.dir}/${chrome.dir}" />
+
+		<copy todir="${dest.dir}" overwrite="yes">
+			<fileset dir=".">
+				<include name="*.rdf" />
+			</fileset>
+		</copy>
+
+		<jar destfile="${dest.dir}/${chrome.dir}/${package.name}.jar">
+			<fileset dir=".">
+				<include name="${content.dir}/**" />
+			</fileset>
+		</jar>
+
+		<jar destfile="${dest.dir}/${package.name}.xpi">
+			<fileset dir="${dest.dir}">
+				<include name="**/**" />
+			</fileset>
+		</jar>
+
+	</target>
+
+	<target name="clean">
+		<delete dir="${dest.dir}" />
+	</target>
+
+</project>

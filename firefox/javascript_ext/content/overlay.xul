@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
+
+<overlay id="jschecker" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript" src="chrome://jschecker/content/overlay.js" />
+
+    <statusbar id="status-bar">
+        <statusbarpanel id="statusbar-jschecker" onclick="jsclick();" />
+        <!--
+        <statusbarpanel id="statusbar-javachecker" onclick="javaclick();" />
+        -->
+    </statusbar>
+
+</overlay>
