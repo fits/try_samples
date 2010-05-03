@@ -1,0 +1,27 @@
+<html>
+<head>
+<script type="text/javascript">
+<!--
+
+	function callCom() {
+		var test = new ActiveXObject("TestCOM.TestSample");
+		var result = test.Check("abc");
+
+		alert(result);
+	}
+
+	function doCallCom() {
+		window.setTimeout(callCom, 0);
+	}
+
+//-->
+</script>
+</head>
+<body>
+
+<input type="button" value="alert" onclick="alert('test')" />
+<input type="button" value="COM call" onclick="callCom()" />
+<input type="button" value="COM call async" onclick="doCallCom()" />
+
+</body>
+</html>

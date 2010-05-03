@@ -1,0 +1,30 @@
+<html>
+<head>
+<script language="VBScript">
+<!--
+
+	Sub callCom
+		Set test = CreateObject("TestCOM.TestSample")
+		result = test.Check("abc")
+
+		MsgBox result
+
+		Set test = Nothing
+
+	End Sub
+
+	Sub doCallCom
+		window.setTimeout "callCom", 0
+	End Sub
+
+//-->
+</script>
+</head>
+<body>
+
+<input type="button" value="alert" onclick='MsgBox "aaa"' />
+<input type="button" value="COM call" onclick="callCom" />
+<input type="button" value="COM call async" onclick="doCallCom" />
+
+</body>
+</html>
