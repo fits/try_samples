@@ -1,0 +1,52 @@
+
+includeTargets << gant.targets.Clean
+
+Ant.property(environment: "env")
+felixHome = Ant.antProject.properties."env.FELIX_HOME"
+
+destDir = "dest"
+classesDir = "$destDir/classes"
+jarFile = "sample.jar"
+
+cleanDirectory << destDir
+
+target("default": "") {
+    compile()
+}
+
+target(init: "") {
+    path(id: "project.classpath") {
+        pathelement(path: destDir)
+
+        fileset(dir: felixHome) {
+            include(name: "bin/*.jar")
+        }
+    }
+}
+
+target(compile: "") {
+    depends(init)
+
+    Ant.mkdir(dir: classesDir)
+
+    Ant.javac(srcdir: "src", destdir: classesDir) {
+        classpath(refid: "project.classpath")
+        
+    }
+}
+
+target(build: "") {
+    depends(compile)
+
+    Ant.jar(destfile: "${destDir}/${jarFile}", basedir: classesDir) {
+        manifest {
+            attribute(name: "Bundle-Name", value: "Sample Service")
+            attribute(name: "Bundle-Description", value: "")
+            attribute(name: "Bundle-Vendor", value: "")
+            attribute(name: "Bundle-Version", value: "1.0.0")
+            attribute(name: "Bundle-Activator", value: "sample.SampleActivator")
+            attribute(name: "Import-Package", value: "org.osgi.framework")
+        }
+    }
+}
+

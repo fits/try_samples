@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<definitions name="SampleTest"
+        targetNamespace="http://fitsx/sample"
+        xmlns:tns="http://fitsx/sample"
+        xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/">
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <types>
+        <schema attributeFormDefault="unqualified" elementFormDefault="qualified" 
+                targetNamespace="http://fitsx/sample" 
+                xmlns="http://www.w3.org/2001/XMLSchema"
+                xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+            <element name="SampleTestRequest">
+                <complexType>
+                    <sequence>
+                        <element name="input" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="SampleTestResponse">
+                <complexType>
+                    <sequence>
+                        <element name="result" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
+        </schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="SampleTestRequestMessage">
+        <part name="payload" element="tns:SampleTestRequest"/>
+    </message>
+    <message name="SampleTestResponseMessage">
+        <part name="payload" element="tns:SampleTestResponse"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the SampleTest BPEL process -->
+    <portType name="SampleTest">
+        <operation name="hello">
+            <input  message="tns:SampleTestRequestMessage" />
+            <output message="tns:SampleTestResponseMessage"/>
+        </operation>
+    </portType>
+  
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="SampleTest">
+        <plnk:role name="SampleTestProvider" portType="tns:SampleTest"/>
+    </plnk:partnerLinkType>
+    
+    <binding name="SampleTestBinding" type="tns:SampleTest">
+    	<soap:binding style="document"
+    		transport="http://schemas.xmlsoap.org/soap/http">
+    	</soap:binding>
+    	<operation name="hello">
+    		<soap:operation soapAction="http://fitsx/sample/process"></soap:operation>
+    		<input>
+    			<soap:body use="literal"></soap:body>
+    		</input>
+    		<output>
+    			<soap:body use="literal"></soap:body>
+    		</output>
+    	</operation>
+    </binding>
+    <service name="SampleTestService">
+    	<port name="SamplePort" binding="tns:SampleTestBinding">
+    		<soap:address location="http://localhost:8080/ode/processes/sample" />
+    	</port>
+    </service>
+</definitions>

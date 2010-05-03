@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="Shift_JIS" ?>
+
+<project name="" default="compile" basedir=".">
+    <property environment="env" />
+
+    <property name="src.dir" value="src" />
+    <property name="resources.dir" value="resources" />
+    <property name="dest.dir" value="dest" />
+    <property name="classes.dir" value="${dest.dir}/classes" />
+    <property name="dest.file" value="${dest.dir}/simple.jar" />
+    <property name="main.class" value="simple.SimpleClient" />
+
+    <path id="project.classpath">
+        <fileset dir="${env.TUSCANY_HOME}">
+            <include name="**/tuscany-sca-manifest.jar" />
+        </fileset>
+
+        <fileset dir="${env.JBOSSAOP_HOME}">
+            <include name="**/*.jar" />
+        </fileset>
+        
+    </path>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}" />
+
+        <javac srcdir="${src.dir}" destdir="${classes.dir}">
+            <classpath refid="project.classpath" />
+            <include name="**/*.java" />
+        </javac>
+
+    </target>
+
+    <target name="package" depends="compile">
+        <jar destfile="${dest.file}">
+            <fileset dir="${classes.dir}" />
+            <fileset dir="${resources.dir}" />
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="package">
+        <java classname="${main.class}" fork="yes">
+			<sysproperty key="jboss.aop.class.path" value="${dest.file}" />
+			<jvmarg value="-javaagent:${env.JBOSSAOP_LIB}\jboss-aop-jdk50.jar"/>
+            <classpath>
+                <path location="${dest.file}" />
+                <path refid="project.classpath" />
+            </classpath>
+        </java>
+    </target>
+
+    <target name="clean">
+        <delete dir="${dest.dir}" />
+    </target>
+
+</project>

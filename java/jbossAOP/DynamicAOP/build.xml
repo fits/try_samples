@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+
+<project name="JBOSS AOP caller" default="compile" basedir=".">
+	<property environment="env" />
+
+	<property name="src.dir" value="src" />
+	<property name="classes.dir" value="dest" />
+
+	<path id="jboss.aop.classpath">
+		<fileset dir="${env.JBOSSAOP_LIB}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<path id="project.classpath">
+		<pathelement path="${classes.dir}" />
+		<path refid="jboss.aop.classpath" />
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${classes.dir}" />
+
+		<javac srcdir="${src.dir}" destdir="${classes.dir}">
+			<classpath refid="jboss.aop.classpath" />
+		</javac>
+	</target>
+
+	<target name="run" depends="compile">
+		<java fork="yes" className="TestMain">
+			<sysproperty key="jboss.aop.path" value="jboss-aop.xml" />
+			<jvmarg value="-javaagent:${env.JBOSSAOP_LIB}\jboss-aop-jdk50.jar"/>
+			<classpath refid="project.classpath"/>
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="${classes.dir}" />
+	</target>
+
+</project>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<composite xmlns="http://www.osoa.org/xmlns/sca/1.0"
+	       xmlns:tuscany="http://tuscany.apache.org/xmlns/sca/1.0"
+           targetNamespace="http://simple"
+           xmlns:simple="http://simple"
+           name="simplejson">
+
+    <service name="SimpleService" promote="SimpleServiceScriptComponent">
+        <interface.java interface="simple.SimpleService"/>
+        <tuscany:binding.jsonrpc/>
+    </service>
+
+    <component name="SimpleServiceScriptComponent">
+        <tuscany:implementation.script script="simple/simpleService.groovy"/>
+    </component>
+
+</composite>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:sm="http://servicemix.apache.org/config/1.0"> 
+
+	<bean id="jndi" class="org.apache.xbean.spring.jndi.SpringInitialContextFactory" factory-method="makeInitialContext" singleton="true" />
+
+	<sm:container id="jbi" useMBeanServer="true" createMBeanServer="true">
+		<sm:activationSpecs>
+			<sm:activationSpec>
+				<sm:component>
+					<bean class="org.apache.servicemix.camel.CamelJbiComponent" />
+				</sm:component>
+			</sm:activationSpec>
+		</sm:activationSpecs>
+	</sm:container>
+
+	<camelContext useJmx="true" xmlns="http://activemq.apache.org/camel/schema/spring">
+		<route>
+			<from uri="file:test" />
+			<to uri="log:test" />
+		</route>
+	</camelContext>
+
+</beans>

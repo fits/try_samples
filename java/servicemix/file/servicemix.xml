@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://xbean.org/schemas/spring/1.0"
+	xmlns:spring="http://xbean.org/schemas/spring/1.0"
+	xmlns:sm="http://servicemix.org/config/1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xbean.org/schemas/spring/1.0 spring-beans.xsd
+	                    http://servicemix.org/config/1.0 servicemix.xsd">
+
+	<sm:container id="jbi" useMBeanServer="true" createMBeanServer="true">
+
+		<sm:activationSpecs>
+			<sm:activationSpec componentName="fileSender" service="fileSender">
+				<sm:component>
+					<bean class="org.servicemix.components.file.FileWriter">
+						<property name="directory" value="temp_out" />
+						<property name="marshaler">
+							<bean class="org.servicemix.components.util.DefaultFileMarshaler">
+								<property name="fileName">
+									<bean class="org.servicemix.expression.ConstantExpression">
+										<constructor-arg value="out_data.xml" />
+									</bean>
+								</property>
+							</bean>
+						</property>
+					</bean>
+				</sm:component>
+			</sm:activationSpec>
+
+			<sm:activationSpec componentName="filePoller" destinationService="fileSender" service="filePoller">
+				<sm:component>
+					<bean class="org.servicemix.components.file.FilePoller">
+						<property name="workManager">
+							<bean class="org.jencks.factory.WorkManagerFactoryBean">
+								<property name="threadPoolSize" value="30" />
+							</bean>
+						</property>
+						<property name="file" value="temp_in" />
+						<property name="period" value="1000" />
+					</bean>
+				</sm:component>
+			</sm:activationSpec>
+		</sm:activationSpecs>
+	</sm:container>
+
+</beans>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="wsdl" targetNamespace="http://fuji.dev.java.net/application/${applicationId}"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://fuji.dev.java.net/application/${applicationId}"
+    xmlns:file="http://schemas.sun.com/jbi/wsdl-extensions/file/"
+    xmlns:if="http://fuji.dev.java.net/application/${applicationId}">
+    
+    <import location="interface.wsdl" namespace="http://fuji.dev.java.net/application/${applicationId}"/>
+    
+    <binding name="fileBinding" type="if:${applicationId}_interface">
+        <file:binding/>
+        <operation name="oneWay">
+            <file:operation/>
+            <input name="in">
+                <file:message use="${file.use}" fileName="${file.fileName}" pollingInterval="${file.pollingInterval}" fileNameIsPattern="${file.fileNameIsPattern}"/>
+            </input>
+        </operation>
+    </binding>
+    <service name="${serviceName}">
+        <port name="${serviceName}_endpoint" binding="tns:fileBinding">
+            <file:address fileDirectory="${file.fileDirectory}" />
+        </port>
+    </service>
+    
+</definitions>

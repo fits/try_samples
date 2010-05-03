@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+
+<project name="Spring Integration Sample" default="compile" basedir=".">
+	<property environment="env" />
+
+	<property name="conf.dir" value="conf" />
+	<property name="src.dir" value="src" />
+	<property name="dest.dir" value="dest" />
+
+	<path id="spring.classpath">
+		<fileset dir="D:\spring-integration-1.0.2.SR1">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<path id="project.classpath">
+		<pathelement path="${dest.dir}" />
+		<pathelement path="${conf.dir}" />
+		<path refid="spring.classpath" />
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${dest.dir}" />
+
+		<javac srcdir="${src.dir}" destdir="${dest.dir}">
+			<classpath refid="spring.classpath" />
+		</javac>
+	</target>
+
+	<target name="run" depends="compile">
+		<java fork="yes" className="fits.sample.TestMain">
+			<classpath refid="project.classpath"/>
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dest.dir}" />
+	</target>
+
+</project>

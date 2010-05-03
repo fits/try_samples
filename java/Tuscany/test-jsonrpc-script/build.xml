@@ -1,0 +1,107 @@
+
+<project name="Test jsonrpc and script" default="package">
+	<property environment="env" />
+
+    <target name="init">
+        <mkdir dir="target/classes"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="src/main/java" 
+               destdir="target/classes"
+               debug="on"
+               source="1.5"
+               target="1.5">
+            <classpath>
+                <pathelement location="${env.TUSCANY_HOME}/lib/tuscany-sca-manifest.jar"/>
+            </classpath>
+        </javac> 
+        <copy todir="target/classes">
+            <fileset dir="src/main/resources"/>
+        </copy>
+    </target>
+
+    <target name="package" depends="compile">
+        <war destfile="target/simple-jsonrpc.war" 
+             webxml="src/main/webapp/WEB-INF/web.xml">
+            <fileset dir="src/main/webapp"/>
+            <lib refid="tuscany.jars"/>
+            <lib refid="3rdparty.jars"/>
+            <classes dir="target/classes"/>
+        </war>
+    </target>
+
+    <target name="clean">
+        <delete quiet="true" includeemptydirs="true">
+            <fileset dir="target"/>
+        </delete>
+    </target>
+
+    <fileset id="tuscany.jars" dir="${env.TUSCANY_HOME}/modules">
+        <include name="tuscany-assembly-1.3.jar"/>
+        <include name="tuscany-assembly-xml-1.3.jar"/>
+        <include name="tuscany-assembly-xsd-1.3.jar"/>
+        <include name="tuscany-binding-jsonrpc-1.3.jar"/>
+        <include name="tuscany-binding-jsonrpc-runtime-1.3.jar"/>
+        <include name="tuscany-binding-sca-1.3.jar"/>
+        <include name="tuscany-binding-sca-xml-1.3.jar"/>
+        <include name="tuscany-contribution-1.3.jar"/>
+        <include name="tuscany-contribution-impl-1.3.jar"/>
+        <include name="tuscany-contribution-java-1.3.jar"/>
+        <include name="tuscany-contribution-namespace-1.3.jar"/>
+        <include name="tuscany-contribution-resource-1.3.jar"/>
+        <include name="tuscany-contribution-xml-1.3.jar"/>
+        <include name="tuscany-core-1.3.jar"/>
+        <include name="tuscany-core-databinding-1.3.jar"/>
+        <include name="tuscany-core-spi-1.3.jar"/>
+        <include name="tuscany-databinding-1.3.jar"/>
+        <include name="tuscany-databinding-jaxb-1.3.jar"/>
+        <include name="tuscany-databinding-json-1.3.jar"/>
+        <include name="tuscany-definitions-1.3.jar"/>
+        <include name="tuscany-definitions-xml-1.3.jar"/>
+        <include name="tuscany-endpoint-1.3.jar"/>
+        <include name="tuscany-extensibility-1.3.jar"/>
+        <include name="tuscany-host-embedded-1.3.jar"/>
+        <include name="tuscany-host-http-1.3.jar"/>
+        <include name="tuscany-host-webapp-1.3.jar"/>
+        <include name="tuscany-implementation-java-1.3.jar"/>
+        <include name="tuscany-implementation-java-runtime-1.3.jar"/>
+        <include name="tuscany-implementation-java-xml-1.3.jar"/>
+        <include name="tuscany-interface-1.3.jar"/>
+        <include name="tuscany-interface-java-1.3.jar"/>
+        <include name="tuscany-interface-java-jaxws-1.3.jar"/>
+        <include name="tuscany-interface-java-xml-1.3.jar"/>
+        <include name="tuscany-monitor-1.3.jar"/>
+        <include name="tuscany-policy-1.3.jar"/>
+        <include name="tuscany-policy-xml-1.3.jar"/>
+        <include name="tuscany-sca-api-1.3.jar"/>
+        <include name="tuscany-xsd-1.3.jar"/>
+    </fileset>
+    <fileset id="3rdparty.jars" dir="${env.TUSCANY_HOME}/lib">
+        <include name="XmlSchema-1.3.2.jar"/>
+        <include name="activation-1.1.jar"/>
+        <include name="asm-all-3.1.jar"/>
+        <include name="avalon-framework-4.1.3.jar"/>
+        <include name="axiom-api-1.2.5.jar"/>
+        <include name="axiom-impl-1.2.5.jar"/>
+        <include name="cglib-nodep-2.1_3.jar"/>
+        <include name="commons-logging-1.1.jar"/>
+        <include name="geronimo-commonj_1.1_spec-1.0.jar"/>
+        <include name="jaxb-api-2.1.jar"/>
+        <include name="jaxb-impl-2.1.7.jar"/>
+        <include name="jaxb2-reflection-2.1.4.jar"/>
+        <include name="jaxen-1.1-beta-9.jar"/>
+        <include name="jaxws-api-2.1.jar"/>
+        <include name="jettison-1.0.jar"/>
+        <include name="json-rpc-1.0.jar"/>
+        <include name="jsr181-api-1.0-MR1.jar"/>
+        <include name="jsr250-api-1.0.jar"/>
+        <include name="log4j-1.2.12.jar"/>
+        <include name="logkit-1.0.1.jar"/>
+        <include name="mail-1.4.jar"/>
+        <include name="stax-api-1.0-2.jar"/>
+        <include name="wstx-asl-3.2.1.jar"/>
+        <include name="xml-apis-1.3.03.jar"/>
+    </fileset>
+
+</project>

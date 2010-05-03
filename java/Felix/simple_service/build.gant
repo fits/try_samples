@@ -1,0 +1,87 @@
+
+includeTargets << gant.targets.Clean
+
+Ant.property(environment: "env")
+felixHome = Ant.antProject.properties."env.FELIX_HOME"
+
+destDir = "dest"
+classesDir = "classes"
+jarFile = "test.jar"
+
+cleanDirectory << destDir
+
+list = [
+	new BundleInfo(type: "service", name: "Test Service", 
+		activator: "sample.TestActivator", 
+		importPackage: "org.osgi.framework",
+		exportPackage: "sample.service"),
+
+	new BundleInfo(type: "client", name: "Test Client", 
+		activator: "sample.client.TestClientActivator", 
+		importPackage: "org.osgi.framework, sample.service")
+]
+
+//classesDir ‚ÌƒpƒX‚ðŽæ“¾
+def getClassesDirPath = {
+	"${destDir}/${it.type}/${classesDir}"
+}
+
+
+target("default": "") {
+    compile()
+}
+
+target(init: "") {
+    path(id: "project.classpath") {
+		list.each {
+        	pathelement(path: getClassesDirPath(it))
+        }
+
+        fileset(dir: felixHome) {
+            include(name: "bin/*.jar")
+        }
+    }
+}
+
+target(compile: "") {
+    depends(init)
+
+	list.each {
+		def tempDir = getClassesDirPath(it)
+
+	    Ant.mkdir(dir: tempDir)
+
+	    Ant.javac(srcdir: "src_${it.type}", destdir: tempDir) {
+	        classpath(refid: "project.classpath")
+	    }
+    }
+}
+
+target(build: "") {
+    depends(compile)
+
+	list.each { b ->
+	    Ant.jar(destfile: "${destDir}/${b.type}${jarFile}", basedir: getClassesDirPath(b)) {
+	        manifest {
+	            attribute(name: "Bundle-Name", value: b.name)
+	            attribute(name: "Bundle-Description", value: "")
+	            attribute(name: "Bundle-Vendor", value: "")
+	            attribute(name: "Bundle-Version", value: "1.0.0")
+	            attribute(name: "Bundle-Activator", value: b.activator)
+	            attribute(name: "Import-Package", value: b.importPackage)
+
+	            if (b.exportPackage != null) {
+	            	attribute(name: "Export-Package", value: b.exportPackage)
+	            }
+	        }
+	    }
+	}
+}
+
+class BundleInfo {
+	def type
+	def name
+	def activator
+	def importPackage
+	def exportPackage
+}

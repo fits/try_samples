@@ -1,0 +1,47 @@
+
+includeTargets << gant.targets.Clean
+
+Ant.property(environment: "env")
+camelHome = Ant.antProject.properties."env.CAMEL_HOME"
+jettyHome = Ant.antProject.properties."env.JETTY_HOME"
+
+destDir = "dest"
+
+cleanDirectory << destDir
+
+target("default": "") {
+	compile()
+}
+
+target(init: "") {
+	path(id: "project.classpath") {
+		pathelement(path: destDir)
+
+		fileset(dir: camelHome) {
+			include(name: "**/*.jar")
+		}
+
+		fileset(dir: jettyHome) {
+			include(name: "**/*.jar")
+		}
+	}
+}
+
+target(compile: "") {
+	depends(init)
+
+	Ant.mkdir(dir: destDir)
+
+	Ant.javac(srcdir: "src", destdir: destDir) {
+		classpath(refid: "project.classpath")
+	}
+}
+
+target(run: "") {
+	depends(compile)
+
+	Ant.java(classname: "sample.SampleRoute", fork: true) {
+		classpath(refid: "project.classpath")
+	}
+}
+

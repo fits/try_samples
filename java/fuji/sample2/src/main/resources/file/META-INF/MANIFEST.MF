@@ -1,0 +1,5 @@
+Bundle-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: ${artifactId}-su-file
+Bundle-Name: ${name} - File BC Service Unit
+Component-Name: sun-file-binding

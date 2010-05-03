@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpws:process exitOnStandardFault="yes" name="SampleTest"
+    suppressJoinFailure="yes" targetNamespace="http://fitsx/sample"
+    xmlns:bpws="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:tns="http://fitsx/sample">
+    <bpws:import importType="http://schemas.xmlsoap.org/wsdl/"
+        location="SampleTest.wsdl" namespace="http://fitsx/sample"/>
+    <bpws:partnerLinks>
+        <bpws:partnerLink myRole="SampleTestProvider" name="client" partnerLinkType="tns:SampleTest"/>
+    </bpws:partnerLinks>
+    <bpws:variables>
+        <bpws:variable messageType="tns:SampleTestRequestMessage" name="input"/>
+        <bpws:variable messageType="tns:SampleTestResponseMessage" name="output"/>
+    </bpws:variables>
+    <bpws:sequence name="main">
+        <bpws:receive createInstance="yes" name="receiveInput"
+            operation="hello" partnerLink="client"
+            portType="tns:SampleTest" variable="input"/>
+        <bpws:assign name="Assign" validate="no">
+            <bpws:copy>
+                <bpws:from part="payload" variable="input">
+                    <bpws:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[/tns:input]]></bpws:query>
+                </bpws:from>
+                <bpws:to part="payload" variable="output"/>
+            </bpws:copy>
+        </bpws:assign>
+        <bpws:reply name="replyOutput" operation="hello"
+            partnerLink="client" portType="tns:SampleTest" variable="output"/>
+    </bpws:sequence>
+</bpws:process>

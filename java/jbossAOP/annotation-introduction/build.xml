@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+
+<project name="JBOSS AOP caller" default="weave" basedir=".">
+	<property environment="env" />
+
+	<property name="src.dir" value="src" />
+	<property name="classes.dir" value="classes" />
+
+	<path id="jboss.aop.classpath">
+		<fileset dir="${env.JBOSSAOP_LIB}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<path id="project.classpath">
+		<pathelement path="${classes.dir}" />
+		<path refid="jboss.aop.classpath" />
+	</path>
+
+	<target name="prepare">
+		<taskdef name="aopc" classname="org.jboss.aop.ant.AopC" classpathref="jboss.aop.classpath" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="${classes.dir}" />
+
+		<javac srcdir="${src.dir}" destdir="${classes.dir}">
+			<classpath refid="jboss.aop.classpath" />
+		</javac>
+	</target>
+
+	<target name="weave" depends="compile, prepare">
+		<aopc verbose="true">
+			<compilerclasspath refid="jboss.aop.classpath" />
+			<classpath path="${classes.dir}" />
+			<src path="${classes.dir}" />
+			<aoppath path="jboss-aop.xml"/>
+		</aopc>
+	</target>
+
+	<target name="run" depends="weave">
+		<java fork="yes" className="TestMain">
+			<sysproperty key="jboss.aop.path" value="jboss-aop.xml" />
+			<classpath refid="project.classpath"/>
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="${classes.dir}" />
+	</target>
+
+</project>
