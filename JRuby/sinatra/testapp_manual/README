@@ -1,0 +1,14 @@
+[JRuby on Sinatra 手動作成版]
+
+(1) WEB-INF/lib ディレクトリに JAR ファイルを配置
+
+	- WEB-INF/lib/jruby-complete-1.5.0.RC2.jar
+	- WEB-INF/lib/jruby-rack-0.9.7.jar
+
+(2) WEB-INF/gems ディレクトリに rack-1.0.1 と sinatra-1.0 の gems を配置
+
+	- WEB-INF/gems/gems/rack-1.0.1
+	- WEB-INF/gems/gems/sinatra-1.0
+	- WEB-INF/gems/specifications/rack-1.0.1.gemspec
+	- WEB-INF/gems/specifications/sinatra-1.0.gemspec
+
