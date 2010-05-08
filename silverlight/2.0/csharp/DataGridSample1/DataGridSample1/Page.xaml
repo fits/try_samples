@@ -1,0 +1,16 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/client/2007"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:data="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Data"
+	x:Class="DataGridSample1.Page"
+	Width="640" Height="480" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d">
+
+	<Grid x:Name="LayoutRoot" Background="White" >
+		<data:DataGrid x:Name="dataGrid1" HorizontalAlignment="Stretch" Margin="165,27,59,175" VerticalAlignment="Stretch">
+			<data:DataGrid.Columns>
+				<data:DataGridTextBoxColumn Header="Name" IsReadOnly="true" DisplayMemberBinding="{Binding Name}" />
+				<data:DataGridTextBoxColumn Header="Point" DisplayMemberBinding="{Binding Point}" />
+			</data:DataGrid.Columns>
+		</data:DataGrid>
+	</Grid>
+</UserControl>

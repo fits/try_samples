@@ -1,0 +1,76 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <DefaultClrNameSpace>DataGridSample1</DefaultClrNameSpace>
+    <AssemblyName>DataGridSample1</AssemblyName>
+    <RootNamespace>DataGridSample1</RootNamespace>
+    <ApplicationVersion>1.0.0.*</ApplicationVersion>
+    <ApplicationRevision>0</ApplicationRevision>
+    <AlwaysCompileMarkupFilesInSeparateDomain>false</AlwaysCompileMarkupFilesInSeparateDomain>
+    <ExpressionBlendCreationVersion>2.1.1111.0</ExpressionBlendCreationVersion>
+    <ProjectGuid>{B3DC3394-E88A-4E5E-8BBF-99A6F6A5E2E1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <NoStdLib>true</NoStdLib>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <StartPageUrl>Default.html</StartPageUrl>
+    <XapOutputs>true</XapOutputs>
+    <XapFilename>DataGridSample1.xap</XapFilename>
+    <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+    <SilverlightAppEntry>DataGridSample1.App</SilverlightAppEntry>
+    <CreateTestPage>true</CreateTestPage>
+    <TestPageFileName>Default.html</TestPageFileName>
+    <DefineConstants>SILVERLIGHT</DefineConstants>
+    <SilverlightApplication>true</SilverlightApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="C:\Program Files\Microsoft SDKs\Silverlight\v2.0\Libraries\Client\System.Windows.Controls.Data.dll" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Browser" />
+    <Reference Include="System.Windows.Controls">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Controls.Extended">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <SilverlightPage Include="App.xaml">
+      <Generator>MSBuild:CompileXaml</Generator>
+      <SubType>Designer</SubType>
+    </SilverlightPage>
+    <SilverlightPage Include="Page.xaml">
+      <Generator>MSBuild:CompileXaml</Generator>
+      <SubType>Designer</SubType>
+    </SilverlightPage>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Page.xaml.cs">
+      <DependentUpon>Page.xaml</DependentUpon>
+    </Compile>
+    <None Include="Properties\AppManifest.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight\V2.0\Microsoft.Silverlight.CSharp.targets" />
+</Project>
