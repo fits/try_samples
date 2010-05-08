@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0
+Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<link rel="stylesheet" type="text/css" href="../ext-3.0.0/resources/css/ext-all.css" />
+<style type="text/css">
+
+.x-grid3-col-title {
+	/* テキストを折り返して表示 */
+	white-space: normal;
+}
+
+.x-grid3-col-note {
+	/* TextArea での入力内容をそのまま表示 */
+	white-space: pre;
+}
+</style>
+<script type="text/javascript" src="../ext-3.0.0/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="../ext-3.0.0/ext-all.js"></script>
+<script type="text/javascript">
+Ext.onReady(function() {
+    var data = [
+        ['SproutCore で JAX-RS(Jersey) と連携させる方法', 'なお、実際は SproutCore の sc-build コマンドで生成した \nHTML や JavaScript を Jersey のリソースクラス等と共に WAR ファイル化してデプロイするような流れになると思うが、\n今回はそこまではやらず、\n連携方法を確認するまでに止めている。', '2009/11/26'],
+        ['Scala で JAX-RS(JSR-311) - Jersey の場合', '動作確認は Ruby スクリプトで実施してみた。\n（Ruby にした理由は特に無いが、JSON データを POST するのが楽そうだったんで）\nまず、http://localhost:8082/customers/add に Customer の JSON データを POST する処理を実装。\nPOST の際に content-type で application/json を指定する。', '2009/11/15']
+    ];
+
+    var store = new Ext.data.SimpleStore({
+        fields: [
+            {name: 'title'},
+            {name: 'note'},
+            {name: 'date'}
+        ]
+    });
+
+    store.loadData(data);
+
+    var grid = new Ext.grid.EditorGridPanel({
+        columns: [
+            {id: 'title', header: 'Title', sortable: true, 
+				dataIndex: 'title', width: 100,
+            	editor: new Ext.grid.GridEditor(new Ext.form.TextArea(), {autoSize: true})},
+            {id: 'note', header: 'Note', sortable: true, 
+				dataIndex: 'note', width: 250,
+            	editor: new Ext.grid.GridEditor(new Ext.form.TextArea(), {autoSize: true})},
+            {header: 'Date', sortable: true, dataIndex: 'date', width: 75}
+        ],
+        store: store,
+        renderTo: 'grid-sample',
+        width: 450,
+        height: 250,
+        stripeRows: true
+    });
+});
+</script>
+</head>
+<body>
+<div id="grid-sample"></div>
+</body>
+</html>

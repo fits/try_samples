@@ -1,0 +1,68 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../ext-3.0.0/resources/css/ext-all.css" />
+
+<script type="text/javascript" src="../ext-3.0.0/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="../ext-3.0.0/ext-all.js"></script>
+
+<script type="text/javascript">
+<!--
+    Ext.BLANK_IMAGE_URL = "../ext-3.0.0/resources/images/default/s.gif";
+
+    var grid = null;
+
+    Ext.onReady(function() {
+
+        var data = [
+            ['test1', "img1.jpg", 1000.10, '2007/12/1', 'id:1'],
+            ['a', "img2.jpg", 50.1, '2007/12/27', 'id:2']
+        ];
+
+        //データのマッピング情報の定義
+        var store = new Ext.data.SimpleStore({
+            fields: [
+                {name: 'title'},
+		{name: 'img'},
+                {name: 'point', type: 'float'},
+                {name: 'date', type: 'date'},
+                {name: 'id'}
+            ]
+        });
+
+        store.loadData(data);
+
+        //グリッドの定義
+        grid = new Ext.grid.GridPanel({
+            columns: [
+                {id: 'title', header: 'Title', sortable: true, dataIndex: 'title'},
+				{header: 'Image', dataIndex: 'img', 
+					renderer: function(val){
+						var tpl = new Ext.Template("<img width='100' height='100' src='{img}'></img>");
+						return tpl.apply({img: val});
+					}
+				},
+                {header: 'Point', sortable: true, dataIndex: 'point'},
+                {header: 'Date', sortable: true, dataIndex: 'date', renderer: Ext.util.Format.dateRenderer('Y/m/d')}
+            ],
+            store: store,
+            width: 600,
+            height: 200,
+            stripeRows: true,
+            autoExpandColumn: 'title'
+        });
+
+        grid.render('grid-sample');
+
+    });
+
+//-->
+</script>
+
+</head>
+<body>
+<h1>ExtJS DataGrid Sample</h1>
+
+<div id="grid-sample"></div>
+
+</body>
+</html>

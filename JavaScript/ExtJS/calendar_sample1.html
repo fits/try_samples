@@ -1,0 +1,26 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css" />
+<script type="text/javascript" src="ext/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="ext/ext-all.js"></script>
+
+<script type="text/javascript">
+<!--
+    //デフォルト値の http://extjs.com/s.gif を変更
+    Ext.BLANK_IMAGE_URL = "ext/resources/images/default/s.gif";
+
+    Ext.onReady(function() {
+        var date = new Ext.form.DateField({fieldLabel: '日付', format: 'Y/m/d', applyTo: 'dateInput'});
+    });
+
+//-->
+</script>
+
+</head>
+<body>
+<h1>ExtJS Calendar DateField Sample</h1>
+
+<input type="text" id="dateInput" value="2007/12/28"></input>
+
+</body>
+</html>

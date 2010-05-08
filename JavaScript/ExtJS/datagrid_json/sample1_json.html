@@ -1,0 +1,78 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../ext-2.0/resources/css/ext-all.css" />
+<script type="text/javascript" src="../ext-2.0/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="../ext-2.0/ext-all.js"></script>
+<script type="text/javascript" src="../ext-2.0/adapter/jquery/jquery.js"></script>
+
+<script type="text/javascript">
+<!--
+    Ext.BLANK_IMAGE_URL = "../ext-2.0/resources/images/default/s.gif";
+
+    var grid = null;
+    var store = null;
+    var jsonproxy = null;
+
+    Ext.onReady(function() {
+    
+        jsonproxy = new Ext.data.HtmlProxy({
+            url: 'data.json'
+        });
+
+        jsonproxy.on("load", function(thisObj, o, arg){
+            alert("load : " + thisObj);
+        });
+
+        jsonproxy.on("loadexception", function(thisObj, o, arg, e){
+            alert("load exception : " + thisObj + ", " + o + ", " + arg + ", " + e);
+        });
+
+        //データのマッピング情報の定義
+        store = new Ext.data.Store({
+            proxy: jsonproxy,
+            reader: new Ext.data.JsonReader({
+                fields: [
+		                {name: 'num'},
+		                {name: 'code'},
+		                {name: 'description'}
+		            ],
+		            root: "data"
+		       })
+        });
+
+        //グリッドの定義
+        grid = new Ext.grid.GridPanel({
+            columns: [
+                {id: 'num', header: 'Title', sortable: true, dataIndex: 'num'},
+                {header: 'Point', sortable: true, dataIndex: 'code'},
+                {header: 'Date', sortable: true, dataIndex: 'description'}
+            ],
+            store: store,
+            width: 600,
+            height: 200,
+            stripeRows: true,
+            loadMask: true
+        });
+
+        grid.render('grid-sample');
+    });
+
+    function loadData() {
+        store.load({params:{hyn_code: "TXT", hyn_event: "AAA"}});
+    }
+
+//-->
+</script>
+
+</head>
+<body>
+<h1>ExtJS DataGrid JSON Sample</h1>
+
+<div id="grid-sample"></div>
+
+<br />
+
+<input type="button" value="データロード" onclick="loadData()" />
+
+</body>
+</html>

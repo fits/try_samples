@@ -1,0 +1,12 @@
+{data: [
+  {title: 'test1', point: 10, date: '2007/12/1'},
+  {title: 'test2', point: 10, date: '2007/12/1'},
+  {title: 'test3', point: 10, date: '2007/12/1'},
+  {title: 'test4', point: 10, date: '2007/12/1'},
+  {title: 'test5', point: 10, date: '2007/12/1'},
+  {title: 'test6', point: 10, date: '2007/12/1'},
+  {title: 'test7', point: 10, date: '2007/12/1'},
+  {title: 'test8', point: 10, date: '2007/12/1'},
+  {title: 'test9', point: 10, date: '2007/12/1'}
+]
+}
