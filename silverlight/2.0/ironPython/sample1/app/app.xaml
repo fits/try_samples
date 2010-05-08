@@ -1,0 +1,10 @@
+<UserControl xmlns="http://schemas.microsoft.com/client/2007"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:Class="System.Windows.Controls.UserControl"
+   x:Name="Page">
+
+    <StackPanel Orientation="Horizontal">
+        <TextBlock x:Name="TextBlock1" Text="てすと" />
+        <TextBlock x:Name="TextBlock2" Text="test" />
+    </StackPanel>
+</UserControl>
