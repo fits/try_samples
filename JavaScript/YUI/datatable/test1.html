@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>YUI DataTable sample</title>
+  <link type="text/css" rel="stylesheet" href="../yui/build/assets/skins/sam/datatable.css"></link>
+
+  <script type="text/javascript" src="../yui/build/utilities/utilities.js"></script>
+  <script type="text/javascript" src="../yui/build/datasource/datasource-beta-min.js"></script>
+
+  <!-- Source files -->
+  <script type="text/javascript" src="../yui/build/datatable/datatable-beta-min.js"></script>
+
+</head>
+<body >
+<h1>YUI DataTable Sample</h1>
+
+<div id="grid-sample" class="yui-skin-sam"></div>
+
+<script type="text/javascript">
+<!--
+  YAHOO.util.Event.addListener(window, "load", new function() {
+
+    var columns = [
+      {key:"title", sortable: true, resizeable:true},
+      {key:"point", sortable: true, resizeable:true},
+      {key:"date", sortable: true, resizeable:true},
+      {key:"id", sortable: true, resizeable:true}
+    ];
+
+    var data = [
+      {title:"test1", point:10, date:'2008/2/1', id:"id:1"},
+      {title:"test2", point:210, date:'2008/2/5', id:"id:2"},
+      {title:"test3", point:150, date:'2008/2/1', id:"id:3"},
+      {title:"test4", point:10, date:'2008/2/11', id:"id:4"},
+      {title:"test5", point:1, date:'2008/2/1', id:"id:5"},
+      {title:"test6", point:70, date:'2008/2/21', id:"id:6"},
+      {title:"test7", point:910, date:'2008/2/1', id:"id:7"}
+    ];
+
+    var dsrc = new YAHOO.util.DataSource(data);
+    dsrc.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
+    dsrc.responseSchema = {
+      fields: ["title", "date", "point", "id"]
+    };
+
+    var table = new YAHOO.widget.DataTable("grid-sample", columns, dsrc, {});
+
+    table.subscribe("rowMouseoverEvent", table.onEventHighlightRow); 
+    table.subscribe("rowMouseoutEvent", table.onEventUnhighlightRow); 
+    table.subscribe("rowClickEvent", table.onEventSelectRow);
+
+    table.subscribe("rowSelectEvent", function(e) {
+      var list = this.getSelectedRows();
+
+      var msg = "";
+
+      var rs = this.getRecordSet();
+
+      for (var i = 0; i < list.length; i++) {
+        msg += rs.getRecord(list[i]).getData("title") + "\n";
+      }
+
+      alert(msg);
+    });
+  });
+//-->
+</script>
+
+</body>
+</html>
