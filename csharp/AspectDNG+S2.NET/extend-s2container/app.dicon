@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE components PUBLIC "-//SEASAR2.1//DTD S2Container//EN"
+"http://www.seasar.org/dtd/components21.dtd">
+<components>
+
+	<component name="data" class="DataImpl">
+		<arg>"データ１"</arg>
+		<property name="Point">100</property>
+	</component>
+
+	<component name="testdata" class="DataImpl">
+		<arg>#appSettings['name'] + 'test'</arg>
+	</component>
+
+	<component name="processor" class="DataProcessor">
+		<property name="Data">
+			#appSettings['testMode']? #container.GetComponent('testdata'): #container.GetComponent('data')
+		</property>
+	</component>
+
+</components>
