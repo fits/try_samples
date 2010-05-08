@@ -1,0 +1,103 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="../ext-2.0/resources/css/ext-all.css" />
+<script type="text/javascript" src="../ext-2.0/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="../ext-2.0/ext-all-debug.js"></script>
+<script type="text/javascript">
+<!--
+	var typeInputBox;
+
+	Ext.BLANK_IMAGE_URL = "../ext-2.0/resources/images/default/s.gif";
+
+	var store = new Ext.data.SimpleStore({
+		fields: ["id"],
+		data: [
+			["test1"],
+			["abc"],
+			["123"],
+			["testdata"]
+		]
+	});
+
+	Ext.onReady(function() {
+		typeInputBox = new Ext.form.ComboBox({
+			store: store,
+			displayField: "id",
+			autoWidth: true,
+			mode: "local",
+			applyTo: "typeInput",
+		//	typeAhead: true, //自動補完の有効化
+		//	validationEvent: false, //keyup での検証処理を無効化
+			validator: function(val) {
+				var result = false;
+
+				if (val != "") {
+					result = this.store.find(this.displayField, new RegExp("^" + val + "$", "i")) > -1;
+				}
+
+				return result;
+			}
+		});
+
+		typeInputBox.lastValidatedValue = "";
+
+		typeInputBox.reset = function() {
+			this.lastValidatedValue = "";
+		};
+
+		//リセット時に
+		window.onreset = function() {
+			alert("reset");
+			typeInputBox.reset();
+		};
+
+		//ドロップダウンから直接選択した場合のイベント処理
+		typeInputBox.on("select", function(combo, record, index) {
+			alert("select record: " + record.data["id"] + ", index: " + index);
+		});
+
+		//フォーカスが外れた際に値が更新されていた場合のイベント処理
+		typeInputBox.on("change", function(combo, newValue, oldValue) {
+			alert("change new: " + newValue + ", old: " + oldValue);
+		});
+
+		//値が妥当であると判断された場合のイベント処理
+		typeInputBox.on("valid", function(combo) {
+			var value = combo.getValue();
+
+			if (value && 
+				value.toUpperCase() != combo.lastValidatedValue.toUpperCase()) {
+
+				combo.lastValidatedValue = value;
+				alert("valid !!!\nvalue: " + value + ", startValue: " + combo.startValue);
+			}
+		});
+
+	});
+
+	//コンボボックスの入力値を直接設定する処理
+	function clickInput() {
+		typeInputBox.setValue(document.getElementById("directInput").value);
+	}
+
+//-->
+</script>
+</head>
+<body>
+
+<form>
+
+	<div>
+		Type: 
+		<input type="text" id="typeInput" />
+	</div>
+	<div>
+		Name: <input type="text" id="directInput"  />
+	</div>
+	<input type="button" value="入力" onclick="clickInput()" />
+
+	<input type="reset" value="リセット" />
+</form>
+
+</body>
+</html>
