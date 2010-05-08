@@ -1,0 +1,61 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css" />
+<script type="text/javascript" src="ext/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="ext/ext-all.js"></script>
+
+<script type="text/javascript">
+<!--
+    //デフォルト値の http://extjs.com/s.gif を変更
+    Ext.BLANK_IMAGE_URL = "ext/resources/images/default/s.gif";
+
+    Ext.onReady(function() {
+
+        //Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+
+        var data = [
+            ['test1', 1000.10, '2007/12/1'],
+            ['a', 50.1, '2007/12/27'],
+            ['チェックデータ', -10, '2008/1/1']
+        ];
+
+        //データの型などを定義
+        var store = new Ext.data.SimpleStore({
+            fields: [
+                {name: 'title'},
+                {name: 'point', type: 'float'},
+                {name: 'date', type: 'date'}
+            ]
+        });
+
+        store.loadData(data);
+
+        //データグリッドを定義
+        var grid = new Ext.grid.GridPanel({
+            columns: [
+                {id: 'title', header: 'Title', sortable: true, dataIndex: 'title'},
+                {header: 'Point', sortable: true, dataIndex: 'point'},
+                {header: 'Date', sortable: true, dataIndex: 'date', renderer: Ext.util.Format.dateRenderer('Y/m/d')}
+            ],
+            store: store,
+            width: 400,
+            height: 200,
+            stripeRows: true,
+            autoExpandColumn: 'title'
+        });
+
+        grid.render('grid-sample');
+        grid.getSelectionModel().selectFirstRow();
+        
+    });
+//-->
+</script>
+
+</head>
+<body>
+<h1>ExtJS DataGrid Sample</h1>
+
+<div id="grid-sample"></div>
+
+</body>
+</html>
