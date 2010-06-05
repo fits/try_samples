@@ -17,9 +17,9 @@ val rule = new RewriteRule {
 			//以下でも可
 		//	e % new UnprefixedAttribute("type", "node", Null) % new UnprefixedAttribute("ext", "updated", Null)
 
-			val details = Utility.trimProper(ne)(0).child
+			val details = ne.child
 
-			val ch: NodeSeq = for(i <- 0 until details.length) yield i match {
+			val ch: NodeSeq = for (i <- 0 until details.length) yield i match {
 				case 0 => <text>update test</text>
 				case 1 => <details>after</details>
 				case n => details(n)
@@ -32,6 +32,6 @@ val rule = new RewriteRule {
 
 }
 
-val newDoc = new RuleTransformer(rule).transform(doc)
+val newDoc = new RuleTransformer(rule).transform(Utility.trim(doc))
 
 println(newDoc.mkString)
