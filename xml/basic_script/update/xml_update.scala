@@ -13,14 +13,25 @@ val rule = new RewriteRule {
 
 		//属性の追加と変更
 		case e: Elem if (e \ "@id").text == "2" =>
-			e % Attribute("", "type", "node", Null) % Attribute("", "ext", "updated", Null)
+			val ne = e % Attribute("", "type", "node", Null) % Attribute("", "ext", "updated", Null)
 			//以下でも可
 		//	e % new UnprefixedAttribute("type", "node", Null) % new UnprefixedAttribute("ext", "updated", Null)
 
-		
+			val details = Utility.trimProper(ne)
+
+			println(details.length)
+
+			val ch: NodeSeq = for(i <- 0 to details.length) yield i match {
+				case 0 => <text>update test</text>
+				case 1 => <details>after</details>
+				case n => details(n)
+			}
+
+			ne.copy(child = ch)
 
 		case n => n
 	}
+
 }
 
 val newDoc = new RuleTransformer(rule).transform(doc)
