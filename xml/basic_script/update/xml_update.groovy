@@ -12,12 +12,7 @@ doc.appendNode {
 
 
 
-def builder = new StreamingMarkupBuilder()
-
-//•¶š—ñ‚ÅXMLæ“¾
-def xmlString = builder.bind{
+//•¶š—ñ‚ÅXML‚ğæ“¾‚µ‚Äo—Í
+println new StreamingMarkupBuilder().bind{
 	mkp.yield doc
 }
-
-println xmlString
-
