@@ -15,7 +15,7 @@ doc.data.find {it.@id == "2"}.@type = "node"
 //以下でも可
 doc.data[1].@type = "node"
 
-//以下は不可。appendNode した要素に find や配列でアクセスできない模様
+//以下は不可。appendNode した要素は find や配列でアクセスできない模様
 //doc.data.find {it.@id == "3"}.@type = "node1"
 //doc.data[2].@type = "node2"
 
@@ -25,15 +25,18 @@ doc.data.find {it.@id == "1"}.replaceNode {}
 
 
 //要素の変更
-doc.data.find {it.@id == "2"}.children()[1].replaceNode {
+doc.data.find {it.@id == "2"}.children()[0].replaceNode {
 	text("update test")
 }
 //以下でも可
 /*
-doc.data[1].details[1].replaceNode {
+doc.data[1].details[0].replaceNode {
 	text("update test")
 }
 */
+
+//要素の値を変更
+doc.data.find {it.@id == "2"}.details[1] = "after"
 
 //属性の変更 <data id="2" ext="none"> を ext="updated" に変更
 doc.data.find {it.@id == "2"}.@ext = "updated"
