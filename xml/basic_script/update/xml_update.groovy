@@ -25,12 +25,12 @@ doc.data.find {it.@id == "1"}.replaceNode {}
 
 
 //—v‘f‚Ì•ÏX
-doc.data.find {it.@id == "2"}.children()[0].replaceNode {
+doc.data.find {it.@id == "2"}.children()[1].replaceNode {
 	text("update test")
 }
 //ˆÈ‰º‚Å‚à‰Â
 /*
-doc.data[1].details[0].replaceNode {
+doc.data[1].details[1].replaceNode {
 	text("update test")
 }
 */
