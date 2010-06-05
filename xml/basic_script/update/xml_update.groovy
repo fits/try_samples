@@ -24,7 +24,7 @@ doc.data[1].@type = "node"
 doc.data.find {it.@id == "1"}.replaceNode {}
 
 
-//要素の変更
+//要素の置換
 doc.data.find {it.@id == "2"}.children()[0].replaceNode {
 	text("update test")
 }
