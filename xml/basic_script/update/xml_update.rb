@@ -19,7 +19,7 @@ doc.elements["//data[@id='1']"].remove
 #要素を置換
 n.replace_child(n.elements[1], REXML::Element.new("text").add_text("update test"))
 
-//要素の値を変更
+#要素の値を変更
 n.elements[2].text = "after"
 
 #属性の変更
