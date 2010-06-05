@@ -16,7 +16,7 @@ doc.elements["//data[@id='1']"].remove
 #doc.elements["data"].remove
 #doc.delete_element("data")
 
-#要素を置換
+#要素を置換、elements[index] を使用する場合 index は 1 からになる
 n.replace_child(n.elements[1], REXML::Element.new("text").add_text("update test"))
 
 #要素の値を変更
