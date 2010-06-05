@@ -17,14 +17,18 @@ val rule = new RewriteRule {
 			//以下でも可
 		//	e % new UnprefixedAttribute("type", "node", Null) % new UnprefixedAttribute("ext", "updated", Null)
 
-			val details = ne.child
-
-			val ch: NodeSeq = for (i <- 0 until details.length) yield i match {
-				case 0 => <text>update test</text>
-				case 1 => <details>after</details>
-				case n => details(n)
+			//子要素を処理
+			val ch: NodeSeq = ne.child.zipWithIndex.map {l =>
+				l._2 match {
+					//要素を置換
+					case 0 => <text>update test</text>
+					//要素の値を変更
+					case 1 => Elem(l._1.prefix, l._1.label, l._1.attributes, l._1.scope, Text("after"))
+					case _ => l._1
+				}
 			}
 
+			//子要素のみを変更した要素のコピーを作成
 			ne.copy(child = ch)
 
 		case n => n
