@@ -1,0 +1,50 @@
+
+includeTargets << gant.targets.Clean
+
+ant.property(environment: "env")
+camelHome = ant.antProject.properties."env.CAMEL_HOME"
+scalaHome = ant.antProject.properties."env.SCALA_HOME"
+
+destDir = "dest"
+
+cleanDirectory << destDir
+
+target("default": "") {
+	compile()
+}
+
+target(init: "") {
+	path(id: "project.classpath") {
+		pathelement(path: destDir)
+
+		fileset(dir: camelHome) {
+			include(name: "**/*.jar")
+		}
+
+		fileset(dir: scalaHome) {
+			include(name: "**/*.jar")
+		}
+	}
+}
+
+target(compile: "") {
+	depends(init)
+
+	mkdir(dir: destDir)
+
+	//Scala 2.7
+	ant.java(classname: "scala.tools.nsc.Main", fork: true) {
+		classpath(refid: "project.classpath")
+		jvmarg(line: "-Dscala.home=${scalaHome}")
+		arg(line: "-d ${destDir} test.scala")
+	}
+}
+
+target(run: "") {
+	depends(compile)
+
+	ant.java(classname: "Test", fork: true) {
+		classpath(refid: "project.classpath")
+	}
+}
+
