@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" type="text/css" media="screen" href="css/jquery-ui-1.8.1.custom.css" />
+<link rel="stylesheet" type="text/css" media="screen" href="css/ui.jqgrid.css" />
+<script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>
+<script src="js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+	$(function() {
+		var dbList = $("#dbList");
+
+		//DBリスト取得
+		$.get("/databases", null, function(res) {
+			//IEだと以下の処理は機能しない
+			//クリア
+			dbList.empty();
+			//空白行を挿入
+			dbList.append(new Option());
+
+			$.each(res, function() {
+				dbList.append(new Option(this.table_schema));
+			});
+		}, "json");
+
+		dbList.change(function(e) {
+			//IEだと以下の処理は機能しない
+			var url = "/tables/" + e.target.value;
+
+			$.get(url, null, function(res) {
+				//レコード数が少なくなると前のレコードが残ったままになる
+				$("#tableList").setGridParam({
+					data: res
+				}).trigger("reloadGrid");
+
+			}, "json");
+		});
+
+		createTable();
+	});
+
+	function createTable() {
+		$("#tableList").jqGrid({
+			datatype: "local",
+			pager: "pager",
+			width: 700,
+			height: 200,
+			colNames: ["TABLE_NAME", "TABLE_TYPE", "ENGINE", "AVG_ROW_LENGTH", "CREATE_TIME"],
+			colModel: [
+				{name: "table_name", index: "table_name"},
+				{name: "table_type", index: "table_type"},
+				{name: "engine", index: "engine"},
+				{name: "avg_row_length", index: "avg_row_length", sorttype: "int"},
+				{name: "create_time", index: "create_time"}
+			]
+		});
+	}
+
+</script>
+<body>
+<div>
+	<select id="dbList"></select>
+</div>
+
+<table id="tableList"></table>
+
+<div id="pager"></div>
+</body>
+</html>
