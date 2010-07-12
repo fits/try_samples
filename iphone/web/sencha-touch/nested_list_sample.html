@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Nested List Sample</title>
+  <link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
+  <script type="text/javascript" src="js/ext-touch-debug.js"></script>
+  <script type="text/javascript">
+    Ext.setup({
+    	onReady: function() {
+    		var list = new Ext.NestedList({
+    			fullscreen: true,
+    			items: [
+    					{text: "OptionA", items: [
+    						{text: "AAAA"},
+    						{text: "BBBB"}
+    					]},
+    			]
+    		});
+    	}
+    });
+</script>
+</head>
+<body>
+</body>
+</html>
