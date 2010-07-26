@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="js/ext-3.2.1/resources/css/ext-all.css" />
+<script src="js/ext-3.2.1/adapter/ext/ext-base.js" type="text/javascript"></script>
+<script src="js/ext-3.2.1/ext-all-debug.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+	Ext.onReady(function() {
+		var dformat = "c";
+
+		var dbStore = new Ext.data.JsonStore({
+			url: "informations/databases",
+			fields: ["table_schema"]
+		});
+
+		dbStore.load();
+
+		var dbList = new Ext.form.ComboBox({
+			store: dbStore,
+			displayField: "table_schema",
+			mode: "local",
+			autoWidth: true,
+			triggerAction : 'all',
+			editable: false,
+			applyTo: "dbList"
+		});
+
+		var tableStore = new Ext.data.JsonStore({
+			//proxy Çé©ìÆê›íËÇ∑ÇÈÇΩÇﬂÇ…É_É~Å[ÇÃURLÇê›íË
+			url: "tables/0",
+			fields: [
+				"table_name", 
+				"table_type", 
+				"engine", 
+				{name: "avg_row_length", type: "int"}, 
+				{name: "create_time", type: "date", dateFormat: dformat}
+			]
+		});
+
+		var grid = new Ext.grid.GridPanel({
+			store: tableStore,
+			columns: [
+				{dataIndex: "table_name", header: "TABLE_NAME", sortable: true},
+				{dataIndex: "table_type", header: "TABLE_TYPE", sortable: true},
+				{dataIndex: "engine", header: "ENGINE", sortable: true},
+				{dataIndex: "avg_row_length", header: "AVG_ROW_LENGTH", sortable: true, width: 130},
+				{id: "create_time", dataIndex: "create_time", header: "CREATE_TIME", sortable: true, renderer: Ext.util.Format.dateRenderer('Y/m/d G:i:s')}
+			],
+			width: 600,
+			height: 200,
+			applyTo: "tableList",
+			autoExpandColumn: "create_time",
+			stripeRows: true
+		});
+
+		dbList.on("select", function(combo, record, index) {
+			tableStore.proxy.setUrl("informations/tables/" + record.data["table_schema"]);
+			tableStore.load();
+		});
+
+	});
+
+</script>
+</head>
+<body>
+<div>
+	<input type="text" id="dbList" />
+</div>
+<div id="tableList"></div>
+</body>
+</html>
