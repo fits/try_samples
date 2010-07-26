@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nested List Sample</title>
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+  <meta name="apple-touch-fullscreen" content="yes" />
+  <style type="text/css" media="screen">@import "iui/iuix.css";</style>
+  <script type="text/javascript" src="iui/iuix.js"></script>
+  <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      $("#home").empty();
+
+      $.get("informations/databases", null, function(res){
+        $.each(res, function() {
+          var db = this.table_schema;
+
+          $(document.body).append("<ul id='" + db + "' title='" + db + "'></ul>");
+          $("#home").append("<li><a id='" + db + "_link' href='#" + db + "'>" + db + "</a></li>");
+
+          $("#" + db + "_link").click(function(e) {
+            $("#" + db).empty();
+
+            $.get("informations/tables/" + db, null, function(res2){
+              $.each(res2, function() {
+                var link = createDetailsPanel(db, this);
+
+                $("#" + db).append("<li><a href='#" + link + "'>" + this.table_name + "</a></li>");
+              });
+            }, "json");
+          });
+        });
+      }, "json");
+    });
+
+    /**
+     * 詳細表示パネルを作成する
+     */
+    function createDetailsPanel(db, item) {
+      var id = db + "___" + item.table_name;
+
+      $("#" + id).remove();
+
+      $(document.body).append("<div id='" + id + "' title='" + item.table_name + "' class='panel'></div>");
+
+      var headers = ["table_name", "table_type", "engine", "create_time"];
+
+      var html = "<fieldset>";
+
+      $.each(headers, function() {
+        html += "<div class='row'>";
+        html += "<label>" + this + "</label>";
+        html += "<span>" + item[this] + "</span>";
+        html += "</div>";
+      });
+
+      html += "</fieldset>";
+
+      $("#" + id).append(html);
+
+      return id;
+    }
+  </script>
+</head>
+<body>
+  <div class="toolbar">
+    <h1 id="pageTitle">Nested List Sample</h1>
+    <a id="backButton" class="button" href="#"></a>
+  </div>
+  <ul id="home" title="DB" selected="true"></ul>
+</body>
+</html>

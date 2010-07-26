@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="apple-touch-fullscreen" content="yes" />
+  <title>Nested List Sample</title>
+  <link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
+  <style type="text/css" media="screen">@import "iui/iuix.css";</style>
+  <script type="application/x-javascript" src="iui/iuix.js"></script>
+</head>
+<body>
+	<div class="toolbar">
+		<h1 id="pageTitle">Nested List Sample</h1>
+		<a id="backButton" class="button" href="#"></a>
+	</div>
+
+	<ul id="home" title="Category" selected="true">
+		<li><a href="#first">First</a></li>
+		<li><a href="#second">Second</a></li>
+	</ul>
+
+	<ul id="first" title="First">
+		<li class="group">A</li>
+		<li><a href="#test">test</a></li>
+		<li class="group">B</li>
+	</ul>
+
+	<div id="test" class="panel" title="Test">
+		<h2>test data</h2>
+	</div>
+
+</body>
+</html>
