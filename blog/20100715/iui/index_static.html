@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nested List Sample</title>
+	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+  <meta name="apple-touch-fullscreen" content="yes" />
+  <style type="text/css" media="screen">@import "iui/iuix.css";</style>
+  <script type="text/javascript" src="iui/iuix.js"></script>
+</head>
+<body>
+  <div class="toolbar">
+    <h1 id="pageTitle">information_schema</h1>
+    <a href="#" class="button" id="backButton">DB</a>
+  </div>
+  
+  <ul title="DB" id="home" selected="true">
+  	<li><a href="#information_schema" id="information_schema_link">information_schema</a></li>
+  	<li><a href="#mysql" id="mysql_link">mysql</a></li>
+  </ul>
+  
+  <ul title="information_schema" id="information_schema">
+  	<li><a href="#information_schema___CHARACTER_SETS">CHARACTER_SETS</a></li>
+  	<li><a href="#information_schema___COLLATIONS">COLLATIONS</a></li>
+  </ul>
+
+  <div class="panel" title="CHARACTER_SETS" id="information_schema___CHARACTER_SETS">
+    <fieldset>
+      <div class="row">
+        <label>table_name</label>
+        <span>CHARACTER_SETS</span>
+      </div>
+      <div class="row">
+        <label>table_type</label>
+        <span>SYSTEM VIEW</span>
+      </div>
+    </fieldset>
+  </div>
+</body>
+</html>
+
