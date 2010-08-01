@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nested List Sample</title>
+  <style type="text/css" media="screen">@import "jqtouch/jqtouch.min.css";</style>
+  <style type="text/css" media="screen">@import "themes/apple/theme.min.css";</style>
+  <style type="text/css">
+    .row {
+      background: rgb(240, 240, 240);
+      font-size: 12px;
+    }
+    .row > span {
+      position: absolute;
+      left: 120px;
+    }
+  </style>
+  <script src="jqtouch/jquery.1.3.2.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="jqtouch/jqtouch.min.js" type="application/x-javascript" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
+    $.jQTouch({});
+
+    $(function() {
+      $("#db_list").empty();
+
+      $.get("informations/databases", null, function(res){
+        $.each(res, function() {
+          var db = this.table_schema;
+
+          //DB毎の (2) を作成
+          var content = "<div id='" + db + "'>";
+          content += createToolbar(db, "db");
+          content += "<ul id='" + db + "_list'></ul>";
+          content += "</div>";
+          $(document.body).append(content);
+
+          //(1) にDB毎の (2) へのリンクを追加
+          $("#db_list").append("<li class='arrow'><a id='" + db + "_link' href='#" + db + "'>" + db + "</a></li>");
+
+          $("#" + db + "_link").click(function(e) {
+            $("#" + db + "_list").empty();
+
+            $.get("informations/tables/" + db, null, function(res2){
+              $.each(res2, function() {
+                //(3) を作成
+                var link = createDetailsPanel(db, this);
+
+                //(2) にテーブル毎の (3) へのリンクを追加
+                $("#" + db + "_list").append("<li class='arrow'><a href='#" + link + "'>" + this.table_name + "</a></li>");
+              });
+            }, "json");
+          });
+        });
+      }, "json");
+    });
+
+    /**
+     * 詳細表示パネルを作成する
+     */
+    function createDetailsPanel(db, item) {
+      var id = db + "___" + item.table_name;
+
+      $("#" + id).remove();
+
+      $(document.body).append("<div id='" + id + "'></div>");
+
+      var headers = ["table_name", "table_type", "engine", "create_time"];
+
+      var html = createToolbar(item.table_name, db);
+      html += "<ul>";
+
+      $.each(headers, function() {
+        html += "<li class='row'>";
+        html += "<label>" + this + "</label>";
+        html += "<span>" + item[this] + "</span>";
+        html += "</li>";
+      });
+
+      html += "</ul>";
+
+      $("#" + id).append(html);
+
+      return id;
+    }
+
+    /**
+     * ツールバーを作成する
+     */
+    function createToolbar(title, back) {
+      var result = "<div class='toolbar'>";
+      result += "<h1>" + title + "</h1>";
+      //戻るボタンの設定
+      result += "<a class='button back' href='#" + back + "'>" + back + "</a>";
+      result += "</div>";
+
+      return result;
+    }
+  </script>
+</head>
+<body>
+  <!-- (1) DBのリスト表示画面 -->
+  <div id="db" class="current">
+    <div class="toolbar">
+      <h1 id="pageTitle">DB</h1>
+    </div>
+    <ul id="db_list" class="rounded"></ul>
+  </div>
+</body>
+</html>
