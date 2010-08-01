@@ -7,19 +7,32 @@ def db = new EmbeddedGraphDatabase("sample-store1")
 def tx = db.beginTx()
 
 try {
+	def know = DynamicRelationshipType.withName("knows")
+
 	def n1 = db.createNode()
 	n1.setProperty("name", "Tester1")
 
 	println("n1 id = ${n1.id}")
 
-	def n2 = db.createNode()
-	n2.setProperty("name", "test2")
+	n11 = db.createNode()
+	n11.setProperty("name", "tester1-1")
+	n1.createRelationshipTo(n11, know)
 
-	println("n2 id = ${n2.id}")
+	n111 = db.createNode()
+	n111.setProperty("name", "tester1-1-1")
+	n11.createRelationshipTo(n111, know)
 
-	def know = DynamicRelationshipType.withName("knows")
+	n1111 = db.createNode()
+	n1111.setProperty("name", "tester1-1-1-1")
+	n111.createRelationshipTo(n1111, know)
 
-	n1.createRelationshipTo(n2, know)
+	n1112 = db.createNode()
+	n1112.setProperty("name", "tester1-1-1-2")
+	n111.createRelationshipTo(n1112, know)
+
+	n12 = db.createNode()
+	n12.setProperty("a", "tester1-2")
+	n1.createRelationshipTo(n12, know)
 
 	tx.success()
 } catch (ex) {
