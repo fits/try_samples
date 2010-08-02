@@ -38,7 +38,7 @@ try {
 	//2層目で探索を停止
 	def s = {pos -> pos.depth() == 2} as StopEvaluator
 	//name プロパティを持つNodeのみ返す。
-	def r = {pos -> pos.currentNode.hasProperty("name")} as ReturnableEvaluator
+	def r = {pos -> pos.currentNode().hasProperty("name")} as ReturnableEvaluator
 
 	//Relationship=know で繋がっている Node を 2層目まで探索
 	//（Relationship の向きはどちらでもよい）
