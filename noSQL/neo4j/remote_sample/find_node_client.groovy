@@ -44,18 +44,20 @@ try {
 	//（Relationship の向きはどちらでもよい）
 	def t = n.traverse(Traverser.Order.BREADTH_FIRST, s, r, know, Direction.BOTH)
 
-	//t.each を使うとエラーの発生頻度が高い
-	//以下のコードでもエラーが発生する時と発生しない時がある
-	t.getAllNodes().each {
+	t.each {
 		printName(it)
 	}
 
 	println "---------------"
 
-} catch (e) {
-//	e.printStackTrace()
+	//全 Node 探索
+	def all = n.traverse(Traverser.Order.BREADTH_FIRST, StopEvaluator.END_OF_GRAPH, ReturnableEvaluator.ALL, know, Direction.BOTH)
+
+	all.each {
+		printName(it)
+	}
+
 } finally {
-	tx.failure()
 	tx.finish()
 }
 
