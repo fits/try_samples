@@ -19,6 +19,10 @@
   <script type="text/javascript" charset="utf-8">
     $.jQTouch({});
 
+    //iPhone の場合、click イベントが正常に発生しないため
+    //tap イベントに変更
+    var clickTrigger = ($.support.touch)? "tap": "click";
+
     $(function() {
       $("#db_list").empty();
 
@@ -36,7 +40,7 @@
           //(1) にDB毎の (2) へのリンクを追加
           $("#db_list").append("<li class='arrow'><a id='" + db + "_link' href='#" + db + "'>" + db + "</a></li>");
 
-          $("#" + db + "_link").click(function(e) {
+          $("#" + db + "_link").bind(clickTrigger, function(e) {
             $("#" + db + "_list").empty();
 
             $.get("informations/tables/" + db, null, function(res2){
