@@ -1,15 +1,12 @@
 <?php
 require_once dirname(__FILE__) . '/lib/limonade.php';
 
-function configure() {
-	option('env', ENV_DEVELOPMENT);
-	option('debug', true);
-}
-
+//ルート / へのアクセス時の処理
 dispatch('/', function() {
 	return "hello";
 });
 
+// /name/value へのアクセス時の処理
 dispatch('/:name/:value', function() {
 	$name = params("name");
 	$value = params("value");
