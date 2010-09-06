@@ -8,11 +8,11 @@
 <body>
   <form runat="server">
     <div>
-    	<asp:TextBox runat="server" id="InfoText" />
-    	<asp:Button runat="server" id="InfoButton" text="Button" onClick="InfoButton_Click" />
+      <asp:TextBox runat="server" id="InfoText" />
+      <asp:Button runat="server" id="InfoButton" text="Button" onClick="InfoButton_Click" />
     </div>
     <div>
-    	<asp:Label runat="server" id="InfoLabel" />
+      <asp:Label runat="server" id="InfoLabel" />
     </div>
   </form>
 </body>
