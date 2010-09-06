@@ -12,8 +12,10 @@ type DefaultPage() =
     [<DefaultValue>] val mutable InfoButton : Button
     [<DefaultValue>] val mutable InfoLabel : Label
 
+    //ページロード時の処理
     member this.Page_Load(sender : obj, e : EventArgs) =
         this.InfoLabel.Text <- "hello"
 
+    //ボタンクリック時の処理
     member this.InfoButton_Click(sender : obj, e : EventArgs) = 
         this.InfoLabel.Text <- "入力: " + this.InfoText.Text
