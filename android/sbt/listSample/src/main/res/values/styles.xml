@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="listItem">
+		<item name="android:minWidth">280dip</item>
+		<item name="android:maxWidth">280dip</item>
+	</style>
+</resources>

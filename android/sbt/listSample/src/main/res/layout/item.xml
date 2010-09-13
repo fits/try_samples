@@ -3,14 +3,11 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-	<TextView 
+	<TextView style="@style/listItem"
 		android:id="@+id/name"
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content"
 		android:singleLine="true"
-		android:layout_gravity="left"
-		android:minWidth="280dip"
-		android:maxWidth="280dip"
 		 />
 
 	<ImageView 
