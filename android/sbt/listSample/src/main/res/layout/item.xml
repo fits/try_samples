@@ -3,18 +3,14 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-	<TextView style="@style/listItem"
+	<TextView style="@style/listItemText"
 		android:id="@+id/name"
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
 		android:singleLine="true"
-		 />
+	/>
 
-	<ImageView 
+	<ImageView style="@style/listItemImage"
 		android:id="@+id/img" 
-		android:src="@drawable/chevron"  
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
+		android:src="@drawable/chevron"
 	/>
 
 </LinearLayout>
