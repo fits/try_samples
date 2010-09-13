@@ -13,7 +13,7 @@ class SampleListActivity extends ListActivity {
 
 		setContentView(R.layout.main)
 
-		val adapter = new ArrayAdapter(this, R.layout.item, R.id.name, Array("20100903_Sinatra風PHP用フレームワークLimonadeによるWebアプリケーション作成", "20100906_F#でASP.NET", "20100909_ScalaでAndroidアプリケーション作成 - sbt使用"))
+		val adapter = new ArrayAdapter(this, R.layout.item, R.id.name, Array("20100903_Sinatra風PHP用フレームワークLimonadeによるWebアプリケーション作成", "20100906_F#でASP.NET", "20100909_ScalaでAndroidアプリ"))
 
 		//リストアイテムの設定
 		setListAdapter(adapter)
