@@ -5,12 +5,12 @@
 
 	<TableRow>
 		<TextView android:text="@string/item_name" />
-		<TextView android:id="@+id/name" />
+		<TextView android:id="@+id/item_name" />
 	</TableRow>
 
 	<TableRow>
 		<TextView android:text="@string/item_content" />
-		<TextView android:id="@+id/content" />
+		<TextView android:id="@+id/item_content" />
 	</TableRow>
 
 </TableLayout>
