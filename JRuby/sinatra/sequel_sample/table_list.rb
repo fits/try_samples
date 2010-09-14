@@ -1,8 +1,8 @@
 require "rubygems"
 require "sinatra"
 require "sequel"
-require "mysql-connector-java-5.1.6-bin.jar"
-require "active_support"
+require "mysql-connector-java-5.1.13-bin.jar"
+require "active_support/json"
 
 DB = Sequel.connect("jdbc:mysql://localhost/information_schema?user=root")
 
