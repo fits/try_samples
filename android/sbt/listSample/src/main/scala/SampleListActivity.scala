@@ -1,6 +1,7 @@
 package fits.sample
 
 import android.app.ListActivity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
@@ -24,7 +25,12 @@ class SampleListActivity extends ListActivity {
 		//クリックしたアイテムを取得
 		val selectedItem = l.getItemAtPosition(p)
 
-		Toast.makeText(this, "item select : " + selectedItem, Toast.LENGTH_SHORT).show()
+		val intent = new Intent(this, classOf[ItemDetailActivity])
+		intent.putExtra("ITEM", selectedItem.toString())
+
+		startActivity(intent)
+
+	//	Toast.makeText(this, "item select : " + selectedItem, Toast.LENGTH_SHORT).show()
 
 	}
 }
