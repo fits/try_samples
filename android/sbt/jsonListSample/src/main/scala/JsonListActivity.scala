@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import scala.io.Source
 
+import org.json._
+
 class JsonListActivity extends ListActivity {
 	override def onCreate(savedInstanceState: Bundle) {
 		super.onCreate(savedInstanceState)
@@ -18,21 +20,20 @@ class JsonListActivity extends ListActivity {
 
 		try {
 			val url = "http://169.254.118.149:4567/databases"
-		//	val url = "http://localhost/"
 			val json = Source.fromURL(url).mkString
 
-			Toast.makeText(this, json, Toast.LENGTH_SHORT).show()
+			val obj = new JSONArray(json)
+
+			val dbList = for (i <- 0 until obj.length()) 
+				yield obj.optJSONObject(i).getString("table_schema")
+
+			val adapter = new ArrayAdapter(this, R.layout.item, R.id.name, dbList.toArray)
+			setListAdapter(adapter)
 		}
 		catch {
 			case e: Exception => 
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show()
 		}
-/*
-		val adapter = new ArrayAdapter(this, R.layout.item, R.id.name, Array("20100903_Sinatra風PHP用フレームワークLimonadeによるWebアプリケーション作成", "20100906_F#でASP.NET", "20100909_ScalaでAndroidアプリ"))
-
-		//リストアイテムの設定
-		setListAdapter(adapter)
-*/
 	}
 
 	//リストアイテムをクリックした際の処理
