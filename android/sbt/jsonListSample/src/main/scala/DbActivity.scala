@@ -1,6 +1,7 @@
 package fits.sample
 
 import android.app.ListActivity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.SimpleAdapter
@@ -28,6 +29,19 @@ class DbActivity extends ListActivity {
 			loadTables(db)
 		}
 	}
+
+	//リストアイテムをクリックした際の処理
+	override def onListItemClick(l: ListView, v: View, p: Int, id: Long) {
+
+		val intent = new Intent(this, classOf[TableActivity])
+		//Bundle に暗黙の型変換
+		val selectedItem: Bundle = l.getItemAtPosition(p)
+
+		intent.putExtra("TABLE", selectedItem)
+
+		startActivity(intent)
+	}
+
 
 	private def loadTables(db: CharSequence) {
 		try {
@@ -60,5 +74,16 @@ class DbActivity extends ListActivity {
 		result
 	}
 
-}
+	private implicit def toBundle(o: Object): Bundle = {
+		val result = new Bundle()
 
+		o match {
+			case m: java.util.Map[String, String] =>
+				for((k, v) <- m) {
+					result.putString(k, v)
+				}
+		}
+
+		result
+	}
+}
