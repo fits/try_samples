@@ -2,7 +2,8 @@
 <resources>
 	<string name="app_name">JsonListSample</string>
 	<string name="empty">No Data</string>
-	<string name="item_detail">ListItem Detail</string>
-	<string name="item_name">Name:</string>
-	<string name="item_content">Content:</string>
+	<string name="table_type">table_type:</string>
+	<string name="engine">engine:</string>
+	<string name="avg_row_length">avg_row_length:</string>
+	<string name="create_time">create_time:</string>
 </resources>

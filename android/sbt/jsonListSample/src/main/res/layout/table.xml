@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<TableRow>
+		<TextView android:text="@string/table_type" />
+		<TextView android:id="@+id/table_type" />
+	</TableRow>
+
+	<TableRow>
+		<TextView android:text="@string/engine" />
+		<TextView android:id="@+id/engine" />
+	</TableRow>
+
+	<TableRow>
+		<TextView android:text="@string/avg_row_length" />
+		<TextView android:id="@+id/avg_row_length" />
+	</TableRow>
+
+	<TableRow>
+		<TextView android:text="@string/create_time" />
+		<TextView android:id="@+id/create_time" />
+	</TableRow>
+
+</TableLayout>
