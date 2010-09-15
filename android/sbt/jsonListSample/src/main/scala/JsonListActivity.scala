@@ -19,7 +19,7 @@ class JsonListActivity extends ListActivity {
 		setContentView(R.layout.main)
 
 		try {
-			val url = "http://169.254.118.149:4567/databases"
+			val url = getResources().getString(R.string.db_url)
 			val json = Source.fromURL(url).mkString
 
 			val obj = new JSONArray(json)

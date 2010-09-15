@@ -45,7 +45,8 @@ class DbActivity extends ListActivity {
 
 	private def loadTables(db: CharSequence) {
 		try {
-			val url = "http://169.254.118.149:4567/tables/" + db
+			val url = getResources().getString(R.string.table_url) + db
+
 			val json = Source.fromURL(url).mkString
 
 			val jsonList = new JSONArray(json)
