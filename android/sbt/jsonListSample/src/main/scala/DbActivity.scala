@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.SimpleAdapter
 import android.widget.ListView
-import android.widget.Toast
 
 import scala.collection.JavaConversions._
 import scala.io.Source
@@ -36,14 +35,18 @@ class DbActivity extends ListActivity {
 	//リストアイテムをクリックした際の処理
 	override def onListItemClick(l: ListView, v: View, p: Int, id: Long) {
 		val intent = new Intent(this, classOf[TableActivity])
-		//Bundle に暗黙の型変換
-		val selectedItem: Bundle = l.getItemAtPosition(p)
 
-		intent.putExtra("TABLE", selectedItem)
+		//選択中のリストアイテムのデータ（java.util.HashMap）を
+		//Intent に設定
+		l.getItemAtPosition(p) match {
+			case b: java.io.Serializable =>
+				intent.putExtra("TABLE", b)
+		}
 
 		startActivity(intent)
 	}
 
+	//JSON データを取得する
 	private def loadJson(url: String) {
 		val proc: Option[JSONArray] => Unit = {
 			case Some(json) =>
@@ -60,9 +63,7 @@ class DbActivity extends ListActivity {
 		new JsonLoadTask(proc).execute(url)
 	}
 
-	/**
-	 * JSONObject を java.util.Map に変換する
-	 */
+	//JSONObject を java.util.Map （実際は HashMap）に変換する
 	private def toMap(jsonObj: JSONObject): java.util.Map[String, String] = {
 		val result = new java.util.HashMap[String, String]()
 
@@ -70,22 +71,6 @@ class DbActivity extends ListActivity {
 			k match {
 				case key: String => result.put(key, jsonObj.optString(key))
 			}
-		}
-
-		result
-	}
-
-	/** 
-	 * java.util.Map を Bundle に変換する
-	 */
-	private implicit def toBundle(o: Object): Bundle = {
-		val result = new Bundle()
-
-		o match {
-			case m: java.util.Map[String, String] =>
-				for((k, v) <- m) {
-					result.putString(k, v)
-				}
 		}
 
 		result

@@ -33,6 +33,7 @@ class JsonListActivity extends ListActivity {
 		startActivity(intent)
 	}
 
+	//JSON データを取得する
 	private def loadJson(url: String) {
 		val proc: Option[JSONArray] => Unit = {
 			case Some(json) =>
