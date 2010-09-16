@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- リストアイテム（1行）用のレイアウト -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
@@ -8,9 +9,9 @@
 		android:singleLine="true"
 	/>
 
+	<!-- セルのアクセサリ画像を表示 -->
 	<ImageView style="@style/listItemImage"
 		android:id="@+id/img" 
 		android:src="@drawable/chevron"
 	/>
-
 </LinearLayout>

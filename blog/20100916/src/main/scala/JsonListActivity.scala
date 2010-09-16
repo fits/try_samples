@@ -33,18 +33,24 @@ class JsonListActivity extends ListActivity {
 		startActivity(intent)
 	}
 
+	//JSON データを取得する
 	private def loadJson(url: String) {
+		//JSON取得時の処理
 		val proc: Option[JSONArray] => Unit = {
 			case Some(json) =>
+				//DB名（table_schema の値）のリストを作成
 				val dbList = for (i <- 0 until json.length()) 
 					yield json.optJSONObject(i).getString("table_schema")
 
+				//DB名のリストを配列化し ArrayAdapter に設定
 				val adapter = new ArrayAdapter(this, R.layout.item, R.id.name, dbList.toArray)
+				//adapter を設定
 				setListAdapter(adapter)
 
 			case None =>
 		}
 
+		//非同期処理の実行
 		new JsonLoadTask(proc).execute(url)
 	}
 }
