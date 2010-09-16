@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">JsonListSample</string>
+	<string name="empty">No Data</string>
+	<string name="table_type">table_type:</string>
+	<string name="engine">engine:</string>
+	<string name="avg_row_length">avg_row_length:</string>
+	<string name="create_time">create_time:</string>
+
+	<!-- 環境に合わせて変更 -->
+	<string name="db_url">http://testserver:4567/databases</string>
+	<string name="table_url">http://testserver:4567/tables/</string>
+
+</resources>
