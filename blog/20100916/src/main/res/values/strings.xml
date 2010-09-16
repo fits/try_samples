@@ -8,7 +8,7 @@
 	<string name="create_time">create_time:</string>
 
 	<!-- 環境に合わせて変更 -->
-	<string name="db_url">http://testserver:4567/databases</string>
-	<string name="table_url">http://testserver:4567/tables/</string>
+	<string name="db_url">http://testserver:4567/informations/databases</string>
+	<string name="table_url">http://testserver:4567/informations/tables/</string>
 
 </resources>
