@@ -21,7 +21,11 @@ namespace Fits.Routing
 
         public static void Action(string methodType, string pattern, Func<RequestContext, string> proc)
         {
-            RouteTable.Routes.Add(new Route(pattern, new ExtensionRouteHandler(methodType, proc)));
+            RouteTable.Routes.Add(new Route(pattern, new ExtensionRouteHandler(proc))
+            {
+                //HTTP Method による制約を指定
+                Constraints = new RouteValueDictionary{{"httpMethod", new HttpMethodConstraint(methodType)}}
+            });
         }
 
         /// <summary>
@@ -29,25 +33,16 @@ namespace Fits.Routing
         /// </summary>
         private class ExtensionRouteHandler : IRouteHandler
         {
-            private string methodType;
             private Func<RequestContext, string> proc;
 
-            public ExtensionRouteHandler(string methodType, Func<RequestContext, string> proc)
+            public ExtensionRouteHandler(Func<RequestContext, string> proc)
             {
-                this.methodType = methodType;
                 this.proc = proc;
             }
 
             public IHttpHandler GetHttpHandler(RequestContext requestContext)
             {
-                if (requestContext.HttpContext.Request.HttpMethod == this.methodType)
-                {
-                    return new ExtensionHttpHandler(this.proc, requestContext);
-                }
-                else
-                {
-                    return new DefaultHttpHandler();
-                }
+                return new ExtensionHttpHandler(this.proc, requestContext);
             }
         }
 
