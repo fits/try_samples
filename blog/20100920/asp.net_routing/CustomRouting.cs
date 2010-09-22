@@ -7,14 +7,16 @@ using System.Web.Routing;
 
 namespace Fits.Sample.Web.Routing
 {
-    public class CustomRouting
+    public static class CustomRouting
     {
-        public static void Get(string pattern, Func<RequestContext, string> proc)
+        //Get メソッドを HttpApplication の拡張メソッドとして定義
+        public static void Get(this HttpApplication app, string pattern, Func<RequestContext, string> proc)
         {
             Action("GET", pattern, proc);
         }
 
-        public static void Post(string pattern, Func<RequestContext, string> proc)
+        //Post メソッドを HttpApplication の拡張メソッドとして定義
+        public static void Post(this HttpApplication app, string pattern, Func<RequestContext, string> proc)
         {
             Action("POST", pattern, proc);
         }
