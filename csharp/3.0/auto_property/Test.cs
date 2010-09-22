@@ -16,7 +16,8 @@ public class Test
 {
 	public static void Main(string[] args)
 	{
-		Data d = new Data(){Id = "id:1", Name = "test1", Point = 15};
+		//コンストラクタに引数をとらない場合は () を省略可
+		Data d = new Data {Id = "id:1", Name = "test1", Point = 15};
 		d.Print();
 
 		//private のため Point は get できない
