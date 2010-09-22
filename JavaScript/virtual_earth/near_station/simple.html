@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Virtual Earth のサンプル（最寄駅検索）</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<script type="text/javascript" src="jquery.js" charset="Shift_JIS"></script>
+<script type="text/javascript" src="jquery.jsonp.js" charset="Shift_JIS"></script>
+
+<script type="text/javascript" src="http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6"></script>
+
+<script type="text/javascript">
+	var map = null;
+	var defaultLat = new VELatLong(35.681099, 139.767084);
+
+	function GetMap() {
+		map = new VEMap('myMap');
+		map.LoadMap(defaultLat);
+
+		map.AttachEvent("onclick", function(e) {
+
+			if (e.rightMouseButton) {
+				var pixel = new VEPixel(e.mapX, e.mapY);
+				searchStations(map.PixelToLatLong(pixel));
+			}
+		});
+
+		searchStations(defaultLat);
+	}
+
+	function searchStations(latlng) {
+		if (latlng == null) {
+			return;
+		}
+
+		var url = "http://map.simpleapi.net/stationapi?x=" + latlng.Longitude + "&y=" + latlng.Latitude + "&output=json&callback={callback}";
+
+		$.getJSONP(url, function(json) {
+
+			var stations = $("#stations");
+			stations.html("");
+
+			if (json != null) {
+
+				$.each(json, function(key, val) {
+					stations.html(stations.html() + "<br>" + val.line + " " + val.name + " " + val.traveltime);
+				});
+			}
+		});
+	}
+
+</script>
+</head>
+<body onload="GetMap();">
+
+	<h1>地図</h1>
+	<div id='myMap' style="position:relative; width:400px; height:400px;"></div>
+	<h1>最寄駅</h1>
+	<span id="stations"></span>
+
+</body>
+</html>
