@@ -13,14 +13,14 @@ namespace SampleWebApp
     {
         protected void Application_Start(object sender, EventArgs e)
         {
-//            RoutingExtension.Get("test/page", ctx =>
-            RoutingExtension.Post("test/page", ctx =>
+//          this.Get("test/page", ctx =>
+            this.Post("test/page", ctx =>
             {
                 ctx.HttpContext.Response.Redirect("/WebForm1.aspx");
                 return null;
             });
 
-            RoutingExtension.Get("{name}/{index}", ctx =>
+            this.Get("{name}/{index}", ctx =>
             {
                 var param = ctx.RouteData.Values;
                 return string.Format("hello {0} - {1}", param["name"], param["index"]);
