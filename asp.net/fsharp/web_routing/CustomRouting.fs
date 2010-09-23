@@ -1,4 +1,4 @@
-Ôªønamespace Fits.Sample.Web.Routing
+namespace Fits.Sample.Web.Routing
 
 open System
 open System.Web
@@ -24,8 +24,10 @@ module CustomRouting =
                     }
             })
 
+            //httpMethod ÇÃêßñÒÇê›íË
             let rv = RouteValueDictionary()
             rv.Add("httpMethod", new HttpMethodConstraint(methodType))
             r.Constraints <- rv
 
+            //ÉãÅ[ÉeÉBÉìÉOÇÃí«â¡
             RouteTable.Routes.Add(r)
