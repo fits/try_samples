@@ -17,7 +17,7 @@
     </div>
   </form>
   
-  <h1>POST Test</h1>
+  <h1>ASP.NET ルーティングチェック</h1>
   <form action="test/1" method="post">
     <input type="submit" />
   </form>
