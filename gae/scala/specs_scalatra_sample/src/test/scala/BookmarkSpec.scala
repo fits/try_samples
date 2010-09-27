@@ -1,8 +1,6 @@
 package fits.sample
 
 import org.specs._
-
-import com.google.appengine.api.datastore.dev.LocalDatastoreService
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig
 
