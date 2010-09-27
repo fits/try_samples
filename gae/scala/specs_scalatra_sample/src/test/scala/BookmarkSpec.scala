@@ -4,17 +4,15 @@ import org.specs._
 
 import com.google.appengine.api.datastore.dev.LocalDatastoreService
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig
 
 class BookmarkSpec extends Specification {
-	val helper = new LocalServiceTestHelper()
+	val helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig)
 	val testerId = "TESTER01"
 
 	//Spec毎の前処理
 	doBeforeSpec {
 		helper.setUp()
-
-		//DataStore へデータを保存しないようにする設定
-		LocalServiceTestHelper.getApiProxyLocal().setProperty(LocalDatastoreService.NO_STORAGE_PROPERTY, "true")
 	}
 
 	"BookmarkEntry is empty" in {
