@@ -15,11 +15,11 @@ class BookmarkSpec extends Specification {
 		helper.setUp()
 	}
 
-	"BookmarkEntry is empty" in {
+	"初回のブックマークは空" in {
 		Bookmark.getEntryList(testerId).length must_==0
 	}
 
-	"can add BookmarkEntry" in {
+	"ブックマーク追加" in {
 		Bookmark.addEntry(testerId, BookmarkEntry("http://localhost/", "default"))
 		val list = Bookmark.getEntryList(testerId).toList
 		list must haveSize(1)
