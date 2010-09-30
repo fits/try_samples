@@ -36,7 +36,7 @@ class BookmarkSpec3 extends Specification {
 			list must haveSize(1)
 		}
 
-		"ブックマークは http://localhost/ で default" in {
+		"追加したブックマークは http://localhost/ で default" in {
 			val entry = list.head
 			entry.url must beEqual("http://localhost/")
 			entry.description must beEqual("default")
