@@ -7,29 +7,40 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 class BookmarkSpec extends Specification {
 	val helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig)
 	val testerId = "TESTER01"
+	lazy val setUp = helper.setUp()
+	lazy val tearDown = helper.tearDown()
 
-	//Spec毎の前処理
-	doBeforeSpec {
-		helper.setUp()
+	"初期状態" should {
+		doBefore(setUp)
+		doAfter(tearDown)
+
+		"ブックマークは空" in {
+			Bookmark.getEntryList(testerId).length must_==0
+		}
 	}
 
-	"BookmarkEntry is empty" in {
-		Bookmark.getEntryList(testerId).length must_==0
-	}
+	"ブックマーク追加" should {
+		var list: List[BookmarkEntry] = List()
 
-	"can add BookmarkEntry" in {
-		Bookmark.addEntry(testerId, BookmarkEntry("http://localhost/", "default"))
-		val list = Bookmark.getEntryList(testerId).toList
-		list must haveSize(1)
+		//doBefore と doAfter は Example（"XXXX" in {・・・}）毎に実施される
+		doBefore {
+			setUp
 
-		val entry = list.head
-		entry.url must beEqual("http://localhost/")
-		entry.description must beEqual("default")
-	}
+			Bookmark.addEntry(testerId, BookmarkEntry("http://localhost/", "default"))
+			list = Bookmark.getEntryList(testerId).toList
+		}
 
-	//Spec毎の後処理
-	doAfterSpec {
-		helper.tearDown()
+		doAfter(tearDown)
+
+		"サイズは 1" in {
+			list must haveSize(1)
+		}
+
+		"ブックマークは http://localhost/ で default" in {
+			val entry = list.head
+			entry.url must beEqual("http://localhost/")
+			entry.description must beEqual("default")
+		}
 	}
 }
 
