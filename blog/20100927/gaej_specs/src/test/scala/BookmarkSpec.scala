@@ -8,7 +8,7 @@ class BookmarkSpec extends Specification {
 	val helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig)
 	val testerId = "TESTER01"
 
-	//Spec毎の前処理
+	//Specification 内で1度だけ実行される前処理
 	doBeforeSpec {
 		helper.setUp()
 	}
@@ -27,7 +27,7 @@ class BookmarkSpec extends Specification {
 		entry.description must beEqual("default")
 	}
 
-	//Spec毎の後処理
+	//Specification 内で1度だけ実行される後処理
 	doAfterSpec {
 		helper.tearDown()
 	}
