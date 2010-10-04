@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Nested List Sample</title>
+  <link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
+  <style type="text/css">
+  	.x-list-item {
+	    background-image: url(img/chevron.png);
+	    background-position: right center;
+	    background-repeat: no-repeat;
+		}
+  </style>
+  <script type="text/javascript" src="js/ext-touch-debug.js"></script>
+  <script type="text/javascript">
+    Ext.setup({
+    	onReady: function() {
+				var data = {
+					items: [
+    				{text: "OptionA", items: [
+    					{text: "AAAA"},
+    					{text: "BBBB"}
+    				]},
+    				{text: "OptionB", items: [
+    					{text: "123"},
+    					{text: "456"}
+    				]}
+					]
+				};
+
+				Ext.regModel("ListItem", {
+					fields: [
+						{name: "text", type: "string"},
+						{name: "items", type: "array"}
+					]
+				});
+
+				//実際に ajax の処理をさせなくても
+				//proxy 設定（type も必須）が必要な点に注意
+				var store = new Ext.data.TreeStore({
+					model: "ListItem",
+					root: data,
+					proxy: {
+						type: "ajax",
+						reader: {
+							type: "tree",
+							root: "items"
+						}
+					}
+				});
+
+    		var list = new Ext.NestedList({
+    			fullscreen: true,
+    			title: "Nested Sample",
+    			store: store
+    		});
+    	}
+    });
+</script>
+</head>
+<body>
+</body>
+</html>
