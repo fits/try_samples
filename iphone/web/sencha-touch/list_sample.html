@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>List Sample</title>
+  <link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
+  <style type="text/css">
+  	.x-fullscreen {
+			background: rgb(255, 255, 255)
+		}
+  	.list-item {
+	    background-image: url(img/chevron.png);
+	    background-position: right center;
+	    background-repeat: no-repeat;
+		}
+  </style>
+  <script type="text/javascript" src="js/ext-touch-debug.js"></script>
+  <script type="text/javascript">
+    Ext.setup({
+    	onReady: function() {
+
+				Ext.regModel("SchemaItem", {
+					fields: [
+						{name: "table_schema", type: "string"}
+					]
+				});
+
+				var dbStore = new Ext.data.JsonStore({
+					model: "SchemaItem",
+					data: [
+						{"table_schema": "mysql"},
+						{"table_schema": "aaaa"}
+					]
+				});
+
+    		var list = new Ext.List({
+					tpl: '<tpl for="."><div class="list-item">{table_schema}</div></tpl>',
+					itemSelector: "div.list-item",
+    			fullscreen: true,
+    			store: dbStore
+    		});
+
+    	}
+    });
+</script>
+</head>
+<body>
+</body>
+</html>
