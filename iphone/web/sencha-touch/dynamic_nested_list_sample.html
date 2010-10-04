@@ -46,24 +46,28 @@
 				list.on("beforeselect", function(subList, el, node) {
 					var rec = subList.getStore().getAt(el.viewIndex);
 
-					var req = new jQuery.ajax({
-						method: "get",
-						url: "tables/" + rec.get("table_schema"),
-						async: false
-					});
+					var schema = rec.get("table_schema");
 
-					var jsonObj = eval("(" + req.responseText + ")");
-
-					Ext.each(jsonObj, function(item, index, allItems) {
-
-						rec.node.appendChild({
-							attributes: {record: {"table_schema": item["table_name"], data: {}}},
-							leaf: true,
-							setOwnerTree: function(tree) {
-							}
+					if (schema) {
+						var req = new jQuery.ajax({
+							method: "get",
+							url: "tables/" + rec.get("table_schema"),
+							async: false
 						});
-					});
 
+						var jsonObj = eval("(" + req.responseText + ")");
+
+						Ext.each(jsonObj, function(item, index, allItems) {
+							item.data = [];
+
+							rec.node.appendChild(new Ext.data.Node({
+								record: item,
+								leaf: true
+							}));
+						});
+
+						list.displayField = "table_name";
+					}
 				});
     	}
     });
