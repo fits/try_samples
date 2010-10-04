@@ -8,9 +8,8 @@
   <script type="text/javascript">
     Ext.setup({
     	onReady: function() {
-    		var list = new Ext.NestedList({
-    			fullscreen: true,
-    			items: [
+				var data = {
+					items: [
     				{text: "OptionA", items: [
     					{text: "AAAA"},
     					{text: "BBBB"}
@@ -18,8 +17,32 @@
     				{text: "OptionB", items: [
     					{text: "123"},
     					{text: "456"}
-    				]},
-    			]
+    				]}
+					]
+				};
+
+				Ext.regModel("ListItem", {
+					fields: [{name: "text", type: "string"}]
+				});
+
+				//実際に ajax の処理をさせなくても
+				//proxy 設定（type も必須）が必要な点に注意
+				var store = new Ext.data.TreeStore({
+					model: "ListItem",
+					root: data,
+					proxy: {
+						type: "ajax",
+						reader: {
+							type: "tree",
+							root: "items"
+						}
+					}
+				});
+
+    		var list = new Ext.NestedList({
+    			fullscreen: true,
+    			title: "Nested Sample",
+    			store: store
     		});
     	}
     });
