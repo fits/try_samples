@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Dynamic Nested List Sample</title>
+  <link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
+  <style type="text/css">
+  	.x-list-item {
+	    background-image: url(img/chevron.png);
+	    background-position: right center;
+	    background-repeat: no-repeat;
+		}
+  </style>
+  <script type="text/javascript" src="js/jquery.1.3.2.min.js"></script>
+  <script type="text/javascript" src="js/ext-touch-debug.js"></script>
+  <script type="text/javascript">
+    Ext.setup({
+    	onReady: function() {
+
+				Ext.regModel("SchemaItem", {
+					fields: [
+						{name: "table_schema", type: "string"}
+					]
+				});
+
+				//実際に ajax の処理をさせなくても
+				//proxy 設定（type も必須）が必要な点に注意
+				var dbStore = new Ext.data.TreeStore({
+					model: "SchemaItem",
+					proxy: {
+						type: "ajax",
+						url: "databases",
+						reader: {
+							type: "tree"
+						}
+					}
+				});
+
+    		var list = new Ext.NestedList({
+    			fullscreen: true,
+    			title: "DB",
+    			displayField: "table_schema",
+    			store: dbStore
+    		});
+
+				list.on("beforeselect", function(subList, el, node) {
+					var rec = subList.getStore().getAt(el.viewIndex);
+
+					var req = new jQuery.ajax({
+						method: "get",
+						url: "tables/" + rec.get("table_schema"),
+						async: false
+					});
+
+					var jsonObj = eval("(" + req.responseText + ")");
+
+					Ext.each(jsonObj, function(item, index, allItems) {
+
+						rec.node.appendChild({
+							attributes: {record: {"table_schema": item["table_name"], data: {}}},
+							leaf: true,
+							setOwnerTree: function(tree) {
+							}
+						});
+					});
+
+				});
+    	}
+    });
+</script>
+</head>
+<body>
+</body>
+</html>
