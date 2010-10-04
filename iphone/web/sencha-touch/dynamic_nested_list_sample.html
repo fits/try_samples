@@ -23,8 +23,6 @@
 					]
 				});
 
-				//実際に ajax の処理をさせなくても
-				//proxy 設定（type も必須）が必要な点に注意
 				var dbStore = new Ext.data.TreeStore({
 					model: "SchemaItem",
 					proxy: {
@@ -43,11 +41,13 @@
     			store: dbStore
     		});
 
+				//アイテム選択時の処理
 				list.on("beforeselect", function(subList, el, node) {
 					var rec = subList.getStore().getAt(el.viewIndex);
 
 					var schema = rec.get("table_schema");
 
+					//table_schema 表示時にだけテーブル一覧の取得処理を実行
 					if (schema) {
 						var req = new jQuery.ajax({
 							method: "get",
@@ -58,8 +58,10 @@
 						var jsonObj = eval("(" + req.responseText + ")");
 
 						Ext.each(jsonObj, function(item, index, allItems) {
+							//data が未定義時にエラーが発生するため
 							item.data = [];
 
+							//テーブル情報を選択ノードの子として追加
 							rec.node.appendChild(new Ext.data.Node({
 								record: item,
 								leaf: true
