@@ -1,107 +1,107 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Nested List Sample</title>
-  <link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
-  <style type="text/css">
-    .x-list-item {
-      background-image: url(img/chevron.png);
-      background-position: right center;
-      background-repeat: no-repeat;
-    }
-  </style>
-  <script type="text/javascript" src="js/ext-touch-debug.js"></script>
-  <script type="text/javascript">
-    Ext.setup({
-      onReady: function() {
-        var data = {
-          items: [
-            {title: "cdcol", items: [
-              {title: "cds", leaf: true}
-            ]},
-            {title: "information_schema", items: [
-              {title: "CHARACTER_SETS", leaf: true,
-                table_name: "CHARACTER_SETS",
-                table_type: "SYSTEM VIEW",
-                engine: "MEMORY",
-                create_time: ""
-              },
-              {title: "CHARACTER_SETSCHARACTER_SETS", leaf: true},
-              {title: "COLLATIONS", leaf: true},
-              {title: "COLLATION_CHARACTER_SET_APPLICABILITY", leaf: true}
-            ]}
-          ]
-        };
-
-        Ext.regModel("ListItem", {
-          fields: [
-            {name: "title", type: "string"},
-            {name: "table_name", type: "string"},
-            {name: "table_type", type: "string"},
-            {name: "engine", type: "string"},
-            {name: "create_time", type: "string"},
-            {name: "items", type: "array"}
-          ]
-        });
-
-        //実際に ajax の処理をさせなくても
-        //proxy 設定（type も必須）が必要な点に注意
-        var store = new Ext.data.TreeStore({
-          model: "ListItem",
-          root: data,
-          proxy: {
-            type: "ajax",
-            reader: {
-              type: "tree",
-              root: "items"
-            }
-          }
-        });
-
-        var list = new Ext.NestedList({
-          fullscreen: true,
-          title: "DB",
-          displayField: "title",
-          store: store,
-          //詳細画面の設定
-          getDetailCard: createDetail
-        });
-      }
-    });
-
-    //詳細画面の作成
-    function createDetail(record, parentRecord) {
-      var rec = record.getRecord();
-
-      return new Ext.Panel({
-        //ヘッダータイトルと戻るボタンを正常に機能させるために
-        //recordNode の設定が必要
-        recordNode: record,
+<meta charset="UTF-8" />
+<title>Nested List Sample</title>
+<link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
+<style type="text/css">
+  .x-list-item {
+    background-image: url(img/chevron.png);
+    background-position: right center;
+    background-repeat: no-repeat;
+  }
+</style>
+<script type="text/javascript" src="js/ext-touch-debug.js"></script>
+<script type="text/javascript">
+  Ext.setup({
+    onReady: function() {
+      var data = {
         items: [
-          {
-            xtype: 'textfield',
-            label: 'table_name',
-            placeHolder: rec.get("table_name")
-          },
-          {
-            xtype: 'textfield',
-            label: 'table_type',
-            placeHolder: rec.get("table_type")
-          },
-          {
-            xtype: 'textfield',
-            label: 'engine',
-            placeHolder: rec.get("engine")
-          },
-          {
-            xtype: 'textfield',
-            label: 'create_time',
-            placeHolder: rec.get("create_time")
-          }
+          {title: "cdcol", items: [
+            {title: "cds", leaf: true}
+          ]},
+          {title: "information_schema", items: [
+            {title: "CHARACTER_SETS", leaf: true,
+              table_name: "CHARACTER_SETS",
+              table_type: "SYSTEM VIEW",
+              engine: "MEMORY",
+              create_time: ""
+            },
+            {title: "CHARACTER_SETSCHARACTER_SETS", leaf: true},
+            {title: "COLLATIONS", leaf: true},
+            {title: "COLLATION_CHARACTER_SET_APPLICABILITY", leaf: true}
+          ]}
+        ]
+      };
+
+      Ext.regModel("ListItem", {
+        fields: [
+          {name: "title", type: "string"},
+          {name: "table_name", type: "string"},
+          {name: "table_type", type: "string"},
+          {name: "engine", type: "string"},
+          {name: "create_time", type: "string"},
+          {name: "items", type: "array"}
         ]
       });
+
+      //実際に ajax の処理をさせなくても
+      //proxy 設定（type も必須）が必要な点に注意
+      var dbStore = new Ext.data.TreeStore({
+        model: "ListItem",
+        root: data,
+        proxy: {
+          type: "ajax",
+          reader: {
+            type: "tree",
+            root: "items"
+          }
+        }
+      });
+
+      var list = new Ext.NestedList({
+        fullscreen: true,
+        title: "DB",
+        displayField: "title",
+        store: dbStore,
+        //詳細画面の設定
+        getDetailCard: createDetail
+      });
     }
+  });
+
+  //詳細画面の作成
+  function createDetail(record, parentRecord) {
+    var rec = record.getRecord();
+
+    return new Ext.Panel({
+      //ヘッダータイトルと戻るボタンを正常に機能させるために
+      //recordNode の設定が必要
+      recordNode: record,
+      items: [
+        {
+          xtype: 'textfield',
+          label: 'table_name',
+          placeHolder: rec.get("table_name")
+        },
+        {
+          xtype: 'textfield',
+          label: 'table_type',
+          placeHolder: rec.get("table_type")
+        },
+        {
+          xtype: 'textfield',
+          label: 'engine',
+          placeHolder: rec.get("engine")
+        },
+        {
+          xtype: 'textfield',
+          label: 'create_time',
+          placeHolder: rec.get("create_time")
+        }
+      ]
+    });
+  }
 </script>
 </head>
 <body>
