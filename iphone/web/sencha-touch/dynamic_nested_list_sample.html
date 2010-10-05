@@ -52,8 +52,8 @@
       });
 
       //アイテム選択時の処理
-      list.on("beforeselect", function(subList, el, node) {
-        var rec = subList.getStore().getAt(el.viewIndex);
+      list.on("itemtap", function(subList, subIdx, el, e) {
+        var rec = subList.getStore().getAt(subIdx);
 
         var schema = rec.get("table_schema");
 
