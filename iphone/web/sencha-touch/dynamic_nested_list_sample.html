@@ -1,122 +1,125 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Dynamic Nested List Sample</title>
-  <link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
-  <style type="text/css">
-    .x-list-item {
-      background-image: url(img/chevron.png);
-      background-position: right center;
-      background-repeat: no-repeat;
+<meta charset="UTF-8" />
+<title>Dynamic Nested List Sample</title>
+<link rel="stylesheet" href="js/resources/css/ext-touch.css" type="text/css" />
+<style type="text/css">
+  .x-list-item {
+    background-image: url(img/chevron.png);
+    background-position: right center;
+    background-repeat: no-repeat;
+  }
+</style>
+<script type="text/javascript" src="js/jquery.1.3.2.min.js"></script>
+<script type="text/javascript" src="js/ext-touch-debug.js"></script>
+<script type="text/javascript">
+  Ext.setup({
+    onReady: function() {
+      Ext.regModel("SchemaItem", {
+        fields: [
+          {name: "table_schema", type: "string"}
+        ]
+      });
+
+      Ext.regModel("TableItem", {
+        fields: [
+          {name: "table_name", type: "string"},
+          {name: "table_type", type: "string"},
+          {name: "engine", type: "string"},
+          {name: "create_time", type: "string"}
+        ]
+      });
+
+      var dbStore = new Ext.data.TreeStore({
+        model: "SchemaItem",
+        proxy: {
+          type: "ajax",
+          url: "databases",
+          reader: {
+            type: "tree"
+          }
+        }
+      });
+
+      var list = new Ext.NestedList({
+        fullscreen: true,
+        title: "DB",
+        displayField: "table_schema",
+        store: dbStore,
+        //テーブル詳細画面の設定
+        getDetailCard: createDetail
+      });
+
+      //アイテム選択時の処理
+      list.on("beforeselect", function(subList, el, node) {
+        var rec = subList.getStore().getAt(el.viewIndex);
+
+        var schema = rec.get("table_schema");
+
+        //table_schema 表示時にだけテーブル一覧の取得処理を実行
+        if (schema) {
+          var req = new jQuery.ajax({
+            method: "get",
+            url: "tables/" + rec.get("table_schema"),
+            async: false
+          });
+
+          var jsonObj = eval("(" + req.responseText + ")");
+
+          var records = [];
+          var Model = Ext.ModelMgr.getModel("TableItem");
+
+          Ext.each(jsonObj, function(item, index, allItems) {
+            item["leaf"] = true;
+            //ヘッダータイトルとリスト表示用の設定
+            //（displayField を切り替えてもヘッダータイトルが
+            // 意図したように切り替わらなかったため）
+            item["table_schema"] = item.table_name;
+
+            var record = new Model(item, item.table_name);
+            record.raw = item;
+            records.push(record);
+          });
+
+          dbStore.fillNode(rec.node, records);
+        }
+      });
     }
-  </style>
-  <script type="text/javascript" src="js/jquery.1.3.2.min.js"></script>
-  <script type="text/javascript" src="js/ext-touch-debug.js"></script>
-  <script type="text/javascript">
-    Ext.setup({
-      onReady: function() {
+  });
 
-        Ext.regModel("SchemaItem", {
-          fields: [
-            {name: "table_schema", type: "string"}
-          ]
-        });
+  //詳細画面の作成
+  function createDetail(record, parentRecord) {
+    var rec = record.getRecord();
 
-        Ext.regModel("TableItem", {
-          fields: [
-            {name: "table_name", type: "string"},
-            {name: "table_type", type: "string"},
-            {name: "engine", type: "string"},
-            {name: "create_time", type: "string"}
-          ]
-        });
-
-        var dbStore = new Ext.data.TreeStore({
-          model: "SchemaItem",
-          proxy: {
-            type: "ajax",
-            url: "databases",
-            reader: {
-              type: "tree"
-            }
-          }
-        });
-
-        var list = new Ext.NestedList({
-          fullscreen: true,
-          title: "DB",
-          displayField: "table_schema",
-          store: dbStore,
-          //テーブル詳細画面の設定
-          getDetailCard: function(record, parentRecord) {
-            var data = record.attributes.record.data;
-
-            return new Ext.Panel({
-              //ヘッダータイトル等を正常に機能させるために recordNode が必要
-              recordNode: record,
-              items: [
-                {
-                  xtype: 'textfield',
-                  label: 'table_name',
-                  placeHolder: data.table_name
-                },
-                {
-                  xtype: 'textfield',
-                  label: 'table_type',
-                  placeHolder: data.table_type
-                },
-                {
-                  xtype: 'textfield',
-                  label: 'engine',
-                  placeHolder: data.engine
-                },
-                {
-                  xtype: 'textfield',
-                  label: 'create_time',
-                  placeHolder: data.create_time
-                }
-              ]
-            });
-          }
-        });
-
-        //アイテム選択時の処理
-        list.on("beforeselect", function(subList, el, node) {
-          var rec = subList.getStore().getAt(el.viewIndex);
-
-          var schema = rec.get("table_schema");
-
-          //table_schema 表示時にだけテーブル一覧の取得処理を実行
-          if (schema) {
-            var req = new jQuery.ajax({
-              method: "get",
-              url: "tables/" + rec.get("table_schema"),
-              async: false
-            });
-
-            var jsonObj = eval("(" + req.responseText + ")");
-
-            var records = [];
-            var Model = Ext.ModelMgr.getModel("TableItem");
-
-            Ext.each(jsonObj, function(item, index, allItems) {
-              item["leaf"] = true;
-              //ヘッダータイトルとリスト表示用の設定
-              //（displayField を切り替えてもヘッダータイトルが
-              // 意図したように切り替わらなかったため）
-              item["table_schema"] = item.table_name;
-
-              var record = new Model(item, item.table_name);
-              record.raw = item;
-              records.push(record);
-            });
-
-            dbStore.fillNode(rec.node, records);
-          }
-        });
-      }
+    return new Ext.Panel({
+      //ヘッダータイトルと戻るボタンを正常に機能させるために
+      //recordNode の設定が必要
+      recordNode: record,
+      items: [
+        {
+          xtype: 'textfield',
+          label: 'table_name',
+          placeHolder: rec.get("table_name")
+        },
+        {
+          xtype: 'textfield',
+          label: 'table_type',
+          placeHolder: rec.get("table_type")
+        },
+        {
+          xtype: 'textfield',
+          label: 'engine',
+          placeHolder: rec.get("engine")
+        },
+        {
+          xtype: 'textfield',
+          label: 'create_time',
+          placeHolder: rec.get("create_time")
+        }
+      ]
     });
+  }
 </script>
 </head>
 <body>
