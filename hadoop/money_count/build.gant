@@ -1,0 +1,44 @@
+
+includeTargets << gant.targets.Clean
+
+ant.property(environment: "env")
+hadoopHome = ant.antProject.properties."env.HADOOP_HOME"
+
+destDir = "dest"
+classesDir = "${destDir}/classes"
+jarFile = "${destDir}/moneycounter.jar"
+
+cleanDirectory << destDir
+
+target("default": "") {
+	compile()
+}
+
+target(init: "") {
+	path(id: "project.classpath") {
+		fileset(dir: hadoopHome) {
+			include(name: "**/*.jar")
+		}
+	}
+}
+
+target(compile: "") {
+	depends(init)
+
+	ant.mkdir(dir: classesDir)
+
+	ant.javac(srcdir: "src", destdir: classesDir, includeantruntime: false) {
+		classpath(refid: "project.classpath")
+	}
+}
+
+target(jar: "") {
+	depends(compile)
+
+	ant.jar(basedir: classesDir, destfile: jarFile) {
+		manifest {
+			attribute(name: "Main-Class", value: "fits.sample.MoneyCounter")
+		}
+	}
+}
+
