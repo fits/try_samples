@@ -1,8 +1,6 @@
 package fits.sample
 
 import scala.collection.JavaConversions._
-
-import java.io.IOException
 import org.apache.hadoop.conf._
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.io._
