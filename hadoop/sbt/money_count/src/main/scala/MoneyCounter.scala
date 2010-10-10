@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output._
 object MoneyCounter {
 	def main(args: Array[String]) {
 		if (args.length < 2) {
-			println("hadoop jar moneycounter.jar [input file] [output file]")
+			println("hadoop jar moneycounter.jar [input file] [output dir]")
 			return
 		}
 
@@ -26,34 +26,40 @@ object MoneyCounter {
 		job.setMapOutputKeyClass(classOf[Text])
 		job.setMapOutputValueClass(classOf[IntWritable])
 
-		job.setInputFormatClass(classOf[TextInputFormat])
-
 		FileInputFormat.setInputPaths(job, new Path(args(0)))
 		FileOutputFormat.setOutputPath(job, new Path(args(1)))
 
 		val res = job.waitForCompletion(true)
 		println("result = " + res)
 	}
-}
 
-class SampleMapper extends Mapper[LongWritable, Text, Text, IntWritable] {
-	val one = new IntWritable(1)
+	//ジェネリックタイプを指定したMapperの別名定義
+	type M = Mapper[LongWritable, Text, Text, IntWritable]
 
-	@throws(classOf[IOException])
-	@throws(classOf[InterruptedException])
-	override def map(key: LongWritable, value: Text, context: Mapper[LongWritable, Text, Text, IntWritable]#Context) {
+	//Mapper のサブクラス
+	class SampleMapper extends M {
+		val one = new IntWritable(1)
 
-		context.write(value, one)
+		//Context はジェネリックタイプを指定したMapperの
+		//Contextを指定する必要あり
+		override def map(key: LongWritable, value: Text, context: M#Context) {
+			context.write(value, one)
+		}
 	}
-}
 
-class SampleReducer extends Reducer[Text, IntWritable, Text, IntWritable] {
+	//ジェネリック型を指定したReducerの別名定義
+	type R = Reducer[Text, IntWritable, Text, IntWritable]
 
-	@throws(classOf[IOException])
-	@throws(classOf[InterruptedException])
-	override def reduce(key: Text, values: java.lang.Iterable[IntWritable], context: Reducer[Text, IntWritable, Text, IntWritable]#Context) {
+	//Reducer のサブクラス
+	class SampleReducer extends R {
+		//Context はジェネリックタイプを指定したReducerの
+		//Contextを指定する必要あり
+		override def reduce(key: Text, values: java.lang.Iterable[IntWritable], context: R#Context) {
 
-		val count = values.foldLeft(0)(_ + _.get())
-		context.write(key, new IntWritable(key.toString.toInt * count))
+			val count = values.foldLeft(0)(_ + _.get())
+			context.write(key, new IntWritable(key.toString.toInt * count))
+		}
 	}
+
 }
+
