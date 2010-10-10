@@ -26,6 +26,8 @@ object MoneyCounter {
 		job.setMapOutputKeyClass(classOf[Text])
 		job.setMapOutputValueClass(classOf[IntWritable])
 
+		job.setInputFormatClass(classOf[TextInputFormat])
+
 		FileInputFormat.setInputPaths(job, new Path(args(0)))
 		FileOutputFormat.setOutputPath(job, new Path(args(1)))
 
@@ -39,7 +41,8 @@ class SampleMapper extends Mapper[LongWritable, Text, Text, IntWritable] {
 
 	@throws(classOf[IOException])
 	@throws(classOf[InterruptedException])
-	def map(key: LongWritable, value: Text, context: Context) {
+	override def map(key: LongWritable, value: Text, context: Mapper[LongWritable, Text, Text, IntWritable]#Context) {
+
 		context.write(value, one)
 	}
 }
@@ -48,7 +51,8 @@ class SampleReducer extends Reducer[Text, IntWritable, Text, IntWritable] {
 
 	@throws(classOf[IOException])
 	@throws(classOf[InterruptedException])
-	def reduce(key: Text, values: Iterable[IntWritable], context: Context) {
+	override def reduce(key: Text, values: java.lang.Iterable[IntWritable], context: Reducer[Text, IntWritable, Text, IntWritable]#Context) {
+
 		val count = values.foldLeft(0)(_ + _.get())
 		context.write(key, new IntWritable(key.toString.toInt * count))
 	}
