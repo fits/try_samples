@@ -17,6 +17,7 @@ class MoneyCounterProject(info: ProjectInfo) extends DefaultProject(info) {
 	lazy val hadoopClasspath = hadoopHomePath * "*.jar"
 	lazy val hadoopLibClasspath = hadoopHomePath / "lib" * "*.jar"
 
+	//hadoopHomePath 設定の確認用カスタムアクション
 	lazy val printHadoopSetting = task {
 		println("hadoopHomePath: " + hadoopHomePath)
 		None
