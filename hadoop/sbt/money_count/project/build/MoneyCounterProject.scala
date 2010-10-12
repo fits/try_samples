@@ -16,8 +16,14 @@ class MoneyCounterProject(info: ProjectInfo) extends DefaultProject(info) {
 	lazy val hadoopClasspath = hadoopHomePath * "*.jar"
 	lazy val hadoopLibClasspath = hadoopHomePath / "lib" * "*.jar"
 
-	lazy val printHadoopSetting = task {
+	lazy val printSetting = task {
 		println("hadoopHomePath: " + hadoopHomePath)
+		println("jarPath: " + jarPath)
+		println("runClasspath: " + runClasspath)
+		println("unmanagedClasspath: " + unmanagedClasspath)
+		println("scala lib jar: " + FileUtilities.scalaLibraryJar)
+
 		None
 	}
+
 }
