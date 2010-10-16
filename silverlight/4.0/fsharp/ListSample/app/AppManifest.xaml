@@ -1,0 +1,7 @@
+<Deployment xmlns="http://schemas.microsoft.com/client/2007/deployment" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" EntryPointAssembly="ListSample" EntryPointType="ListSample.ListSampleApp" RuntimeVersion="4.0.50826.0">
+  <Deployment.Parts>
+    <AssemblyPart x:Name="ListSample" Source="ListSample.dll" />
+    <AssemblyPart Source="FSharp.Core.dll" />
+
+  </Deployment.Parts>
+</Deployment>

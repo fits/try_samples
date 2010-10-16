@@ -1,0 +1,11 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/client/2007"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:Class="System.Windows.Controls.UserControl"
+   x:Name="Page">
+
+    <Grid x:Name="LayoutRoot" Background="White">
+        <ListBox Height="221" HorizontalAlignment="Left" Margin="12,45,0,0" Name="listBox1" VerticalAlignment="Top" Width="376" />
+        <TextBlock Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="label1" VerticalAlignment="Top" Width="120" Text="サンプルリスト" />
+    </Grid>
+
+</UserControl>
