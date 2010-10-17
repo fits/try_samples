@@ -7,7 +7,16 @@
     d:DesignHeight="300" d:DesignWidth="400" xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk">
 
     <Grid x:Name="LayoutRoot" Background="White">
-        <ListBox Height="221" HorizontalAlignment="Left" Margin="12,45,0,0" Name="listBox1" VerticalAlignment="Top" Width="376" />
+        <ListBox Height="221" HorizontalAlignment="Left" Margin="12,45,0,0" Name="listBox1" VerticalAlignment="Top" Width="376">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Path=Id}" />
+                        <TextBlock Text="{Binding Path=Title}" Margin="30 0 0 0" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
         <sdk:Label Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="label1" VerticalAlignment="Top" Width="120" Content="サンプルリスト" />
     </Grid>
 </UserControl>
