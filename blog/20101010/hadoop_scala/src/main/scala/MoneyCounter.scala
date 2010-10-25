@@ -18,6 +18,10 @@ object MoneyCounter {
 		val job = Job.getInstance(new Cluster(new Configuration))
 		job.setJobName("myjob")
 
+		//分散実行モードで JAR ファイルをリモート側に手動で配置しないための設定
+		//classOf[MoneyCounter] とできなかったので CountMapper を使用
+		job.setJarByClass(classOf[CountMapper])
+
 		job.setMapperClass(classOf[CountMapper])
 		job.setReducerClass(classOf[CountReducer])
 
