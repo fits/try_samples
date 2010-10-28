@@ -22,10 +22,52 @@
 
 				$("#db").listview();
 
+				$("#db > li").tap(function(event) {
+					var link = $(event.currentTarget).find("a");
+					var db = link.text();
+					var targetId = link.attr("href").replace("#", "");
+
+					$.get("tables/" + db, null, function(res2) {
+						var el = $("[id='" + targetId + "']").find(".ui-content > ul");
+						var parentEl = el.parent();
+
+						el.remove();
+
+						var id = "sub_" + db;
+						var html2 = "<ul id='" + id + "'>";
+
+						$.each(res2, function() {
+							html2 += "<li>" + this.table_name + "<ul data-inset='true'>" + createDetail(this) + "</ul></li>";
+						});
+
+						html2 += "</ul>";
+
+						parentEl.append(html2);
+
+						$("#" + id).listview();
+
+					}, "json");
+				});
+
 			}, "json");
-			
-			
 		});
+
+		//詳細ページのHTMLを作成する
+		function createDetail(item) {
+			var headers = ["table_name", "table_type", "engine", "create_time"];
+			var html = "<li><table>";
+
+			$.each(headers, function() {
+				html += "<tr>";
+				html += "<th>" + this + "</th><td>:</td>";
+				html += "<td>" + item[this] + "</td>";
+				html += "</tr>";
+			});
+
+			html += "</table></li>";
+			return html;
+		}
+
 	</script>
 </head>
 <body>
