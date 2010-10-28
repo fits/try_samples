@@ -8,54 +8,58 @@
 	<script src="js/jquery.mobile-1.0a1.min.js"></script>
 	<script>
 		$(function() {
-
 			$.get("databases", null, function(res) {
-				var html = "<ul>";
 
-				$.each(res, function() {
-					html += "<li>" + this.table_schema + "<ul /></li>";
-				});
+				$("#db_list").append(createListHtml(res, "table_schema"));
+				//追加した ul で listview 作成
+				$("#db_list > ul").listview();
 
-				html += "</ul>";
-
-				$("#db_list").append(html);
-
-				var dbEl = $("#db_list > ul");
-
-				dbEl.listview();
-
-				dbEl.find("li").tap(function(event) {
+				//リストアイテムクリック時のイベントを設定
+				$("#db_list > ul > li").tap(function(event) {
 					var alink = $(event.currentTarget).find("a");
-					var db = alink.text();
 					var targetId = alink.attr("href").replace("#", "");
 
-					$.get("tables/" + db, null, function(res2) {
+					$.get("tables/" + alink.text(), null, function(res2) {
 						var el = $("[id='" + targetId + "']").find(".ui-content > ul");
 						var parentEl = el.parent();
 
 						//listview() を実行させるため、既存のul要素を削除しておく必要あり
 						el.remove();
 
-						var html2 = "<ul>";
-
-						$.each(res2, function() {
-							html2 += "<li>" + this.table_name + "<ul data-inset='true'>" + createDetail(this) + "</ul></li>";
-						});
-
-						html2 += "</ul>";
-
-						parentEl.append(html2);
-						//新しく追加した ul に listview() を適用
+						parentEl.append(createListHtml(res2, "table_name"));
+						//新しく追加した ul で listview 作成
 						parentEl.find("ul").listview();
-
 					}, "json");
 				});
 
 			}, "json");
 		});
 
+		//リストページのHTMLを作成
+		function createListHtml(json, titleKey) {
+				var html = "<ul>";
+
+				$.each(json, function() {
+					html += "<li>" + this[titleKey];
+
+					//table_name の値をリストアイテムに使う場合は詳細ページを用意
+					if (titleKey == "table_name") {
+						html += "<ul data-inset='true'" + createDetailHtml(this) + "</ul>";
+					}
+					else {
+						html += "<ul />";
+					}
+
+					html += "</li>";
+				});
+
+				html += "</ul>";
+
+				return html;
+		}
+
 		//詳細ページのHTMLを作成
-		function createDetail(item) {
+		function createDetailHtml(item) {
 			var headers = ["table_name", "table_type", "engine", "create_time"];
 			var html = "<li><table>";
 
