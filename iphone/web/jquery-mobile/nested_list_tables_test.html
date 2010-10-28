@@ -12,15 +12,19 @@
 			$("#db_list").listview();
 
 			$("#aaa").tap(function(ev) {
-				alert("tap");
+		//		alert("tap");
 
-				var from = jQuery("[id='ui-page-start&ui-page=information-schema 1']");
-				var el = from.find(".ui-content > ul");
-				var cont = el.parent();
+				//ev.target を使うとエラーが発生するケースがあったため、
+				//currentTarget を使用
+				var targetId = $(ev.currentTarget).find("a").attr("href");
+				targetId = targetId.replace("#", "");
+
+				var el = $("[id='" + targetId + "']").find(".ui-content > ul");
+				var parent = el.parent();
 
 				el.remove();
 
-				cont.append("<ul id='a123'><li>test123<ul></ul></li><li>test456</li></ul>");
+				parent.append("<ul id='a123'><li>test123<ul></ul></li><li>test456<ul></ul></li></ul>");
 				$("#a123").listview();
 			});
 
@@ -36,16 +40,10 @@
 		</div>
 		<!-- 内容 -->
 		<div data-role="content">
-			<ul id="db_list" role="listbox">
+			<ul id="db_list">
 				<li>aaa<ul><li>123</li><li>456</li></ul></li>
 			</ul>
 		</div>
-	</div>
-
-	<div>
-			<ul id="b123">
-				<li>abc<ul></ul></li>
-			</ul>
 	</div>
 
 </body>
