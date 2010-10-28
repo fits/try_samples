@@ -16,12 +16,12 @@
 
 				var from = jQuery("[id='ui-page-start&ui-page=information-schema 1']");
 				var el = from.find(".ui-content > ul");
+				var cont = el.parent();
 
-				el.attr("class", "")
-				el.attr("role", "");
-				el.append("<li>test123<ul></ul></li><li>test456</li>");
-				el.listview();
+				el.remove();
 
+				cont.append("<ul id='a123'><li>test123<ul></ul></li><li>test456</li></ul>");
+				$("#a123").listview();
 			});
 
 		});
@@ -40,6 +40,12 @@
 				<li>aaa<ul><li>123</li><li>456</li></ul></li>
 			</ul>
 		</div>
+	</div>
+
+	<div>
+			<ul id="b123">
+				<li>abc<ul></ul></li>
+			</ul>
 	</div>
 
 </body>
