@@ -10,7 +10,7 @@
 		$(function() {
 
 			$.get("databases", null, function(res) {
-				var html = "<ul id='db'>";
+				var html = "<ul>";
 
 				$.each(res, function() {
 					html += "<li>" + this.table_schema + "<ul /></li>";
@@ -20,21 +20,23 @@
 
 				$("#db_list").append(html);
 
-				$("#db").listview();
+				var dbEl = $("#db_list > ul");
 
-				$("#db > li").tap(function(event) {
-					var link = $(event.currentTarget).find("a");
-					var db = link.text();
-					var targetId = link.attr("href").replace("#", "");
+				dbEl.listview();
+
+				dbEl.find("li").tap(function(event) {
+					var alink = $(event.currentTarget).find("a");
+					var db = alink.text();
+					var targetId = alink.attr("href").replace("#", "");
 
 					$.get("tables/" + db, null, function(res2) {
 						var el = $("[id='" + targetId + "']").find(".ui-content > ul");
 						var parentEl = el.parent();
 
+						//listview() を実行させるため、既存のul要素を削除しておく必要あり
 						el.remove();
 
-						var id = "sub_" + db;
-						var html2 = "<ul id='" + id + "'>";
+						var html2 = "<ul>";
 
 						$.each(res2, function() {
 							html2 += "<li>" + this.table_name + "<ul data-inset='true'>" + createDetail(this) + "</ul></li>";
@@ -43,8 +45,8 @@
 						html2 += "</ul>";
 
 						parentEl.append(html2);
-
-						$("#" + id).listview();
+						//新しく追加した ul に listview() を適用
+						parentEl.find("ul").listview();
 
 					}, "json");
 				});
@@ -52,7 +54,7 @@
 			}, "json");
 		});
 
-		//詳細ページのHTMLを作成する
+		//詳細ページのHTMLを作成
 		function createDetail(item) {
 			var headers = ["table_name", "table_type", "engine", "create_time"];
 			var html = "<li><table>";
