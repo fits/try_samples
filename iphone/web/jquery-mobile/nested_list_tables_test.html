@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Nested List Sample(jQuery Mobile) 実験用</title>
+	<link rel="stylesheet"  href="js/jquery.mobile-1.0a1.min.css" />
+	<script type="text/javascript" src="js/jquery-1.4.3.min.js"></script>
+	<script type="text/javascript" src="js/jquery.mobile-1.0a1.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			$("#db_list").append("<li id='aaa'>information_schema<ul></ul></li><li>mysql<ul></ul></li>");
+			$("#db_list").listview();
+
+			$("#aaa").tap(function(ev) {
+				alert("tap");
+
+				var from = jQuery("[id='ui-page-start&ui-page=information-schema 1']");
+				var el = from.find(".ui-content > ul");
+
+				el.attr("class", "")
+				el.attr("role", "");
+				el.append("<li>test123<ul></ul></li><li>test456</li>");
+				el.listview();
+
+			});
+
+		});
+	</script>
+</head>
+<body>
+	<!-- ページ -->
+	<div data-role="page">
+		<!-- ヘッダー -->
+		<div data-role="header" data-theme="b">
+			<h1>Nested List Sample 実験用</h1>
+		</div>
+		<!-- 内容 -->
+		<div data-role="content">
+			<ul id="db_list" role="listbox">
+				<li>aaa<ul><li>123</li><li>456</li></ul></li>
+			</ul>
+		</div>
+	</div>
+
+</body>
+</html>
