@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Nested List Sample(jQuery Mobile)</title>
+	<link rel="stylesheet"  href="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.css" />
+	<script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.js"></script>
+</head>
+<body>
+	<!-- ページ -->
+	<div data-role="page">
+		<!-- ヘッダー -->
+		<div data-role="header" data-theme="b">
+			<h1>Nested List Sample</h1>
+		</div>
+		<!-- 内容 -->
+		<div data-role="content">
+			<ul data-role="listview">
+				<li>information_schema
+					<ul>
+						<li>CHARACTER_SETS
+							<ul data-inset="true">
+								<li>
+									<table>
+										<tr>
+											<th>table_name</th>
+											<td>:</td>
+											<td>CHARACTER_SETS</td>
+										</tr>
+										<tr>
+											<th>table_type</th>
+											<td>:</td>
+											<td>SYSTEM VIEW</td>
+										</tr>
+									</table>
+								</li>
+							</ul>
+						</li>
+						<li>COLLATIONS
+							<ul>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>mysql
+					<ul>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+</body>
+</html>
