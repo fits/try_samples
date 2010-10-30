@@ -1,6 +1,7 @@
 
 open System.IO
 open System.Net.Mail
+open System.Text
 
 [<EntryPoint>]
 let main(args: string[]) =
@@ -9,7 +10,7 @@ let main(args: string[]) =
 
     try
         let smtp = new SmtpClient(args.[0])
-        let body = File.ReadAllText(args.[4])
+        let body = File.ReadAllText(args.[4], Encoding.Default)
 
         smtp.Send(args.[1], args.[2], args.[3], body)
     with
