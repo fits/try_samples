@@ -10,6 +10,7 @@ if (args.length != 4) {
 val body = Source.stdin.mkString
 
 val smtp = new SimpleEmail
+smtp.setCharset("UTF-8")
 smtp.setHostName(args(0))
 smtp.setFrom(args(1))
 smtp.addTo(args(2))
