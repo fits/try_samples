@@ -12,7 +12,9 @@ ActionMailer::Base.smtp_settings = {
 }
 class SendMail < ActionMailer::Base
 	def send_mail(from, to, subject)
-		body = $stdin.readlines.join
+
+		subject = subject.encode("UTF-8", "Shift_JIS")
+		body = $stdin.readlines.join.encode("UTF-8", "Shift_JIS")
 
 		mail(:from => from, :to => to, :subject => subject, :body => body, :enable_starttls_auto => false)
 	end
