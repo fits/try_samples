@@ -7,12 +7,12 @@ if (args.length != 4) {
 	exit
 }
 
-val body = Source.stdin.mkString
+new SimpleEmail {
+	charset = "UTF-8"
+	hostName = args(0)
+	setFrom(args(1))
+	addTo(args(2))
+	setSubject(args(3))
+	setMsg(Source.stdin.mkString)
+}.send
 
-val smtp = new SimpleEmail
-smtp.setCharset("UTF-8")
-smtp.setHostName(args(0))
-smtp.setFrom(args(1))
-smtp.addTo(args(2))
-smtp.setSubject(args(3))
-smtp.setMsg(body).send
