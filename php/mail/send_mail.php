@@ -17,7 +17,7 @@ function to_utf8($str) {
 //Windows 環境用の設定
 ini_set("SMTP", $argv[1]);
 
-$subject = mb_encode_mimeheader(to_utf8($argv[4]));
+$subject = to_utf8($argv[4]);
 
 $body = to_utf8(stream_get_contents(STDIN));
 
