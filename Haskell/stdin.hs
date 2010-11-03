@@ -1,5 +1,3 @@
-import System
-
 main = do
 	stdin <- getContents
 	print stdin
