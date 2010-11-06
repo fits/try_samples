@@ -15,12 +15,16 @@ convertEncode :: String -> String
 convertEncode s = C.unpack $ convert sourceEncode targetEncode $ C.pack $ s
 
 --Base64エンコード
-base64Encode :: String -> String
-base64Encode s = B.encode $ convertEncode s
+encodeBase64 :: String -> String
+encodeBase64 s = B.encode $ convertEncode s
 
 -- ヘッダー用Base64エンコード
-base64Header :: String -> String
-base64Header s = "=?" ++ targetEncode ++ "?B?" ++ (base64Encode s) ++ "?="
+encodeBase64Header :: String -> String
+encodeBase64Header s = unlines $ map addEncodeInfo $ lines $ encodeBase64 s
+
+-- エンコード情報を付与
+addEncodeInfo :: String -> String
+addEncodeInfo s = "=?" ++ targetEncode ++ "?B?" ++ s ++ "?="
 
 -- Mime用メッセージ変換
 toMimeMessage :: CalendarTime -> SimpleMessage -> Message
@@ -29,24 +33,21 @@ toMimeMessage ct sm =
 		[
 			From (from sm), 
 			To (to sm), 
-			Subject (base64Header $ subject sm), 
+			Subject (encodeBase64Header $ subject sm), 
 			Date ct,
 			OptionalField "Content-Type" ("text/plain; charset=" ++ targetEncode),
 			OptionalField "Content-Transfer-Encoding" "BASE64"
 		]
-		(base64Encode $ body sm)
+		(encodeBase64 $ body sm)
 
 -- Mimeメッセージ送信
 sendMimeMessage :: String -> SimpleMessage -> IO()
 sendMimeMessage smtpHostIp msg = do
 	nowCT <- toCalendarTime =<< getClockTime
-
 	-- Fromメールアドレスからドメイン部分を取り出し
 	let heloDomain = tail $ snd $ break (== '@') $ nameAddr_addr $ head $ from msg
-
 	hostAddr <- inet_addr smtpHostIp
 	let smtpSockAddr = SockAddrInet 25 hostAddr
-
 	-- メール送信
 	sendRawMessages putStr smtpSockAddr heloDomain [toMimeMessage nowCT msg]
 
