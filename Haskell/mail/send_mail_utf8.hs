@@ -37,25 +37,27 @@ toMimeMessage ct sm =
 		(base64Encode $ body sm)
 
 -- Mimeメッセージ送信
-sendMimeMessage :: String -> String -> SimpleMessage -> IO()
-sendMimeMessage smtpHostIp heloDomain msg = do
+sendMimeMessage :: String -> SimpleMessage -> IO()
+sendMimeMessage smtpHostIp msg = do
 	nowCT <- toCalendarTime =<< getClockTime
+
+	-- Fromメールアドレスからドメイン部分を取り出し
+	let heloDomain = tail $ snd $ break (== '@') $ nameAddr_addr $ head $ from msg
 
 	hostAddr <- inet_addr smtpHostIp
 	let smtpSockAddr = SockAddrInet 25 hostAddr
-	-- メールを送信
+
+	-- メール送信
 	sendRawMessages putStr smtpSockAddr heloDomain [toMimeMessage nowCT msg]
 
 
+-- メイン処理
 main = do
 	args <- getArgs
 	-- メール本文（標準入力から取得）
 	body <- getContents
 
-	-- Fromメールアドレスからドメイン部分を取り出し
-	let domain = tail $ snd $ break (== '@') $ args !! 1
-
 	let msg = SimpleMessage [NameAddr Nothing (args !! 1)] [NameAddr Nothing (args !! 2)] (args !! 3) body
 
-	sendMimeMessage (head args) domain msg
+	sendMimeMessage (head args) msg
 
