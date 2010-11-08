@@ -26,15 +26,19 @@ namespace WSHSample
         {
             if (AutomationFactory.IsAvailable)
             {
-                MessageBox.Show("AutomationFactory 使用可");
-
+                MessageBox.Show("AutomationFactory: OK");
                 this.wsh = AutomationFactory.CreateObject("WScript.Shell");
-
             }
             else
             {
-                MessageBox.Show("AutomationFactory 使用不可");
+                MessageBox.Show("AutomationFactory: NG");
             }
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            //メモ帳を起動
+            this.wsh.Run("notepad.exe");
         }
     }
 }
