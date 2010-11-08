@@ -1,0 +1,40 @@
+<Deployment 
+	xmlns="http://schemas.microsoft.com/client/2007/deployment" 
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+	RuntimeVersion="2.0.31005.0" 
+	EntryPointAssembly="Microsoft.Scripting.Silverlight" 
+	EntryPointType="Microsoft.Scripting.Silverlight.DynamicApplication" 
+	ExternalCallersFromCrossDomain="ScriptableOnly">
+  <!-- Add assembly references here -->
+  <Deployment.Parts>
+    <AssemblyPart Source="Microsoft.Scripting.Silverlight.dll" />
+    <AssemblyPart Source="System.Numerics.dll" />
+    <AssemblyPart Source="Microsoft.Scripting.dll" />
+    <AssemblyPart Source="Microsoft.Dynamic.dll" />
+    <AssemblyPart Source="IronPython.dll" />
+    <AssemblyPart Source="IronPython.Modules.dll" />
+  </Deployment.Parts>
+  <!-- Add transparent platform extensions (.slvx) references here -->
+  <Deployment.ExternalParts>
+  </Deployment.ExternalParts>
+  <Deployment.OutOfBrowserSettings>
+      <OutOfBrowserSettings
+            ShortName="DLR Application"
+            EnableGPUAcceleration="False"
+            ShowInstallMenuItem="True">
+        <OutOfBrowserSettings.Blurb>
+          DLR Application
+        </OutOfBrowserSettings.Blurb>
+        <OutOfBrowserSettings.Icons />
+        <OutOfBrowserSettings.WindowSettings>
+          <WindowSettings
+              Title="DLR Application"
+              Height="200" Width="300" />
+        </OutOfBrowserSettings.WindowSettings>
+        <OutOfBrowserSettings.SecuritySettings>
+            <SecuritySettings ElevatedPermissions="Required" />
+        </OutOfBrowserSettings.SecuritySettings>
+      </OutOfBrowserSettings>
+  </Deployment.OutOfBrowserSettings>
+
+</Deployment>
