@@ -1,0 +1,5 @@
+- module: RSS::load
+  config:
+    url: "http://rss.rssad.jp/rss/itm/rss.xml"
+
+- module: print

@@ -1,0 +1,52 @@
+<html>
+<head>
+	<title>XMLHttpRequest SOAP Test</title>
+	<script language="javascript">
+	<!--
+		var req = getInstance();
+
+		function check() {
+			if (req == null) {
+				alert("null");
+			}
+			else {
+				req.open("POST", "Test1.asmx", false);
+				req.setRequestHeader("Content-Type", "text/xml");
+				req.setRequestHeader("SOAPAction", "http://tempuri.org/GetMessage");
+
+				req.send("<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><GetMessage xmlns='http://tempuri.org/' /></soap:Body></soap:Envelope>");
+
+				alert(req.responseText);
+
+				document.fm.support.value = req.responseText;
+
+			}
+		}
+
+		function getInstance() {
+			var result = null;
+
+			//Mozilla, Safari
+			if (window.XMLHttpRequest) {
+				result = new XMLHttpRequest();
+			}
+			//IE
+			else if (window.ActiveXObject) {
+				result = new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			return result;
+		}
+
+	//-->
+	</script>
+</head>
+<body onload="check()">
+
+	<form name="fm">
+		<textarea name="support" rows="10" cols="100">
+		</textarea>
+	</form>
+
+</body>
+</html>
+

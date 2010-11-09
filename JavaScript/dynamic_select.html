@@ -1,0 +1,55 @@
+<html>
+<head>
+<script type="text/javascript">
+<!--
+
+    var data = {
+        0: [""],
+        1: ["", "a", "b", "c"],
+        2: ["", "1243", "123908", "3908", "000", "p083"],
+        3: ["", "check", "test"]
+    };
+
+    function selectCategory() {
+        var ctSelect = document.testForm.categorySelect;
+
+        var index = ctSelect.selectedIndex;
+        var val = ctSelect.options[index].value;
+
+        var types = data[val];
+
+        var tySelect = document.testForm.typeSelect;
+
+        while (tySelect.length > 0) {
+            tySelect.options[tySelect.length - 1] = null;
+        }
+
+        for (var i = 0; i < types.length; i++) {
+            var opt = new Option();
+            opt.text = types[i];
+            opt.value = types[i];
+
+            tySelect.options[i] = opt;
+        }
+
+        tySelect.selectedIndex = 0;
+    }
+
+
+//-->
+</script>
+</head>
+<body>
+<form name="testForm">
+    <select name="categorySelect" onchange="selectCategory()">
+        <option value="0"></option>
+        <option value="1">テスト1</option>
+        <option value="2">テスト2</option>
+        <option value="3">テスト3</option>
+    </select>
+
+    <select name="typeSelect">
+    </select>
+</form>
+</body>
+</html>

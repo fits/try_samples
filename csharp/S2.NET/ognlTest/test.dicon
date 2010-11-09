@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE components PUBLIC "-//SEASAR2.1//DTD S2Container//EN"
+"http://www.seasar.org/dtd/components21.dtd">
+<components>
+
+	<component name="data" class="Data">
+		<property name="id">"A1"</property>
+	</component>
+
+	<component name="data2" class="Data2">
+		<arg>data</arg>
+	</component>
+
+	<component name="data3" class="Data2">
+		<arg>#container.GetComponent('data2').LinkData</arg>
+	</component>
+
+</components>
