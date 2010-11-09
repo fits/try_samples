@@ -1,0 +1,9 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AmazonTest.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AmazonTest_com_amazon_webservices_AWSECommerceService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://soap.amazon.co.jp/onca/soap?Service=AWSECommerceService</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

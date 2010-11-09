@@ -1,0 +1,5 @@
+- module: load_file
+  config:
+    filename: "test.txt"
+
+- module: print
