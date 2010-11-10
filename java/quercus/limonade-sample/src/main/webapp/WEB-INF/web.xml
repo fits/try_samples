@@ -8,6 +8,10 @@
   <filter>
   	<filter-name>RoutingFilter</filter-name>
   	<filter-class>fits.sample.RoutingFilter</filter-class>
+  	<init-param>
+  		<param-name>routing-page</param-name>
+  		<param-value>index.php</param-value>
+  	</init-param>
   </filter>
   <filter-mapping>
   	<filter-name>RoutingFilter</filter-name>
