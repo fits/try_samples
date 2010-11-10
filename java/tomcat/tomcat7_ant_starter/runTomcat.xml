@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<project name="TomcatRun" default="start" basedir=".">
+	
+	<property environment="env"/>
+	<property name="catalina.home" value="${env.CATALINA_HOME}"/>
+	<property name="catalina.base" value="${basedir}"/>
+
+	<path id="project.classpath">
+		<pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+		<pathelement path="${java.class.path}" />
+
+		<fileset dir="${catalina.home}/bin">
+			<include name="*.jar"/>
+		</fileset>
+
+		<fileset dir="${catalina.home}/lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="start">
+		<java classname="org.apache.catalina.startup.Bootstrap" fork="yes">
+			<sysproperty key="catalina.base" value="${catalina.base}"/>
+			<sysproperty key="catalina.home" value="${catalina.home}"/>
+			<arg line="start"/>
+			<classpath refid="project.classpath"/>
+		</java>
+	</target>
+
+	<target name="stop">
+		<java classname="org.apache.catalina.startup.Bootstrap" fork="yes">
+			<sysproperty key="catalina.base" value="${catalina.base}"/>
+			<sysproperty key="catalina.home" value="${catalina.home}"/>
+			<arg line="stop"/>
+			<classpath refid="project.classpath"/>
+		</java>
+	</target>
+
+</project>
