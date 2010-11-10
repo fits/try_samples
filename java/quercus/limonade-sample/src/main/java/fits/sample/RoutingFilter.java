@@ -5,9 +5,14 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 
 public class RoutingFilter implements Filter {
-	private final static String ROUTING_PAGE = "index.php";
+	private final static String ROUTING_PAGE_PARAM_NAME = "routing-page";
+	private String routingPage = "index.php";
 
 	public void init(FilterConfig config) {
+		String paramRoutingPage = config.getInitParameter(ROUTING_PAGE_PARAM_NAME);
+		if (paramRoutingPage != null) {
+			this.routingPage = paramRoutingPage;
+		}
 	}
 
 	//フィルター処理
@@ -19,8 +24,8 @@ public class RoutingFilter implements Filter {
 
 		String path = requestPath.replace(contextPath + "/", "").trim();
 
-		if (!path.equals("") && !path.equals(ROUTING_PAGE)) {
-			req.getRequestDispatcher("/" + ROUTING_PAGE + "?uri=" + path).forward(request, response);
+		if (!path.equals("") && !path.equals(this.routingPage)) {
+			req.getRequestDispatcher("/" + this.routingPage + "?uri=" + path).forward(request, response);
 			return;
 		}
 
