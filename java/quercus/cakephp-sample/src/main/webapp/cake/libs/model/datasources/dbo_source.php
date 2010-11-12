@@ -888,7 +888,7 @@ class DboSource extends DataSource {
 						if (!in_array($className, $filtering)) {
 							$filtering[] = $className;
 						}
-
+						$data = array();
 						if (isset($model->{$className}) && is_object($model->{$className})) {
 							$data = $model->{$className}->afterFind(array(array($className => $results[$i][$className])), false);
 						}
