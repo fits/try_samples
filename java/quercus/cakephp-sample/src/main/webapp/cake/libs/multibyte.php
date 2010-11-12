@@ -293,14 +293,14 @@ class Multibyte extends Object {
  * @static
  */
 	function &getInstance() {
-		static $instance = array();
 
-		if (!$instance) {
-			$instance[0] =& new Multibyte();
+		if (is_null(self::$instance)) {
+			self::$instance =& new Multibyte();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Converts a multibyte character string
  * to the decimal value of the character

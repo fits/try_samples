@@ -98,14 +98,14 @@ class I18n extends Object {
  * @access public
  */
 	function &getInstance() {
-		static $instance = array();
-		if (!$instance) {
-			$instance[0] =& new I18n();
-			$instance[0]->l10n =& new L10n();
+		if (is_null(self::$instance)) {
+			self::$instance =& new I18n();
+			self::$instance->l10n =& new L10n();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Used by the translation functions in basics.php
  * Can also be used like I18n::translate(); but only if the App::import('I18n'); has been used to load the class.

@@ -63,13 +63,13 @@ class ClassRegistry {
  * @access public
  */
 	function &getInstance() {
-		static $instance = array();
-		if (!$instance) {
-			$instance[0] =& new ClassRegistry();
+		if (is_null(self::$instance)) {
+			self::$instance =& new ClassRegistry();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Loads a class, registers the object in the registry and returns instance of the object.
  *

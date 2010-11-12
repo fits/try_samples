@@ -1460,11 +1460,12 @@ class XmlManager {
  * @access public
  */
 	function &getInstance() {
-		static $instance = array();
 
-		if (!$instance) {
-			$instance[0] =& new XmlManager();
+		if (is_null(self::$instance)) {
+			self::$instance =& new XmlManager();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
+		static $instance = array();
+	
 }

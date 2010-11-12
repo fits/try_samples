@@ -73,15 +73,15 @@ class ConnectionManager extends Object {
  * @static
  */
 	function &getInstance() {
-		static $instance = array();
 
-		if (!$instance) {
-			$instance[0] =& new ConnectionManager();
+		if (is_null(self::$instance)) {
+			self::$instance =& new ConnectionManager();
 		}
 
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Gets a reference to a DataSource object
  *

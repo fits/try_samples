@@ -186,14 +186,14 @@ class Router {
  * @static
  */
 	function &getInstance() {
-		static $instance = array();
 
-		if (!$instance) {
-			$instance[0] =& new Router();
+		if (is_null(self::$instance)) {
+			self::$instance =& new Router();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Gets the named route elements for use in app/config/routes.php
  *

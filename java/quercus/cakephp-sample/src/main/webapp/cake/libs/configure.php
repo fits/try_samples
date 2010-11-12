@@ -43,16 +43,16 @@ class Configure extends Object {
  * @access public
  */
 	function &getInstance($boot = true) {
-		static $instance = array();
-		if (!$instance) {
+		if (is_null(self::$instance)) {
 			if (!class_exists('Set')) {
 				require LIBS . 'set.php';
 			}
-			$instance[0] =& new Configure();
-			$instance[0]->__loadBootstrap($boot);
+			self::$instance =& new Configure();
+			self::$instance->__loadBootstrap($boot);
 		}
-		return $instance[0];
+		return self::$instance;
 	}
+		static $instance = null;
 
 /**
  * Used to store a dynamic variable in the Configure instance.
@@ -984,13 +984,13 @@ class App extends Object {
  * @access public
  */
 	function &getInstance() {
-		static $instance = array();
-		if (!$instance) {
-			$instance[0] =& new App();
-			$instance[0]->__map = (array)Cache::read('file_map', '_cake_core_');
+		if (is_null(self::$instance)) {
+			self::$instance =& new App();
+			self::$instance->__map = (array)Cache::read('file_map', '_cake_core_');
 		}
-		return $instance[0];
+		return self::$instance;
 	}
+		static $instance = null;
 
 /**
  * Locates the $file in $__paths, searches recursively.
