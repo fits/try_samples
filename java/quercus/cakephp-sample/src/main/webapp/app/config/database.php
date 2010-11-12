@@ -81,7 +81,7 @@ class DATABASE_CONFIG {
 		'password' => '',
 		'database' => 'todo',
 		'prefix' => '',
-		'encoding' => 'UTF-8'
+		'encoding' => 'utf8'
 	);
 
 }
