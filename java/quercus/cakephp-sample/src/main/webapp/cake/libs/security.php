@@ -42,13 +42,13 @@ class Security extends Object {
  * @static
  */
 	function &getInstance() {
-		static $instance = array();
-		if (!$instance) {
-			$instance[0] =& new Security;
+		if (is_null(self::$instance)) {
+			self::$instance =& new Security;
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = array();
+	
 /**
  * Get allowed minutes of inactivity based on security level.
  *

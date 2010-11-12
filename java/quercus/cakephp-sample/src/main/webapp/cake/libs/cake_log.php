@@ -63,13 +63,13 @@ class CakeLog {
  * @static
  */
 	function &getInstance() {
-		static $instance = array();
-		if (!isset($instance[0])) {
-			$instance[0] =& new CakeLog();
+		if (is_null(self::$instance)) {
+			self::$instance =& new CakeLog();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Configure and add a new logging stream to CakeLog
  * You can use add loggers from app/libs use app.loggername, or any plugin/libs using plugin.loggername.

@@ -181,26 +181,26 @@ class Debugger extends Object {
  * @static
  */
 	function &getInstance($class = null) {
-		static $instance = array();
 		if (!empty($class)) {
-			if (!$instance || strtolower($class) != strtolower(get_class($instance[0]))) {
-				$instance[0] = & new $class();
+			if (is_null(self::$instance) || strtolower($class) != strtolower(get_class(self::$instance))) {
+				self::$instance = & new $class();
 				if (Configure::read() > 0) {
 					Configure::version(); // Make sure the core config is loaded
-					$instance[0]->helpPath = Configure::read('Cake.Debugger.HelpPath');
+					self::$instance->helpPath = Configure::read('Cake.Debugger.HelpPath');
 				}
 			}
 		}
 
-		if (!$instance) {
-			$instance[0] =& new Debugger();
+		if (is_null(self::$instance)) {
+			self::$instance =& new Debugger();
 			if (Configure::read() > 0) {
 				Configure::version(); // Make sure the core config is loaded
-				$instance[0]->helpPath = Configure::read('Cake.Debugger.HelpPath');
+				self::$instance->helpPath = Configure::read('Cake.Debugger.HelpPath');
 			}
 		}
-		return $instance[0];
+		return self::$instance;
 	}
+		static $instance = null;
 
 /**
  * Formats and outputs the contents of the supplied variable.

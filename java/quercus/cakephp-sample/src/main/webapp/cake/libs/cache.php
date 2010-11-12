@@ -68,13 +68,13 @@ class Cache {
  * @static
  */
 	function &getInstance() {
-		static $instance = array();
-		if (!$instance) {
-			$instance[0] =& new Cache();
+		if (is_null(self::$instance)) {
+			self::$instance =& new Cache();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Set the cache configuration to use.  config() can
  * both create new configurations, return the settings for already configured

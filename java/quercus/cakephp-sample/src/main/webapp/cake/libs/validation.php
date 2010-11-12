@@ -98,14 +98,14 @@ class Validation extends Object {
  * @static
  */
 	function &getInstance() {
-		static $instance = array();
 
-		if (!$instance) {
-			$instance[0] =& new Validation();
+		if (is_null(self::$instance)) {
+			self::$instance =& new Validation();
 		}
-		return $instance[0];
+		return self::$instance;
 	}
-
+		static $instance = null;
+	
 /**
  * Checks that a string contains something other than whitespace
  *
