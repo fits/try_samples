@@ -1215,6 +1215,7 @@ class Model extends Overloadable {
 		$_whitelist = $this->whitelist;
 		$fields = array();
 
+		$callbacks = array();
 		if (!is_array($validate)) {
 			$options = array_merge($defaults, compact('validate', 'fieldList', 'callbacks'));
 		} else {
