@@ -53,7 +53,7 @@ class Configure extends Object {
 		return self::$instance;
 	}
 		static $instance = null;
-
+	
 /**
  * Used to store a dynamic variable in the Configure instance.
  *
@@ -157,7 +157,7 @@ class Configure extends Object {
 		if ($var === 'debug') {
 			return $_this->debug;
 		}
-
+		$names = array();
 		if (strpos($var, '.') !== false) {
 			$names = explode('.', $var, 3);
 			$var = $names[0];
@@ -991,7 +991,7 @@ class App extends Object {
 		return self::$instance;
 	}
 		static $instance = null;
-
+	
 /**
  * Locates the $file in $__paths, searches recursively.
  *
