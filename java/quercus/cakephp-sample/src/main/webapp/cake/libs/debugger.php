@@ -201,7 +201,7 @@ class Debugger extends Object {
 		return self::$instance;
 	}
 		static $instance = null;
-
+	
 /**
  * Formats and outputs the contents of the supplied variable.
  *
@@ -292,6 +292,7 @@ class Debugger extends Object {
 			break;
 		}
 
+		$helpID = null;
 		$helpCode = null;
 		if (!empty($_this->helpPath) && preg_match('/.*\[([0-9]+)\]$/', $description, $codes)) {
 			if (isset($codes[1])) {
