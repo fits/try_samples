@@ -11,21 +11,63 @@ namespace EFSample
     {
         static void Main(string[] args)
         {
-            //テーブルを自動で生成するための設定
+            //モデル変更時にテーブルを再作成するための設定
             Database.SetInitializer<BookManager>(new RecreateDatabaseIfModelChanges<BookManager>());
 
+            AddData();
+            SelectData();
+
+            Console.ReadLine();
+        }
+
+        private static void AddData()
+        {
             using (var manager = new BookManager())
             {
-                manager.Publishers.Add(new Publisher
+                var p1 = new Publisher
                 {
                     Name = "テスト1",
-                    Address = "東京都"
+                    Address = "神奈川県横浜市・・・"
+                };
+
+                manager.Publishers.Add(p1);
+                manager.Publishers.Add(new Publisher
+                {
+                    Name = "aaaa",
+                    Address = "東京都大田区・・・"
+                });
+
+                manager.Books.Add(new Book
+                {
+                    Title = "Entity Framework CTP4",
+                    Publisher = p1
+                });
+
+                manager.Books.Add(new Book
+                {
+                    Title = "MySQL",
+                    Publisher = p1
                 });
 
                 manager.SaveChanges();
             }
+        }
 
-            Console.WriteLine("End");
+        private static void SelectData()
+        {
+            using (var manager = new BookManager())
+            {
+                //Include を使って Books の内容をロードするように指定
+                var res = from p in manager.Publishers.Include("Books")
+                          where p.Books.Count > 0
+                          select p;
+
+                res.ToList().ForEach(p =>
+                {
+                    Console.WriteLine("--- {0} ---", p.Name);
+                    p.Books.ToList().ForEach(b => Console.WriteLine("book: {0}", b.Title));
+                });
+            }
         }
     }
 
@@ -41,10 +83,7 @@ namespace EFSample
     {
         public int BookId { get; set; }
         public string Title { get; set; }
-        public int PublisherId { get; set; }
         public Publisher Publisher { get; set; }
-        public string Isbn { get; set; }
-
     }
 
     public class BookManager : DbContext
