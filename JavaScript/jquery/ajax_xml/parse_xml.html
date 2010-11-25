@@ -9,7 +9,8 @@
 				var html = "";
 				$(res).find("item").each(function(i, el) {
 					html += "<h2>" + $(el).attr("id") + "</h2>";
-					html += "<span>" + $(el).children("title").text() + "</span>";
+					html += "<span>" + $(el).children("title").text() + "</span> : ";
+					html += "<span>" + $(el).children("content").text() + "</span>";
 				});
 
 				$("#content").append(html);
