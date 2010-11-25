@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item-list>
+	<item id="1">
+		<title>テスト</title>
+		<content></content>
+	</item>
+	<item id="2">
+		<title>jQuery で XML 動的表示</title>
+		<content>Ajax で取得した XML を jQuery でパースして動的に HTML を組み立て表示する。</content>
+	</item>
+</item-list>
