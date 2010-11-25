@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.4.4.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			$.get("test.xml", null, function(res) {
+
+				var html = "";
+				$(res).find("item").each(function(i, el) {
+					html += "<h2>" + $(el).attr("id") + "</h2>";
+					html += "<span>" + $(el).children("title").text() + "</span>";
+				});
+
+				$("#content").append(html);
+
+			}, "xml");
+		});
+	</script>
+</head>
+<body>
+	<h1>get xml sample</h1>
+	<div id="content"></div>
+</body>
+</html>
