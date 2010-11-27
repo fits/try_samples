@@ -13,6 +13,6 @@ new SimpleEmail {
 	setFrom(args(1))
 	addTo(args(2))
 	setSubject(args(3))
-	setMsg(Source.stdin.mkString)
+	setMsg(Source.stdin.mkString.replaceAll("\t", "　　"))
 }.send
 
