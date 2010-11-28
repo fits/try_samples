@@ -9,7 +9,7 @@ if (args.length < 1) {
 
 val reader = new CSVReader(new FileReader(args(0)))
 
-reader.readAll().map(l => l.toList).foreach {
+reader.readAll().map(_.toList).foreach {
 	case no :: title :: content :: _ => println(title + " : " + content)
 	case _ =>
 }
