@@ -1,11 +1,12 @@
 using System;
+using System.Text;
 using Microsoft.VisualBasic.FileIO;
 
 class CSVParse
 {
 	public static void Main(string[] args)
 	{
-		using (var reader = new TextFieldParser(args[0]))
+		using (var reader = new TextFieldParser(args[0], Encoding.Default))
 		{
 			reader.SetDelimiters(",");
 
