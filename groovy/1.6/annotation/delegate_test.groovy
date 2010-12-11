@@ -8,7 +8,6 @@ class UserFeature {
 }
 
 class User {
-
 	@Delegate UserFeature feature = new UserFeature()
 
 	void printState() {
@@ -21,7 +20,10 @@ u.feature.name = "test"
 
 u.printState()
 
+//u.feature.test() ‚ªÀs‚³‚ê‚é
 println u.test("abc")
+
+//u.feature.name ‚ªæ“¾‚³‚ê‚é
 println "${u.name}"
 
 println "--- methods ---"
