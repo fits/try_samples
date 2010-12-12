@@ -7,4 +7,4 @@ import scala.annotation.tailrec
 	}
 }
 
-println("result: " + total(0, (0 to 10).toList))
+println("result: " + total(0, (1 to 10).toList))
