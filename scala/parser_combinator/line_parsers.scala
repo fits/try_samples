@@ -1,10 +1,9 @@
 
 import scala.util.parsing.combinator._
 
-object CSVParsers extends JavaTokenParsers {
-	lazy val file: Parser[Any] = rep(cellContent ~ newLine | cellContent)
+object LineParsers extends JavaTokenParsers {
+	lazy val file: Parser[Any] = rep(cellContent)
 	lazy val cellContent: Parser[Any] = stringLiteral | floatingPointNumber
-	lazy val newLine: Parser[Any] = '\n'
 }
 
 val body = """
@@ -14,5 +13,5 @@ val body = """
 "テスト"
 -10.56"""
 
-println(CSVParsers.parseAll(CSVParsers.file, body))
+println(LineParsers.parseAll(LineParsers.file, body))
 
