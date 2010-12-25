@@ -16,7 +16,6 @@ object Csv extends JavaTokenParsers {
 	def quotedCell = '"' ~> quotedChars ~ rep(escapeQuotedChars) <~ '"' ^^ {case(x~xs) => x + xs.mkString}
 	def quotedChars = """[^"]*""".r
 	def escapeQuotedChars = "\"\"" ~> quotedChars ^^ ('"' + _)
-//	def quotedChar = """[^"]""".r | guard("\"\"") ^^^ '"'
 }
 
 val csv = Source.stdin.mkString
