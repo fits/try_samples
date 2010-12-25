@@ -3,8 +3,9 @@ import scala.io.Source
 import scala.util.parsing.combinator._
 
 object Csv extends JavaTokenParsers {
-//	override val whiteSpace = """[ \t\r]*""".r
 	override def skipWhitespace = false
+//	以下でも可
+//	override val whiteSpace = """[ \t]*""".r
 
 	def csvFile: Parser[Any] = rep(line <~ eol)
 	def line: Parser[Any] = repsep(cell, ',')
