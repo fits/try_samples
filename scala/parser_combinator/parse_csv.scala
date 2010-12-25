@@ -10,7 +10,8 @@ object Csv extends JavaTokenParsers {
 	def line: Parser[Any] = repsep(cell, ',')
 	//最後のセル要素に改行が含まれるので trim で取り除く
 	def cell: Parser[Any] = quotedCell | """[^,\n]*""".r ^^ {x => x.trim()}
-	def eol: Parser[Any] = '\n'
+	//quotedCellが行の最後に来た場合のみ \r\n になる
+	def eol: Parser[Any] = "\n" | "\r\n"
 	def quotedCell: Parser[Any] = '"' ~> quotedChars <~ '"'
 	def quotedChars: Parser[Any] = """[^"]*""".r
 }
