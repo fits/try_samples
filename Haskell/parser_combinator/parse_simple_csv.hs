@@ -7,9 +7,9 @@ eol = char '\n'
 
 main = do
 	cs <- getContents
-	let res = parse csvFile "none" cs
+	let res = parse csvFile "" cs
 
 	case res of
-		Left x -> putStrLn "error"
+		Left err -> print err
 		Right x -> putStrLn $ show x
 
