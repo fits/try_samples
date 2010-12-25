@@ -7,14 +7,16 @@ object Csv extends JavaTokenParsers {
 //	以下でも可
 //	override val whiteSpace = """[ \t]*""".r
 
-	def csvFile: Parser[Any] = rep(line <~ eol)
-	def line: Parser[Any] = repsep(cell, ',')
+	def csvFile = rep(line <~ eol)
+	def line = repsep(cell, ',')
 	//最後のセル要素に改行が含まれるので trim で取り除く
-	def cell: Parser[Any] = quotedCell | """[^,\n]*""".r ^^ {x => x.trim()}
+	def cell = quotedCell | """[^,\n]*""".r ^^ (_.trim)
 	//quotedCellが行の最後に来た場合のみ \r\n になる
-	def eol: Parser[Any] = "\n" | "\r\n"
-	def quotedCell: Parser[Any] = '"' ~> quotedChars <~ '"'
-	def quotedChars: Parser[Any] = """[^"]*""".r
+	def eol = "\n" | "\r\n"
+	def quotedCell = '"' ~> quotedChars ~ rep(escapeQuotedChars) <~ '"' ^^ {case(x~xs) => x + xs.mkString}
+	def quotedChars = """[^"]*""".r
+	def escapeQuotedChars = "\"\"" ~> quotedChars ^^ ('"' + _.mkString)
+//	def quotedChar = """[^"]""".r | guard("\"\"") ^^^ '"'
 }
 
 val csv = Source.stdin.mkString
