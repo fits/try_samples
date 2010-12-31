@@ -3,8 +3,10 @@ open System
 open FParsec.Primitives
 open FParsec.CharParsers
 
-let line = manyChars (noneOf "\n")
+let cell = manyChars (noneOf ",\n")
+let line = sepBy cell (pchar ',')
 let csvFile = sepEndBy line newline
+
 
 let cs = Console.In.ReadToEnd()
 let res = run csvFile cs
