@@ -6,7 +6,7 @@ include RParsec::Parsers
 
 eol = string "\r\n"
 cell =  regexp(/[^,\r\n]*/).fragment
-line = cell.separated(string ",")
+line = cell.separated(char ',')
 csvFile = (line << eol).many
 
 cs = $stdin.readlines.join
