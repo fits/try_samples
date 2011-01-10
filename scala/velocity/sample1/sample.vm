@@ -1,2 +1,6 @@
-#set($msg = "test (a, b)")
+#set($msg = "test (a, b) 123")
 <test>$msg</test>
+
+#set($s = $msg.indexOf("(") + 1)
+#set($e = $msg.lastIndexOf(")"))
+<a>${msg.substring($s, $e)}</a>
