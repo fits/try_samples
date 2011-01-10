@@ -4,3 +4,23 @@
 #set($s = $msg.indexOf("(") + 1)
 #set($e = $msg.lastIndexOf(")"))
 <a>${msg.substring($s, $e)}</a>
+
+#set($list = [{"category":"1", "name":"test1"}, {"category":"1", "name":"test2"}, {"category":"2", "name":"test3"}, {"category":"3", "name":"test4"}, {"category":"3", "name":"test5"}])
+
+#set($ctlist = {})
+#foreach($r in $list)
+	#set($c = $r["category"])
+
+	#if(!$ctlist.containsKey($c))
+		$!{ctlist.put($c, [])}
+	#end
+
+	#set($dummy = $ctlist[$c].add($r["name"]))
+#end
+
+#foreach($entry in $ctlist.entrySet())
+	$entry.key
+	#foreach($v in $entry.value)
+		$v
+	#end
+#end
