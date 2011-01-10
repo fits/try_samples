@@ -1,0 +1,2 @@
+#set($msg = "test (a, b)")
+<test>$msg</test>
