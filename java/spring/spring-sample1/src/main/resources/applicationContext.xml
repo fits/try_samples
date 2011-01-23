@@ -10,18 +10,7 @@
       http://www.springframework.org/schema/util
       http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
-	<!--
-	<context:annotation-config />
-	-->
 	<context:component-scan base-package="fits.sample" />
 	<util:properties id="sampleProperties" location="classpath:fits/sample/sample.properties" />
-
-<!--
-	<bean class="fits.sample.Sample">
-		<property name="name" value="test1" />
-	</bean>
-
-	<bean id="wrapper" class="fits.sample.SampleWrapper" />
--->
 
 </beans>
