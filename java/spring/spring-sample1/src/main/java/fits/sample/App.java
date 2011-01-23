@@ -8,7 +8,7 @@ public class App {
 	public static void main( String[] args ) {
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 		
-		SampleWrapper w = (SampleWrapper)ctx.getBean("wrapper");
+		SampleWrapper w = (SampleWrapper)ctx.getBean(SampleWrapper.class);
 		w.test();
 	}
 }
