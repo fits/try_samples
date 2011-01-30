@@ -16,7 +16,7 @@ public class App {
 		ctx.scan("fits.sample");
 		ctx.refresh();
 
-		SampleWrapper w = (SampleWrapper)ctx.getBean("sampleWrapper");
+		SampleWrapper w = ctx.getBean("sampleWrapper", SampleWrapper.class);
 		w.test();
 	}
 }
