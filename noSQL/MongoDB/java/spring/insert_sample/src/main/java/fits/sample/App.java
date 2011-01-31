@@ -1,22 +1,14 @@
 package fits.sample;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.beans.factory.config.PropertyOverrideConfigurer;
-
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class App {
 
 	public static void main( String[] args ) {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+		ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 
-		PropertyOverrideConfigurer prop = new PropertyOverrideConfigurer();
-		prop.setLocation(ctx.getResource("classpath:fits/sample/mongodb.properties"));
-		ctx.addBeanFactoryPostProcessor(prop);
-
-		ctx.scan("fits.sample");
-		ctx.refresh();
-
-		DbOperations dbo = ctx.getBean("mongoDbOperations", DbOperations.class);
+		DbOperations dbo = ctx.getBean(DbOperations.class);
 		dbo.put("no1", new Data("test1", 5));
 
 		Data d = dbo.get("no1", Data.class);

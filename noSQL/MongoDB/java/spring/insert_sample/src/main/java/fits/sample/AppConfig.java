@@ -4,36 +4,27 @@ import java.util.Properties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.mongodb.Mongo;
+import com.mongodb.DB;
 import com.mongodb.MongoURI;
 
 
 @Configuration
 public class AppConfig {
 
-	private String dbUri = "mongodb://localhost/";
-
-	@Autowired
-	private DbOperations mongoDbOperations;
-
-	public void setDbUri(String dbUri) {
-		this.dbUri = dbUri;
-	}
+	private @Value("#{mongodbProperties.uri}") String dbUri;
+	private @Value("#{mongodbProperties.db}") String dbName;
 
 	@Bean
 	public Mongo mongo() throws Exception {
-		System.out.println("****** " + dbUri);
-		
 		return new Mongo(new MongoURI(dbUri));
 	}
 
 	@Bean
-	public DbOperations mongoDbOperations() {
-		return mongoDbOperations;
+	public DB mongoDb() throws Exception {
+		return mongo().getDB(dbName);
 	}
 }
 
