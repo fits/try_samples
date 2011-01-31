@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>fits.sample</groupId>
-  <artifactId>simple_noxml</artifactId>
+  <artifactId>insert_sample</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>mongodb-simple_noxml</name>
+  <name>mongodb-insert_sample</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
