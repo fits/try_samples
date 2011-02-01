@@ -13,11 +13,12 @@
       http://www.springframework.org/schema/aop
       http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
-	<context:component-scan base-package="fits.sample" />
+	<context:component-scan base-package="fits.sample">
+		<context:include-filter type="annotation" expression="org.aspectj.lang.annotation.Aspect" />
+	</context:component-scan>
+
 	<util:properties id="sampleProperties" location="classpath:fits/sample/sample.properties" />
 
-	<aop:aspectj-autoproxy proxy-target-class="true" />
-	<bean class="fits.sample.SampleAspect" />
-
+	<aop:aspectj-autoproxy />
 
 </beans>
