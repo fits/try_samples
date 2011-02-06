@@ -17,5 +17,6 @@
 
 	<util:properties id="mongodbProperties" location="classpath:fits/sample/mongodb.properties" />
 
+	<!-- MongoRepository のサブインターフェースをスキャンする設定 -->
 	<mongo:repositories base-package="fits.sample" />
 </beans>
