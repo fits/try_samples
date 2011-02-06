@@ -17,18 +17,18 @@ public class MongoTemplateSampleService implements SampleService {
 	@Autowired
 	private MongoTemplate temp;
 
-	//Data ‚ğ’Ç‰Á‚·‚é
+	//Data ã‚’è¿½åŠ ã™ã‚‹
 	public void addData(List<Data> list) {
 		temp.insertList(list);
 	}
 
-	//w’è–¼‚Ì Data ‚ğæ“¾‚·‚é
+	//æŒ‡å®šåã® Data ã‚’å–å¾—ã™ã‚‹
 	public List<Data> getData(String name) {
 		BasicDBObject query = new BasicDBObject("name", name);
 		return temp.query(query, Data.class);
 	}
 
-	//w’è–¼‚ğŠÜ‚İAw’èƒ|ƒCƒ“ƒg‚æ‚è‘å‚«‚¢ Data ‚ğæ“¾‚·‚é
+	//æŒ‡å®šåã‚’å«ã¿ã€æŒ‡å®šãƒã‚¤ãƒ³ãƒˆã‚ˆã‚Šå¤§ãã„ Data ã‚’å–å¾—ã™ã‚‹
 	public List<Data> findData(String name, int point) {
 
 		DBObject query = QueryBuilder.start("name").regex(Pattern.compile(".*" + name + ".*")).and("point").greaterThan(point).get();
