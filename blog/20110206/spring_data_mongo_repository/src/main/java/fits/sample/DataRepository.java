@@ -4,10 +4,10 @@ import java.util.List;
 import org.springframework.data.document.mongodb.repository.MongoRepository;
 
 public interface DataRepository extends MongoRepository<Data, java.math.BigInteger> {
-	//w’è–¼‚Ì Data ‚ğæ“¾‚·‚é
+	//æŒ‡å®šåã® Data ã‚’å–å¾—ã™ã‚‹
 	List<Data> findByName(String name);
 
-	//w’è‚Ì–¼‘O‚ğŠÜ‚İAƒ|ƒCƒ“ƒg‚ªw’è’l‚æ‚è‘å‚«‚¢ Data ‚ğæ“¾‚·‚é
+	//æŒ‡å®šã®åå‰ã‚’å«ã¿ã€ãƒã‚¤ãƒ³ãƒˆãŒæŒ‡å®šå€¤ã‚ˆã‚Šå¤§ãã„ Data ã‚’å–å¾—ã™ã‚‹
 	List<Data> findByNameLikeAndPointGreaterThan(String name, int point);
 
 }

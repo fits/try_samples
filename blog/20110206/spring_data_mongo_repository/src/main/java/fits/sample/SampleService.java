@@ -4,12 +4,12 @@ import java.util.List;
 
 public interface SampleService {
 
-	//Data ‚ğ’Ç‰Á‚·‚é
+	//Data ã‚’è¿½åŠ ã™ã‚‹
 	void addData(List<Data> list);
 
-	//w’è–¼‚Ì Data ‚ğæ“¾‚·‚é
+	//æŒ‡å®šåã® Data ã‚’å–å¾—ã™ã‚‹
 	List<Data> getData(String name);
 
-	//w’è–¼‚ğŠÜ‚İAw’èƒ|ƒCƒ“ƒg‚æ‚è‘å‚«‚¢ Data ‚ğæ“¾‚·‚é
+	//æŒ‡å®šåã‚’å«ã¿ã€æŒ‡å®šãƒã‚¤ãƒ³ãƒˆã‚ˆã‚Šå¤§ãã„ Data ã‚’å–å¾—ã™ã‚‹
 	List<Data> findData(String name, int point);
 }
