@@ -14,6 +14,7 @@ public class AppConfig {
 
 	private @Value("#{mongodbProperties.uri}") String dbUri;
 	private @Value("#{mongodbProperties.db}") String dbName;
+	private @Value("#{mongodbProperties.collection}") String colName;
 
 	@Bean
 	public Mongo mongo() throws Exception {
@@ -22,6 +23,6 @@ public class AppConfig {
 
 	@Bean
 	public MongoTemplate mongoTemplate() throws Exception {
-		return new MongoTemplate(mongo(), dbName);
+		return new MongoTemplate(mongo(), dbName, colName);
 	}
 }

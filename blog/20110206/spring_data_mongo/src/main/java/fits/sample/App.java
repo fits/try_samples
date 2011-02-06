@@ -1,5 +1,7 @@
 package fits.sample;
 
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -9,12 +11,20 @@ public class App {
 	public static void main( String[] args ) {
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 
-		DbOperations dbo = ctx.getBean(DbOperations.class);
+		SampleService ss = ctx.getBean(SampleService.class);
 
-		dbo.put("no1", new Data("test1", 5));
+		ss.addData(Arrays.asList(
+			new Data("test1", 10),
+			new Data("sample", 100),
+			new Data("spring-test-10", 50),
+			new Data("test-2", 20)
+		));
 
-		Data d = dbo.get("no1", Data.class);
+		List<Data> list = ss.getData("sample");
+		assert list.get(0).getPoint() == 100;
 
-		System.out.printf("data = %s, %d \n", d.getName(), d.getPoint());
+		for (Data d : ss.findData("test", 10)) {
+			System.out.printf("id: %d, name: %s, point: %d\n", d.getId(), d.getName(), d.getPoint());
+		}
 	}
 }

@@ -1,8 +1,11 @@
 package fits.sample;
 
+import java.math.BigInteger;
+
 //データクラス
 public class Data {
 
+	private BigInteger id;
 	private String name;
 	private int point;
 
@@ -13,6 +16,14 @@ public class Data {
 	public Data(String name, int point) {
 		this.name = name;
 		this.point = point;
+	}
+
+	public void setId(BigInteger id) {
+		this.id = id;
+	}
+
+	public BigInteger getId() {
+		return this.id;
 	}
 
 	public void setName(String name) {
