@@ -23,7 +23,7 @@ public class App {
 		List<Data> list = ss.getData("sample");
 		assert list.get(0).getPoint() == 100;
 
-		for (Data d : ss.findData("test", 15)) {
+		for (Data d : ss.findData("test", 10)) {
 			System.out.printf("id: %d, name: %s, point: %d\n", d.getId(), d.getName(), d.getPoint());
 		}
 	}
