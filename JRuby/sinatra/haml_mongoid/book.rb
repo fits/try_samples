@@ -1,4 +1,3 @@
-require "mongoid"
 
 class Book
 	include Mongoid::Document
