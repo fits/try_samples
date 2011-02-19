@@ -5,6 +5,7 @@ require "mongoid"
 
 require "book"
 
+# Mongoid settings
 Mongoid.configure do |config|
 	config.master = Mongo::Connection.new.db("book_review")
 end
