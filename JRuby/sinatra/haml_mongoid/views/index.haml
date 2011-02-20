@@ -1,3 +1,4 @@
+
 .menu Menu
 %ul
   %li
@@ -6,6 +7,19 @@
     %a(href="/users") Users List
 
 .list Book Comments
-%ul
-  - books.each do |b|
+%form.post(action='#{action}' method='post')
+  %select(name='post[user]')
+    - users.each do |u|
+      %option(value='#{u._id}')= u.name
+  %select(name='post[book]')
+    - books.each do |b|
+      %option(value='#{b._id}')= b.title
+  %input(name='post[content]' type='text')
+  %input(type='submit' value='Add')
+
+- books.each do |b|
+  %ul
     %li= b.title
+    %ul
+      - b.comments.each do |c|
+        %li #{c.content} : #{c.user.name}, #{c.created_date}

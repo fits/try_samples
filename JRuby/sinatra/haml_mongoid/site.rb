@@ -4,8 +4,9 @@ require "haml"
 require "mongoid"
 
 require "models/book"
-require "models/comment"
 require "models/user"
+require "models/comment"
+
 
 # Mongoid settings
 Mongoid.configure do |config|
@@ -13,8 +14,7 @@ Mongoid.configure do |config|
 end
 
 get '/' do
-	books = Book.all
-	haml :index, {}, :books => books
+	haml :index, {}, :books => Book.all, :users => User.all, :action => '/comments'
 end
 
 get '/books' do
@@ -24,6 +24,13 @@ end
 post '/books' do
 	Book.create(params[:post])
 	redirect '/books'
+end
+
+post '/comments' do
+	user = User.find(params[:post][:user])
+	comment = Book.find(params[:post][:book]).comments.create(:content => params[:post][:content], :created_date => Time.now, :user => user)
+
+	redirect '/'
 end
 
 get '/users' do
