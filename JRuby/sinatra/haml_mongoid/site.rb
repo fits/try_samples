@@ -3,7 +3,7 @@ require "sinatra"
 require "haml"
 require "mongoid"
 
-require "book"
+require "models/book"
 
 # Mongoid settings
 Mongoid.configure do |config|
