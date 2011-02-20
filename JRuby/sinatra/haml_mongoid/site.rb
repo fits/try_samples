@@ -14,7 +14,7 @@ Mongoid.configure do |config|
 end
 
 get '/' do
-	haml :index, {}, :books => Book.all, :users => User.all, :action => '/comments'
+	haml :index, {}, :books => Book.all.order_by([[:name, :asc]]), :users => User.all, :action => '/comments'
 end
 
 get '/books' do
