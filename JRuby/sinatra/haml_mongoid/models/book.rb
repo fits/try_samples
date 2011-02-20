@@ -5,4 +5,6 @@ class Book
 	field :title
 	field :isbn
 
+	embeds_many :comments
+
 end
