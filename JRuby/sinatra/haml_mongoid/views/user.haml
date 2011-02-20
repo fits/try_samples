@@ -1,4 +1,6 @@
-%form.post(action='/users' method='post')
+%a(href='/') back
+
+%form.post(action='#{action}' method='post')
   User:
   %input(name='post[name]' type='text')
   %input(type='submit' value='Add')

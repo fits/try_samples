@@ -17,13 +17,17 @@ get '/' do
 	haml :index, {}, :books => books
 end
 
+get '/books' do
+	haml :book, {}, :books => Book.all, :action => '/books'
+end
+
 post '/books' do
 	Book.create(params[:post])
+	redirect '/books'
 end
 
 get '/users' do
-	users = User.all
-	haml :user, {}, :users => users
+	haml :user, {}, :users => User.all, :action => '/users'
 end
 
 post '/users' do
