@@ -13,11 +13,11 @@ MongoMapper.connection = Mongo::Connection.new('localhost')
 MongoMapper.database = 'book_review'
 
 get '/' do
-	haml :index, {}, :books => Book.all, :users => User.all, :action => '/comments'
+	haml :index, {}, :books => Book.all(:order => 'title'), :users => User.all, :action => '/comments'
 end
 
 get '/books' do
-	haml :book, {}, :books => Book.all, :action => '/books'
+	haml :book, {}, :books => Book.all(:order => 'title'), :action => '/books'
 end
 
 post '/books' do
@@ -36,7 +36,7 @@ post '/comments' do
 end
 
 get '/users' do
-	haml :user, {}, :users => User.all, :action => '/users'
+	haml :user, {}, :users => User.all(:order => 'name'), :action => '/users'
 end
 
 post '/users' do
