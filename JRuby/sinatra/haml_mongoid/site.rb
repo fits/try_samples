@@ -28,7 +28,13 @@ end
 
 post '/comments' do
 	user = User.find(params[:post][:user])
-	comment = Book.find(params[:post][:book]).comments.create(:content => params[:post][:content], :created_date => Time.now, :user => user)
+
+	Book.find(params[:post][:book]).comments.create(:content => params[:post][:content], :created_date => Time.now, :user => user)
+
+	#ˆÈ‰º‚Å‚à‰Â
+	# b = Book.find(params[:post][:book])
+	# b.comments << Comment.new(:content => params[:post][:content], :created_date => Time.now, :user => user)
+	# b.save
 
 	redirect '/'
 end
