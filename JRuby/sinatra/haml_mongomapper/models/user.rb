@@ -4,6 +4,6 @@ class User
 
 	key :name, String
 
-	has_many :comment
+	#has_many :comments
 
 end
