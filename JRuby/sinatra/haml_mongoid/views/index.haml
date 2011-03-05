@@ -10,16 +10,17 @@
 %form.post(action='#{action}' method='post')
   %select(name='post[user]')
     - users.each do |u|
-      %option(value='#{u._id}')= u.name
+      %option(value='#{u._id}')&= u.name
   %select(name='post[book]')
     - books.each do |b|
-      %option(value='#{b._id}')= b.title
+      %option(value='#{b._id}')&= b.title
   %input(name='post[content]' type='text')
   %input(type='submit' value='Add')
 
 - books.each do |b|
   %ul
-    %li= b.title
+    %li&= b.title
     %ul
       - b.comments.each do |c|
-        %li #{c.content} : #{c.user.name}, #{c.created_date}
+        %li
+          & #{c.content} : #{c.user.name}, #{c.created_date}

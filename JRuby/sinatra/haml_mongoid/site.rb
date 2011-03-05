@@ -14,11 +14,11 @@ Mongoid.configure do |config|
 end
 
 get '/' do
-	haml :index, {}, :books => Book.all.order_by([[:name, :asc]]), :users => User.all, :action => '/comments'
+	haml :index, {}, :books => Book.all.order_by([[:title, :asc]]), :users => User.all.order_by([[:name, :asc]]), :action => '/comments'
 end
 
 get '/books' do
-	haml :book, {}, :books => Book.all, :action => '/books'
+	haml :book, {}, :books => Book.all.order_by([[:title, :asc]]), :action => '/books'
 end
 
 post '/books' do
@@ -34,7 +34,7 @@ post '/comments' do
 end
 
 get '/users' do
-	haml :user, {}, :users => User.all, :action => '/users'
+	haml :user, {}, :users => User.all.order_by([[:name, :asc]]), :action => '/users'
 end
 
 post '/users' do
