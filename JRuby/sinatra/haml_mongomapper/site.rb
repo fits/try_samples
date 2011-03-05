@@ -7,8 +7,7 @@ require "models/book"
 require "models/user"
 require "models/comment"
 
-
-# Mongoid settings
+# MongoMapper settings
 MongoMapper.connection = Mongo::Connection.new('localhost')
 MongoMapper.database = 'book_review'
 
