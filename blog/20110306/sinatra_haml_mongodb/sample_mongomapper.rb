@@ -35,8 +35,6 @@ end
 
 # Add Comment
 post '/comments' do
-	params[:post][:created_date] = Time.now
-
 	b = Book.find(params[:post][:book_id])
 	b.comments << Comment.new(:content => params[:post][:content], :created_date => Time.now, :user_id => params[:post][:user_id])
 	b.save
