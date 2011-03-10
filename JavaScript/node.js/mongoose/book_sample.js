@@ -1,25 +1,41 @@
 
 var mongoose = require('mongoose');
 
-var CommentModel = new mongoose.Schema({
-	content: String,
-	created_date: Date
+var UserSchema = new mongoose.Schema({
+	name: String
 });
 
-var BookModel = new mongoose.Schema({
+var CommentSchema = new mongoose.Schema({
+	content: String,
+	created_date: Date,
+	user_id: String
+});
+
+CommentSchema.method({
+	user: function() {
+		return User.findById(this.user_id);
+	}
+});
+
+var BookSchema = new mongoose.Schema({
 	title: String,
 	isbn: String,
-	comments: [CommentModel]
+	comments: [CommentSchema]
 });
 
-mongoose.model('Book', BookModel);
+mongoose.model('User', UserSchema);
+mongoose.model('Book', BookSchema);
 
 var db = mongoose.createConnection('mongodb://127.0.0.1/book_review');
 
+var User = db.model('User');
 var Book = db.model('Book');
 
+var u = new User({name: 'tester1'});
+u.save();
+
 var b = new Book({title: 'test'});
-b.comments.push({content: 'test data', created_date: Date.now()});
+b.comments.push({content: 'test data', created_date: Date.now(), user_id: u._id});
 
 b.save(function(err) {
 	console.log("saved : " + err);
