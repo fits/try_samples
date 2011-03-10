@@ -8,7 +8,8 @@ var UserSchema = new mongoose.Schema({
 var CommentSchema = new mongoose.Schema({
 	content: String,
 	created_date: Date,
-	user_id: String
+	//user_id ‚ğ ObjectId Œ^‚É‚·‚é‚É‚Í type ‚ğÈ—ª‚·‚ê‚Î‚æ‚¢
+	user_id: {}
 });
 
 CommentSchema.method({
