@@ -35,12 +35,18 @@ var Book = db.model('Book');
 var u = new User({name: 'tester1'});
 u.save();
 
-var b = new Book({title: 'test'});
-b.comments.push({content: 'test data', created_date: Date.now(), user_id: u._id});
+var b = new Book({title: 'test1'});
+b.comments.push({content: 'test1 data', created_date: Date.now(), user_id: u._id});
 
 b.save(function(err) {
 	console.log("saved : " + err);
 
-	db.close();
+//	db.close();
 });
 
+var list = Book.where('title', 'test1');
+list.count(function(err, c) {
+	console.log(c);
+	
+	db.close();
+});
