@@ -16,52 +16,48 @@ var CommentSchema = new mongoose.Schema({
 CommentSchema.virtual('user')
 	.get(function() {
 		return this['userobj'];
-	/*
-		var result = null;
-
-		User.findById(this.user_id, function(err, item) {
-			if (!err) {
-				result = item.doc;
-			}
-		});
-
-		//findById が非同期処理のため null が返ってしまう
-		return result;
-	*/
 	})
 	.set(function(u) {
-		this.set("user_id", u._id)
+		this.set('user_id', u._id)
 	});
-
-//初期化後の処理
-CommentSchema.post('init', function() {
-	//User の findById が戻った際にコールバックを返す処理
-	this.initCompleted = function(fn) {
-		if (this['userobj'] == undefined) {
-			this.completedFunc = fn;
-		}
-		else {
-			fn();
-		}
-	};
-
-	var thisObj = this;
-
-	User.findById(this.user_id, function(err, item) {
-		thisObj['userobj'] = (err)? null: item.doc;
-
-		if (thisObj.completedFunc) {
-			thisObj.completedFunc();
-		}
-	});
-});
-
 
 var BookSchema = new mongoose.Schema({
 	title: String,
 	isbn: String,
 	comments: [CommentSchema]
 });
+
+BookSchema.method({
+	//Comment の関連 User をロードする処理
+	deepLoad: function(callback) {
+		var comments = this.get('comments');
+		var ulist = [];
+
+		for (var i = 0; i < comments.length; i++) {
+			var uid = comments[i].user_id;
+			ulist.push(uid);
+		}
+
+		var thisObj = this;
+
+		User.where('_id').in(ulist).find(function(err, list) {
+			var userList = {};
+
+			if (!err) {
+				for (var i = 0; i < list.length; i++) {
+					userList[list[i]._id] = list[i].doc;
+				}
+			}
+
+			for (var i = 0; i < comments.length; i++) {
+				comments[i]['userobj'] = userList[comments[i].user_id];
+			}
+
+			callback(thisObj);
+		});
+	}
+});
+
 
 mongoose.model('User', UserSchema);
 mongoose.model('Book', BookSchema);
@@ -71,45 +67,39 @@ var db = mongoose.createConnection('mongodb://127.0.0.1/book_review');
 var User = db.model('User');
 var Book = db.model('Book');
 
-var u = new User({name: 'tester4'});
+/*
+var u = new User({name: 'tester3'});
 u.save();
 
-var b = new Book({title: 'test4'});
-b.comments.push({content: 'test4 data', created_date: Date.now(), user: u});
+var b = new Book({title: 'test2'});
+b.comments.push({content: 'test3 data', created_date: Date.now(), user: u});
 b.comments.push({content: 'aaaa', created_date: Date.now(), user: u});
 
 b.save(function(err) {
 	console.log("saved : " + err);
 });
+*/
 
 Book.where('comments.content', 'test3 data').find(function(err, list) {
 
 	for (var i = 0; i < list.length; i++) {
-		var doc = list[i].doc;
+		var l = list[i];
 
-		for (var j = 0; j < doc.comments.length; j++) {
-			var c = doc.comments[j];
+		l.deepLoad(function(b) {
+		// 常に l の値が list 配列の最後の要素になってしまうため、
+		// 以下のようにすると意図したように動作しない
+		//	var b = l.doc;
 
-			c.initCompleted(function() {
-				console.log(doc.title + ", " + c.content + ", " + c.user.name);
-			});
-		}
+			console.log("--- " + b.title + " ---");
+			var comments = b.comments;
+
+			for (var j = 0; j < comments.length; j++) {
+				var c = comments[j];
+				var cname = (c.user)? c.user.name: null;
+
+				console.log(c.content + ", " + c.user_id + ", " + cname);
+			}
+		});
 	}
-});
-
-Book.find({'comments.content' : 'test3 data'}, function(err, list) {
-	for (var i = 0; i < list.length; i++) {
-		var doc = list[i].doc;
-
-		for (var j = 0; j < doc.comments.length; j++) {
-			var c = doc.comments[j];
-
-			c.initCompleted(function() {
-				console.log(doc.title + ", " + c.content + ", " + c.user.name);
-			});
-		}
-	}
-
-	//db.close();
 });
 
