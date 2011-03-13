@@ -15,7 +15,7 @@ var CommentSchema = new mongoose.Schema({
 
 CommentSchema.virtual('user')
 	.get(function() {
-		return this.get('userobj');
+		return this['userobj'];
 	/*
 		var result = null;
 
@@ -35,19 +35,20 @@ CommentSchema.virtual('user')
 
 //初期化後の処理
 CommentSchema.post('init', function() {
+	//User の findById が戻った際にコールバックを返す処理
 	this.initCompleted = function(fn) {
-		if (this.get('userobj') == null) {
+		if (this['userobj'] == undefined) {
 			this.completedFunc = fn;
 		}
 		else {
 			fn();
 		}
 	};
-	
+
 	var thisObj = this;
 
 	User.findById(this.user_id, function(err, item) {
-		thisObj.set('userobj', item.doc);
+		thisObj['userobj'] = (err)? null: item.doc;
 
 		if (thisObj.completedFunc) {
 			thisObj.completedFunc();
