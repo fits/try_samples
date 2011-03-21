@@ -8,7 +8,7 @@ import org.specs2.runner._
 import org.junit.runner._
 
 @RunWith(classOf[JUnitRunner])
-class BookSpecTest extends Specification {
+class BookSpec extends Specification {
 
 	"初期状態" should {
 		val b = new Book()
