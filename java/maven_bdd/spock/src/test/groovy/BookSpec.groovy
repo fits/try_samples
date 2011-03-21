@@ -2,7 +2,7 @@ package fits.sample
 
 import spock.lang.*
 
-class InitBookSpecTest extends Specification {
+class InitBookSpec extends Specification {
 	def b = new Book()
 
 	def "title ‚Í null"() {
@@ -21,7 +21,7 @@ class InitBookSpecTest extends Specification {
 	}
 }
 
-class SetTitleSpecTest extends Specification {
+class SetTitleSpec extends Specification {
 	def b = new Book()
 
 	def "title ‚ðŽw’è"() {
@@ -33,7 +33,7 @@ class SetTitleSpecTest extends Specification {
 	}
 }
 
-class AddCommentSpecTest extends Specification {
+class AddCommentSpec extends Specification {
 	def b = new Book()
 
 	def "Comment ‚ð’Ç‰Á"() {
