@@ -3,11 +3,8 @@ package fits.sample
 import scala.collection.JavaConversions._
 
 import org.specs._
-import org.specs.runner.JUnit4
 
-class BookSpecTest extends JUnit4(BookSpec)
-
-object BookSpec extends Specification {
+class BookSpec extends SpecificationWithJUnit {
 
 	"初期状態" should {
 		val b = new Book()
@@ -41,7 +38,6 @@ object BookSpec extends Specification {
 		"Comment が追加されている" in {
 			b.getComments() must haveSize(1)
 		}
-
 	}
 }
 
