@@ -1,6 +1,7 @@
 package fits.sample
 
 import akka.actor._
+import akka.util.Logging
 
 object SampleServer {
 	def run() = {
@@ -9,7 +10,7 @@ object SampleServer {
 	}
 }
 
-object SampleClient {
+object SampleClient extends Logging {
 	def run() = {
 		val sactor = Actor.remote.actorFor("sample", "localhost", 8088)
 
@@ -17,8 +18,8 @@ object SampleClient {
 		sactor ! Hi("a")
 
 		sactor !! "aaa" match {
-			case Some(reply) => println("-------- reply : " + reply)
-			case None => println("-------- timeout")
+			case Some(reply) => log.info("-------- reply : " + reply)
+			case None => log.info("-------- timeout")
 		}
 	}
 }
