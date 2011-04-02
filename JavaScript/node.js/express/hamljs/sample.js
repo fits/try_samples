@@ -8,7 +8,11 @@ app.set('view engine', 'haml');
 app.get('/', function(req, res) {
 	res.render('index', {
 		locals: {
-			data: 'test data'
+			items: [
+				{id: 1, data: 'test1'},
+				{id: 2, data: 'test2'},
+				{id: 3, data: 'test3'}
+			]
 		}
 	});
 });
