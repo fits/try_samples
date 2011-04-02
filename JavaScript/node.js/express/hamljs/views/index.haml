@@ -1,4 +1,7 @@
 
 %ul
-  %li test
-  %li= data
+  - each item in items
+    %li
+      = item.id
+      , 
+      = item.data
