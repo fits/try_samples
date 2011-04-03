@@ -28,33 +28,18 @@ var BookSchema = new mongoose.Schema({
 });
 
 BookSchema.method({
-	//Comment の関連 User をロードする処理
-	deepLoad: function(callback) {
-		var comments = this.get('comments');
-		var ulist = [];
-
-		for (var i = 0; i < comments.length; i++) {
-			var uid = comments[i].user_id;
-			ulist.push(uid);
+	//Comment の関連 User を復元する処理
+	restoreUser: function(userList) {
+		var ulist = {};
+		for (var i = 0; i < userList.length; i++) {
+			ulist[userList[i]._id] = userList[i];
 		}
 
-		var thisObj = this;
+		var comments = this.get('comments');
 
-		User.where('_id').in(ulist).find(function(err, list) {
-			var userList = {};
-
-			if (!err) {
-				for (var i = 0; i < list.length; i++) {
-					userList[list[i]._id] = list[i].doc;
-				}
-			}
-
-			for (var i = 0; i < comments.length; i++) {
-				comments[i]['userobj'] = userList[comments[i].user_id];
-			}
-
-			callback(thisObj);
-		});
+		for (var i = 0; i < comments.length; i++) {
+			comments[i]['userobj'] = ulist[comments[i].user_id];
+		}
 	}
 });
 
@@ -64,10 +49,3 @@ mongoose.model('Book', BookSchema);
 exports.createConnection = function(url) {
 	return mongoose.createConnection(url);
 };
-
-/*
-var db = mongoose.createConnection('mongodb://127.0.0.1/book_review');
-
-var User = db.model('User');
-var Book = db.model('Book');
-*/

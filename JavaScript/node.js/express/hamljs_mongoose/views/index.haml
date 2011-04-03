@@ -23,11 +23,7 @@
 
 - each b in books
   %ul
-    %li
-      = b.title
+    %li= b.title
     %ul
       - each c in b.comments
-        %li
-          = c.content
-          ,
-          = c.created_date
+        %li= c.content + ' : ' + c.user.name + " , " + c.created_date
