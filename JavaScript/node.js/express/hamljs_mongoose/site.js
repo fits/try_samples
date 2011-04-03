@@ -45,6 +45,22 @@ app.post('/books', function(req, res) {
 	});
 });
 
+app.post('/comments', function(req, res) {
+	User.findById(req.body.user_id, function(err, u) {
+		Book.findById(req.body.book_id, function(err, b) {
+			b.comments.push({
+				content: req.body.content,
+				created_date: Date.now(),
+				user: u
+			});
+
+			b.save(function(err) {
+				res.redirect('/');
+			});
+		});
+	});
+});
+
 app.get('/users', function(req, res) {
 	User.find(function(err, list) {
 		res.render('user', {
