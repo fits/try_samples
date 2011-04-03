@@ -15,8 +15,12 @@ var Book = db.model('Book');
 var User = db.model('User');
 
 app.get('/', function(req, res) {
-	Book.find(function(err, bookList) {
-		User.find(function(err, userList) {
+	User.find(function(err, userList) {
+		Book.find(function(err, bookList) {
+			for (var i = 0; i < bookList.length; i++) {
+				bookList[i].restoreUser(userList);
+			}
+
 			res.render('index', {
 				locals: {
 					books: bookList,

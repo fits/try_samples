@@ -9,7 +9,4 @@
 
 %ul
   - each b in books
-    %li
-      = b.title
-      -
-      = b.isbn
+    %li= b.title + ' - ' + b.isbn
