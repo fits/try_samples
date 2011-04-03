@@ -15,8 +15,8 @@ var Book = db.model('Book');
 var User = db.model('User');
 
 app.get('/', function(req, res) {
-	User.find(function(err, userList) {
-		Book.find(function(err, bookList) {
+	User.find().asc('name').find(function(err, userList) {
+		Book.find().asc('title').find(function(err, bookList) {
 
 			bookList.forEach(function(b) {
 				b.restoreUser(userList);
@@ -34,7 +34,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/books', function(req, res) {
-	Book.find(function(err, list) {
+	Book.find().asc('title').find(function(err, list) {
 		res.render('book', {
 			locals: {
 				books: list,
@@ -67,7 +67,7 @@ app.post('/comments', function(req, res) {
 });
 
 app.get('/users', function(req, res) {
-	User.find(function(err, list) {
+	User.find().asc('name').find(function(err, list) {
 		res.render('user', {
 			locals: {
 				users: list,
