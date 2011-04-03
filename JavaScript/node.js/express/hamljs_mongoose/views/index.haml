@@ -1,0 +1,25 @@
+
+.menu Menu
+%ul
+  %li
+    %a{ href: "/books" } Books List
+
+.list Book Comments
+%form.post{ action: action, method: 'post' }
+  %select{ name: 'post[book]' }
+    - each b in books
+      %option{ value: b._id }
+        = b.title
+  %input{ name: 'post[content]', type: 'text' }
+  %input{ type: 'submit', value: 'Add' }
+
+- each b in books
+  %ul
+    %li
+      = b.title
+    %ul
+      - each c in b.comments
+        %li
+          = c.content
+          ,
+          = c.created_date
