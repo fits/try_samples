@@ -31,15 +31,14 @@ BookSchema.method({
 	//Comment ‚ÌŠÖ˜A User ‚ğ•œŒ³‚·‚éˆ—
 	restoreUser: function(userList) {
 		var ulist = {};
-		for (var i = 0; i < userList.length; i++) {
-			ulist[userList[i]._id] = userList[i];
-		}
 
-		var comments = this.get('comments');
+		userList.forEach(function(u) {
+			ulist[u._id] = u;
+		});
 
-		for (var i = 0; i < comments.length; i++) {
-			comments[i]['userobj'] = ulist[comments[i].user_id];
-		}
+		this.get('comments').forEach(function(c) {
+			c['userobj'] = ulist[c.user_id];
+		});
 	}
 });
 
