@@ -1,0 +1,12 @@
+%a{ href: '/' } back
+
+%form.post{ action: action, method: 'post' }
+  Book Title:
+  %input{ name: 'title', type: 'text' }
+  ISBN:
+  %input{ name: 'isbn', type: 'text' }
+  %input{ type: 'submit', value: 'Add' }
+
+%ul
+  - each b in books
+    %li= b.title + ' - ' + b.isbn

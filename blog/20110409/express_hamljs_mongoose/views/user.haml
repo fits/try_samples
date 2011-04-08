@@ -1,0 +1,10 @@
+%a{ href: '/' } back
+
+%form.post{ action: action, method: 'post' }
+  User:
+  %input{ name: 'name', type: 'text' }
+  %input{ type: 'submit', value: 'Add' }
+
+%ul
+  - each u in users
+    %li= u.name
