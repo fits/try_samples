@@ -2,13 +2,13 @@
 
 ■ 事前準備
 
-	・bin ディレクトリに FSharp-2.0.0.0\v4.0\bin\gac ※ 内の
+	・bin ディレクトリに FSharp-2.0.0.0\v4.0\bin\gac\FSharp.Core.dll ※
 		ファイルを配置
 
 	・F# の v4.0\bin と Azure SDK の bin ディレクトリを
 		環境変数 PATH に設定
 
-	※ F# CTP 解凍先
+	※ F# CTP に含まれている
 
 ■ ビルド
 
