@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ScalaAzureSample" default="createwapackage" basedir=".">
+
+	<target name="createwapackage" description="Creates a Windows Azure package">
+
+		<taskdef name="windowsazurepackage" classname="com.interopbridges.tools.build.WindowsAzurePackage" classpath="${basedir}\.cspack.jar" />
+		
+		<property environment="env"/>
+		<property name="wasdkdir" location="${env.AZURE_SDK_HOME}" />
+		<property name="wapackagedir" location="${basedir}\deploy"/>
+		<delete dir="${wapackagedir}" includeemptydirs="true"/>
+		<mkdir dir="${wapackagedir}"/>
+
+		<windowsazurepackage
+			sdkdir="${wasdkdir}"
+			packagefilename="ScalaAzureSample.cspkg"
+			packagedir = "${wapackagedir}"
+			packagetype="local"
+			projectdir="${basedir}"
+			definitionfilename="ServiceDefinition.csdef"
+			configurationfilename="ServiceConfiguration.cscfg"
+			> 
+			<workerrole name="WorkerRole1" approotdir="${basedir}\WorkerRole1\approot" />
+		</windowsazurepackage>
+	</target>
+</project> 
+
