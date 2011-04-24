@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="ScalaAzureSample" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+  <WorkerRole name="WorkerRole1">
+    <Startup>
+      <Task commandLine="util\startup.cmd" executionContext="elevated" taskType="simple"/>
+    </Startup>
+    <Endpoints>
+      <InputEndpoint name="Http" protocol="tcp" port="80" localPort="8080" />
+    </Endpoints>
+  </WorkerRole>
+</ServiceDefinition>
