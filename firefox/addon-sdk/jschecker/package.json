@@ -1,0 +1,9 @@
+{
+  "id": "6B968895-6472-49f6-B24E-B4FA4B33B6F7",
+  "name": "jschecker",
+  "fullName": "jschecker",
+  "description": "JavaScript checker",
+  "author": "fits",
+  "license": "MPL 1.1/GPL 2.0/LGPL 2.1",
+  "version": "1.0"
+}
