@@ -20,3 +20,5 @@ var widget = widgets.Widget({
   }
 });
 
+displayJSStatus(widget);
+
