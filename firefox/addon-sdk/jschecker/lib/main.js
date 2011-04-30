@@ -6,7 +6,7 @@ var pservice = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefSer
 
 var displayJSStatus = function(w) {
   var jsenable = pservice.getBoolPref("javascript.enabled", false);
-  w.content = (jsenable)? "js": "--";
+  w.content = (jsenable)? "JS": "--";
 }
 
 var widget = widgets.Widget({
