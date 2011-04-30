@@ -20,5 +20,6 @@ var widget = widgets.Widget({
   }
 });
 
+//初期表示
 displayJSStatus(widget);
 
