@@ -1,7 +1,13 @@
 <html>
 <script>
+	var counter = 0;
+
 	chrome.browserAction.onClicked.addListener(function(tab) {
 		alert("clicked");
+		counter++;
+		chrome.browserAction.setBadgeText({"text": "" + counter});
 	});
+
+	chrome.browserAction.setBadgeText({"text": "" + counter});
 </script>
 </html>
