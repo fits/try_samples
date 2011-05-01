@@ -1,0 +1,11 @@
+{
+  "name": "Extension Sample",
+  "version": "1.0",
+  "description": "Extension Sample",
+  "background_page": "sample.html",
+  "browser_action": {
+    "default_icon": "images/sample.png"
+  },
+  "permissions": [
+  ]
+}
