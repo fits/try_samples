@@ -1,0 +1,7 @@
+@echo off
+
+echo äJén - %time%
+
+Thumbnail 100 sample.jpg sample_6.jpg
+
+echo èIóπ - %time%

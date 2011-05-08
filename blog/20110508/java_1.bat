@@ -1,0 +1,7 @@
+@echo off
+
+echo äJén - %time%
+
+java Thumbnail 100 sample.jpg sample_5.jpg
+
+echo èIóπ - %time%
