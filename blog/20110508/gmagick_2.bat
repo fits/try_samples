@@ -1,0 +1,7 @@
+@echo off
+
+echo äJén - %time%
+
+gm convert -define jpeg:size=100 -thumbnail 100 sample.jpg sample_4.jpg
+
+echo èIóπ - %time%

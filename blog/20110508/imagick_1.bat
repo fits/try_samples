@@ -1,0 +1,7 @@
+@echo off
+
+echo äJén - %time%
+
+convert -thumbnail 100 sample.jpg sample_1.jpg
+
+echo èIóπ - %time%
