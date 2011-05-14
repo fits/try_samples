@@ -13,7 +13,7 @@ object Sample {
 		db.save[User](new User("tester1"))
 
 		db.find(classOf[User]).asList.foreach {u =>
-			println("user: name = " + u.name)
+			println("user: id = " + u.id + ", name = " + u.name)
 		}
 	}
 }
