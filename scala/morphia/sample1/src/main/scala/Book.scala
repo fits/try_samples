@@ -4,7 +4,7 @@ import java.util.{List, ArrayList}
 import com.google.code.morphia.annotations._
 import org.bson.types.ObjectId
 
-@Entity
+@Entity(value = "books", noClassnameStored = true)
 class Book(@Property var title: String, @Property var isbn: String) {
 
 	//デフォルトコンストラクタは必須
