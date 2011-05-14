@@ -5,6 +5,8 @@ import org.bson.types.ObjectId
 
 @Entity
 class User(@Property var name: String) {
+
+	//デフォルトコンストラクタは必須
 	def this() = this("")
 
 	@Id
