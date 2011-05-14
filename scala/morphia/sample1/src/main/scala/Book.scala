@@ -5,7 +5,7 @@ import com.google.code.morphia.annotations._
 import org.bson.types.ObjectId
 
 @Entity
-class Book(@Property var title: String, @Property isbn: String) {
+class Book(@Property var title: String, @Property var isbn: String) {
 
 	//デフォルトコンストラクタは必須
 	def this() = this("", "")

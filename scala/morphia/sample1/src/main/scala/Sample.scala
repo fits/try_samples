@@ -25,7 +25,7 @@ object Sample {
 		db.save[Book](b1)
 
 		db.find(classOf[Book]).asList.foreach {b =>
-			println("book: id = " + b.id + ", title = " + b.title)
+			println("book: id = " + b.id + ", title = " + b.title + ", isbn = " + b.isbn)
 
 			b.comments.foreach {c =>
 				println("    comment: content = " + c.content + ", date = " + c.createdDate + ", user = " + c.user.name)
