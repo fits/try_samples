@@ -20,7 +20,7 @@ object Sample {
 		}
 
 		val b1 = new Book("ドメイン駆動設計", "9784798121963")
-		b1.comments.add(new Comment("test", new Date(), u1))
+		b1.comments.add(new Comment("test", u1))
 
 		db.save[Book](b1)
 
