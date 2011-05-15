@@ -10,9 +10,14 @@ class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 	}
 
 	get("/users") {
-		renderTemplate("user.scaml", 
+/*		renderTemplate("user.scaml", 
 			"action" -> "/users"
 		)
+*/
+		templateEngine.layout("user.scaml", 
+			Map("action" -> "/users")
+		)
+
 	}
 }
 
