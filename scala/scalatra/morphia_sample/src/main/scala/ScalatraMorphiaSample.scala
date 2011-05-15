@@ -5,9 +5,14 @@ import org.scalatra.scalate.ScalateSupport
 
 class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 
+	beforeAll {
+		contentType = "text/html"
+	}
+
 	get("/users") {
-		
-		"sample page"
+		renderTemplate("user.scaml", 
+			"action" -> "/users"
+		)
 	}
 }
 

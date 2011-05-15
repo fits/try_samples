@@ -6,7 +6,7 @@ class ScalatraMorphiaSampleProject(info: ProjectInfo) extends DefaultWebProject(
 	val scalateVersion = "1.5.0-SNAPSHOT"
 	val morphiaVersion = "1.00-SNAPSHOT"
 
-	val jetty6 = "org.eclipse.jetty" % "jetty-server" % "8.0.0.M2" % "test"
+	val jetty6 = "org.mortbay.jetty" % "jetty" % "6.1.26" % "test"
 	val servletapi = "javax.servlet" % "servlet-api" % "2.5"
 
 	val scalatra = "org.scalatra" %% "scalatra" % scalatraVersion

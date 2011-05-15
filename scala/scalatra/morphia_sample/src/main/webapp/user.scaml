@@ -1,0 +1,9 @@
+%a(href='/') back
+
+-@ val action: String
+
+%form.post(action='#{action}' method='post')
+  User:
+  %input(name='post[name]' type='text')
+  %input(type='submit' value='Add')
+
