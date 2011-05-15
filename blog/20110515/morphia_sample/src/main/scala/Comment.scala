@@ -12,7 +12,9 @@ class Comment {
 	}
 
 	var content: String = ""
+	var createdDate: Date = new Date()
+
+	//参照の定義
 	@Reference var user: User = null
 
-	var createdDate: Date = new Date()
 }
