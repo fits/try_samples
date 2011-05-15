@@ -9,6 +9,5 @@ class User(var name: String) {
 	//デフォルトコンストラクタは必須
 	def this() = this("")
 
-	@Id
-	var id: ObjectId = null
+	@Id var id: ObjectId = null
 }
