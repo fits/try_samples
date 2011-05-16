@@ -1,9 +1,15 @@
-%a(href='/') back
-
+- import fits.sample.models.User
+-@ val users: Iterable[User]
 -@ val action: String
+
+%a(href='/') back
 
 %form.post(action='#{action}' method='post')
   User:
-  %input(name='post[name]' type='text')
+  %input(name='name' type='text')
   %input(type='submit' value='Add')
 
+%ul
+  - for (u <- users)
+    %li
+      = u.name
