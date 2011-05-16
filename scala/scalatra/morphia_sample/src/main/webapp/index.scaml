@@ -1,0 +1,30 @@
+- import fits.sample.models._
+-@ val books: Iterable[Book]
+-@ val users: Iterable[User]
+-@ val action: String
+
+.menu Menu
+%ul
+  %li
+    %a(href="/books") Books List
+  %li
+    %a(href="/users") Users List
+
+.list Book Comments
+%form.post(action='#{action}' method='post')
+  %select(name='user')
+    - for(u <- users)
+      %option(value='#{u.id}')= u.name
+  %select(name='book')
+    - for(b <- books)
+      %option(value='#{b.id}')= b.title
+  %input(name='content' type='text')
+  %input(type='submit' value='Add')
+
+- for(b <- books)
+  %ul
+    %li= b.title
+    %ul
+      - for(c <- b.comments)
+        %li
+          #{c.content} : #{c.user.name}, #{c.createdDate}
