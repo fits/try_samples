@@ -18,8 +18,8 @@ class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 	}
 
 	get("/") {
-		val books: Iterable[Book] = db.find(classOf[Book]).asList.asScala
-		val users: Iterable[User] = db.find(classOf[User]).asList.asScala
+		val books: Iterable[Book] = db.find(classOf[Book]).order("title").asList.asScala
+		val users: Iterable[User] = db.find(classOf[User]).order("name").asList.asScala
 
 		templateEngine.layout("index.scaml", Map(
 			"books" -> books,
@@ -29,7 +29,7 @@ class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 	}
 
 	get("/books") {
-		val books: Iterable[Book] = db.find(classOf[Book]).asList.asScala
+		val books: Iterable[Book] = db.find(classOf[Book]).order("title").asList.asScala
 
 		templateEngine.layout("book.scaml", Map(
 			"books" -> books,
@@ -54,7 +54,7 @@ class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 	}
 
 	get("/users") {
-		val users: Iterable[User] = db.find(classOf[User]).asList.asScala
+		val users: Iterable[User] = db.find(classOf[User]).order("name").asList.asScala
 
 		templateEngine.layout("user.scaml", Map(
 			"users" -> users,
