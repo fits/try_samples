@@ -2,6 +2,8 @@ import sbt._
 
 class ScalatraMorphiaSampleProject(info: ProjectInfo) extends DefaultWebProject(info) {
 
+	override def webappClasspath = super.webappClasspath +++ buildCompilerJar
+
 	val scalatraVersion = "2.0.0-SNAPSHOT"
 	val scalateVersion = "1.5.0-SNAPSHOT"
 	val morphiaVersion = "1.00-SNAPSHOT"
