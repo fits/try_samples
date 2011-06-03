@@ -23,8 +23,7 @@ class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 
 		templateEngine.layout("index.scaml", Map(
 			"books" -> books,
-			"users" -> users,
-			"action" -> "/comments"
+			"users" -> users
 		))
 	}
 
@@ -32,15 +31,14 @@ class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 		val books: Iterable[Book] = db.find(classOf[Book]).order("title").asList.asScala
 
 		templateEngine.layout("book.scaml", Map(
-			"books" -> books,
-			"action" -> "/books"
+			"books" -> books
 		))
 	}
 
 	post("/books") {
 		db.save[Book](new Book(params("title"), params("isbn")))
 
-		redirect("/books")
+		redirect("books")
 	}
 
 	post("/comments") {
@@ -50,22 +48,21 @@ class ScalatraMorphiaSample extends ScalatraServlet with ScalateSupport {
 		book.comments.add(new Comment(params("content"), user))
 		db.save[Book](book)
 
-		redirect("/")
+		redirect(".")
 	}
 
 	get("/users") {
 		val users: Iterable[User] = db.find(classOf[User]).order("name").asList.asScala
 
 		templateEngine.layout("user.scaml", Map(
-			"users" -> users,
-			"action" -> "/users"
+			"users" -> users
 		))
 	}
 
 	post("/users") {
 		db.save[User](new User(params("name")))
 
-		redirect("/users")
+		redirect("users")
 	}
 }
 
