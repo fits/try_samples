@@ -5,11 +5,11 @@ class ScalatraMorphiaSampleProject(info: ProjectInfo) extends DefaultWebProject(
 	override def webappClasspath = super.webappClasspath +++ buildCompilerJar
 
 	val scalatraVersion = "2.0.0-SNAPSHOT"
-	val scalateVersion = "1.5.0-SNAPSHOT"
+	val scalateVersion = "1.6.0-SNAPSHOT"
 	val morphiaVersion = "1.00-SNAPSHOT"
 
 	val jetty6 = "org.mortbay.jetty" % "jetty" % "6.1.26" % "test"
-	val servletapi = "javax.servlet" % "servlet-api" % "2.5"
+	val servletapi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
 	val scalatra = "org.scalatra" %% "scalatra" % scalatraVersion
 	val scalatraScalate = "org.scalatra" %% "scalatra-scalate" % scalatraVersion

@@ -1,10 +1,9 @@
 - import fits.sample.models.Book
 -@ val books: Iterable[Book]
--@ val action: String
 
-%a(href='/') back
+%a(href='.') back
 
-%form.post(action='#{action}' method='post')
+%form.post(action='books' method='post')
   Book Title:
   %input(name='title' type='text')
   ISBN:
