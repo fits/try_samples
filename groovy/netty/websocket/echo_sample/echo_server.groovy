@@ -23,7 +23,7 @@ class ChatServerHandler extends SimpleChannelUpstreamHandler {
 		handleRequest(ctx, msg)
 	}
 
-	//WebSocket ハンドシェイク処理
+	//WebSocket用のハンドシェイク処理（HTTP リクエストの処理）
 	def handleRequest(ChannelHandlerContext ctx, HttpRequest req) {
 
 		//ハンドシェイクのレスポンス作成
@@ -52,11 +52,15 @@ class ChatServerHandler extends SimpleChannelUpstreamHandler {
 
 		res.content = ChannelBuffers.wrappedBuffer(MessageDigest.getInstance("MD5").digest(input.array))
 
-		ctx.channel.write(res)
-
 		//接続をアップグレード
+		//（WebSocket 用に decoder と encoder を変更する）
 		def pipeline = ctx.channel.pipeline
 		pipeline.replace("decoder", "wsdecoder", new WebSocketFrameDecoder())
+
+		//レスポンス送信
+		ctx.channel.write(res)
+
+		//encoder はレスポンス送信に使用するため送信後に WebSocket 用に変更
 		pipeline.replace("encoder", "wsencoder", new WebSocketFrameEncoder())
 	}
 
@@ -71,6 +75,8 @@ def server = new ServerBootstrap(new NioServerSocketChannelFactory(
 	Executors.newCachedThreadPool()
 ))
 
+//WebSocket を使うには、まず HTTP で処理する必要があるため
+//HTTP 用の decoder と encoder の構成を用意する
 server.setPipelineFactory({
 	def pipeline = Channels.pipeline()
 
