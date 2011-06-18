@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<script>
+		var ws = new WebSocket("ws://localhost:8080/");
+
+		ws.onopen = function(event) {
+			console.log("websocket open");
+			stateChange("opened")
+		};
+
+		ws.onmessage = function(event) {
+			document.getElementById("log").innerHTML += "<li>" + event.data + "</li>";
+		};
+
+		ws.onclose = function(event) {
+			console.log("websocket close");
+			stateChange("closed")
+		};
+
+		ws.onerror = function(event) {
+			console.log("error");
+			stateChange("error")
+		};
+
+		function sendMessage() {
+			var msg = document.getElementById("message").value;
+			ws.send(msg);
+		}
+
+		function stateChange(state) {
+			document.getElementById("state").innerHTML = state;
+		}
+
+	</script>
+</head>
+<body>
+	<input id="message" type="text" />
+	<input type="button" value="send" onclick="sendMessage()" />
+	<span id="state">closed</span>
+
+	<ul id="log"></ul>
+</body>
+</html>
