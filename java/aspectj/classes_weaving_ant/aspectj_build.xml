@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+
+<project name="AspectJ Test" default="compile" basedir=".">
+	<property environment="env" />
+	<property name="src.dir" value="src" />
+	<property name="dest.dir" value="classes" />
+
+	<property name="lib.dir" value="lib" />
+	<!-- AspectJ の適用対象クラスディレクトリ -->
+	<property name="target.dir" value="../sample/target/classes" />
+
+	<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+		<classpath>
+    		<pathelement location="${env.ASPECTJ_HOME}/lib/aspectjtools.jar"/>
+		</classpath>
+	</taskdef>
+
+	<path id="project.classpath">
+		<pathelement location="${target.dir}" />
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${env.ASPECTJ_HOME}/lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="compile">
+		<!--
+			dest.dir に src.dir のビルド結果と target.dir の
+			アスペクト適用結果が出力される
+			showWeaveInfo を true にする事でアスペクトが適用された
+			クラスなどの情報を出力
+		-->
+		<iajc destdir="${dest.dir}" inpath="${target.dir}" source="1.5" showWeaveInfo="true">
+			<sourceroots>
+				<pathelement location="${src.dir}" />
+			</sourceroots>
+			<classpath refid="project.classpath" />
+		</iajc>
+	</target>
+
+	<target name="clean">
+		<delete dir="${dest.dir}" />
+	</target>
+
+</project>
