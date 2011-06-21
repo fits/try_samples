@@ -1,0 +1,14 @@
+
+menu "(&1)パラメータ化", "(&2)パラメータ化解除";
+
+if (result == 0) endmacro;
+else if (result == 1) {
+	replaceall "^", "'", regular;
+	replaceall "$", "'", regular;
+	replaceall "\n", ",", regular;
+}
+else if (result == 2) {
+	replaceall ",", "\n", regular;
+	replaceall "'", "";
+}
+
