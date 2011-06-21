@@ -2,8 +2,9 @@
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.channels.*;
-import java.nio.file.*;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
+import java.nio.file.Paths;
 
 public class AsyncFileReadSample {
 	public static void main(String[] args) throws Exception {
