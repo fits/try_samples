@@ -1,6 +1,6 @@
 
-def calc(x: int, y: int)(z: int) = (x * z) + (y * z)
+def calc(x: Int, y: Int)(z: Int) = (x * z) + (y * z)
 
-val c: int => int = calc(100, 10)
+val c: Int => Int = calc(100, 10)
 
 println(c(5))

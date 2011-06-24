@@ -1,7 +1,7 @@
 
-def f(x: int, y: int)(z: int) = x + y + z
+def f(x: Int, y: Int)(z: Int) = x + y + z
 
-val f1: int => int = f(100, 20)
+val f1: Int => Int = f(100, 20)
 
 //z の値を指定
 println(f1(3))
