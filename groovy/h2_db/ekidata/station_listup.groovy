@@ -7,6 +7,9 @@ import groovy.sql.Sql
 def db = Sql.newInstance("jdbc:h2:mem:", "org.h2.Driver")
 
 def sql = """
+SELECT
+ *
+FROM (
 	SELECT
 		pref_name,
 		station_g_cd,
@@ -17,8 +20,9 @@ def sql = """
 	  JOIN CSVREAD('m_pref.csv') P
 	    ON S.pref_cd=P.pref_cd
 	GROUP BY station_g_cd, station_name
-	HAVING count(*) > 6
 	ORDER BY lines DESC
+)
+WHERE ROWNUM <= 10
 """
 
 db.eachRow(sql) {r ->
