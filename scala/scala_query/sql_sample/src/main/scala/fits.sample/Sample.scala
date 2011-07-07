@@ -2,6 +2,9 @@ package fits.sample
 
 import org.scalaquery.session._
 import org.scalaquery.simple.StaticQuery
+import org.scalaquery.simple.GetResult
+
+case class Station(val prefName: String, val stationGroupCode: Int, val stationName: String, val lines: Int)
 
 object Sample {
 	def main(args: Array[String]) = {
@@ -33,8 +36,17 @@ object Sample {
 				WHERE ROWNUM <= 10
 			"""
 
+			//Tuple 版
 			StaticQuery.queryNA[(String, Int, String, Int)](sql) foreach {r =>
 				printf("%s駅 (%s) : %d\n", r._3, r._1, r._4)
+			}
+
+			println("---------------")
+
+			//ケースクラス Station 版
+			implicit val getStationResult = GetResult(r => new Station(r <<, r <<, r <<, r <<))
+			StaticQuery.queryNA(sql) foreach {r =>
+				printf("%s駅 (%s) : %d\n", r.stationName, r.prefName, r.lines)
 			}
 		}
 	}
