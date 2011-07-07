@@ -13,7 +13,29 @@ object Sample {
 				println("" + r)
 			}
 
-		}
+			println("---------------")
 
+			val sql = """
+				SELECT *
+				FROM (
+					SELECT
+						pref_name,
+						station_g_cd,
+						station_name,
+						count(*) as lines
+					FROM
+					  CSVREAD('m_station.csv') S
+					  JOIN CSVREAD('m_pref.csv') P
+					    ON S.pref_cd=P.pref_cd
+					GROUP BY station_g_cd, station_name
+					ORDER BY lines DESC
+				)
+				WHERE ROWNUM <= 10
+			"""
+
+			StaticQuery.queryNA[(String, Int, String, Int)](sql) foreach {r =>
+				printf("%s駅 (%s) : %d\n", r._3, r._1, r._4)
+			}
+		}
 	}
 }
