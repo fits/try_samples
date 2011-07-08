@@ -12,9 +12,13 @@ object Sample {
 		Database.forURL("jdbc:h2:mem:", driver = "org.h2.Driver") withSession {s: Session =>
 			implicit val session = s
 
-			StaticQuery.queryNA[String]("SELECT DISTINCT station_name from CSVREAD('m_station.csv')") foreach {r =>
+			StaticQuery.queryNA[String]("SELECT DISTINCT station_name FROM CSVREAD('m_station.csv')") foreach {r =>
 				println("" + r)
 			}
+
+			println("---------------")
+
+			StaticQuery.query[(Int, String), (String, String)]("SELECT rr_name, station_name FROM CSVREAD('m_station.csv') WHERE pref_cd=? and rr_name=?") foreach ((14, "JR"), r => printf("%s %s駅\n", r._1, r._2) )
 
 			println("---------------")
 
