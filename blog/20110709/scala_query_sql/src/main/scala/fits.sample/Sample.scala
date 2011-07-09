@@ -1,6 +1,6 @@
 package fits.sample
 
-import org.scalaquery.session._
+import org.scalaquery.session.{Database, Session}
 import org.scalaquery.simple.StaticQuery
 import org.scalaquery.simple.GetResult
 
