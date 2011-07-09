@@ -1,14 +1,14 @@
 package fits.sample
 
 import org.scalaquery.session.{Database, Session}
+import org.scalaquery.session.Database.threadLocalSession
 import org.scalaquery.simple.StaticQuery
 import org.scalaquery.simple.GetResult
 
 object Sample {
 	def main(args: Array[String]) = {
 
-		Database.forURL("jdbc:h2:mem:", driver = "org.h2.Driver") withSession {s: Session =>
-			implicit val session = s
+		Database.forURL("jdbc:h2:mem:", driver = "org.h2.Driver") withSession {
 
 			val sql = """
 				SELECT *
