@@ -1,6 +1,7 @@
 package fits.sample
 
 import org.scalaquery.session._
+import org.scalaquery.session.Database.threadLocalSession
 import org.scalaquery.simple.StaticQuery
 import org.scalaquery.simple.GetResult
 
@@ -9,9 +10,13 @@ case class Station(val prefName: String, val stationGroupCode: Int, val stationN
 object Sample {
 	def main(args: Array[String]) = {
 
+		Database.forURL("jdbc:h2:mem:", driver = "org.h2.Driver") withSession {
+
+/*  
+		//threadLocalSession を import しない場合は以下のようにする必要あり
 		Database.forURL("jdbc:h2:mem:", driver = "org.h2.Driver") withSession {s: Session =>
 			implicit val session = s
-
+*/
 			StaticQuery.queryNA[String]("SELECT DISTINCT station_name FROM CSVREAD('m_station.csv')") foreach {r =>
 				println("" + r)
 			}
