@@ -1,6 +1,6 @@
 import scala.io.Source
 
-case class Station(val prefName: Option[String], val stationGroupCode: String, val stationName: String)
+case class Station(val stationName: String, val prefName: Option[String], val stationGroupCode: String)
 
 val prefMap = Source.fromFile("m_pref.csv").getLines().drop(1).map {l =>
 	val items = l.split(",")
@@ -9,14 +9,10 @@ val prefMap = Source.fromFile("m_pref.csv").getLines().drop(1).map {l =>
 
 val lines = Source.fromFile("m_station.csv").getLines()
 
-val list = lines.drop(1).map {l =>
-	val items = l.split(",")
-	Station(prefMap.get(items(10)), items(5), items(9))
-}.toList.groupBy {s =>
-	(s.stationGroupCode, s.stationName, s.prefName)
+val list = lines.drop(1).map(_.split(",")).toList.groupBy {s =>
+	Station(s(9), prefMap.get(s(10)), s(5))
 }.toList.sortBy(_._2.length * -1) take 10
 
-list.foreach {l =>
-	printf("%s駅 (%s) : %d\n", l._1._2, l._1._3.get, l._2.length)
+list.foreach {s =>
+	printf("%s駅 (%s) : %d\n", s._1.stationName, s._1.prefName.get, s._2.length)
 }
-
