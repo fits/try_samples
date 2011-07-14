@@ -9,7 +9,7 @@ val prefMap = Source.fromFile("m_pref.csv").getLines().drop(1).map {l =>
 
 val lines = Source.fromFile("m_station.csv").getLines()
 
-val list = lines.drop(1).map(_.split(",")).toList.groupBy {s =>
+val list = lines.drop(1).toList.map(_.split(",")).groupBy {s =>
 	Station(s(9), prefMap.get(s(10)), s(5))
 }.toList.sortBy(_._2.length * -1) take 10
 
