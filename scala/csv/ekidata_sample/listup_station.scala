@@ -2,12 +2,12 @@ import scala.io.Source
 
 case class Station(val prefName: Option[String], val stationGroupCode: String, val stationName: String)
 
-val prefMap = Source.fromFile("m_pref.csv", "MS932").getLines().drop(1).map {l =>
+val prefMap = Source.fromFile("m_pref.csv").getLines().drop(1).map {l =>
 	val items = l.split(",")
 	items(0) -> items(1)
 }.toMap
 
-val lines = Source.fromFile("m_station.csv", "MS932").getLines()
+val lines = Source.fromFile("m_station.csv").getLines()
 
 val list = lines.drop(1).map {l =>
 	val items = l.split(",")
