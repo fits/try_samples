@@ -8,14 +8,25 @@ class ListUpStation
 {
 	public static void Main(string[] args)
 	{
-		var lines = File.ReadAllLines("m_station.csv", Encoding.Default);
+		var plines = File.ReadAllLines("m_pref.csv", Encoding.Default);
+
+		var prefs = 
+			from pline in plines.Skip(1)
+				let p = pline.Split(',')
+			select new {
+				PrefCode = p[0],
+				PrefName = p[1]
+			};
+
+		var slines = File.ReadAllLines("m_station.csv", Encoding.Default);
 
 		var q = (
-			from l in lines.Skip(1)
-			let s = l.Split(',')
+			from sline in slines.Skip(1)
+				let s = sline.Split(',')
+			join p in prefs on s[10] equals p.PrefCode
 			group s by new { 
 				StationName = s[9],
-				PrefName = s[10], 
+				PrefName = p.PrefName, 
 				StationGroupCode = s[5]
 			} into stGroup
 			orderby stGroup.Count() descending
