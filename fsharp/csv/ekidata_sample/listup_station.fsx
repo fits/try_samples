@@ -8,12 +8,26 @@ type Station = {
     StationGroupCode: string
 }
 
+let prefMap = File.ReadAllLines("m_pref.csv", Encoding.Default)
+                |> Seq.skip 1
+                |> Seq.map (fun l -> 
+                        let items = l.Split(',')
+                        (items.[0], items.[1])
+                    )
+                |> Map.ofSeq
+
 let lines = File.ReadAllLines("m_station.csv", Encoding.Default)
 
 let list = lines 
             |> Seq.skip 1 
             |> Seq.map (fun l -> l.Split(',')) 
-            |> Seq.groupBy (fun s -> { StationName = s.[9]; PrefName = s.[10]; StationGroupCode = s.[5] }) 
+            |> Seq.groupBy (fun s -> 
+                    {
+                        StationName = s.[9]
+                        PrefName = Map.find s.[10] prefMap
+                        StationGroupCode = s.[5]
+                    }
+                ) 
             |> List.ofSeq 
             |> List.sortWith (fun a b -> Seq.length(snd b) - Seq.length(snd a)) 
             |> Seq.take 10
