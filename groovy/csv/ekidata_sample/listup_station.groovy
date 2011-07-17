@@ -1,13 +1,12 @@
 
-def prefMap = new File("m_pref.csv") readLines() collectEntries {
+def prefMap = new File("m_pref.csv").readLines() tail() collectEntries {
 	def items = it.split(",")
 	[items[0], items[1]]
 }
 
-def lines = new File("m_station.csv") readLines()
-lines.remove(0)
-
-def list = lines.collect {it.split(",")} groupBy {
+def list = new File("m_station.csv").readLines() tail() collect {
+	it.split(",")
+} groupBy {
 	[it[9], prefMap[it[10]], it[5]]
 } sort {a, b -> b.value.size <=> a.value.size} entrySet() asList()[0..9]
 
