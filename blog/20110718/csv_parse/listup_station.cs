@@ -19,7 +19,7 @@ class ListUpStation
 
 		var slines = File.ReadAllLines("m_station.csv", Encoding.Default);
 
-		var q = (
+		var list = (
 			from sline in slines.Skip(1)
 				let s = sline.Split(',')
 			join p in prefs on s[10] equals p.PrefCode
@@ -32,9 +32,9 @@ class ListUpStation
 			select stGroup
 		).Take(10);
 
-		foreach(var l in q)
+		foreach(var s in list)
 		{
-			Console.WriteLine("{0}‰w ({1}) : {2}", l.Key.StationName, l.Key.PrefName, l.Count());
+			Console.WriteLine("{0}‰w ({1}) : {2}", s.Key.StationName, s.Key.PrefName, s.Count());
 		}
 	}
 }
