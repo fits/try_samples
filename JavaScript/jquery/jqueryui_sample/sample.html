@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="http://code.jquery.com/ui/1.8.14/themes/cupertino/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<script src="http://code.jquery.com/jquery-1.6.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.8.14/jquery-ui.js"></script>
+	<script>
+		$(function() {
+			$("#tabs").tabs();
+
+			$("#dpicker").datepicker({
+				dateFormat: 'yy/mm/dd'
+			});
+		});
+
+	</script>
+</head>
+<body>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-lot">sample</a></li>
+		</ul>
+		<div id="tabs-lot">
+			<input id="dpicker" type="text" />
+		</div>
+	</div>
+
+</body>
+</html>
