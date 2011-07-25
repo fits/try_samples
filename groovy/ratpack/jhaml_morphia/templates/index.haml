@@ -11,6 +11,8 @@
 .list Book Comments
 %form.post(action='comments' method='post')
   %select(name='user')
+    - users.each
+      %option(value='${it.id}')= it.name
 
   %select(name='book')
 
