@@ -6,6 +6,11 @@ import com.mongodb.Mongo
 import com.cadrlife.jhaml.JHaml
 import com.google.code.morphia.annotations.*
 import org.bson.types.ObjectId
+import com.bleedingwolf.ratpack.RatpackServlet
+
+RatpackServlet.metaClass.convertOutputToByteArray = {String output ->
+	output.getBytes("UTF-8")
+}
 
 @Entity(value = "users", noClassnameStored = true)
 class User {
@@ -35,6 +40,8 @@ def renderHaml = {template, params->
 def db = new Morphia().createDatastore(new Mongo("localhost"), "book_review")
 
 get("/") {
+	contentType("text/html; charset=UTF-8")
+
 	def books = db.find(Book.class).order("title")
 	def users = db.find(User.class).order("name")
 
@@ -42,6 +49,8 @@ get("/") {
 }
 
 get("/books") {
+	contentType("text/html; charset=UTF-8")
+
 	def books = db.find(Book.class).order("title")
 
 	renderHaml "book.haml", ["books": books]
@@ -66,6 +75,8 @@ post("/comments") {
 }
 
 get("/users") {
+	contentType("text/html; charset=UTF-8")
+
 	def users = db.find(User.class).order("name")
 
 	renderHaml "user.haml", ["users": users]
