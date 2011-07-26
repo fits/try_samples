@@ -8,10 +8,12 @@ import com.google.code.morphia.annotations.*
 import org.bson.types.ObjectId
 import com.bleedingwolf.ratpack.RatpackServlet
 
+//文字化けへの対応
 RatpackServlet.metaClass.convertOutputToByteArray = {String output ->
 	output.getBytes("UTF-8")
 }
 
+//Morphia モデルクラスの定義
 @Entity(value = "users", noClassnameStored = true)
 class User {
 	@Id ObjectId id
@@ -32,13 +34,16 @@ class Book {
 	@Embedded List<Comment> comments = []
 }
 
+//JHaml を使ったテンプレート処理
 def renderHaml = {template, params->
 	def hamlText = new JHaml().parse(new File("templates/${template}").text)
 	new SimpleTemplateEngine().createTemplate(hamlText).make(params).toString()
 }
 
+//MongoDB への接続設定
 def db = new Morphia().createDatastore(new Mongo("localhost"), "book_review")
 
+//ページ処理
 get("/") {
 	contentType("text/html; charset=UTF-8")
 
@@ -60,6 +65,8 @@ post("/books") {
 	db.save(new Book(title: params.title, isbn: params.isbn))
 
 	response.sendRedirect("books")
+
+	//NullPointerException 発生の回避策
 	""
 }
 
@@ -71,6 +78,8 @@ post("/comments") {
 	db.save(book)
 
 	response.sendRedirect(".")
+
+	//NullPointerException 発生の回避策
 	""
 }
 
@@ -86,5 +95,7 @@ post("/users") {
 	db.save(new User(name: params.name))
 
 	response.sendRedirect("users")
+
+	//NullPointerException 発生の回避策
 	""
 }
