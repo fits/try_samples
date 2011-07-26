@@ -13,6 +13,20 @@ class User {
 	String name
 }
 
+class Comment {
+	String content = ""
+	Date createdDate = new Date()
+	@Reference User user = null
+}
+
+@Entity(value = "books", noClassnameStored = true)
+class Book {
+	@Id ObjectId id = null
+	String title
+	String isbn
+	@Embedded List<Comment> comments = []
+}
+
 def renderHaml = {template, params->
 	def hamlText = new JHaml().parse(new File("templates/${template}").text)
 	new SimpleTemplateEngine().createTemplate(hamlText).make(params).toString()
@@ -21,11 +35,35 @@ def renderHaml = {template, params->
 def db = new Morphia().createDatastore(new Mongo("localhost"), "book_review")
 
 get("/") {
+	def books = db.find(Book.class).order("title")
 	def users = db.find(User.class).order("name")
 
-	renderHaml "index.haml", ["users": users]
+	renderHaml "index.haml", ["books": books, "users": users]
 }
 
+get("/books") {
+	def books = db.find(Book.class).order("title")
+
+	renderHaml "book.haml", ["books": books]
+}
+
+post("/books") {
+	db.save(new Book(title: params.title, isbn: params.isbn))
+
+	response.sendRedirect("books")
+	""
+}
+
+post("/comments") {
+	def book = db.get(Book.class, new ObjectId(params.book))
+	def user = db.get(User.class, new ObjectId(params.user))
+
+	book.comments.add(new Comment(content: params.content, user: user))
+	db.save(book)
+
+	response.sendRedirect(".")
+	""
+}
 
 get("/users") {
 	def users = db.find(User.class).order("name")
@@ -37,4 +75,5 @@ post("/users") {
 	db.save(new User(name: params.name))
 
 	response.sendRedirect("users")
+	""
 }
