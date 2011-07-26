@@ -1,13 +1,17 @@
+!!! 5
+%html
+  %title Ratpack + JHaml + Morphia Sample
+  %body
 
-%a(href='.')
-  back
+    %a(href='.')
+      back
 
-%form.post(action='users' method='post')
-  User:
-  %input(name='name' type='text')
-  %input(type='submit' value='Add')
+    %form.post(action='users' method='post')
+      User:
+      %input(name='name' type='text')
+      %input(type='submit' value='Add')
 
-%ul
-  - users.each
-    %li
-      = it.name
+    %ul
+      - users.each
+        %li
+          = it.name

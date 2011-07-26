@@ -1,21 +1,35 @@
-.menu Menu
-%ul
-  %li
-    %a(href="books")
-      Books List
-  %li
-    %a(href="users")
-      Users List
+!!! 5
+%html
+  %title Ratpack + JHaml + Morphia Sample
+  %body
+    .menu Menu
+    %ul
+      %li
+        %a(href="books")
+          Books List
+      %li
+        %a(href="users")
+          Users List
 
 
-.list Book Comments
-%form.post(action='comments' method='post')
-  %select(name='user')
-    - users.each
-      %option(value='${it.id}')= it.name
+    .list Book Comments
+    %form.post(action='comments' method='post')
+      %select(name='user')
+        - users.each
+          %option(value='${it.id}')= it.name
 
-  %select(name='book')
+      %select(name='book')
+        - books.each
+          %option(value='${it.id}')= it.title
 
-  %input(name='content' type='text')
-  %input(type='submit' value='Add')
+      %input(name='content' type='text')
+      %input(type='submit' value='Add')
 
+    - books.each
+      %ul
+        %li= it.title
+        %ul
+          - it.comments.each
+            %li
+              ${it.content} : ${it.user.name}, ${it.createdDate}
+          /
