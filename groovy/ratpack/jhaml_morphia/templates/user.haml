@@ -16,4 +16,4 @@
     %ul
       - users.each
         %li
-          = it.name
+          = it.name.escape()

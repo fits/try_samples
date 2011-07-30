@@ -18,20 +18,20 @@
     %form.post(action='comments' method='post')
       %select(name='user')
         - users.each
-          %option(value='${it.id}')= it.name
+          %option(value='${it.id}')= it.name.escape()
 
       %select(name='book')
         - books.each
-          %option(value='${it.id}')= it.title
+          %option(value='${it.id}')= it.title.escape()
 
       %input(name='content' type='text')
       %input(type='submit' value='Add')
 
     - books.each
       %ul
-        %li= it.title
+        %li= it.title.escape()
         %ul
           - it.comments.each
             %li
-              ${it.content} : ${it.user.name}, ${it.createdDate}
-          /
+              ${it.content.escape()} : ${it.user.name.escape()}, ${it.createdDate.format("yyyy/MM/dd HH:mm:ss")}
+          
