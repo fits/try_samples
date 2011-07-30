@@ -1,0 +1,19 @@
+!!! 5
+%html
+  %head
+    %title Ratpack + JHaml + Morphia Sample
+    %meta(charset="UTF-8")
+  %body
+
+    %a(href='.')
+      back
+
+    %form.post(action='users' method='post')
+      User:
+      %input(name='name' type='text')
+      %input(type='submit' value='Add')
+
+    %ul
+      - users.each
+        %li
+          = it.name.escape()

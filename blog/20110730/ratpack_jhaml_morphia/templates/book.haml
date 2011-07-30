@@ -1,0 +1,21 @@
+!!! 5
+%html
+  %head
+    %title Ratpack + JHaml + Morphia Sample
+    %meta(charset="UTF-8")
+  %body
+
+    %a(href='.')
+      back
+
+    %form.post(action='books' method='post')
+      Book Title:
+      %input(name='title' type='text')
+      ISBN:
+      %input(name='isbn' type='text')
+      %input(type='submit' value='Add')
+
+    %ul
+      - books.each
+        %li
+          ${it.title.escape()} - ${it.isbn.escape()}
