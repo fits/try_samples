@@ -1,0 +1,37 @@
+!!! 5
+%html
+  %head
+    %title Ratpack + JHaml + Morphia Sample
+    %meta(charset="UTF-8")
+  %body
+    .menu Menu
+    %ul
+      %li
+        %a(href="books")
+          Books List
+      %li
+        %a(href="users")
+          Users List
+
+
+    .list Book Comments
+    %form.post(action='comments' method='post')
+      %select(name='user')
+        - users.each
+          %option(value='${it.id}')= it.name.escape()
+
+      %select(name='book')
+        - books.each
+          %option(value='${it.id}')= it.title.escape()
+
+      %input(name='content' type='text')
+      %input(type='submit' value='Add')
+
+    - books.each
+      %ul
+        %li= it.title.escape()
+        %ul
+          - it.comments.each
+            %li
+              ${it.content.escape()} : ${it.user.name.escape()}, ${it.createdDate.format("yyyy/MM/dd HH:mm:ss")}
+          
