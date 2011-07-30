@@ -18,4 +18,4 @@
     %ul
       - books.each
         %li
-          ${it.title} - ${it.isbn}
+          ${it.title.escape()} - ${it.isbn.escape()}

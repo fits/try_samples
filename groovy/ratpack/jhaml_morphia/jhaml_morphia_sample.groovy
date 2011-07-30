@@ -1,6 +1,8 @@
 
 import groovy.text.SimpleTemplateEngine
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml
+
 import com.google.code.morphia.Morphia
 import com.mongodb.Mongo
 import com.cadrlife.jhaml.JHaml
@@ -11,6 +13,11 @@ import com.bleedingwolf.ratpack.RatpackServlet
 //文字化けへの対応
 RatpackServlet.metaClass.convertOutputToByteArray = {String output ->
 	output.getBytes("UTF-8")
+}
+
+//HTMLエスケープ
+String.metaClass.escape = {
+	escapeHtml(delegate)
 }
 
 //Morphia モデルクラスの定義
