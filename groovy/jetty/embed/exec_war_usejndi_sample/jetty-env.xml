@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+	<New id="dataSource" class="org.eclipse.jetty.plus.jndi.Resource">
+		<Arg>jdbc/testDS</Arg>
+		<Arg>
+			<New class="oracle.jdbc.pool.OracleConnectionPoolDataSource">
+				<Set name="url">jdbc:oracle:thin:@127.0.0.1:1521/XE</Set>
+				<Set name="user">TEST</Set>
+				<Set name="password">TEST</Set>
+			</New>
+		</Arg>
+	</New>
+</Configure>
