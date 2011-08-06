@@ -5,13 +5,16 @@ import java.sql.Timestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 
 @Entity
 @Table(name = "tasks")
 public class Task {
 	@Id
+	@GeneratedValue
 	@Column(name = "task_id")
 	private BigInteger taskId;
 	private String title;
