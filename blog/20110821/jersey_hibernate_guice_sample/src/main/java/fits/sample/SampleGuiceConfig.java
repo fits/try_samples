@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.servlet.ServletModule;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import com.google.inject.persist.PersistFilter;
@@ -25,10 +24,13 @@ public class SampleGuiceConfig extends GuiceServletContextListener {
 			new JerseyServletModule() {
 				@Override
 				protected void configureServlets() {
+					//persistence.xml の構成取得
 					install(new JpaPersistModule("sample"));
 
+					//DI 設定
 					bind(TaskDao.class).to(TaskDaoImpl.class);
 
+					//Jersey の設定
 					Map<String, String> params = new HashMap();
 					params.put(PackagesResourceConfig.PROPERTY_PACKAGES, "fits.sample.ws");
 					serve("/*").with(GuiceContainer.class, params);
