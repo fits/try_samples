@@ -27,7 +27,7 @@ public class TaskDaoImpl implements TaskDao {
 
 	public List<Task> getTaskList() {
 		CriteriaQuery<Task> q = em.getCriteriaBuilder().createQuery(Task.class);
-		return em.createQuery(q).getResultList();
+		return em.createQuery(q.select(q.from(Task.class))).getResultList();
 	}
 
 	private Task createTask(String title) {

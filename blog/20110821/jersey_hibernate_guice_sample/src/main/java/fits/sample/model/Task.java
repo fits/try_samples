@@ -18,7 +18,10 @@ public class Task {
 	@GeneratedValue
 	@Column(name = "task_id")
 	private long taskId;
+
 	private String title;
+
+	@Column(name = "created_date")
 	private Date createdDate;
 
 	public long getTaskId() {

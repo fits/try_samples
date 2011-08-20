@@ -2,13 +2,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>fits.sample</groupId>
-  <artifactId>jersey-hibernate-guice-sample</artifactId>
+  <artifactId>sample</artifactId>
   <packaging>war</packaging>
   <version>1.0</version>
   <name>Jersey + Hibernate + Guice Sample</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jersey.version>1.8</jersey.version>
+    <hibernate.version>3.6.6.Final</hibernate.version>
   </properties>
 
   <repositories>
@@ -39,22 +41,27 @@
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-server</artifactId>
-      <version>1.8</version>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-json</artifactId>
+      <version>${jersey.version}</version>
     </dependency>
     <dependency>
       <groupId>com.sun.jersey.contribs</groupId>
       <artifactId>jersey-guice</artifactId>
-      <version>1.8</version>
+      <version>${jersey.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>3.6.6.Final</version>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>3.6.6.Final</version>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
