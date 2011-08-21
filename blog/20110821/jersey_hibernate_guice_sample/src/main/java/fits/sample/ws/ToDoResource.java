@@ -23,8 +23,9 @@ public class ToDoResource {
 	@POST
 	@Path("task")
 	@Produces("application/json")
-	public Task addTask(@FormParam("title") String title) {
-		return dao.addTask(title);
+	public String addTask(@FormParam("title") String title) {
+		long taskId = dao.addTask(title);
+		return String.valueOf(taskId);
 	}
 }
 

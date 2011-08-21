@@ -17,12 +17,12 @@ public class TaskDaoImpl implements TaskDao {
 	private EntityManager em;
 
 	@Transactional
-	public Task addTask(String title) {
+	public long addTask(String title) {
 		Task t = this.createTask(title);
 
 		em.persist(t);
 
-		return t;
+		return t.getTaskId();
 	}
 
 	public List<Task> getTaskList() {
