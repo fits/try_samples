@@ -6,7 +6,7 @@ import fits.sample.model.Task;
 
 public interface TaskDao {
 
-	Task addTask(String title);
+	long addTask(String title);
 
 	List<Task> getTaskList();
 }
