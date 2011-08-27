@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+	canvas {
+		border: 1px solid #00ffff;
+	}
+</style>
+<script type="text/javascript">
+	function start() {
+		var canvas = document.getElementById("screen");
+
+		if (canvas.getContext) {
+			var ctx = canvas.getContext("2d");
+
+			ctx.fillStyle = "rgb(255, 0, 0)";
+			ctx.fillRect(10, 20, 30, 40);
+
+			ctx.fillStyle = "rgba(255, 255, 0, 0.5)";
+			ctx.fillRect(50, 20, 30, 40);
+
+		}
+	}
+</script>
+</head>
+<body onload="start()">
+<canvas id="screen" width="400" height="400"></canvas>
+</body>
+</html>
