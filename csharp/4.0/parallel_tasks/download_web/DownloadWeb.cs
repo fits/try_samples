@@ -13,8 +13,13 @@ public class DownloadWeb
 		var dir = args[0];
 
 		Parallel.ForEach(urls, (u) => {
-			var wc = new WebClient();
-			wc.DownloadFile(u, Path.Combine(dir, Path.GetFileName(u)));
+			try {
+				new WebClient().DownloadFile(u, Path.Combine(dir, Path.GetFileName(u)));
+				Console.WriteLine("success: {0}", u);
+			}
+			catch (Exception ex) {
+				Console.WriteLine("failed: {0}, {1}", u, ex);
+			}
 		});
 	}
 }
