@@ -1,11 +1,10 @@
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.Files;
 
 public class DownloadFile {
 	public static void main(String[] args) throws Exception {
@@ -18,18 +17,8 @@ public class DownloadFile {
 		String dir = args[1];
 		String fileName = new File(uri.getPath()).getName();
 
-		try (
-			FileChannel reader = FileChannel.open(Paths.get(uri), StandardOpenOption.READ);
-		) {
-			ByteBuffer buf = ByteBuffer.allocate((int)reader.size());
-
-			reader.read(buf);
-
-			buf.rewind();
-
-			FileChannel writer = FileChannel.open(Paths.get(dir, fileName), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-
-			writer.write(buf);
+		try (InputStream istream = uri.toURL().openStream()) {
+			Files.copy(istream, Paths.get(dir, fileName));
 		}
 	}
 }
