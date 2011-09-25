@@ -12,9 +12,11 @@ public class DownloadWeb
 
 		var dir = args[0];
 
-		Parallel.ForEach(urls, (url) => {
+		Parallel.ForEach(urls, (u) => {
+			var url = new Uri(u);
+
 			try {
-				var filePath = Path.Combine(dir, Path.GetFileName(url));
+				var filePath = Path.Combine(dir, Path.GetFileName(url.LocalPath));
 				new WebClient().DownloadFile(url, filePath);
 
 				Console.WriteLine("downloaded: {0} => {1}", url, filePath);
