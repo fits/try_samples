@@ -1,9 +1,11 @@
 import groovyx.gpars.GParsExecutorsPool
 
+def dir = args[0]
+
 GParsExecutorsPool.withPool {
 	System.in.readLines() eachParallel {u ->
 		def url = new URL(u)
-		def filePath = "${args[0]}/${url.file.split('/').last()}"
+		def filePath = "$dir/${url.file.split('/').last()}"
 
 		try {
 			url.withInputStream {input ->
