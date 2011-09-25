@@ -5,14 +5,15 @@ def dir = args[0]
 GParsExecutorsPool.withPool {
 	System.in.readLines() eachParallel {u ->
 		def url = new URL(u)
-		def filePath = "$dir/" + new File(url.file).name
 
 		try {
+			def file =  new File(dir, new File(url.file).name)
+
 			url.withInputStream {input ->
-				new File(filePath).bytes = input.bytes
+				file.bytes = input.bytes
 			}
 
-			println "downloaded: $url => $filePath"
+			println "downloaded: $url => $file"
 		}
 		catch (e) {
 			println "failed: $url, $e"
