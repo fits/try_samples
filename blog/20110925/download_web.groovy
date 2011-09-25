@@ -5,7 +5,7 @@ def dir = args[0]
 GParsExecutorsPool.withPool {
 	System.in.readLines() eachParallel {u ->
 		def url = new URL(u)
-		def filePath = "$dir/${url.file.split('/').last()}"
+		def filePath = "$dir/" + new File(url.file).name
 
 		try {
 			url.withInputStream {input ->
