@@ -15,7 +15,8 @@ class SampleApp < Sinatra::Base
 
 	post '/' do
 		puts "post /"
-		puts params
+		p params
+		'hello'
 	end
 end
 
