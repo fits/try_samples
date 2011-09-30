@@ -1,6 +1,5 @@
 require "rubygems"
 require "sinatra/base"
-require "webrick"
 require "webrick/https"
 require "openssl"
 
@@ -20,4 +19,4 @@ class SampleApp < Sinatra::Base
 	end
 end
 
-Rack::Handler::WEBrick.run SampleApp, :Port => 8443, :SSLVerifyClient => OpenSSL::SSL::VERIFY_NONE, :SSLEnable => true, :SSLCertName => [ [ "CN",WEBrick::Utils::getservername ] ]
+Rack::Handler::WEBrick.run SampleApp, :Port => 8443, :SSLVerifyClient => OpenSSL::SSL::VERIFY_NONE, :SSLEnable => true, :SSLCertName => [ [ "CN", WEBrick::Utils::getservername ] ]
