@@ -7,20 +7,21 @@ open System.Net
 let main(args: string[]) = 
     let downloadFile (dir: string) (url: string) = 
         async {
-            let req = WebRequest.Create(url)
-            let! res = req.AsyncGetResponse()
+            try
+                let req = WebRequest.Create(url)
+                let! res = req.AsyncGetResponse()
 
-            let fileName = Path.Combine(dir, Path.GetFileName(url))
+                let fileName = Path.Combine(dir, Path.GetFileName(url))
 
-            use stream = res.GetResponseStream()
-            use fs = new FileStream(fileName, FileMode.Create)
+                use stream = res.GetResponseStream()
+                use fs = new FileStream(fileName, FileMode.Create)
 
-            let clen = int res.ContentLength
+                let! buf = stream.AsyncRead(int res.ContentLength)
+                do! fs.AsyncWrite(buf, 0, buf.Length)
 
-            let! buf = stream.AsyncRead(clen)
-            do! fs.AsyncWrite(buf, 0, buf.Length)
-
-            stdout.WriteLine("success: {0}", url)
+                stdout.WriteLine("success: {0}", url)
+            with
+            | _ as e -> stdout.WriteLine("failed: {0}, {1}", url, e)
         }
 
     downloadFile args.[0] args.[1] |> Async.RunSynchronously
