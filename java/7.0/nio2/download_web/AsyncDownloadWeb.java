@@ -84,7 +84,8 @@ public class AsyncDownloadWeb {
 		/* 完了まで待機
 		 *
 		 * 以下を実施せずにいきなり shutdown を呼び出すと、
-		 * run 処理内での submit が待機対象にならなくなるケースがあるため
+		 * run 処理内での submit 前に shutdown が
+		 * 呼び出された場合に不都合があるため
 		 */
 		for (Future<?> f : futureList) {
 			f.get();
