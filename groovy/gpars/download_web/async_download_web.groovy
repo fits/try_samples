@@ -18,17 +18,15 @@ GParsExecutorsPool.withPool {
 
 		def stream = { url.newInputStream() }.callAsync()
 		def readStream = { stream.get().bytes }.callAsync()
+		def res = { file.bytes = readStream.get() }.callAsync()
 
-		return {
-			file.bytes = readStream.get()
-			[url, file]
-		}.callAsync()
+		[url, file, res]
 	} each {
 		try {
-			def ret = it.get()
-			println "downloaded: ${ret[0]} => ${ret[1]}"
+			it[2].get()
+			println "downloaded: ${it[0]} => ${it[1]}"
 		} catch(e) {
-			println "failed: $e"
+			println "failed: ${it[0]}, $e"
 		}
 	}
 }
