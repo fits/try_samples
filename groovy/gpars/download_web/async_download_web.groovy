@@ -1,5 +1,4 @@
-import groovyx.gpars.*
-import static groovyx.gpars.GParsPoolUtil.*
+import groovyx.gpars.GParsExecutorsPool
 import java.nio.file.Paths
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
@@ -12,7 +11,7 @@ if (args.length < 1) {
 
 def dir = args[0]
 
-GParsPool.withPool {
+GParsExecutorsPool.withPool {
 	def res = []
 
 	System.in.readLines() each {
