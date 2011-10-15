@@ -17,7 +17,6 @@ class URLActor extends Actor {
 		loop {
 			react {
 				case uo: URLOpen => {
-					println("open : " + uo.url)
 					try {
 						uo.k(uo.url.openStream())
 					}
@@ -26,7 +25,6 @@ class URLActor extends Actor {
 					}
 				}
 				case rs: URLDownload => {
-					println("file create : " + rs.url)
 					val f = new File(rs.url.getFile()).getName()
 					val filePath = Paths.get(rs.destDir, f)
 
@@ -54,7 +52,8 @@ class URLActor extends Actor {
 
 val dir = args(0)
 
-Source.stdin.getLines.toList.par.foreach {u =>
+//Source.stdin.getLines.toList.par.foreach {u =>
+Source.stdin.getLines.toList.foreach {u =>
 	val url = new URL(u)
 
 	reset {
@@ -64,13 +63,11 @@ Source.stdin.getLines.toList.par.foreach {u =>
 		//URL接続処理
 		val stream = shift {k: (InputStream => Unit) =>
 			actor ! URLOpen(url, k)
-			println("actor ! URLOpen")
 		}
 
 		//ダウンロード処理
 		val file = shift {k: (Path => Unit) =>
 			actor ! URLDownload(url, stream, dir, k)
-			println("actor ! URLDownload")
 		}
 
 		printf("downloaded: %s => %s\n", url, file)
