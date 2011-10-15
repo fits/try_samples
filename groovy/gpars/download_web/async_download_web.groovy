@@ -5,9 +5,11 @@ if (args.length < 1) {
 	return
 }
 
+
 def dir = args[0]
 
-GParsExecutorsPool.withPool {
+GParsPool.withPool(10) {
+//GParsExecutorsPool.withPool {
 	def openUrl = { it.newInputStream() }.async()
 	def downloadUrl = { f, ou -> f.bytes = ou.get().bytes }.async()
 
@@ -16,8 +18,9 @@ GParsExecutorsPool.withPool {
 		def file = new File(dir, new File(url.file).name)
 
 		[url: url, file: file, result: downloadUrl(file, openUrl(url))]
-
-	} eachParallel {
+	} each {
+// eachParallel ‚ðŽg‚¤‚Æ‘S‚Ä‚Ìˆ—‚ªŠ®—¹‚·‚é‚Ü‚Åo—Í‚³‚ê‚È‚­‚È‚é
+//	} eachParallel {
 		try {
 			it.result.get()
 			println "downloaded: ${it.url} => ${it.file}"
