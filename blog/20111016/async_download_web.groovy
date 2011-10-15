@@ -2,8 +2,8 @@ import groovyx.gpars.*
 
 def dir = args[0]
 
-GParsPool.withPool {
-//GParsExecutorsPool.withPool {
+GParsPool.withPool(10) {
+//GParsExecutorsPool.withPool(10) {
 	//URL接続処理
 	def openUrl = { it.newInputStream() }.async()
 	//ダウンロード処理
@@ -16,7 +16,6 @@ GParsPool.withPool {
 		[url: url, file: file, result: downloadUrl(file, openUrl(url))]
 
 	} each {
-//	} eachParallel {
 		try {
 			it.result.get()
 			println "downloaded: ${it.url} => ${it.file}"
