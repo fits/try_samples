@@ -1,6 +1,7 @@
 import scala.util.continuations._
 import scala.actors.Actor
 import scala.actors.Actor._
+import scala.io.Source
 
 import java.io.InputStream
 import java.io.File
@@ -33,33 +34,36 @@ class URLActor extends Actor {
 	}
 }
 
-val url = new URL(args(0))
-val dir = args(1)
+val dir = args(0)
 
-reset {
-	val actor = new URLActor()
-	actor.start
-	println("actor.start")
+Source.stdin.getLines.toList.par.foreach {u =>
+	val url = new URL(u)
 
-	val stream = shift {k: (InputStream => Unit) =>
-		actor ! URLOpen(url, k)
-		println("actor ! URLOpen")
+	reset {
+		val actor = new URLActor()
+		actor.start
+		println("actor.start")
+
+		val stream = shift {k: (InputStream => Unit) =>
+			actor ! URLOpen(url, k)
+			println("actor ! URLOpen")
+		}
+
+		println("stream = " + stream)
+
+		val file = shift {k: (Path => Unit) =>
+			val f = new File(url.getFile()).getName()
+			val filePath = Paths.get(dir, f)
+
+			actor ! CreateFile(filePath, stream, k)
+			println("actor ! CreateFile")
+		}
+
+		println("downloaded: " + file)
+
+		actor.stop
+		println("actor.stop")
 	}
-
-	println("stream = " + stream)
-
-	val file = shift {k: (Path => Unit) =>
-		val f = new File(url.getFile()).getName()
-		val filePath = Paths.get(dir, f)
-
-		actor ! CreateFile(filePath, stream, k)
-		println("actor ! CreateFile")
-	}
-
-	println("downloaded: " + file)
-
-	actor.stop()
-	println("actor.stop")
 }
 
 println("*** out reset")
