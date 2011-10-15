@@ -3,34 +3,52 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import scala.io.Source
 
-import java.io.InputStream
-import java.io.File
+import java.io.{InputStream, File}
 import java.net.URL
 import java.nio.file.{Paths, Files, Path}
 import java.nio.file.StandardCopyOption._
 
 case class URLOpen(val url: URL, val k: (InputStream => Unit))
-case class CreateFile(val filePath: Path, val stream: InputStream, val k: (Path => Unit))
+case class URLDownload(val url: URL, val stream: InputStream, 
+				val destDir: String, val k: (Path => Unit))
 
 class URLActor extends Actor {
 	def act() {
 		loop {
 			react {
 				case uo: URLOpen => {
-					println("receive : " + uo.url)
-					uo.k(uo.url.openStream())
+					println("open : " + uo.url)
+					try {
+						uo.k(uo.url.openStream())
+					}
+					catch {
+						case e: Exception => failStop(e, uo.url)
+					}
 				}
-				case rs: CreateFile => {
-					println("file create")
-					Files.copy(rs.stream, rs.filePath, REPLACE_EXISTING)
-					rs.k(rs.filePath)
+				case rs: URLDownload => {
+					println("file create : " + rs.url)
+					val f = new File(rs.url.getFile()).getName()
+					val filePath = Paths.get(rs.destDir, f)
+
+					try {
+						Files.copy(rs.stream, filePath, REPLACE_EXISTING)
+						rs.k(filePath)
+					}
+					catch {
+						case e: Exception => failStop(e, rs.url)
+					}
 				}
 			}
 		}
 	}
 
 	def stop() {
-		exit()
+		exit
+	}
+
+	def failStop(e: Exception, url: URL) {
+		printf("failed: %s, %s\n", url, e)
+		exit
 	}
 }
 
@@ -42,28 +60,20 @@ Source.stdin.getLines.toList.par.foreach {u =>
 	reset {
 		val actor = new URLActor()
 		actor.start
-		println("actor.start")
 
+		//URL接続処理
 		val stream = shift {k: (InputStream => Unit) =>
 			actor ! URLOpen(url, k)
 			println("actor ! URLOpen")
 		}
 
-		println("stream = " + stream)
-
+		//ダウンロード処理
 		val file = shift {k: (Path => Unit) =>
-			val f = new File(url.getFile()).getName()
-			val filePath = Paths.get(dir, f)
-
-			actor ! CreateFile(filePath, stream, k)
-			println("actor ! CreateFile")
+			actor ! URLDownload(url, stream, dir, k)
+			println("actor ! URLDownload")
 		}
 
-		println("downloaded: " + file)
-
+		printf("downloaded: %s => %s\n", url, file)
 		actor.stop
-		println("actor.stop")
 	}
 }
-
-println("*** out reset")
