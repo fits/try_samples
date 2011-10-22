@@ -19,6 +19,7 @@ Source.stdin.getLines.toList.foreach {u =>
 	reset {
 		//URL接続処理
 		val stream = shift {k: (InputStream => Unit) =>
+			//非同期実行
 			ops.spawn {
 				println("===" + url)
 				try {
@@ -33,6 +34,7 @@ Source.stdin.getLines.toList.foreach {u =>
 
 		//ダウンロード処理
 		val file = shift {k: (Path => Unit) =>
+			//非同期実行
 			ops.spawn {
 				println("+++" + url)
 				val f = new File(url.getFile()).getName()
