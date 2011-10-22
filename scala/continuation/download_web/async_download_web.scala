@@ -1,3 +1,7 @@
+/*
+ * 限定継続 + Actor による非同期 Web コンテンツダウンロード処理
+ */
+
 import scala.util.continuations._
 import scala.actors.Actor
 import scala.actors.Actor._
