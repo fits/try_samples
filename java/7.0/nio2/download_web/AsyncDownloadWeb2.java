@@ -14,7 +14,7 @@ import static java.nio.file.StandardCopyOption.*;
 public class AsyncDownloadWeb2 {
 	public static void main(String[] args) throws Exception {
 		if (args.length < 1) {
-			System.out.println("java AsyncDownloadWeb <output dir>");
+			System.out.println("java AsyncDownloadWeb2 <output dir>");
 			return;
 		}
 
