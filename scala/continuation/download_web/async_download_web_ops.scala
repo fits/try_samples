@@ -21,7 +21,6 @@ Source.stdin.getLines.toList.foreach {u =>
 		val stream = shift {k: (InputStream => Unit) =>
 			//非同期実行
 			ops.spawn {
-				println("===" + url)
 				try {
 					k(url.openStream())
 				}
@@ -30,13 +29,11 @@ Source.stdin.getLines.toList.foreach {u =>
 				}
 			}
 		}
-		println("--------------" + url)
 
 		//ダウンロード処理
 		val file = shift {k: (Path => Unit) =>
 			//非同期実行
 			ops.spawn {
-				println("+++" + url)
 				val f = new File(url.getFile()).getName()
 				val filePath = Paths.get(dir, f)
 
@@ -45,7 +42,7 @@ Source.stdin.getLines.toList.foreach {u =>
 					k(filePath)
 				}
 				catch {
-						case e: Exception => printf("failed: %s, %s\n", url, e)
+					case e: Exception => printf("failed: %s, %s\n", url, e)
 				}
 			}
 		}
