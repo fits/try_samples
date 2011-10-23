@@ -9,36 +9,28 @@ if (args.length < 1) {
 def dir = args[0]
 
 System.in.readLines() collect {u ->
-	def url = new URL(u)
-	def file = new File(dir, new File(url.file).name)
+	def download  = Actors.actor {
+		def url
 
-	def openUrl = Actors.actor {
+		delegate.metaClass.onException = {
+			println "failed: ${url}, ${it}"
+		}
+
 		react {
-			try {
-				reply it.openStream()
-			} catch (e) {
-				reply e
-			}
-		}
-	}
+			url = new URL(it)
+			send url.openStream()
 
-	def downloadUrl = Actors.actor {
-		react {stream ->
-			try {
-				if (stream instanceof Throwable) {
-					throw stream
-				}
-
+			react {stream ->
+				def file = new File(dir, new File(url.file).name)
 				file.bytes = stream.bytes
-				println "downloaded ${url} => ${file}"
-			} catch (e) {
-				println "failed: ${url}, ${e}"
+
+				println "downloaded: ${url} => ${file}"
 			}
 		}
 	}
 
-	openUrl.send url, downloadUrl
-	downloadUrl
+	download.send u
+	download
 } each {
 	it.join()
 }
