@@ -12,7 +12,7 @@ public class AsyncDownloadWeb
 		var urls = Console.In.ReadToEnd().Split(new string[]{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
 
 		var dir = args[0];
-		var list = new List<Task<bool>>(urls.Length);
+		var taskList = new List<Task<bool>>(urls.Length);
 
 		foreach (var u in urls)
 		{
@@ -38,10 +38,10 @@ public class AsyncDownloadWeb
 
 			wc.DownloadFileAsync(uri, fileName);
 
-			list.Add(tcs.Task);
+			taskList.Add(tcs.Task);
 		}
 
-		Task.WaitAll(list.ToArray());
+		Task.WaitAll(taskList.ToArray());
 	}
 }
 
