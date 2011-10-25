@@ -15,7 +15,7 @@ public class AsyncDownloadWeb {
 	public static void main(String[] args) throws Exception {
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		final ExecutorService exec = Executors.newCachedThreadPool();
+		ExecutorService exec = Executors.newCachedThreadPool();
 
 		final String dir = args[0];
 		String urlString = null;
