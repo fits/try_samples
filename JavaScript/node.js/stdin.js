@@ -1,11 +1,8 @@
-
 process.stdin.resume();
 
 process.stdin.on('data', function(chunk) {
-	console.log('data : ' + chunk);
-});
-
-process.stdin.on('end', function() {
-	console.log('end');
+	chunk.toString().trim().split('\n').forEach(function(d) {
+		console.log('data : ' + d);
+	});
 });
 
