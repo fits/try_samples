@@ -13,6 +13,8 @@ import java.nio.file.StandardCopyOption._
 
 val dir = args(0)
 
+val using = (st: InputStream) => (block: InputStream => Unit) => try {block(st)} finally {st.close()}
+
 Source.stdin.getLines.toList.foreach {u =>
 	val url = new URL(u)
 
@@ -38,7 +40,9 @@ Source.stdin.getLines.toList.foreach {u =>
 				val filePath = Paths.get(dir, f)
 
 				try {
-					Files.copy(stream, filePath, REPLACE_EXISTING)
+					using (stream) {st =>
+						Files.copy(st, filePath, REPLACE_EXISTING)
+					}
 					k(filePath)
 				}
 				catch {
