@@ -8,6 +8,8 @@ import java.net.URL
 import java.nio.file.{Paths, Files, Path}
 import java.nio.file.StandardCopyOption._
 
+val using = (st: InputStream) => (block: InputStream => Unit) => try {block(st)} finally {st.close()}
+
 case class URLOpen(val url: URL, val k: (InputStream => Unit))
 case class URLDownload(val url: URL, val stream: InputStream, 
 				val destDir: String, val k: (Path => Unit))
@@ -29,7 +31,9 @@ class URLActor extends Actor {
 					val filePath = Paths.get(rs.destDir, f)
 
 					try {
-						Files.copy(rs.stream, filePath, REPLACE_EXISTING)
+						using (rs.stream) {stream =>
+							Files.copy(stream, filePath, REPLACE_EXISTING)
+						}
 						rs.k(filePath)
 					}
 					catch {

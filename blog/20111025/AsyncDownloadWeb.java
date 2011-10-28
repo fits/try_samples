@@ -36,7 +36,9 @@ public class AsyncDownloadWeb {
 					String fileName = new File(uri.getPath()).getName();
 					Path filePath = Paths.get(dir, fileName);
 
-					Files.copy(stream.get(), filePath, REPLACE_EXISTING);
+					try (InputStream in = stream.get()) {
+						Files.copy(in, filePath, REPLACE_EXISTING);
+					}
 					return filePath;
 				}
 			});
