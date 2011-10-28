@@ -1,11 +1,13 @@
 import scala.io.Source
 
-import java.io.File
+import java.io.{File, InputStream}
 import java.net.URL
 import java.nio.file.{Paths, Files}
 import java.nio.file.StandardCopyOption._
 
 val dir = args(0)
+
+val using = (st: InputStream) => (block: InputStream => Unit) => try {block(st)} finally {st.close()}
 
 Source.stdin.getLines.toList.par.foreach {u =>
 	val url = new URL(u)
@@ -13,7 +15,9 @@ Source.stdin.getLines.toList.par.foreach {u =>
 	val filePath = Paths.get(dir, f)
 
 	try {
-		Files.copy(url.openStream(), filePath, REPLACE_EXISTING)
+		using (url.openStream()) {stream =>
+			Files.copy(stream, filePath, REPLACE_EXISTING)
+		}
 
 		printf("completed: %s => %s\n", url, filePath)
 
