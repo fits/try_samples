@@ -13,7 +13,7 @@ public class AsyncDownloadWebSimple
 
 		var dir = args[0];
 
-		TaskEx.WhenAll(from url in urls select Download(dir, url));
+		Task.WaitAll((from url in urls select Download(dir, url)).ToArray());
 	}
 
 	private static async Task Download(string dir, string url)
