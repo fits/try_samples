@@ -1,6 +1,6 @@
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -12,14 +12,8 @@ public class AsyncDownloadWebSimple
 		var urls = Console.In.ReadToEnd().Split(new string[]{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
 
 		var dir = args[0];
-		var list = new List<Task>(urls.Length);
 
-		foreach (var u in urls)
-		{
-			list.Add(Download(dir, u));
-		}
-
-		Task.WaitAll(list.ToArray());
+		TaskEx.WhenAll(from url in urls select Download(dir, url));
 	}
 
 	private static async Task Download(string dir, string url)
