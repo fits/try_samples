@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -11,22 +12,14 @@ public class AsyncDownloadWebSimple
 		var urls = Console.In.ReadToEnd().Split(new string[]{Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
 
 		var dir = args[0];
-		var task = DownloadAll(dir, urls);
+		var list = new List<Task>(urls.Length);
 
-		Task.WaitAll(task);
-	}
-
-	private static async Task DownloadAll(string dir, string[] urls)
-	{
 		foreach (var u in urls)
 		{
-			try {
-				await Download(dir, u);
-				Console.WriteLine("download: {0}", u);
-			} catch (Exception ex) {
-				Console.WriteLine("failed: {0}, {1}", u, ex.Message);
-			}
+			list.Add(Download(dir, u));
 		}
+
+		Task.WaitAll(list.ToArray());
 	}
 
 	private static async Task Download(string dir, string url)
@@ -35,7 +28,13 @@ public class AsyncDownloadWebSimple
 		var uri = new Uri(url);
 		var fileName = Path.Combine(dir, Path.GetFileName(url));
 
-		await wc.DownloadFileTaskAsync(uri, fileName);
+		try {
+			await wc.DownloadFileTaskAsync(uri, fileName);
+
+			Console.WriteLine("download: {0} => {1}", url, fileName);
+		} catch (Exception ex) {
+			Console.WriteLine("failed: {0}, {1}", url, ex.Message);
+		}
 	}
 }
 
