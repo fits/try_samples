@@ -8,6 +8,7 @@ import org.apache.camel.builder.RouteBuilder
 
 def dir = args[0]
 def url = args[1]
+def file = new File(url).name
 
 ctx = new DefaultCamelContext()
 
@@ -15,14 +16,12 @@ ctx.addRoutes(new RouteBuilder() {
 	void configure() {
 		from("direct:start")
 			.to(url)
-			.to("file:$dir")
+			.to("file:${dir}?fileName=${file}")
 			.end()
 	}
 })
 
-
-template = ctx.createProducerTemplate()
-
 ctx.start()
 
+template = ctx.createProducerTemplate()
 template.sendBody("direct:start", null)
