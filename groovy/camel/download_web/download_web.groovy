@@ -25,11 +25,11 @@ ctx.addRoutes(new RouteBuilder() {
 			.setHeader(Exchange.HTTP_URI, body())
 			.to("http://localhost/")
 			.process({
-				it.in.setHeader(Exchange.FILE_NAME, header(Exchange.HTTP_URI).evaluate(it, String.class).split('/').last())
+				it.in.setHeader(Exchange.FILE_NAME, it.in.getHeader(Exchange.HTTP_URI).split('/').last())
 			} as Processor)
 			.to("file:${dir}")
 			.process({
-				println "downloaded: " + header(Exchange.HTTP_URI).evaluate(it, String.class)
+				println "downloaded: ${it.in.getHeader(Exchange.HTTP_URI)} => ${it.in.getHeader(Exchange.FILE_NAME)}"
 			} as Processor)
 	}
 })
