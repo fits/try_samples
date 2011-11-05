@@ -24,6 +24,9 @@ ctx.addRoutes(new RouteBuilder() {
 			.split(body().tokenize())
 			.setHeader(Exchange.HTTP_URI, body())
 			.to("http://localhost/")
+			.process({
+				it.in.setHeader(Exchange.FILE_NAME, header(Exchange.HTTP_URI).evaluate(it, String.class).split('/').last())
+			} as Processor)
 			.to("file:${dir}")
 			.process({
 				println "downloaded: " + header(Exchange.HTTP_URI).evaluate(it, String.class)
@@ -35,4 +38,4 @@ ctx.start()
 
 Thread.sleep(1000)
 
-ctx.shutdown()
+ctx.stop()
