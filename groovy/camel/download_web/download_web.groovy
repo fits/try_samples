@@ -4,7 +4,8 @@
 @Grab("org.apache.camel:camel-http:2.9.0-SNAPSHOT")
 @Grab("org.apache.camel:camel-stream:2.9.0-SNAPSHOT")
 //@Grab("org.slf4j:slf4j-simple:1.6.3")
-@Grab("org.slf4j:slf4j-jdk14:1.6.3")
+//@Grab("org.slf4j:slf4j-jdk14:1.6.3")
+@Grab("org.slf4j:slf4j-nop:1.6.3")
 import org.apache.camel.Processor
 import org.apache.camel.Exchange
 import org.apache.camel.impl.DefaultCamelContext
