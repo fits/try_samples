@@ -26,6 +26,8 @@ ctx.addRoutes(new RouteBuilder() {
 
 		from("stream:in")
 			.split(body().tokenize())
+		// 以下を有効にしても並列実行されない（別スレッドで逐次実行するだけ）
+		//	.parallelProcessing()
 			.process({
 				def url = it.in.body
 				//接続先URLの設定
@@ -42,5 +44,8 @@ ctx.addRoutes(new RouteBuilder() {
 })
 
 ctx.start()
+
+//処理開始前に終了する問題の防止策
+println "status: ${ctx.status}"
 
 ctx.stop()
