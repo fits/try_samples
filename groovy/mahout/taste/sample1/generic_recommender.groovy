@@ -13,9 +13,9 @@ if (args.length < 2) {
 def data = new FileDataModel(new File(args[0]))
 
 //コサイン類似度
-//def similarity = new UncenteredCosineSimilarity(data)
+def similarity = new UncenteredCosineSimilarity(data)
 //ユークリッド距離
-def similarity = new EuclideanDistanceSimilarity(data)
+//def similarity = new EuclideanDistanceSimilarity(data)
 
 def recommender = new GenericItemBasedRecommender(data, similarity)
 
