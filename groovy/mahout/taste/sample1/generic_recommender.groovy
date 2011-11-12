@@ -1,9 +1,9 @@
 @Grab("org.apache.mahout:mahout-core:0.5")
 @Grab("org.slf4j:slf4j-jdk14:1.6.3")
 //@Grab("org.slf4j:slf4j-nop:1.6.3")
-import org.apache.mahout.cf.taste.impl.recommender.*
-import org.apache.mahout.cf.taste.impl.similarity.*
+import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel
+import org.apache.mahout.cf.taste.impl.similarity.*
 
 if (args.length < 2) {
 	println "${new File(System.getProperty('script.name')).name} <csv file> <target userID>"
