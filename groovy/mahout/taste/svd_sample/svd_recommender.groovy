@@ -11,7 +11,8 @@ if (args.length < 2) {
 
 def data = new FileDataModel(new File(args[0]))
 
-def factorizer = new ALSWRFactorizer(data, 3, 0.05, 5)
+//ƒOƒ‹[ƒv” 10 ‚Å lambda=0.05 ‚Å 5‰ñŒJ‚è•Ô‚·
+def factorizer = new ALSWRFactorizer(data, 10, 0.05, 5)
 
 def recommender = new SVDRecommender(data, factorizer)
 
