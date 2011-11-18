@@ -6,13 +6,23 @@ if (args.length < 1) {
 	return
 }
 
-def user = args[0]
-def url = "https://api.github.com/users/${user}/watched"
+def process(String url, Closure closure) {
+	def con = new URL(url).openConnection()
 
-new URL(url).withInputStream {
-	def res = new JsonSlurper().parseText(it.text)
-
-	res.each {item ->
-		println "${user},${item.name}"
+	new JsonSlurper().parseText(con.inputStream.text).each {
+		closure(it)
 	}
+
+	def m = con.getHeaderField("Link") =~ /<([^>]*)>; rel="next"/
+
+	if (m) {
+		process(m[0][1], closure)
+	}
+}
+
+
+def user = args[0]
+
+process("https://api.github.com/users/${user}/watched") {
+	println "${it.id},${it.name},${it.url}"
 }
