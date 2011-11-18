@@ -23,6 +23,6 @@ def process(String url, Closure closure) {
 
 def user = args[0]
 
-process("https://api.github.com/users/${user}/watched") {
+process("https://api.github.com/users/${user}/watched?per_page=100") {
 	println "${it.id},${it.name},${it.url}"
 }
