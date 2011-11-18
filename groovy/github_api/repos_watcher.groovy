@@ -6,22 +6,24 @@ if (args.length < 2) {
 	return
 }
 
-def printWatchers(String url) {
+def process(String url, Closure closure) {
 	def con = new URL(url).openConnection()
 
 	new JsonSlurper().parseText(con.inputStream.text).each {
-		println it.login
+		closure(it)
 	}
 
 	def m = con.getHeaderField("Link") =~ /<([^>]*)>; rel="next"/
 
 	if (m) {
-		printWatchers(m[0][1])
+		process(m[0][1], closure)
 	}
 }
 
 def user = args[0]
 def repos = args[1]
 
-printWatchers("https://api.github.com/repos/${user}/${repos}/watchers?per_page=100")
+process("https://api.github.com/repos/${user}/${repos}/watchers?per_page=100") {
+	println "${it.id},${it.login},${it.url}"
+}
 
