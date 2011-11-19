@@ -9,7 +9,7 @@ if (args.length < 2) {
 def process(String url, Closure closure) {
 	def con = new URL(url).openConnection()
 
-	new JsonSlurper().parseText(con.inputStream.text).each {
+	new JsonSlurper().parseText(con.inputStream.getText("UTF-8")).each {
 		closure(it)
 	}
 
