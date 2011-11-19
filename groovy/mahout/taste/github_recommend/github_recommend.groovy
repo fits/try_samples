@@ -75,7 +75,7 @@ def selectRecommender = {t, d ->
 
 		case "6":
 			//SVD
-			def factorizer = new ALSWRFactorizer(d, 10, 0.05, 5)
+			def factorizer = new ALSWRFactorizer(d, 30, 0.06, 10)
 			new SVDRecommender(d, factorizer)
 			break
 
