@@ -3,6 +3,8 @@
 //@Grab("org.slf4j:slf4j-nop:1.6.3")
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender
+import org.apache.mahout.cf.taste.impl.recommender.slopeone.SlopeOneRecommender
+import org.apache.mahout.cf.taste.impl.recommender.svd.*
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel
 import org.apache.mahout.cf.taste.impl.model.BooleanPreference
 import org.apache.mahout.cf.taste.impl.similarity.*
@@ -56,6 +58,27 @@ def selectRecommender = {t, d ->
 			//ユークリッド距離
 			new GenericItemBasedRecommender(d, new EuclideanDistanceSimilarity(d))
 			break
+		case "3":
+			//マンハッタン距離
+			new GenericItemBasedRecommender(d, new CityBlockSimilarity(d))
+			break
+
+		case "4":
+			//Tanimoto係数
+			new GenericItemBasedRecommender(d, new TanimotoCoefficientSimilarity(d))
+			break
+
+		case "5":
+			//Slope One
+			new SlopeOneRecommender(d)
+			break
+
+		case "6":
+			//SVD
+			def factorizer = new ALSWRFactorizer(d, 10, 0.05, 5)
+			new SVDRecommender(d, factorizer)
+			break
+
 		default:
 			//コサイン類似度
 			new GenericItemBasedRecommender(d, new UncenteredCosineSimilarity(d))
