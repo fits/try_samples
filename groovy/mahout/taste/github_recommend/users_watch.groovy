@@ -1,5 +1,5 @@
 
-import groovyx.gpars.actor.Actors
+import groovyx.gpars.GParsExecutorsPool
 import groovy.json.JsonSlurper
 
 def process(String url, Closure closure) {
@@ -7,12 +7,8 @@ def process(String url, Closure closure) {
 
 	def data = con.inputStream.getText("UTF-8")
 
-	try {
-		new JsonSlurper().parseText(data).each {
-			closure(it)
-		}
-	} catch (e) {
-		System.err.println("error: ${url} : ${data}, ${e}")
+	new JsonSlurper().parseText(data).each {
+		closure(it)
 	}
 
 	def m = con.getHeaderField("Link") =~ /<([^>]*)>; rel="next"/
@@ -22,25 +18,21 @@ def process(String url, Closure closure) {
 	}
 }
 
-System.in.readLines() collect {
-	def items = it.split(",")
+GParsExecutorsPool.withPool(50) {
+	System.in.readLines() eachParallel {
+		def items = it.split(",")
 
-	def userWatch = Actors.actor {
-		delegate.metaClass.onException = {
+		def userId = items[0]
+		def user = items[1]
+
+		def url = "https://api.github.com/users/${user}/watched?per_page=100"
+
+		try {
+			process(url) {json ->
+				println "${userId},${user},${json.id},${json.name}"
+			}
+		} catch (e) {
 			println "failed: ${it}"
 		}
-
-		react {u ->
-			def url = "https://api.github.com/users/${u.user}/watched?per_page=100"
-
-			process(url) {json ->
-				println "${u.id},${u.user},${json.id},${json.name}"
-			}
-		}
 	}
-
-	userWatch.send([id: items[0], user: items[1]])
-	userWatch
-} each {
-	it.join()
 }
