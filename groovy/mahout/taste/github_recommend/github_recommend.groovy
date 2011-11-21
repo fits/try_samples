@@ -54,6 +54,10 @@ class CustomDataModel extends FileDataModel {
 
 def selectRecommender = {t, d ->
 	switch (t) {
+		case "1":
+			//コサイン類似度
+			new GenericItemBasedRecommender(d, new UncenteredCosineSimilarity(d))
+			break
 		case "2":
 			//ユークリッド距離
 			new GenericItemBasedRecommender(d, new EuclideanDistanceSimilarity(d))
@@ -73,15 +77,10 @@ def selectRecommender = {t, d ->
 			new SlopeOneRecommender(d)
 			break
 
-		case "6":
-			//SVD
-			def factorizer = new ALSWRFactorizer(d, 30, 0.06, 10)
-			new SVDRecommender(d, factorizer)
-			break
-
 		default:
-			//コサイン類似度
-			new GenericItemBasedRecommender(d, new UncenteredCosineSimilarity(d))
+			//SVD
+			def factorizer = new ALSWRFactorizer(d, 30, 0.06, 5)
+			new SVDRecommender(d, factorizer)
 	}
 }
 
