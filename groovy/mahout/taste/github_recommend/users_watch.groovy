@@ -27,9 +27,20 @@ GParsExecutorsPool.withPool(50) {
 
 		def url = "https://api.github.com/users/${user}/watched?per_page=100"
 
+		def printItems = []
+
 		try {
 			process(url) {json ->
-				println "${userId},${user},${json.id},${json.name}"
+				//fork ‚µ‚Ä‚¢‚éê‡‚Í fork ‚ÌªŒ¹‚ğæ“¾
+				if (json.fork) {
+					def data = new URL(json.url).getText("UTF-8")
+					json = new JsonSlurper().parseText(data).source
+				}
+
+				if (!printItems.contains(json.id)) {
+					println "${userId},${user},${json.id},${json.name}"
+					printItems.add(json.id)
+				}
 			}
 		} catch (e) {
 			println "failed: ${it}"
