@@ -43,7 +43,7 @@ GParsExecutorsPool.withPool(50) {
 				}
 			}
 		} catch (e) {
-			println "failed: ${it}"
+			System.err.println "failed: ${it}"
 		}
 	}
 }
