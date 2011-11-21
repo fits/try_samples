@@ -25,6 +25,14 @@ class CustomDataModel extends FileDataModel {
 	}
 
 	@Override
+	protected void reload() {
+		users = [:]
+		items = [:]
+
+		super.reload()
+	}
+
+	@Override
 	protected void processLine(String line,
                            FastByIDMap<?> data,
                            FastByIDMap<FastByIDMap<Long>> timestamps,
@@ -33,13 +41,6 @@ class CustomDataModel extends FileDataModel {
 		def cols = line.split(",")
 		long userId = Long.parseLong(cols[0])
 		long itemId = Long.parseLong(cols[2])
-
-		if (users == null) {
-			users = [:]
-		}
-		if (items == null) {
-			items = [:]
-		}
 
 		users.put(userId, cols[1])
 		items.put(itemId, cols[3])
@@ -79,7 +80,7 @@ def selectRecommender = {t, d ->
 
 		default:
 			//SVD
-			def factorizer = new ALSWRFactorizer(d, 30, 0.06, 5)
+			def factorizer = new ALSWRFactorizer(d, 30, 0.06, 10)
 			new SVDRecommender(d, factorizer)
 	}
 }
