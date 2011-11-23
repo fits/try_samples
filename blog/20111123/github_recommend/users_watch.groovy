@@ -38,7 +38,7 @@ GParsExecutorsPool.withPool(50) {
 				}
 
 				if (!printItems.contains(json.id)) {
-					println "${userId},${user},${json.id},${json.name}"
+					println "${userId},${user},${json.id},${json.name},${json.html_url}"
 					printItems.add(json.id)
 				}
 			}
