@@ -14,8 +14,6 @@ if (args.length < 3) {
 	return
 }
 
-def users = [:]
-
 class CustomDataModel extends FileDataModel {
 	Map users
 	Map items
