@@ -71,15 +71,9 @@ def selectRecommender = {t, d ->
 			new GenericItemBasedRecommender(d, new TanimotoCoefficientSimilarity(d))
 			break
 
-		case "5":
+		default:
 			//Slope One
 			new SlopeOneRecommender(d)
-			break
-
-		default:
-			//SVD
-			def factorizer = new ALSWRFactorizer(d, 50, 0.06, 5)
-			new SVDRecommender(d, factorizer)
 	}
 }
 
