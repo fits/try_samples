@@ -12,6 +12,22 @@ import static org.apache.zookeeper.Watcher.Event.KeeperState.*
 import static org.apache.zookeeper.ZooDefs.Ids.*
 import static org.apache.zookeeper.CreateMode.*
 
+def downloadUrl(URL url) {
+	try {
+		def f = "${args[0]}/${url.file.split('/').last()}"
+
+		url.withInputStream {input ->
+			new File(f).bytes = input.bytes
+		}
+
+		println "downloaded : ${url} => ${f}"
+
+	} catch (IOException e) {
+		println "failed: ${url}, ${e}"
+	}
+}
+
+
 def signal = new CountDownLatch(1)
 
 def zk = new ZooKeeper("localhost", 5000, {event ->
@@ -29,26 +45,20 @@ def root = "/download"
 while(counter < 10) {
 	def list = zk.getChildren(root, false)
 
-	if (!list.isEmpty()) {
-		def path = "${root}/${list.get(0)}"
-		def url = null
+	if (list) {
+		for (i in 0..<list.size()) {
+			def path = "${root}/${list.get(i)}"
 
-		try {
-			def data = zk.getData(path, false, null)
-			zk.delete(path, -1)
+			try {
+				def data = zk.getData(path, false, null)
+				zk.delete(path, -1)
 
-			url = new URL(new String(data, "UTF-8"))
-			def f = "${args[0]}/${url.file.split('/').last()}"
+				downloadUrl(new URL(new String(data, "UTF-8")))
+				break
 
-			url.withInputStream {input ->
-				new File(f).bytes = input.bytes
+			} catch (KeeperException.NoNodeException e) {
+				println "no node : ${path}"
 			}
-			println "downloaded : ${url} => ${f}"
-
-		} catch (KeeperException.NoNodeException e) {
-			println "--- after deleted"
-		} catch (IOException e) {
-			println "failed: ${url}, ${e}"
 		}
 		counter = 0
 	}
