@@ -23,22 +23,22 @@ def zk = new ZooKeeper("localhost", 5000, {event ->
 //Ú‘±‘Ò‚¿
 signal.await()
 
-def counter = 10
+def counter = 0
 def root = "/download"
 
-while(counter > 0) {
+while(counter < 10) {
 	def list = zk.getChildren(root, false)
 
 	if (!list.isEmpty()) {
 		def path = "${root}/${list.get(0)}"
-
-		def data = zk.getData(path, false, null)
-
-		def url = new URL(new String(data, "UTF-8"))
-		def f = "${args[0]}/${url.file.split('/').last()}"
+		def url = null
 
 		try {
+			def data = zk.getData(path, false, null)
 			zk.delete(path, -1)
+
+			url = new URL(new String(data, "UTF-8"))
+			def f = "${args[0]}/${url.file.split('/').last()}"
 
 			url.withInputStream {input ->
 				new File(f).bytes = input.bytes
@@ -50,9 +50,10 @@ while(counter > 0) {
 		} catch (IOException e) {
 			println "failed: ${url}, ${e}"
 		}
+		counter = 0
 	}
 	else {
-		counter--
+		counter++
 		Thread.sleep(1000)
 	}
 }
