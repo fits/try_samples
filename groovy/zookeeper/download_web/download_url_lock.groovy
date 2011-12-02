@@ -7,6 +7,7 @@
 import java.util.concurrent.CountDownLatch
 import org.apache.zookeeper.ZooKeeper
 import org.apache.zookeeper.Watcher
+import org.apache.zookeeper.Transaction
 import org.apache.zookeeper.KeeperException
 import static org.apache.zookeeper.Watcher.Event.KeeperState.*
 import static org.apache.zookeeper.ZooDefs.Ids.*
@@ -74,34 +75,25 @@ while(counter.isValid()) {
 
 		try {
 			if (zk.getChildren(path, false).empty) {
-				def data = zk.getData(path, false, null)
+				def lockPath = zk.create("${path}/lock-", null, OPEN_ACL_UNSAFE, EPHEMERAL_SEQUENTIAL)
+				def lockList = zk.getChildren(path, false)
 
-				if (data != null) {
-					def lockPath = zk.create("${path}/lock-", null, OPEN_ACL_UNSAFE, EPHEMERAL_SEQUENTIAL)
-					def lockList = zk.getChildren(path, false)
+				if (lockPath == "${path}/${lockList.sort().first()}") {
 
-					if (lockPath == "${path}/${lockList.sort().first()}") {
+					def data = zk.getData(path, false, null)
 
-						downloadUrl(new URL(new String(data, "UTF-8")))
+					downloadUrl(new URL(new String(data, "UTF-8")))
 
-						zk.setData(path, null, -1)
+					def tr = zk.transaction()
 
-						zk.getChildren(path, false).each {
-							def childPath = "${path}/${it}"
-
-							try {
-								zk.delete(childPath, -1)
-
-							} catch (KeeperException.NoNodeException e) {
-								println "no node : ${childPath}"
-							}
-						}
-
-						zk.delete(path, -1)
+					zk.getChildren(path, false).each {
+						tr.delete("${path}/${it}", -1)
 					}
-					else {
-						zk.delete(lockPath, -1)
-					}
+
+					tr.delete(path, -1).commit()
+				}
+				else {
+					zk.delete(lockPath, -1)
 				}
 			}
 		} catch (KeeperException.NoNodeException e) {
