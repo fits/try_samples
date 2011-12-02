@@ -68,17 +68,15 @@ while(counter.isValid()) {
 	def list = zk.getChildren(root, false)
 
 	if (list) {
-		for (i in 0..<list.size()) {
-			def path = "${root}/${list.get(i)}"
+		Collections.shuffle(list)
 
-			try {
-				if (zk.getChildren(path, false).empty) {
-					def data = zk.getData(path, false, null)
+		def path = "${root}/${list.first()}"
 
-					if (data == null) {
-						continue
-					}
+		try {
+			if (zk.getChildren(path, false).empty) {
+				def data = zk.getData(path, false, null)
 
+				if (data != null) {
 					def lockPath = zk.create("${path}/lock-", null, OPEN_ACL_UNSAFE, EPHEMERAL_SEQUENTIAL)
 					def lockList = zk.getChildren(path, false)
 
@@ -105,11 +103,9 @@ while(counter.isValid()) {
 						zk.delete(lockPath, -1)
 					}
 				}
-				break
-
-			} catch (KeeperException.NoNodeException e) {
-				println "no node : ${path}"
 			}
+		} catch (KeeperException.NoNodeException e) {
+			println "no node : ${path}"
 		}
 
 		counter.reset()
