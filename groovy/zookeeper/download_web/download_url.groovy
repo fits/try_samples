@@ -12,29 +12,21 @@ import static org.apache.zookeeper.Watcher.Event.KeeperState.*
 import static org.apache.zookeeper.ZooDefs.Ids.*
 import static org.apache.zookeeper.CreateMode.*
 
-class Counter {
-	private int initialCount
-	private int count
+def countDownLoop = {count, closure ->
+	def initialCount = count
 
-	Counter(int count) {
-		this.initialCount = count
-		this.count = count
-	}
-
-	void countDown() {
-		count--
-	}
-
-	void reset() {
-		count = initialCount
-	}
-
-	boolean isValid() {
-		count > 0
+	while (count > 0) {
+		if (closure()) {
+			count = initialCount
+		}
+		else {
+			count--
+			Thread.sleep(1000)
+		}
 	}
 }
 
-def downloadUrl(URL url) {
+def downloadUrl = {URL url ->
 	try {
 		def f = "${args[0]}/${url.file.split('/').last()}"
 
@@ -61,10 +53,10 @@ def zk = new ZooKeeper("localhost", 5000, {event ->
 //ê⁄ë±ë“Çø
 signal.await()
 
-def counter = new Counter(10)
 def root = "/download"
 
-while(counter.isValid()) {
+countDownLoop(10) {
+	def result = false
 	def list = zk.getChildren(root, false)
 
 	if (list) {
@@ -79,13 +71,9 @@ while(counter.isValid()) {
 		} catch (KeeperException.NoNodeException e) {
 			println "no node : ${path}"
 		}
-
-		counter.reset()
+		result = true
 	}
-	else {
-		counter.countDown()
-		Thread.sleep(1000)
-	}
+	result
 }
 
 zk.close()
