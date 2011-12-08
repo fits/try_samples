@@ -17,7 +17,7 @@ object GitHubRecommendDistance {
 
 			target match {
 				case Some((u, p)) => v.map {
-					case (tu, tp) => (tu, Math.pow((tp - p).toDouble, 2))
+					case (tu, tp) => (tu, tp - p)
 				}
 				case None => v.map { case (u, _) => (u, None) }
 			}
@@ -38,8 +38,14 @@ object GitHubRecommendDistance {
 
 		val filteredRes = usersRes.filter {case (u, (p, v)) => p > 7 && u != targetUser }
 
-		filteredRes.foreach {case(u, v) =>
-			println(u + " = " + v)
+		val res = filteredRes.flatMap {case (u, (p, v)) =>
+			v.filter { case(k, p) => p == None }.map {case(k, p) =>
+				(k, 1)
+			}
+		}.reduceByKey(_ + _)
+
+		res.collect.sortBy { case (k, p) => p }(Ordering.Int.reverse).take(5).foreach {case(k, p) =>
+			println(k + " : " + p)
 		}
 	}
 }
