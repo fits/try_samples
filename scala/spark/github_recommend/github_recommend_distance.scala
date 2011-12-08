@@ -11,7 +11,7 @@ object GitHubRecommendDistance {
 
 		val itemsRes = file.map {l =>
 			val items = l.split(",")
-			(items(3), (items(1), 1))
+			(items(3), (items(1), 1.0))
 		}.groupByKey().mapValues {v =>
 			val target = v.find { case (u, _) => u == targetUser }
 
@@ -25,9 +25,20 @@ object GitHubRecommendDistance {
 
 		val usersRes = itemsRes.flatMap { case (k, v) =>
 			v.map { case (u, p) => (u, (k, p))  }
-		}.groupByKey()
+		}.groupByKey().mapValues {v =>
+			val point = v.foldLeft(0.0) {(x, y) =>
+				y._2 match {
+					case p: Double => x + 1.0 / (1.0 + p)
+					case None => x
+				}
+			}
 
-		usersRes.foreach {case (u, v) =>
+			(point, v)
+		}
+
+		val filteredRes = usersRes.filter {case (u, (p, v)) => p > 7 && u != targetUser }
+
+		filteredRes.foreach {case(u, v) =>
 			println(u + " = " + v)
 		}
 	}
