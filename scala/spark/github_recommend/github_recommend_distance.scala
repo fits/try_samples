@@ -9,7 +9,7 @@ object GitHubRecommendDistance {
 		val file = spark.textFile(args(0))
 		val targetUser = args(1)
 
-		val res = file.map {l =>
+		val itemsRes = file.map {l =>
 			val items = l.split(",")
 			(items(3), (items(1), 1))
 		}.groupByKey().mapValues {v =>
@@ -23,7 +23,11 @@ object GitHubRecommendDistance {
 			}
 		}
 
-		res.foreach {case (u, v) =>
+		val usersRes = itemsRes.flatMap { case (k, v) =>
+			v.map { case (u, p) => (u, (k, p))  }
+		}.groupByKey()
+
+		usersRes.foreach {case (u, v) =>
 			println(u + " = " + v)
 		}
 	}
