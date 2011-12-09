@@ -1,51 +1,62 @@
+
+import scala.math._
 import spark._
 import SparkContext._
+
 
 object GitHubRecommendDistance {
 	def main(args: Array[String]) {
 
-		val spark = new SparkContext("local", "GitHubRecommendDistance")
+		val spark = new SparkContext(args(0), "GitHubRecommendDistance")
 
-		val file = spark.textFile(args(0))
-		val targetUser = args(1)
+		val file = spark.textFile(args(1))
+		val targetUser = args(2)
 
-		val itemsRes = file.map {l =>
+		val itemsRes = file.map { l =>
 			val items = l.split(",")
 			(items(3), (items(1), 1.0))
-		}.groupByKey().mapValues {v =>
-			val target = v.find { case (u, _) => u == targetUser }
+
+		}.groupByKey().mapValues { users =>
+			val target = users.find { case (user, _) => user == targetUser }
 
 			target match {
-				case Some((u, p)) => v.map {
-					case (tu, tp) => (tu, tp - p)
+				case Some((_, targetPoint)) => users.map { case (user, point) =>
+					(user, abs(point - targetPoint))
 				}
-				case None => v.map { case (u, _) => (u, None) }
+				case None => users.map { case (user, point) => (user, None) }
 			}
 		}
 
-		val usersRes = itemsRes.flatMap { case (k, v) =>
-			v.map { case (u, p) => (u, (k, p))  }
-		}.groupByKey().mapValues {v =>
-			val point = v.foldLeft(0.0) {(x, y) =>
-				y._2 match {
-					case p: Double => x + 1.0 / (1.0 + p)
-					case None => x
+		val usersRes = itemsRes.flatMap { case (item, users) =>
+			users.map { case (user, point) => (user, (item, point)) }
+
+		}.groupByKey().mapValues { items =>
+			val total = items.foldLeft(0.0) { (subTotal, itemTuple) =>
+				itemTuple._2 match {
+					case p: Double => subTotal + 1.0 / (1.0 + p)
+					case None => subTotal
 				}
 			}
 
-			(point, v)
+			(total, items)
 		}
 
-		val filteredRes = usersRes.filter {case (u, (p, v)) => p > 7 && u != targetUser }
+		val pickupRes = usersRes.filter { case (user, (total, _)) =>
+			total > 7 && user != targetUser
+		}
 
-		val res = filteredRes.flatMap {case (u, (p, v)) =>
-			v.filter { case(k, p) => p == None }.map {case(k, p) =>
-				(k, 1)
+		val res = pickupRes.flatMap { case (user, (total, items)) =>
+			items.filter { case (_, point) =>
+				point == None
+			}.map { case (item, _) =>
+				(item, 1)
 			}
 		}.reduceByKey(_ + _)
 
-		res.collect.sortBy { case (k, p) => p }(Ordering.Int.reverse).take(5).foreach {case(k, p) =>
-			println(k + " : " + p)
+		implicit val order = Ordering.Int.reverse
+
+		res.collect.sortBy(_._2).take(5).foreach { case (item, point) =>
+			printf("%s : %d\n", item, point)
 		}
 	}
 }
