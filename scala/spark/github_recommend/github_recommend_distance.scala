@@ -58,6 +58,19 @@ object GitHubRecommendDistance {
 			}
 		}.reduceByKey(_ + _)
 
+/*
+		//以下のようにユーザー抽出とアイテムのカウントをまとめて処理する事も可
+		val res = usersRes.flatMap {
+			case (user, (total, items)) if total > 7 && user != targetUser => {
+				items.flatMap {
+					case (item, None) => List((item, 1))
+					case _ => Nil
+				}
+			}
+			case _ => Nil
+		}.reduceByKey(_ + _)
+*/
+
 		//sortBy のソート順を設定
 		implicit val order = Ordering.Int.reverse
 		//カウント数の多い上位 5件のアイテムを取り出して出力
