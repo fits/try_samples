@@ -3,9 +3,13 @@ import scala.math._
 import spark._
 import SparkContext._
 
-
 object GitHubRecommendDistance {
 	def main(args: Array[String]) {
+
+		if (args.length < 3) {
+			println("parameters: <host> <data file> <target user>")
+			return
+		}
 
 		val spark = new SparkContext(args(0), "GitHubRecommendDistance")
 
@@ -14,8 +18,8 @@ object GitHubRecommendDistance {
 
 		//アイテム単位の集計
 		val itemsRes = file.map { l =>
-			val items = l.split(",")
-			(items(3), (items(1), 1.0))
+			val fields = l.split(",")
+			(fields(3), (fields(1), 1.0))
 
 		}.groupByKey().mapValues { users =>
 			users.find(_._1 == targetUser) match {
