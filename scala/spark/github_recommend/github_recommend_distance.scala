@@ -18,9 +18,7 @@ object GitHubRecommendDistance {
 			(items(3), (items(1), 1.0))
 
 		}.groupByKey().mapValues { users =>
-			val target = users.find { case (user, _) => user == targetUser }
-
-			target match {
+			users.find(_._1 == targetUser) match {
 				//ターゲットユーザーを含む場合はポイントの差を設定
 				case Some((_, targetPoint)) => users.map { case (user, point) =>
 					(user, abs(point - targetPoint))
@@ -55,9 +53,7 @@ object GitHubRecommendDistance {
 		//抽出されたユーザーの中でターゲットユーザーが関連していない
 		//アイテムをカウント
 		val res = pickupRes.flatMap { case (user, (total, items)) =>
-			items.filter { case (_, point) =>
-				point == None
-			}.map { case (item, _) =>
+			items.filter(_._2 == None).map { case (item, _) =>
 				(item, 1)
 			}
 		}.reduceByKey(_ + _)
