@@ -17,18 +17,45 @@ class StdInSpout implements IRichSpout {
 	boolean isDistributed() {
 		false
 	}
+
 	void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
 		this.collector = collector
 		dataSet = System.in.newReader().iterator()
 	}
+
 	void close() {}
+
 	void nextTuple() {
 		if (dataSet.hasNext()) {
-			collector.emit(new Values(dataSet.next(), 1))
+			collector.emit(new Values(dataSet.next()))
 		}
 	}
+
 	void ack(msgId) {}
+
 	void fail(msgId) {}
+
+	void declareOutputFields(OutputFieldsDeclarer decl) {
+		decl.declare(new Fields("money"))
+	}
+}
+
+class CountBolt implements IBasicBolt {
+	def counter = [:]
+
+	void prepare(Map conf, TopologyContext context) {}
+
+	void execute(Tuple input, BasicOutputCollector collector) {
+		def money = input.getValueByField("money")
+		def count = (counter.containsKey(money))? counter.get(money): 0
+
+		count++
+		counter.put(money, count)
+
+		collector.emit(new Values(money, count))
+	}
+
+	void cleanup() {}
 
 	void declareOutputFields(OutputFieldsDeclarer decl) {
 		decl.declare(new Fields("money", "count"))
@@ -47,12 +74,22 @@ class PrintBolt implements IBasicBolt {
 
 def builder = new TopologyBuilder()
 
-builder.setSpout("sp1", new StdInSpout())
-builder.setBolt("bo1", new PrintBolt()).fieldsGrouping("sp1", new Fields("money"))
+builder.setSpout("sp1", new StdInSpout(), 4)
+//Bolt はシリアライズされて、各ワーカーに渡されるため、
+//fieldsGrouping で同一の money を同じワーカーで処理するよう指定する
+builder.setBolt("bo1", new CountBolt(), 4).fieldsGrouping("sp1", new Fields("money"))
+builder.setBolt("bo2", new PrintBolt(), 4).shuffleGrouping("bo1")
 
-def runner = new LocalCluster()
-runner.submitTopology("moneycount", new Config(), builder.createTopology())
+def conf = new Config()
+conf.debug = false
+
+def cluster = new LocalCluster()
+cluster.submitTopology("moneycount", conf, builder.createTopology())
 
 Utils.sleep(5000)
-runner.shutdown()
+
+//Topology は終了しないため（動作し続けることが前提）
+//シャットダウンを実施
+cluster.killTopology("moneycount")
+cluster.shutdown()
 
