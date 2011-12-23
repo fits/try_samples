@@ -91,5 +91,9 @@ Utils.sleep(5000)
 //Topology は終了しないため（動作し続けることが前提）
 //シャットダウンを実施
 cluster.killTopology("moneycount")
-cluster.shutdown()
 
+try {
+	cluster.shutdown()
+} catch (e) {
+	println e
+}
