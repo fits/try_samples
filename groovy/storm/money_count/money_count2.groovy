@@ -2,6 +2,7 @@
 	@GrabResolver(name = "clojars.org", root = "http://clojars.org/repo"),
 	@Grab("storm:storm:0.6.1-rc")
 ])
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import backtype.storm.*
 import backtype.storm.spout.*
@@ -54,9 +55,7 @@ class CountBolt implements IBasicBolt {
 
 		def stats = RegisteredGlobalState.getState(trackId)
 
-		if (!stats.containsKey(money)) {
-			stats.put(money, new AtomicInteger())
-		}
+		stats.putIfAbsent(money, new AtomicInteger())
 
 		int count = stats.get(money).incrementAndGet()
 		collector.emit(new Values(money, count))
@@ -70,13 +69,13 @@ class CountBolt implements IBasicBolt {
 }
 
 
-def trackId = RegisteredGlobalState.registerState([:])
+def trackId = RegisteredGlobalState.registerState(new ConcurrentHashMap())
 
 def builder = new TopologyBuilder()
 
 builder.setSpout("sp1", new StdInSpout(), 4)
-//同一金額を同じワーカースレッドで処理するように fieldsGrouping を指定
-builder.setBolt("bo1", new CountBolt(trackId), 4).fieldsGrouping("sp1", new Fields("money"))
+//ConcurrentHashMap を使えば fieldsGrouping でなくてもよい
+builder.setBolt("bo1", new CountBolt(trackId), 4).shuffleGrouping("sp1")
 
 def conf = new Config()
 
