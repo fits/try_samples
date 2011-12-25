@@ -75,6 +75,7 @@ def trackId = RegisteredGlobalState.registerState([:])
 def builder = new TopologyBuilder()
 
 builder.setSpout("sp1", new StdInSpout(), 4)
+//同一金額を同じワーカースレッドで処理するように fieldsGrouping を指定
 builder.setBolt("bo1", new CountBolt(trackId), 4).fieldsGrouping("sp1", new Fields("money"))
 
 def conf = new Config()
