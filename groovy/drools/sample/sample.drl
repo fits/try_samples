@@ -1,0 +1,10 @@
+
+dialect "mvel"
+
+rule "Sample"
+
+    when
+        $d : Data(point > 5)
+    then
+        System.out.println("Data : " + $d.name + " = " + $d.point);
+end
