@@ -17,6 +17,10 @@ def builder = KnowledgeBuilderFactory.newKnowledgeBuilder()
 
 builder.add(ResourceFactory.newClassPathResource(args[0], getClass()), ResourceType.DRL)
 
+if (builder.hasErrors()) {
+	println builder.errors
+}
+
 def base = KnowledgeBaseFactory.newKnowledgeBase()
 base.addKnowledgePackages(builder.getKnowledgePackages())
 
