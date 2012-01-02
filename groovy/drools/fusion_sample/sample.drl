@@ -1,0 +1,13 @@
+package sample
+
+declare Data
+	@rule( event )
+end
+
+rule "Sample"
+
+    when
+        Data(point > 5) from entry-point "sample stream"
+    then
+        System.out.println("alert");
+end
