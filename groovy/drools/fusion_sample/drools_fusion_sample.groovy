@@ -6,7 +6,6 @@ package sample
 	@Grab("com.sun.xml.bind:jaxb-xjc:2.2.5-b09")
 ])
 import org.drools.KnowledgeBaseFactory
-import org.drools.conf.EventProcessingOption
 import org.drools.builder.KnowledgeBuilderFactory
 import org.drools.builder.ResourceType
 import org.drools.io.ResourceFactory
