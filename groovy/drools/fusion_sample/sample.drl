@@ -1,13 +1,9 @@
 package sample
 
-declare Data
-	@rule( event )
-end
-
 rule "Sample"
 
     when
-        Data(point > 5) from entry-point "sample stream"
+        Data($name : name, $point : point, point > 5) from entry-point "sample stream"
     then
-        System.out.println("alert");
+        System.out.printf("alert : %s, %d \n", $name, $point);
 end
