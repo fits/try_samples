@@ -1,0 +1,15 @@
+package sample
+
+declare Data
+	@role( event )
+end
+
+rule "Sample"
+    when
+        Number($res : intValue, intValue > 1) from accumulate(
+        	Data($name : name, $point : point, point > 3) over window:time(3s),
+        	sum(1)
+        )
+    then
+        System.out.printf("*** alert : %d \n", $res);
+end
