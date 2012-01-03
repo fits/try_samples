@@ -30,10 +30,14 @@ base.addKnowledgePackages(builder.getKnowledgePackages())
 def session = base.newStatefulKnowledgeSession()
 def stream = session.getWorkingMemoryEntryPoint("sample stream")
 
-stream.insert(new Data(name: "data1", point: 5))
-stream.insert(new Data(name: "data2", point: 10))
-stream.insert(new Data(name: "data3", point: 1))
-stream.insert(new Data(name: "data4", point: 25))
+(0..<10).each {
+	def d = new Data(name: "data${it}", point: Math.random() * 10)
+	println("data : ${d.name}, ${d.point}")
 
-session.fireAllRules()
+	stream.insert(d)
+
+	session.fireAllRules()
+	Thread.sleep(1000)
+}
+
 session.dispose()
