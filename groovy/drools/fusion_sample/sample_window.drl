@@ -1,0 +1,16 @@
+package sample
+
+declare Data
+    @role( event )
+end
+
+//直近の3秒間に発生した point が 5 以上の point 合計を出力
+//（存在しなかった場合は出力しない）
+rule "Sample"
+    when
+    	Number($res : intValue, intValue > 0) from accumulate(
+        	Data($name : name, $point : point, point >= 5) over window:time(3s) from entry-point "sample stream", sum($point)
+        )
+    then
+        System.out.printf("*** alert : %d \n", $res);
+end
