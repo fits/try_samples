@@ -1,0 +1,24 @@
+package fits.sample
+
+//Event宣言（Sliding Window を使うために必要）
+declare Order
+    @role(event)
+end
+
+rule "注文金額 5千円以上の場合に出力"
+    salience 10
+    when
+        Order($name : name, totalPrice >= 5000) from entry-point "order stream"
+    then
+        System.out.printf("注文（5千円以上） : %s \n", $name);
+end
+
+rule "直近の3秒間に発生した注文の合計金額が 1万5千円以上の場合に出力"
+    when
+        Number($res : intValue, intValue >= 15000) from accumulate(
+            Order($total : totalPrice) over window:time(3s) from entry-point "order stream", sum($total)
+        )
+    then
+        System.out.printf("3秒間の合計金額（1万5千円以上） : %d \n", $res);
+end
+
