@@ -1,0 +1,40 @@
+package fits.sample
+
+import java.math.BigDecimal
+
+dialect "mvel"
+
+rule "5ç‰~ˆÈã‚Å5•S‰~ˆø"
+	no-loop
+    when
+        $order : Order(subTotalPrice >= 5000, discountPrice == 0)
+    then
+    	System.out.printf("5•S‰~ˆø : %s \n", $order.name)
+        $order.discountPrice = new BigDecimal(500)
+        update($order)
+end
+
+rule "1–œ‰~ˆÈã‚Åç‰~ˆø"
+	no-loop
+	salience 10
+
+    when
+        $order : Order(subTotalPrice >= 10000, discountPrice == 0)
+    then
+    	System.out.printf("1ç‰~ˆø : %s \n", $order.name)
+        $order.discountPrice = new BigDecimal(1000)
+        update($order)
+end
+
+rule "1–œ5ç‰~ˆÈã‚Å2ç‰~ˆø"
+	no-loop
+	salience 20
+
+    when
+        $order : Order(subTotalPrice >= 15000, discountPrice == 0)
+    then
+    	System.out.printf("2ç‰~ˆø : %s \n", $order.name)
+        $order.discountPrice = new BigDecimal(2000)
+        update($order)
+end
+
