@@ -1,0 +1,25 @@
+package fits.sample
+
+//EventéŒ¾
+declare Order
+    @role(event)
+end
+
+rule "2•bŠÔ‚É’•¶‹àŠz 5ç‰~ˆÈã‚Ìˆ—‚ªI—¹‚µ‚½ê‡‚Éo—Í"
+    salience 10
+    when
+    	$beforeOrder : Order($beforeName : name, totalPrice >= 5000) from entry-point "order stream"
+        Order($name : name, totalPrice >= 5000, this finishes[2s] $beforeOrder) from entry-point "order stream"
+    then
+        System.out.printf("’•¶i5ç‰~ˆÈãj : %s, before = %s \n", $name, $beforeName);
+end
+
+rule "’¼‹ß‚Ì3•bŠÔ‚É”­¶‚µ‚½’•¶‚Ì‡Œv‹àŠz‚ª 1–œ5ç‰~ˆÈã‚Ìê‡‚Éo—Í"
+    when
+        Number($res : intValue, intValue >= 15000) from accumulate(
+            Order($total : totalPrice) over window:time(3s) from entry-point "order stream", sum($total)
+        )
+    then
+        System.out.printf("3•bŠÔ‚Ì‡Œv‹àŠzi1–œ5ç‰~ˆÈãj : %d \n", $res);
+end
+
