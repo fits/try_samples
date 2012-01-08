@@ -1,3 +1,3 @@
 
-console.log("#{key} : #{value}") for key, value of process.argv
+console.log "#{key} : #{value}" for key, value of process.argv
 
