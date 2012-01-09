@@ -3,14 +3,22 @@
 <head>
 	<meta charset="UTF-8" />
 	<title>Nested List Sample(jQuery Mobile)</title>
-	<link rel="stylesheet"  href="js/jquery.mobile-1.0a2.min.css" />
+	<link rel="stylesheet"  href="js/jquery.mobile-1.0.min.css" />
 	<style type="text/css">
 		table {
 			font-size: 10px;
 		}
 	</style>
-	<script type="text/javascript" src="js/jquery-1.4.4.js"></script>
-	<script type="text/javascript" src="js/jquery.mobile-1.0a2.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.7.1.js"></script>
+	<script type="text/javascript">
+		$(document).bind("mobileinit", function() {
+			//NestedList で back ボタンを表示するための設定
+			$.mobile.page.prototype.options.addBackBtn = true;
+		});
+	</script>
+	<!-- mobileinit イベントを正しく処理するため
+				mobileinit への bind 後にスクリプトを読み込む必要あり -->
+	<script type="text/javascript" src="js/jquery.mobile-1.0.min.js"></script>
 </head>
 <body>
 	<!-- ページ -->
