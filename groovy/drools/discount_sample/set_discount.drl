@@ -1,0 +1,106 @@
+dialect "mvel"
+
+rule "A 1点 + B 1点でセット価格 5千円"
+    no-loop
+    salience 30
+    when
+        $order : Order()
+        $item1 : OrderProduct(product.category == "A", done == false)
+        $item2 : OrderProduct(product.category == "B", done == false)
+    then
+        $setProduct = new SetProduct("A 1点 + B 1点", 5000)
+        $setProduct.setCategory("セット1")
+        $setProduct.getProductList().add($item1.getProduct())
+        $setProduct.getProductList().add($item2.getProduct())
+
+        $order.getItemList().add(new OrderItem($setProduct))
+
+        $item1.setDone(true)
+        $item2.setDone(true)
+
+        update($order)
+        update($item1)
+        update($item2)
+end
+
+rule "B 1点 + C 1点 + 何でも 1点でセット割引 20%OFF"
+    no-loop
+    salience 20
+    when
+        $order : Order()
+        $item1 : OrderProduct(product.category == "B", done == false, $product1 : product)
+        $item2 : OrderProduct(product.category == "C", done == false, $product2 : product)
+        $item3 : OrderProduct(done == false, this not in ($item1, $item2), $product3 : product)
+    then
+        $setPrice = ($product1.getPrice() + $product2.getPrice() + $product3.getPrice()) * 0.8
+        $setProduct = new SetProduct("B 1点 + C 1点 + 何でも 1点", $setPrice)
+        $setProduct.setCategory("セット2")
+        $setProduct.getProductList().add($product1)
+        $setProduct.getProductList().add($product2)
+        $setProduct.getProductList().add($product3)
+
+        $order.getItemList().add(new OrderItem($setProduct))
+
+        $item1.setDone(true)
+        $item2.setDone(true)
+        $item3.setDone(true)
+
+        update($order)
+        update($item1)
+        update($item2)
+        update($item3)
+end
+
+rule "D以外 2点で 10%OFF"
+    no-loop
+    salience 10
+    when
+        $order : Order()
+        $item1 : OrderProduct(product.category != "D", done == false, $product1 : product)
+        $item2 : OrderProduct(product.category != "D", done == false, this != $item1, $product2 : product)
+    then
+    	$setPrice = ($product1.getPrice() + $product2.getPrice()) * 0.9
+        $setProduct = new SetProduct("D以外 2点", $setPrice)
+        $setProduct.setCategory("セット3")
+        $setProduct.getProductList().add($product1)
+        $setProduct.getProductList().add($product2)
+
+        $order.getItemList().add(new OrderItem($setProduct))
+
+        $item1.setDone(true)
+        $item2.setDone(true)
+
+        update($order)
+        update($item1)
+        update($item2)
+end
+
+rule "セット対象外"
+    no-loop
+    salience 1
+    when
+        $order : Order()
+        $item1 : OrderProduct(done == false)
+    then
+        $order.getItemList().add(new OrderItem($item1.getProduct()))
+
+        $item1.setDone(true)
+
+        update($order)
+        update($item1)
+end
+
+rule "セット対象外（明細あり）"
+    no-loop
+    salience 2
+    when
+        $order : Order()
+        $item1 : OrderProduct(done == false)
+        $orderItem : OrderItem(product == $item1.product) from $order.getItemList()
+    then
+        $orderItem.setQty($orderItem.getQty() + 1)
+
+        $item1.setDone(true)
+
+        update($item1)
+end
