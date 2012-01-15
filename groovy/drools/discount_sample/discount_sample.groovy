@@ -16,9 +16,14 @@ class Product {
 class SetProduct extends Product {
 	List<Product> productList = []
 
-	SetProduct(String name, int price) {
+	SetProduct(String category, String name, int price, List<Product> products) {
+		this.category = category
 		this.name = name
 		this.price = price
+
+		products.each {
+			productList.add(it)
+		}
 	}
 
 	String getName() {
@@ -56,6 +61,7 @@ class OrderProduct {
 	boolean done = false
 }
 
+
 //ルールエンジンのセッション作成
 def createSession = {drlFilePath ->
 	def builder = KnowledgeBuilderFactory.newKnowledgeBuilder()
@@ -73,7 +79,7 @@ def createSession = {drlFilePath ->
 	base.newStatefulKnowledgeSession()
 }
 
-
+//注文内容
 def inputData = [
 	[product: new Product(category: "A", name: "商品1", price: 4000), qty: 1],
 	[product: new Product(category: "B", name: "商品2", price: 3000), qty: 4],

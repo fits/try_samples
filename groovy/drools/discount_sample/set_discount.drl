@@ -8,10 +8,7 @@ rule "A 1点 + B 1点でセット価格 5千円"
         $item1 : OrderProduct(product.category == "A", done == false)
         $item2 : OrderProduct(product.category == "B", done == false)
     then
-        $setProduct = new SetProduct("A 1点 + B 1点", 5000)
-        $setProduct.setCategory("セット1")
-        $setProduct.getProductList().add($item1.getProduct())
-        $setProduct.getProductList().add($item2.getProduct())
+        $setProduct = new SetProduct("セット1", "A 1点 + B 1点", 5000, [$item1.getProduct(), $item2.getProduct()])
 
         $order.getItemList().add(new OrderItem($setProduct))
 
@@ -33,11 +30,7 @@ rule "B 1点 + C 1点 + 何でも 1点でセット割引 20%OFF"
         $item3 : OrderProduct(done == false, this not in ($item1, $item2), $product3 : product)
     then
         $setPrice = ($product1.getPrice() + $product2.getPrice() + $product3.getPrice()) * 0.8
-        $setProduct = new SetProduct("B 1点 + C 1点 + 何でも 1点", $setPrice)
-        $setProduct.setCategory("セット2")
-        $setProduct.getProductList().add($product1)
-        $setProduct.getProductList().add($product2)
-        $setProduct.getProductList().add($product3)
+        $setProduct = new SetProduct("セット2", "B 1点 + C 1点 + 何でも 1点", $setPrice, [$product1, $product2, $product3])
 
         $order.getItemList().add(new OrderItem($setProduct))
 
@@ -60,10 +53,7 @@ rule "D以外 2点で 10%OFF"
         $item2 : OrderProduct(product.category != "D", done == false, this != $item1, $product2 : product)
     then
     	$setPrice = ($product1.getPrice() + $product2.getPrice()) * 0.9
-        $setProduct = new SetProduct("D以外 2点", $setPrice)
-        $setProduct.setCategory("セット3")
-        $setProduct.getProductList().add($product1)
-        $setProduct.getProductList().add($product2)
+        $setProduct = new SetProduct("セット3", "D以外 2点", $setPrice, [$product1, $product2])
 
         $order.getItemList().add(new OrderItem($setProduct))
 
