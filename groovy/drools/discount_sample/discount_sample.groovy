@@ -55,8 +55,8 @@ class OrderItem {
 	}
 }
 
-//注文商品
-class OrderProduct {
+//注文パラメータ
+class OrderParameter {
 	Product product
 	boolean done = false
 }
@@ -96,7 +96,7 @@ session.insert(order)
 
 inputData.each {item ->
 	(0..<item.qty).each {
-		session.insert(new OrderProduct(product: item.product))
+		session.insert(new OrderParameter(product: item.product))
 	}
 }
 

@@ -5,17 +5,18 @@ rule "A 1点 + B 1点でセット価格 5千円"
     salience 30
     when
         $order : Order()
-        $item1 : OrderProduct(product.category == "A", done == false)
-        $item2 : OrderProduct(product.category == "B", done == false)
+        $item1 : OrderParameter(product.category == "A", done == false)
+        $item2 : OrderParameter(product.category == "B", done == false)
     then
         $setProduct = new SetProduct("セット1", "A 1点 + B 1点", 5000, [$item1.getProduct(), $item2.getProduct()])
 
         $order.getItemList().add(new OrderItem($setProduct))
 
+        update($order)
+
         $item1.setDone(true)
         $item2.setDone(true)
 
-        update($order)
         update($item1)
         update($item2)
 end
@@ -25,20 +26,21 @@ rule "B 1点 + C 1点 + 何でも 1点でセット割引 20%OFF"
     salience 20
     when
         $order : Order()
-        $item1 : OrderProduct(product.category == "B", done == false, $product1 : product)
-        $item2 : OrderProduct(product.category == "C", done == false, $product2 : product)
-        $item3 : OrderProduct(done == false, this not in ($item1, $item2), $product3 : product)
+        $item1 : OrderParameter(product.category == "B", done == false, $product1 : product)
+        $item2 : OrderParameter(product.category == "C", done == false, $product2 : product)
+        $item3 : OrderParameter(done == false, this not in ($item1, $item2), $product3 : product)
     then
         $setPrice = ($product1.getPrice() + $product2.getPrice() + $product3.getPrice()) * 0.8
         $setProduct = new SetProduct("セット2", "B 1点 + C 1点 + 何でも 1点", $setPrice, [$product1, $product2, $product3])
 
         $order.getItemList().add(new OrderItem($setProduct))
 
+        update($order)
+
         $item1.setDone(true)
         $item2.setDone(true)
         $item3.setDone(true)
 
-        update($order)
         update($item1)
         update($item2)
         update($item3)
@@ -49,18 +51,19 @@ rule "D以外 2点で 10%OFF"
     salience 10
     when
         $order : Order()
-        $item1 : OrderProduct(product.category != "D", done == false, $product1 : product)
-        $item2 : OrderProduct(product.category != "D", done == false, this != $item1, $product2 : product)
+        $item1 : OrderParameter(product.category != "D", done == false, $product1 : product)
+        $item2 : OrderParameter(product.category != "D", done == false, this != $item1, $product2 : product)
     then
     	$setPrice = ($product1.getPrice() + $product2.getPrice()) * 0.9
         $setProduct = new SetProduct("セット3", "D以外 2点", $setPrice, [$product1, $product2])
 
         $order.getItemList().add(new OrderItem($setProduct))
 
+        update($order)
+
         $item1.setDone(true)
         $item2.setDone(true)
 
-        update($order)
         update($item1)
         update($item2)
 end
@@ -70,13 +73,14 @@ rule "セット対象外"
     salience 1
     when
         $order : Order()
-        $item1 : OrderProduct(done == false)
+        $item1 : OrderParameter(done == false)
     then
         $order.getItemList().add(new OrderItem($item1.getProduct()))
 
+        update($order)
+
         $item1.setDone(true)
 
-        update($order)
         update($item1)
 end
 
@@ -85,7 +89,7 @@ rule "セット対象外（明細あり）"
     salience 2
     when
         $order : Order()
-        $item1 : OrderProduct(done == false)
+        $item1 : OrderParameter(done == false)
         $orderItem : OrderItem(product == $item1.product) from $order.getItemList()
     then
         $orderItem.setQty($orderItem.getQty() + 1)
