@@ -35,9 +35,10 @@ class SetProduct extends Product {
 class Order {
 	String orderNo
 	List<OrderItem> itemList = []
+	double discountRatio = 0.0
 
 	int getTotalPrice() {
-		itemList.inject(0) {acc, item -> acc + item.totalPrice}
+		(1.0 - discountRatio) * itemList.inject(0) {acc, item -> acc + item.totalPrice}
 	}
 }
 
@@ -88,9 +89,10 @@ def inputData = [
 	[product: new Product(category: "D", name: "商品5", price: 4500), qty: 3]
 ]
 
-def session = createSession("set_discount.drl")
-
 def order = new Order(orderNo: "order:001")
+
+//個々の商品に対してセット割引適用
+def session = createSession("set_discount.drl")
 
 session.insert(order)
 
@@ -100,10 +102,14 @@ inputData.each {item ->
 	}
 }
 
+//後で setFocus したアジェンダから先に処理される
+session.agenda.getAgendaGroup("注文").setFocus()
+session.agenda.getAgendaGroup("注文明細").setFocus()
+
 session.fireAllRules()
 session.dispose()
 
-println "合計金額 = ${order.totalPrice}"
+println "合計金額 = ${order.totalPrice}, 割引率 = ${order.discountRatio}"
 
 order.itemList.each {
 	println "内訳 : <${it.product.category}> ${it.product.name} x ${it.qty} = ${it.totalPrice}"
