@@ -1,9 +1,10 @@
-
+@GrabResolver(name = 'jboss', root = 'http://repository.jboss.org/nexus/content/groups/public/')
+@Grab('org.jboss.resteasy:resteasy-jaxrs:2.3.1.GA')
+@Grab('org.jboss.resteasy:tjws:2.3.1.GA')
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
-
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer
 
 
@@ -21,6 +22,6 @@ public class SimpleResource {
 def server = new TJWSEmbeddedJaxrsServer()
 
 server.setPort(8081)
-server.registry.addPerRequestResource(SimpleResource.class)
+server.deployment.actualResourceClasses.add(SimpleResource.class)
 
 server.start()
