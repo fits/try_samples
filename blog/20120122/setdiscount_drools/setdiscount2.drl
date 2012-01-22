@@ -1,0 +1,144 @@
+
+//関数定義（dialect や rule より先に宣言する必要あり）
+function void println(String msg) {
+	System.out.println(msg);
+}
+
+dialect "mvel"
+
+rule "A 1点 + B 1点でセット価格 5千円"
+	agenda-group "注文明細"
+    no-loop
+    salience 30
+    when
+        $order : Order()
+        $item1 : OrderParameter(product.category == "A", done == false)
+        $item2 : OrderParameter(product.category == "B", done == false)
+    then
+        $setProduct = new SetProduct("セット1", "A 1点 + B 1点", 5000, [$item1.getProduct(), $item2.getProduct()])
+
+        insert($setProduct)
+
+        $order.getItemList().add(new OrderItem($setProduct))
+
+        $item1.setDone(true)
+        $item2.setDone(true)
+
+        update($order)
+        update($item1)
+        update($item2)
+end
+
+rule "B 1点 + C 1点 + 何でも 1点でセット割引 20%OFF"
+	agenda-group "注文明細"
+    no-loop
+    salience 20
+    when
+        $order : Order()
+        $item1 : OrderParameter(product.category == "B", done == false, $product1 : product)
+        $item2 : OrderParameter(product.category == "C", done == false, $product2 : product)
+        $item3 : OrderParameter(done == false, this not in ($item1, $item2), $product3 : product)
+    then
+        $setPrice = ($product1.getPrice() + $product2.getPrice() + $product3.getPrice()) * 0.8
+        $setProduct = new SetProduct("セット2", "B 1点 + C 1点 + 何でも 1点", $setPrice, [$product1, $product2, $product3])
+
+        insert($setProduct)
+
+        $order.getItemList().add(new OrderItem($setProduct))
+
+        $item1.setDone(true)
+        $item2.setDone(true)
+        $item3.setDone(true)
+
+        update($order)
+        update($item1)
+        update($item2)
+        update($item3)
+end
+
+rule "D以外 2点で 10%OFF"
+	agenda-group "注文明細"
+    no-loop
+    salience 10
+    when
+        $order : Order()
+        $item1 : OrderParameter(product.category != "D", done == false, $product1 : product)
+        $item2 : OrderParameter(product.category != "D", done == false, this != $item1, $product2 : product)
+    then
+    	$setPrice = ($product1.getPrice() + $product2.getPrice()) * 0.9
+        $setProduct = new SetProduct("セット3", "D以外 2点", $setPrice, [$product1, $product2])
+        insert($setProduct)
+
+        $order.getItemList().add(new OrderItem($setProduct))
+
+        $item1.setDone(true)
+        $item2.setDone(true)
+
+        update($order)
+        update($item1)
+        update($item2)
+end
+
+rule "セット対象外"
+	agenda-group "注文明細"
+    no-loop
+    salience 1
+    when
+        $order : Order()
+        $item1 : OrderParameter(done == false)
+    then
+        $order.getItemList().add(new OrderItem($item1.getProduct()))
+
+        $item1.setDone(true)
+
+        update($order)
+        update($item1)
+end
+
+rule "セット対象外（明細あり）"
+	agenda-group "注文明細"
+    no-loop
+    salience 2
+    when
+        $order : Order()
+        $item1 : OrderParameter(done == false)
+        $orderItem : OrderItem(product == $item1.product) from $order.getItemList()
+    then
+        $orderItem.setQty($orderItem.getQty() + 1)
+
+        $item1.setDone(true)
+
+		update($order)
+        update($item1)
+end
+
+
+rule "購入金額 3万5千円以上で 20% OFF"
+	agenda-group "注文"
+    no-loop
+    salience 5
+    when
+    	$order : Order(discountRatio == 0.0)
+    	$total : Number(doubleValue >= 35000) from accumulate(
+    		OrderItem($totalPrice : getTotalPrice()) from $order.getItemList(),
+    		sum($totalPrice)
+    	)
+    then
+    	//関数定義した println を呼び出し
+    	println("*** 割引前 合計 = " + $total)
+    	$order.setDiscountRatio(0.2)
+    	update($order)
+end
+
+rule "セットが 5点以上ある場合に購入金額を 10% OFF"
+	agenda-group "注文"
+    no-loop
+    salience 10
+    when
+    	$order : Order(discountRatio == 0.0)
+    	$num : Number(doubleValue >= 5) from accumulate($p : SetProduct(), count($p))
+    then
+    	println("*** セット数 = " + $num)
+    	$order.setDiscountRatio(0.1)
+    	update($order)
+end
