@@ -132,7 +132,7 @@ rule "購入金額 3万5千円以上で 20% OFF"
         update($order)
 end
 
-rule "セットが 5点以上ある場合に購入金額を 10% OFF"
+rule "セット商品が 5セット以上ある場合に購入金額を 10% OFF"
     agenda-group "注文"
     no-loop
     salience 10
