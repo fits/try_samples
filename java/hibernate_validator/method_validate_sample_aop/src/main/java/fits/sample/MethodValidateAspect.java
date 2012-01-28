@@ -12,7 +12,7 @@ import org.hibernate.validator.method.*;
 @Aspect
 public class MethodValidateAspect {
 
-	@Before("call(@ValidMethod * *.*(..))")
+	@Before("execution(@ValidMethod * *.*(..))")
 	public void checkMethod(JoinPoint jp) {
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		Validator validator = factory.getValidator();
@@ -21,7 +21,7 @@ public class MethodValidateAspect {
 
 		MethodSignature msig = (MethodSignature)jp.getSignature();
 
-		Set<MethodConstraintViolation<Object>> violations = mvalidator.validateAllParameters(jp.getTarget(), msig.getMethod(), jp.getArgs());
+		Set<MethodConstraintViolation<Object>> violations = mvalidator.validateAllParameters(jp.getThis(), msig.getMethod(), jp.getArgs());
 
 		for (MethodConstraintViolation<Object> vi : violations) {
 			System.out.println("*** invalid : " + vi.getMessage());
