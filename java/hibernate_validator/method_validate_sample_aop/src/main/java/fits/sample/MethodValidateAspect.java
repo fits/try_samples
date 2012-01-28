@@ -12,10 +12,8 @@ import org.hibernate.validator.method.*;
 @Aspect
 public class MethodValidateAspect {
 
-	@Before("call(* DataTester.*(..))")
+	@Before("call(@ValidMethod * *.*(..))")
 	public void checkMethod(JoinPoint jp) {
-		System.out.println("--- checkMethod : " + jp);
-
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		Validator validator = factory.getValidator();
 
