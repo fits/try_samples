@@ -24,7 +24,7 @@ public class MethodValidateAspect {
 		Set<MethodConstraintViolation<Object>> violations = mvalidator.validateAllParameters(jp.getThis(), msig.getMethod(), jp.getArgs());
 
 		for (MethodConstraintViolation<Object> vi : violations) {
-			System.out.println("*** invalid : " + vi.getMessage());
+			System.out.printf("*** invalid arg : %s, %s\n", vi.getParameterName(), vi.getMessage());
 		}
 	}
 
