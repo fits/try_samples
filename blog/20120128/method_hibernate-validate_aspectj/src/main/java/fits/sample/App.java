@@ -10,7 +10,10 @@ public class App {
 		System.out.println("------ check : test123, 2");
 		tester.test("test123", 2);
 
-		System.out.println("------ nocheck : test123, 2");
-		tester.testNoCheck("test123", 2);
+		System.out.println("------ check : null, 3");
+		tester.test(null, 3);
+
+		System.out.println("------ check : テスト, 10");
+		tester.test("テスト", 10);
 	}
 }
