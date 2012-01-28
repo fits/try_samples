@@ -7,6 +7,6 @@ public class DataTester {
 		@NotNull @Size(max = 5) String name,
 		@Min(3) int point) {
 
-		System.out.printf("%s, %d", name, point);
+		System.out.printf("%s, %d\n", name, point);
 	}
 }
