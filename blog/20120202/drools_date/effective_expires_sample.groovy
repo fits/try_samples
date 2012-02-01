@@ -1,5 +1,5 @@
-@Grab("org.drools:drools-core:5.4.0.Beta1")
-@Grab("org.drools:drools-compiler:5.4.0.Beta1")
+@Grab("org.drools:drools-core:5.4.0.Beta2")
+@Grab("org.drools:drools-compiler:5.4.0.Beta2")
 @Grab("com.sun.xml.bind:jaxb-xjc:2.2.5-b09")
 import org.drools.KnowledgeBaseFactory
 import org.drools.builder.KnowledgeBuilderFactory
