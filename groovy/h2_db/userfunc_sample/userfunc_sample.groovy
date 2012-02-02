@@ -38,6 +38,15 @@ db.execute("create table TDATA as select * from CSVREAD('testdata.csv')")
 //TO_CHAR をユーザー定義関数として定義
 db.execute('CREATE ALIAS TO_CHAR FOR "Func.toChar"')
 
-db.eachRow("select TO_CHAR(no) as no, TO_CHAR(create_date, 'yyyy-mm-dd hh24:mi:ss') as cdate from TDATA") {r ->
-	println "検索結果 : ${r.no}, ${r.cdate}"
+def sql = '''
+	select
+		TO_CHAR(no) as no, 
+		title,
+		TO_CHAR(create_datetime, 'yyyy-mm-dd hh24:mi:ss') as cdatetime,
+		TO_CHAR(create_date, 'yyyy-mm-dd hh24:mi:ss') as cdate
+	from TDATA
+'''
+
+db.eachRow(sql) {r ->
+	println "検索結果 : ${r.no}, ${r.title}, ${r.cdatetime}, ${r.cdate}"
 }
