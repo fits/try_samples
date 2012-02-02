@@ -30,9 +30,6 @@ class ToDoServiceSpec extends Specification {
 
 		then:
 			mockDao.getTask(1) >> new Task(taskId: 1, title: "test")
-
-			//Groovy 1.8.1 では以下を res.equals("test") としなければ
-			//テスト失敗となる
 			res == "test"
 	}
 
@@ -42,11 +39,7 @@ class ToDoServiceSpec extends Specification {
 
 		then:
 			mockDao.getTask(2) >> null
-			//Groovy 1.8.1 では以下を res.equals("") としなければ
-			//テスト失敗となる
 			res == ""
-
 	}
-
 }
 
