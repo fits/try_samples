@@ -1,5 +1,5 @@
 @Grapes([
-    @Grab("com.h2database:h2:1.3.163"),
+    @Grab("com.h2database:h2:1.3.164"),
     @GrabConfig(systemClassLoader = true)
 ])
 import groovy.sql.Sql
