@@ -16,9 +16,9 @@ class Func {
 		}
 
 		dateFormat = dateFormat.toLowerCase()
-							.replaceAll("mm", "MM")
-							.replaceAll("hh24", "HH")
-							.replaceAll("mi", "mm")
+						.replaceAll("mm", "MM")
+						.replaceAll("hh24", "HH")
+						.replaceAll("mi", "mm")
 
 		println "toChar : ${dateString}, ${dateFormat}"
 
@@ -42,8 +42,8 @@ def sql = '''
 	select
 		TO_CHAR(no) as no, 
 		title,
-		TO_CHAR(create_datetime, 'yyyy-mm-dd hh24:mi:ss') as cdatetime,
-		TO_CHAR(create_date, 'yyyy-mm-dd hh24:mi:ss') as cdate
+		TO_CHAR(create_datetime, 'yyyy/mm/dd hh24:mi:ss') as cdatetime,
+		TO_CHAR(create_date, 'yyyy/mm/dd') as cdate
 	from TDATA
 '''
 
