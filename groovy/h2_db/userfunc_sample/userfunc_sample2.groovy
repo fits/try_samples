@@ -8,21 +8,22 @@ import groovy.sql.Sql
 def db = Sql.newInstance("jdbc:h2:mem:", "org.h2.Driver")
 
 db.execute("create table TDATA as select * from CSVREAD('testdata.csv')")
-//以下でも可
-//db.execute("create table TDATA as select * from CSVREAD('classpath:/testdata.csv')")
-
 
 /*
  TO_CHAR をユーザー定義関数として定義
- オーバーロードはサポートしていないので単一のメソッドを登録する
+ オーバーロードはサポートしていないので可変長パラメータを使う
 */
 db.execute('''CREATE ALIAS TO_CHAR AS $$
 import java.text.SimpleDateFormat;
 import java.util.Date;
 @CODE
-String toChar(String dateString, String dateFormat) {
-	if (dateString == null) {
-		return dateString;
+String toChar(String... param) {
+	String value = param[0];
+	String dateFormat = (param.length > 1)? param[1]: null;
+
+	if (value == null || dateFormat == null) {
+		System.out.println("toChar : " + value);
+		return value;
 	}
 
 	dateFormat = dateFormat.toLowerCase()
@@ -30,9 +31,9 @@ String toChar(String dateString, String dateFormat) {
 					.replaceAll("hh24", "HH")
 					.replaceAll("mi", "mm");
 
-	System.out.println("toChar : " + dateString + ", " + dateFormat);
+	System.out.println("toChar : " + value + ", " + dateFormat);
 
-	Date date = (dateString.length() > 10)? java.sql.Timestamp.valueOf(dateString): java.sql.Date.valueOf(dateString);
+	Date date = (value.length() > 10)? java.sql.Timestamp.valueOf(value): java.sql.Date.valueOf(value);
 
 	return new SimpleDateFormat(dateFormat).format(date);
 }
@@ -42,7 +43,7 @@ $$;
 
 def sql = '''
 	select
-		no, 
+		TO_CHAR(no) as no, 
 		title,
 		TO_CHAR(create_datetime, 'yyyy/mm/dd hh24:mi:ss') as cdatetime,
 		TO_CHAR(create_date, 'yyyy/mm/dd') as cdate
