@@ -5,14 +5,14 @@
 import groovy.sql.Sql
 
 class Func {
-	static String toChar(int src) {
-		println "toChar : int ${src}"
-		src.toString()
+	static String toChar(int value) {
+		println "toChar : int ${value}"
+		value.toString()
 	}
 
-	static String toChar(String dateString, String dateFormat) {
-		if (dateString == null) {
-			return dateString
+	static String toChar(String value, String dateFormat) {
+		if (value == null) {
+			return value
 		}
 
 		dateFormat = dateFormat.toLowerCase()
@@ -20,10 +20,10 @@ class Func {
 						.replaceAll("hh24", "HH")
 						.replaceAll("mi", "mm")
 
-		println "toChar : ${dateString}, ${dateFormat}"
+		println "toChar : ${value}, ${dateFormat}"
 
-		def dateCls = (dateString.length() > 10)? java.sql.Timestamp: java.sql.Date
-		dateCls.valueOf(dateString).format(dateFormat)
+		def dateCls = (value.length() > 10)? java.sql.Timestamp: java.sql.Date
+		dateCls.valueOf(value).format(dateFormat)
 	}
 }
 
