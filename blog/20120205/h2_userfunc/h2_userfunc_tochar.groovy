@@ -18,12 +18,20 @@ class Func {
 		value.toString()
 	}
 
-	//Oracle の日付フォーマットを Java 用に変換（一部のみ）
+	/* 上記は以下でも可
+	static String toChar(String value) {
+		println "toChar : ${value}"
+		value
+	}
+	*/
+
+	//日付の文字列化
 	static String toChar(Date value, String dateFormat) {
 		if (value == null) {
 			return value
 		}
 
+		//Oracle の日付フォーマットを Java 用に変換（一部のみ対応）
 		dateFormat = dateFormat.toLowerCase()
 								.replaceAll("mm", "MM")
 								.replaceAll("hh24", "HH")
