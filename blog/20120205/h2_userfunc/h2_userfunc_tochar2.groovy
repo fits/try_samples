@@ -13,7 +13,8 @@ db.execute("create table TDATA as select * from CSVREAD('testdata.csv')")
  TO_CHAR をユーザー定義関数として定義
  オーバーロードはサポートしていないので可変長パラメータを使う
 */
-db.execute('''CREATE ALIAS TO_CHAR AS $$
+db.execute('''
+CREATE ALIAS TO_CHAR AS $$
 import java.text.SimpleDateFormat;
 import java.util.Date;
 @CODE
