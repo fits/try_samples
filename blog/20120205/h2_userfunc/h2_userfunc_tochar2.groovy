@@ -26,6 +26,7 @@ String toChar(String... param) {
 		return value;
 	}
 
+	//Oracle の日付フォーマットを Java 用に変換（一部のみ対応）
 	dateFormat = dateFormat.toLowerCase()
 					.replaceAll("mm", "MM")
 					.replaceAll("hh24", "HH")
