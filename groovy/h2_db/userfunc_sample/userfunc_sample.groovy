@@ -9,7 +9,23 @@ class Func {
 		println "toChar : int ${value}"
 		value.toString()
 	}
+	//Oracle の日付フォーマットを Java 用に変換（一部のみ）
+	static String toChar(Date value, String dateFormat) {
+		if (value == null) {
+			return value
+		}
 
+		dateFormat = dateFormat.toLowerCase()
+								.replaceAll("mm", "MM")
+								.replaceAll("hh24", "HH")
+								.replaceAll("mi", "mm")
+
+		println "toChar : ${value}, ${dateFormat}"
+
+		value.format(dateFormat)
+	}
+
+	/* 上記の代わりに以下でも可
 	static String toChar(String value, String dateFormat) {
 		if (value == null) {
 			return value
@@ -25,6 +41,7 @@ class Func {
 		def dateCls = (value.length() > 10)? java.sql.Timestamp: java.sql.Date
 		dateCls.valueOf(value).format(dateFormat)
 	}
+	*/
 }
 
 //インメモリDBとして H2 を使用
