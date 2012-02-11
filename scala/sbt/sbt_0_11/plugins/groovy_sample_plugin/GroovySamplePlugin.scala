@@ -16,7 +16,7 @@ object GroovySamplePlugin extends Plugin {
 	val groovySettings = Seq(
 		groovySource <<= sourceDirectory(_ / "main" / "groovy"),
 		outputDirectory <<= crossTarget / "groovy",
-		sources <<= groovySource map { dir => (dir * "*.groovy").get },
+		sources <<= groovySource map { dir => (dir ** "*.groovy").get },
 		compile <<= compileTask
 	)
 
