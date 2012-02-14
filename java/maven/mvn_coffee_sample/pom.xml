@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>sample</groupId>
+  <artifactId>mvn_coffee_sample</artifactId>
+  <packaging>war</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>mvn_coffee_sample</name>
+  <url></url>
+  <build>
+    <finalName>mvn_coffee_sample</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+      <!-- coffee script -->
+      <plugin>
+        <groupId>com.theoryinpractise</groupId>
+        <artifactId>coffee-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <configuration>
+          <coffeeOutputDirectory>
+            ${project.build.directory}/${project.build.finalName}/js
+          </coffeeOutputDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>coffee</id>
+            <goals>
+              <goal>coffee</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <!-- Servlet 3.0 -->
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-web-api</artifactId>
+      <version>6.0</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
