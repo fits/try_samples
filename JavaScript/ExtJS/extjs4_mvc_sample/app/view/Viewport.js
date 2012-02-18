@@ -6,7 +6,8 @@ Ext.define('Fits.view.Viewport', {
 
 	requires: [
 		'Fits.view.TabContent',
-		'Fits.view.SearchTool'
+		'Fits.view.SearchTool',
+		'Fits.view.SampleGrid'
 	],
 
 	items: [
