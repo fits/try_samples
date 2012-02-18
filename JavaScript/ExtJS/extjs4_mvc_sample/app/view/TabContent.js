@@ -6,7 +6,7 @@ Ext.define('Fits.view.TabContent', {
 	items: [
 		{
 			title: 'タブ1',
-			html: 'test data'
+			xtype: 'samplegrid'
 		},
 		{
 			title: 'タブ2',
