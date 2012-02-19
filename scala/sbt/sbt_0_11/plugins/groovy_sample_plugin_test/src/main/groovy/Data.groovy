@@ -1,0 +1,3 @@
+class Data {
+	String name
+}
