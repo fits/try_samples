@@ -20,15 +20,15 @@ object GroovySamplePlugin extends Plugin {
 		compile <<= compileTask
 	)
 
-	def compileTask = (sources, outputDirectory) map {
-		(src, destDir) => {
+	def compileTask = (sources, outputDirectory, streams) map {
+		(src, destDir, s) => {
 
 			val conf = new CompilerConfiguration()
 			conf.setTargetDirectory(destDir)
 
 			val compiler = new Compiler(conf)
 
-			println("src : " + src)
+			s.log.info("src : " + src)
 
 			compiler.compile(src.toArray)
 		}
