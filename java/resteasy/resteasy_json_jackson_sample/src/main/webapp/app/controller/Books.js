@@ -32,7 +32,7 @@ Ext.define('Fits.controller.Books', {
 		data.comments().add({content: 'コメント2'});
 		data.comments().add({content: 'コメント3'});
 
-		var store = this.getBookStore();
+		var store = this.getBooksStore();
 		store.add(data);
 
 		store.sync();
