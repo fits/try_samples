@@ -4,19 +4,27 @@ Ext.define('Fits.controller.Books', {
 
 	stores: ['Books'],
 
+	models: [
+		'Book',
+		'Comment'
+	],
+
 	init: function() {
 		console.log('init samples');
 
 		this.control({
 			'bookgrid button[action=add]': {
 				click: this.addBook
+			},
+			'bookgrid button[action=refresh]': {
+				click: function() {
+					this.getBooksStore().load();
+				}
 			}
 		});
 	},
 
 	addBook: function() {
-		console.log("*** add book");
-
 		var data = Ext.create('Fits.model.Book', {
 			title: '追加データ'
 		});
