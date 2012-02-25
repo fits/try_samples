@@ -25,7 +25,7 @@ public class BookResource {
 	}
 
 	@POST
-	@Produces("application/json")
+	@Consumes("application/json")
 	public Response addBook(Book book) {
 
 		System.out.printf("id: %s, title: %s\n", book.id, book.title);
