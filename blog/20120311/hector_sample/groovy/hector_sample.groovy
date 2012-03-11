@@ -13,7 +13,7 @@ def keyspace = HFactory.createKeyspace('Sample', cluster)
 
 def mutator = HFactory.createMutator(keyspace, StringSerializer.get())
 
-mutator.addInsertion("key1", "Order", HFactory.createStringColumn("userId", "U2"))
+mutator.addInsertion("key1", "Order", HFactory.createStringColumn("user_id", "U2"))
 
 def res = mutator.execute()
 
