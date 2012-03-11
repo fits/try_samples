@@ -5,7 +5,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Order")
-public class Order implements java.io.Serializable {
+public class Order {
 	@Id
 	private String id;
 	@Column(name = "user_id")
