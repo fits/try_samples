@@ -1,3 +1,6 @@
-list = [1, 2, 3]
 
-console.log(item) for item in list
+$.getJSON "json", (json) -> 
+	console.log(json)
+
+	$('#data').append("<li>#{item.id} : #{item.name}</li>") for item in json
+

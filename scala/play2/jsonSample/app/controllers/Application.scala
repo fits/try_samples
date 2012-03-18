@@ -12,9 +12,15 @@ object Application extends Controller {
 
 	def json = Action {
 		Ok(Json.toJson {
-			Map(
-				"id" -> "1",
-				"name" -> "test"
+			List(
+				Map(
+					"id" -> "1",
+					"name" -> "test"
+				),
+				Map(
+					"id" -> "2",
+					"name" -> "data2"
+				)
 			)
 		})
 	}
