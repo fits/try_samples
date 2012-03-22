@@ -1,0 +1,9 @@
+
+jcs.region.sample=
+jcs.region.sample.cacheattributes.MaxObjects=10
+jcs.region.sample.elementattributes.IsEternal=false
+jcs.region.sample.elementattributes.MaxLifeSeconds=10
+jcs.region.sample.elementattributes.IsSpool=false
+jcs.region.sample.elementattributes.IsRemote=false
+jcs.region.sample.elementattributes.IsLateral=false
+
