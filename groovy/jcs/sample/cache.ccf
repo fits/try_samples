@@ -1,9 +1,19 @@
 
-jcs.region.sample=
-jcs.region.sample.cacheattributes.MaxObjects=10
-jcs.region.sample.elementattributes.IsEternal=false
-jcs.region.sample.elementattributes.MaxLifeSeconds=10
-jcs.region.sample.elementattributes.IsSpool=false
-jcs.region.sample.elementattributes.IsRemote=false
-jcs.region.sample.elementattributes.IsLateral=false
+# max life
+jcs.region.sample1=
+jcs.region.sample1.cacheattributes.MaxObjects=10
+jcs.region.sample1.elementattributes.IsEternal=false
+jcs.region.sample1.elementattributes.MaxLifeSeconds=10
+jcs.region.sample1.elementattributes.IsSpool=false
+jcs.region.sample1.elementattributes.IsRemote=false
+jcs.region.sample1.elementattributes.IsLateral=false
 
+# use shrinker
+jcs.region.sample2=
+jcs.region.sample2.cacheattributes.MaxObjects=10
+jcs.region.sample2.cacheattributes.UseMemoryShrinker=true
+jcs.region.sample2.cacheattributes.MaxMemoryIdleTimeSeconds=4
+jcs.region.sample2.cacheattributes.ShrinkerIntervalSeconds=3
+jcs.region.sample2.elementattributes.IsSpool=false
+jcs.region.sample2.elementattributes.IsRemote=false
+jcs.region.sample2.elementattributes.IsLateral=false
