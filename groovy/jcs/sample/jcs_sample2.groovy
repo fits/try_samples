@@ -29,7 +29,7 @@ Thread.sleep(2000)
 check jcs, "shrinker1", "test", "2ïbå„"
 check jcs, "shrinker2", null, "7ïbå„"
 
-Thread.sleep(7000)
+Thread.sleep(5000)
 
-check jcs, "shrinker1", null, "7ïbå„"
+check jcs, "shrinker1", null, "5ïbå„"
 
