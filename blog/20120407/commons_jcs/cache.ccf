@@ -1,0 +1,20 @@
+
+# max life
+jcs.region.sample1=
+jcs.region.sample1.elementattributes.IsEternal=false
+jcs.region.sample1.elementattributes.MaxLifeSeconds=3
+
+# use shrinker
+jcs.region.sample2=
+jcs.region.sample2.cacheattributes.UseMemoryShrinker=true
+jcs.region.sample2.cacheattributes.MaxMemoryIdleTimeSeconds=4
+jcs.region.sample2.cacheattributes.ShrinkerIntervalSeconds=3
+
+# max life + shrinker
+jcs.region.sample3=
+jcs.region.sample3.elementattributes.IsEternal=false
+jcs.region.sample3.elementattributes.MaxLifeSeconds=8
+jcs.region.sample3.cacheattributes.UseMemoryShrinker=true
+jcs.region.sample3.cacheattributes.MaxMemoryIdleTimeSeconds=4
+jcs.region.sample3.cacheattributes.ShrinkerIntervalSeconds=3
+
