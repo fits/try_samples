@@ -1,3 +1,9 @@
+###
+ŽÀsŽè‡
+ > coffee -b -c sample2.coffee
+ > tamejs -o sample2.js sample2.js
+ > node sample2.js
+###
 
 testfunc = (id, callback) ->
 	console.log id
