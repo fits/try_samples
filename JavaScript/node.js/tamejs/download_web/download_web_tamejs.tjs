@@ -19,8 +19,8 @@ urls.toString().trim().split('\n').forEach(function(u) {
 	var trgUrl = url.parse(u);
 
 	await {
-		http.get(trgUrl, defer(var res)).on('error', function(err1) {
-			printError(u, err1);
+		http.get(trgUrl, defer(var res)).on('error', function(err) {
+			printError(u, err);
 		});
 	}
 
