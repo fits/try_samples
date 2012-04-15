@@ -1,0 +1,56 @@
+var http = require('http');
+var url = require('url');
+var fs = require('fs');
+var path = require('path');
+
+var dir = process.argv[2];
+
+var printError = function(urlString, error) {
+	console.log('failed: ' + urlString + ', ' + error.message);
+}
+
+process.stdin.resume();
+
+await {
+	process.stdin.on('data', defer(urls));
+}
+
+urls.toString().trim().split('\n').forEach(function(u) {
+	var trgUrl = url.parse(u);
+
+	await {
+		http.get(trgUrl, defer(var res)).on('error', function(err1) {
+			printError(u, err1);
+		});
+	}
+
+	res.setEncoding('binary');
+	var buf = '';
+
+	await {
+		res.on('data', function(chunk) {
+			buf += chunk;
+		});
+
+		res.on('end', defer());
+
+		res.on('close', function(err) {
+			if (err) {
+				printError(u, err);
+			}
+		});
+	}
+
+	var filePath = path.join(dir, path.basename(trgUrl.pathname));
+
+	await {
+		fs.writeFile(filePath, buf, 'binary', defer(var err));
+	}
+
+	if (err) {
+		printError(u, err);
+	}
+	else {
+		console.log('downloaded: ' + u + ' => ' + filePath);
+	}
+});
