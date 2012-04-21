@@ -14,8 +14,7 @@ server = net.createServer (c) ->
 		list = list.slice list.indexOf(c), 1
 
 	for ci in list
-		do (ci) ->
-			c.pipe ci
-			ci.pipe c if ci isnt c
+		c.pipe ci
+		ci.pipe c if ci isnt c
 
 server.listen 9000, -> console.log 'ready'
