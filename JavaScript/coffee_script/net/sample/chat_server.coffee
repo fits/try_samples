@@ -11,7 +11,7 @@ server = net.createServer (c) ->
 	c.on 'data', (d) -> console.log "recv: #{d.toString()}"
 	c.on 'end', ->
 		console.log 'disconnected'
-		list = list.slice list.indexOf(c), 1
+		list = (ci for ci in list when ci isnt c)
 
 	for ci in list
 		c.pipe ci
