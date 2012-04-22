@@ -10,12 +10,19 @@ def dc = DatagramChannel.open(StandardProtocolFamily.INET)
 
 dc.join(addr, NetworkInterface.getByName("lo"))
 
-def buf = ByteBuffer.allocateDirect(100)
+def buf = ByteBuffer.allocateDirect(128)
 
 println "ready"
 
-dc.receive(buf)
+while (true) {
+	buf.clear()
+	dc.receive(buf)
 
-println "recv : ${Charset.defaultCharset().decode(buf.flip())}"
+	def msg = Charset.defaultCharset().decode(buf.flip()).toString().trim()
+	println "recv : ${msg}"
 
+	if (msg == '') break
+}
+
+println "close"
 dc.close()
