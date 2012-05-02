@@ -12,8 +12,16 @@ describe 'Sample', ->
 
 		@sample.check 'test'
 
+		# 呼び出し有無のチェック
 		expect(@node.check).toHaveBeenCalled()
+
+		# 呼び出し時の引数チェック
 		expect(@node.check).toHaveBeenCalledWith('test', new Date().getFullYear())
+
+		# 呼び出し回数のチェック
+		expect(@node.check.callCount).toBe 1
+
+		expect(@node.check.mostRecentCall.args[0]).toBe 'test'
 
 
 	it 'check test2', ->
