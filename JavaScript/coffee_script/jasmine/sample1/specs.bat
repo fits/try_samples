@@ -1,0 +1,2 @@
+
+jasmine-node --coffee spec
