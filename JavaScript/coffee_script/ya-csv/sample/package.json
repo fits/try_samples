@@ -1,0 +1,13 @@
+{
+  "author": "fits",
+  "name": "ya-csv-sample",
+  "version": "0.0.0",
+  "dependencies": {
+    "ya-csv": "*"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
