@@ -1,0 +1,14 @@
+{
+  "author": "fits",
+  "name": "node-config-sample",
+  "version": "0.0.0",
+  "dependencies": {
+    "config": "*",
+    "coffee-script": "*"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
