@@ -14,6 +14,11 @@ fs.readFile jsonFile, (err, data) ->
 	else
 		console.log data
 
+		# 多バイト文字を使用している場合、Buffer と String で
+		# length の値が異なる点に注意
+		console.log data.length
+		console.log data.toString().length
+
 		options = 
 			host: 'localhost'
 			port: 8080
@@ -21,6 +26,7 @@ fs.readFile jsonFile, (err, data) ->
 			method: 'POST'
 			headers:
 				'content-type': 'application/json; charset=UTF-8'
+				# 以下は不要だが指定する際は Buffer の length を指定する
 				'content-length': data.length
 
 		req = http.request options, (res) ->
