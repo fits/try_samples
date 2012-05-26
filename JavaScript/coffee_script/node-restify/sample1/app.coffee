@@ -13,12 +13,15 @@ server.get '/sample', (req, res, next) ->
 server.post '/sample2', (req, res, next) ->
 	console.log req.params
 
-	json = 
-		res: '0'
-		name: 'test'
+	unless req.params.user?
+		next(new restify.InvalidArgumentError(req.params))
+	else
+		json = 
+			res: '0'
+			name: 'test'
 
-	res.send json
-	next()
+		res.json json
+		next()
 
 server.listen 8080, -> console.log "listen : #{server.name}, #{server.url}"
 
