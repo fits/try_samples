@@ -6,7 +6,7 @@ winston.add winston.transports.File,
 	timestamp: true
 	json: false
 
-winston.info "test message"
+winston.info "test message", {name: 'test'}
 
 winston.warn "*** warning"
 
