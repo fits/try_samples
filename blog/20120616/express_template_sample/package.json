@@ -1,0 +1,9 @@
+{
+  "name": "express_template_sample",
+  "version": "1.0.0",
+  "dependencies": {
+	"coffee-script": "*",
+    "express": "3.0",
+    "underscore": "*"
+  }
+}
