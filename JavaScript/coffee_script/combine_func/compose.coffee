@@ -1,4 +1,5 @@
 
+# 関数を合成した結果を返す
 exports.compose = (funcs...) ->
 	(args, callback) ->
 		cb = genCallback callback
