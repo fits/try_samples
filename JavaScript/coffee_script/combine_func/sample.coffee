@@ -1,5 +1,5 @@
 
-c = require './combine'
+c = require './compose'
 
 f1 = (args, cb) ->
 	console.log "f1 : #{args}"
@@ -17,35 +17,35 @@ fe = (args, cb) ->
 	console.log "fe : #{args}"
 	cb 'error'
 
-cf1 = c.combine f1, f2, f3
+cf1 = c.compose f1, f2, f3
 
 cf1 'test', (err, res) ->
 	console.log "result1 : #{err}, #{res}"
 
 console.log '-----'
 
-cf2 = c.combine f1, fe, f2, f3
+cf2 = c.compose f1, fe, f2, f3
 
 cf2 'test', (err, res) ->
 	console.log "result2 : #{err}, #{res}"
 
 console.log '-----'
 
-cf3 = c.combine f1, f2, f3, fe
+cf3 = c.compose f1, f2, f3, fe
 
 cf3 'test', (err, res) ->
 	console.log "result3 : #{err}, #{res}"
 
 console.log '-----'
 
-cf4 = c.combine fe, f2
+cf4 = c.compose fe, f2
 
 cf4 'test', (err, res) ->
 	console.log "result4 : #{err}, #{res}"
 
 console.log '-----'
 
-cf5 = c.combine f2, f1
+cf5 = c.compose f2, f1
 
 cf5 'test', (err, res) ->
 	console.log "result5 : #{err}, #{res}"
