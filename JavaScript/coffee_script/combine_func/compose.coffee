@@ -1,5 +1,5 @@
 
-exports.combine = (funcs...) ->
+exports.compose = (funcs...) ->
 	(args, callback) ->
 		cb = genCallback callback
 
