@@ -63,3 +63,10 @@ cf7 = c.compose f1
 cf7 'test', (err, res) ->
 	console.log "result7 : #{err}, #{res}"
 
+console.log '-----'
+
+cf8 = c.compose cf1, cf5, cf7
+cf8 'test8', (err, res) ->
+	console.log "result8 : #{err}, #{res}"
+
+
