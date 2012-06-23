@@ -11,7 +11,7 @@ exports.index = (req, res) ->
 
 	console.log header(req, 'user-agent')
 
-	res.render page, { title: header(req, 'user-agent') }
+	res.render page, { title: header(req, 'user-agent'), name: 'test' }
 
 
 remoteAddress = (req) ->
