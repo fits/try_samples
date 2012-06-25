@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<style type="text/css">
+		.img_container {
+			list-style-type: none;
+		}
+		.img_container li {
+			float: left;
+		}
+		div.img_box {
+			clear: left;
+			height:120px;
+			background: #eeffff;
+		}
+	</style>
+	<script src="jquery-1.7.2.min.js"></script>
+	<script>
+		addEventListener('dragover', function(event) {
+			event.preventDefault();
+		}, false);
+
+		addEventListener('drop', function(event) {
+			event.preventDefault();
+
+			var file = event.dataTransfer.files[0];
+
+			if (file.type == 'image/jpeg') {
+				var trgParent = (event.target.tagName == 'DIV')? $(event.target): $(event.target).parent();
+
+				var trg = trgParent.children('ul.img_container')
+
+				if (trg.length > 0) {
+					var reader = new FileReader();
+
+					reader.onload = function(a) {
+						var img = '<li><img src="' + reader.result + '" width="64" height="64" /></li>';
+						trg.append(img);
+					};
+
+					reader.readAsDataURL(file);
+				}
+			}
+		}, false);
+	</script>
+</head>
+<body>
+
+<div id="list1" class="img_box">
+	<h3>リスト1</h3>
+	<ul id="img1" class="img_container">
+	</ul>
+</div>
+<div class="img_box">
+	<h3>リスト2</h3>
+	<ul id="img2" class="img_container">
+	</ul>
+</div>
+<div class="img_box">
+	<h3>リスト3</h3>
+	<ul id="img3" class="img_container">
+	</ul>
+</div>
+
+</body>
+</html>
