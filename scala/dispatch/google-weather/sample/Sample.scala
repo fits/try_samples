@@ -12,11 +12,8 @@ object Sample {
 
 		val req = url("http://www.google.com/ig/api?weather=" + args(0) + "&hl=ja")
 
-		println(req as_str)
-
 		Http(req </> { nodes =>
 			nodes \\ "current_conditions" \ "condition" \ "@data" foreach println
 		})
-
 	}
 }
