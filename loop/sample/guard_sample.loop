@@ -1,0 +1,16 @@
+
+sample(value) =>
+	Integer | value == 1    : 'one'
+			| value == 2    : 'two'
+			| else          : 'other'
+	String  | value == '1'  : 'one string'
+	        | else          : 'other string'
+	*                       : 'etc'
+
+main ->
+	print(sample(1)),
+	print(sample(2)),
+	print(sample(3)),
+	print(sample('1')),
+	print(sample('2')),
+	print(sample(10.5))
