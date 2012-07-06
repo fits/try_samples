@@ -16,6 +16,8 @@ Object[] run() {
 
 	server = vertx.createHttpServer()
 	server.requestHandler(rm.asClosure()).listen 8080
+
+	vertx.fileSystem.writeFileSync 'server.log', "${new Date()} : started"
 }
 
 def vertxStop() {
