@@ -1,0 +1,4 @@
+
+println 'hello'
+
+container.exit()
