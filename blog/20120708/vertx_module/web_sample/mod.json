@@ -1,0 +1,4 @@
+{
+	"main": "sample_server.groovy",
+	"preserve-cwd": true
+}
