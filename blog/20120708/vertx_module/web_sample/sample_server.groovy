@@ -14,9 +14,10 @@ Object[] run() {
 
 	server = vertx.createHttpServer()
 	server.requestHandler(rm.asClosure()).listen 8080
+	println "* server start"
 }
 
 def vertxStop() {
 	server.close()
-	println "stop"
+	println "* server stop"
 }
