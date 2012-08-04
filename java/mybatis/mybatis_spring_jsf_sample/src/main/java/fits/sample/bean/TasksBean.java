@@ -1,9 +1,5 @@
 package fits.sample.bean;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 
@@ -15,10 +11,9 @@ import fits.sample.model.TasksModel;
 
 @ManagedBean
 public class TasksBean {
-	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 	private String title;
-	private String date;
-	private List<TasksModel> tasks = new ArrayList<>();
+	private Date date;
+	private List<TasksModel> tasks;
 
 	@Inject
 	private TasksMapper tasksMapper;
@@ -35,21 +30,15 @@ public class TasksBean {
 		this.title = title;
 	}
 
-	public String getDate() {
+	public Date getDate() {
 		return date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 
 	public void search() {
-		try {
-			Date created = df.parse(getDate());
-			tasks = tasksMapper.findByTitleAndCreated(getTitle(), created);
-		} catch (ParseException e) {
-			e.printStackTrace();
-			tasks = new ArrayList<>();
-		}
+		tasks = tasksMapper.findByTitleAndCreated(getTitle(), getDate());
 	}
 }
