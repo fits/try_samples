@@ -7,6 +7,11 @@
         <title>Tasks</title>
     </head>
     <body>
+        <h:form>
+            title: <h:inputText value="#{tasksBean.title}" />
+            created date: <h:inputText value="#{tasksBean.date}" />
+            <h:commandButton action="#{tasksBean.search}" value="search" />
+        </h:form>
     	<ul>
     		<ui:repeat var="task" value="#{tasksBean.tasks}">
     			<li>#{task.taskId} : #{task.title}, #{task.created}, #{task.modified}</li>
