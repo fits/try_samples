@@ -1,0 +1,67 @@
+<h1>Markdown Sample</h1>
+<h2>サンプルドキュメント日本語版</h2>
+<p>これはLOGGiXプロジェクトが<a href="http://daringfireball.net/projects/markdown/basics" title="Markdown: Basics">Markdown: Basics</a>と<a href="http://www.michelf.com/projects/php-markdown/concepts/" title="PHP Markdown: Concepts">PHP Markdown: Concepts</a>のMarkdownシンタックス解説を元に作成した日本語版サンプルです。LOGGiXのVARS機能では、コンテンツに利用するテキストファイルの拡張子を<code>.text</code>とすることでMarkdownレンダリングされるようになっています。このドキュメントはすべてMarkdownの書式に従って書かれたテキストファイルです。 このテキストファイル本体はこちらにありますので参考にしてください。(↓)</p>
+<p><a href="./data/markdown-sample.text">markdown-sample.text</a></p>
+<p>(文字コードはUTF-8、改行コードはLFです)</p>
+<h3>引用ブロック</h3>
+<blockquote><p>これは引用ブロックです。</p>
+<p>これは引用ブロックの第2パラグラフです。</p>
+<h2>これは引用ブロック内のH2です。</h2>
+</blockquote>
+<h3>強調</h3>
+<p>これは <em>強調</em> です。
+これも <em>強調</em> です。</p>
+<p> <strong>より強い強調</strong> には前後にアスタリスクを二つ使います。
+またあるいは、 <strong>二つのアンダースコアを使って</strong> も同様の表現が可能です。</p>
+<h3>リスト</h3>
+<p>番号なしリストはアスタリスク、プラス記号、ハイフン(マイナス記号)を使って表現します。(*, +, と -)
+記号の後にはスペースを1つ以上入れます。</p>
+<p>(アスタリスクで記述)</p>
+<ul>
+<li>モツァレラチーズ</li>
+<li>パスタ</li>
+<li>ワイン</li>
+</ul>
+<p>(プラス記号で記述)</p>
+<p>+   モツァレラチーズ
++   パスタ
++   ワイン</p>
+<p>(ハイフン(マイナス記号)で記述)</p>
+<p>-   モツァレラチーズ
+-   パスタ
+-   ワイン</p>
+<p>番号付きリストは数字とピリオドの後にスペースを1つ以上入れて記述します。</p>
+<ol>
+<li>モツァレラチーズ</li>
+<li>パスタ</li>
+<li>ワイン</li>
+</ol>
+<h3>リンク</h3>
+<p>Markdownは、「インライン」と「リファレンス」という二つのリンクスタイルをサポートします。</p>
+<p>「インライン」スタイルは[ ]でかこったリンク名の後に( )でURIを囲って記述します。
+URIの後に&quot;&quot;でテキストを囲ればタイトルとして表現出来ます。</p>
+<p>これはサンプルです。→ <a href="http://www.w3.org/" title="W3Cのトップページ">W3C</a>.</p>
+<p>「リファレンス」スタイルは、名前と番号を使ってページのどこかに定義したリンクを参照出来ます。</p>
+<p>例：Markdownのページ(Perl版)はこちらの<a href="http://daringfireball.net/projects/markdown/" title="Daring Fireball: Markdown">Daring Fireball: Markdown</a>で、PHP移植版の配布元はこちらの<a href="http://www.michelf.com/projects/php-markdown/" title="PHP Markdown">PHP Markdown</a>です。</p>
+<h3>自動リンク</h3>
+<p>単純に&amp;lt;&amp;gt;でURIを囲むことで自動リンクにすることも出来ます。</p>
+<p>例：<a href="http://www.w3.org">http://www.w3.org</a></p>
+<h3>画像</h3>
+<p>「インライン」スタイル：
+<img src="../../../theme/images/loggix-logo.png" alt="Loggix" title="Loggix" /></p>
+<p>「リファレンス」スタイル：
+<img src="../../../theme/images/loggix-logo.png" alt="Loggix" title="Loggix" /></p>
+<h3>コード</h3>
+<p>コード部分はバックスラッシュ(`)で囲って表現します。</p>
+<p>例：絶対に <code>&lt;blink&gt;</code> タグなどは使ってはいけません。</p>
+<p>スペース4つかタブコード1つでインデント(字下げ)することによって、整形済みテキストブロックとして表現出来ます。</p>
+<p>例：もしあなたの文書を XHTML 1.0 Strictで記述するなら、引用ブロックには
+このようにパラグラフタグを入れなればいけません：</p>
+<pre><code>&lt;blockquote&gt;
+    &lt;p&gt;For example.&lt;/p&gt;
+&lt;/blockquote&gt;
+</code></pre>
+<h3>HTMLとの共存</h3>
+<p>Markdownを使うにはHTMLの知識は必要ありませんが、MarkdownはHTMLとの共存も可能です。もしあなたがHTMLの知識を持っていれば、Markdownでサポートされていない表現をHTMLを使うことで表現出来ます。例えば&amp;lt;sup&amp;gt;タグなどはMarkdownではサポートされていませんが、以下のような日付の「st」部分を直接&amp;lt;sup&amp;gt;タグで囲むことによってこのように表現出来ます。(↓)</p>
+<p>例：April 1<sup>st</sup></p>
+
