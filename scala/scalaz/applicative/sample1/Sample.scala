@@ -15,5 +15,8 @@ object Sample {
 		val r2 = g compose f apply 5
 		println(r2)
 
+
+		val a1 = List(10, 20) |@| List(1, 5, 10) |@| List(2, 3)
+		println(a1 {_ + _  + _})
 	}
 }
