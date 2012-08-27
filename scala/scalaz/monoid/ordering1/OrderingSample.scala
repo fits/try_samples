@@ -30,4 +30,14 @@ object OrderingSample extends App {
 	println(lenCompare3("cc00", "bb12"))
 	println(lenCompare3("a", "a"))
 
+
+	println("-------------")
+
+	val lenCompare4 = (x: String, y: String) => (x.length ?|? y.length) |+| (x ?|? y)
+
+	println(lenCompare4("aa", "ab"))
+	println(lenCompare4("bb", "c"))
+	println(lenCompare4("cc00", "bb12"))
+	println(lenCompare4("a", "a"))
+
 }
