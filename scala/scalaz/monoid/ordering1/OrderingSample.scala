@@ -12,4 +12,22 @@ object OrderingSample extends App {
 	println(lenCompare("cc00", "bb12"))
 	println(lenCompare("a", "a"))
 
+	println("-------------")
+
+	val lenCompare2 = (x: String, y: String) => Order[Int].order(x.length, y.length) mappend Order[String].order(x, y)
+
+	println(lenCompare2("aa", "ab"))
+	println(lenCompare2("bb", "c"))
+	println(lenCompare2("cc00", "bb12"))
+	println(lenCompare2("a", "a"))
+
+	println("-------------")
+
+	val lenCompare3 = (x: String, y: String) => intInstance(x.length, y.length) mappend stringInstance(x, y)
+
+	println(lenCompare3("aa", "ab"))
+	println(lenCompare3("bb", "c"))
+	println(lenCompare3("cc00", "bb12"))
+	println(lenCompare3("a", "a"))
+
 }
