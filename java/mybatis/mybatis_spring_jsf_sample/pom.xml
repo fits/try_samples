@@ -16,13 +16,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <repositories>
-    <repository>
-      <id>jboss</id>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <!-- MyBatis + Spring -->
     <dependency>
