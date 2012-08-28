@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="fits.sample.mapper.TaskMapper">
+
+	<select id="findAll" resultType="TaskModel">
+		select
+			task_id as taskId,
+			title,
+			created,
+			modified
+		from
+			tasks
+	</select>
+
+	<select id="findByTitle" resultType="TaskModel">
+		select
+			task_id as taskId,
+			title,
+			created,
+			modified
+		from
+			tasks
+		where title like #{title}
+			<if test="created != null">
+		  	and created &gt; #{created}
+		  </if>
+	</select>
+
+</mapper>
+
