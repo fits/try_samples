@@ -1,0 +1,25 @@
+<html lang="ja"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      >
+    <head>
+        <title>Tasks</title>
+    </head>
+    <body>
+        <h:form>
+            title: <h:inputText value="#{taskBean.title}" />
+            created date:
+            <h:inputText value="#{taskBean.date}">
+            	<f:convertDateTime pattern="yyyy-MM-dd" />
+            </h:inputText>
+            <h:commandButton action="#{taskBean.search}" value="search" />
+        </h:form>
+    	<ul>
+    		<ui:repeat var="task" value="#{taskBean.tasks}">
+    			<li>#{task.taskId} : #{task.title}, #{task.created}, #{task.modified}</li>
+    		</ui:repeat>
+    	</ul>
+    </body>
+</html>
