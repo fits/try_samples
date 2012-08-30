@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomee>
+
+<Resource id="task" type="DataSource">
+  JdbcDriver com.mysql.jdbc.Driver
+  JdbcUrl jdbc:mysql://localhost/todo?characterEncoding=utf8
+  UserName root
+  Password
+  JtaManaged true
+</Resource>
+
+</tomee>
