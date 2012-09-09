@@ -1,10 +1,10 @@
 
 type KnightPos = Tuple2[Int, Int]
 
-val moveKnight = (p: KnightPos) => {
-	val plus = (_: Int) + (_: Int)
-	val minus = (_: Int) - (_: Int)
+val plus = (_: Int) + (_: Int)
+val minus = (_: Int) - (_: Int)
 
+val moveKnight = (p: KnightPos) =>
 	(
 		for {
 			a <- List(2, 1)
@@ -16,18 +16,17 @@ val moveKnight = (p: KnightPos) => {
 	) filter {
 		case (x, y) => 1 <= x && x <= 8 && 1 <= y && y <= 8
 	}
-}
 
 println(moveKnight (6, 2))
 println(moveKnight (8, 1))
 
-val in3 = (start: KnightPos) => {
+val in3 = (start: KnightPos) =>
 	for {
 		first <- moveKnight(start)
 		second <- moveKnight(first)
 		third <- moveKnight(second)
 	} yield third
-}
+
 
 println(in3 (6, 2))
 
