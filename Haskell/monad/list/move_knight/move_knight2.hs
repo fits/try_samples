@@ -1,5 +1,3 @@
-import Control.Monad
-
 type KnightPos = (Int, Int)
 
 moveKnight :: KnightPos -> [KnightPos]
