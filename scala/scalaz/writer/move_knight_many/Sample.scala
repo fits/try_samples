@@ -9,9 +9,10 @@ object Sample extends App {
 	type KnightPos = Tuple2[Int, Int]
 	type PosCalc = Function2[Int, Int, Int]
 
+	val createWriter = (p: KnightPos) => writer (List(p), p)
+
 	val nextPos = (a: Int, b: Int, fa: PosCalc, fb: PosCalc) => (p: KnightPos) => {
-		val newPos = (fa(p._1, a), fb(p._2, b))
-		writer (List(newPos), newPos)
+		createWriter (fa(p._1, a), fb(p._2, b))
 	}
 
 	val fl = List((_: Int) + (_: Int), (_: Int) - (_: Int))
@@ -32,7 +33,7 @@ object Sample extends App {
 		}
 
 	val inMany = (x: Int) => (start: KnightPos) => {
-		List(writer (List(start), start)) >>= List.fill(x){ Kleisli(moveKnight) }.reduceRight {(a, b) =>
+		List(createWriter(start)) >>= List.fill(x){ Kleisli(moveKnight) }.reduceRight {(a, b) =>
 			b <=< a
 		}
 	}
