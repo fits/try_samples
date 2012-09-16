@@ -13,10 +13,10 @@ object WriterSample3 extends App {
 
 	val logNumList: Int => Int => WriterT[List, String, Int] = (n: Int) => (x: Int) => {
 		val list = for {
-			i <- (1 to n)
+			i <- (1 to n).toList
 		} yield (s" + $i", x + i)
 
-		writerT(list.toList)
+		writerT(list)
 	}
 
 	val w = writerT(List(("2", 2))) >>= logNumList(3) >>= logNumList(2)
