@@ -25,8 +25,8 @@ object Sample2 extends App {
 				fb <- fl
 				if a != b
 			} yield p >>= nextPos(a, b, fa, fb)
-		) filter {p =>
-			p.value match {
+		) filter {
+			_.value match {
 				case (x, y) => 1 <= x && x <= 8 && 1 <= y && y <= 8
 			}
 		}
