@@ -33,4 +33,11 @@ object WriterSample3 extends App {
 	 * value = List(4, 5, 5, 6, 6, 7)
 	 */
 	println(s"value = ${w.value}")
+
+	/* ログ・値のタプルのリストを取得
+	 *
+	 * run = List((2 + 1 + 1,4), (2 + 1 + 2,5), (2 + 2 + 1,5), 
+	 *            (2 + 2 + 2,6), (2 + 3 + 1,6), (2 + 3 + 2,7))
+	 */
+	println(s"run = ${w.run}")
 }
