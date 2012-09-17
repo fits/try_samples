@@ -32,9 +32,8 @@ object Sample4 extends App {
 		}
 	}
 
-	val rootReachIn = (x: Int) => (start: KnightPos, end: KnightPos) =>
+	val routeReachIn = (x: Int) => (start: KnightPos, end: KnightPos) =>
 		inMany(x)(start).run.filter { _._2 == end } map { _._1 }
 
-	rootReachIn(3)((6, 2), (6, 1)).foreach {println}
-
+	routeReachIn(3)((6, 2), (6, 1)).foreach {println}
 }
