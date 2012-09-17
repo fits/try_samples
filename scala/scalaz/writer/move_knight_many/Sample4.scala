@@ -23,7 +23,9 @@ object Sample4 extends App {
 	}
 
 	val inMany = (x: Int) => (start: KnightPos) => {
-		val stWriter = writerT(List( (s"$start", start) ))
+		val stWriter = writerT((s"$start", start) :: Nil)
+		// 以下でも同じ
+		//val stWriter = writerT(List((s"$start", start)))
 
 		stWriter >>= List.fill(x){ moveKnightWriter }.reduceRight {(a, b) =>
 			(x) => b(x) >>= a
