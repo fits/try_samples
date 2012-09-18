@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>Image Upload Sample</title>
+	<style>
+		div {
+			border: 1px solid black;
+			width: 240px;
+			height: 120px;
+		}
+	</style>
+	<script src="http://code.jquery.com/jquery-1.8.1.min.js"></script>
+	<script>
+		$(function() {
+			$('#uploadBtn').click(function() {
+				var params = {
+					name: $('#fileName').text(),
+					img: $('#imgTrg').attr('src')
+				};
+
+				$.post('upload', params, function() {
+					alert('upload success');
+				});
+			});
+		});
+
+		addEventListener('dragover', function(event) {
+			event.preventDefault();
+		}, false);
+
+		addEventListener('drop', function(event) {
+			event.preventDefault();
+
+			if (event.target.tagName == 'DIV' || event.target.tagName == 'IMG') {
+				var file = event.dataTransfer.files[0];
+
+				if (file) {
+					processFile(file);
+				}
+			}
+		});
+
+		function processFile(file, eventTarget) {
+			if (file.type == 'image/jpeg') {
+				var fileName = file.name;
+				var reader = new FileReader();
+
+				reader.onload = function(e) {
+					$('#fileName').text(fileName);
+					$('#imgTrg').attr('src', reader.result);
+				}
+
+				reader.onerror = function(e) {
+					console.log("error : " + e);
+				};
+
+				reader.readAsDataURL(file);
+			}
+		}
+	</script>
+</head>
+<body>
+	<input id="uploadBtn" type="button" value="upload" />
+	<br />
+
+	upload image: <span id="fileName"></span>
+	<div>
+		<img id="imgTrg" src="" width="240" height="120" />
+	</div>
+
+</body>
+</html>
