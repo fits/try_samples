@@ -8,8 +8,6 @@ import static fj.data.List.*
 	int y
 }
 
-def f = { it as F }
-
 def pos = {x, y -> new KnightPos(x: x, y: y)}
 
 def moveKnight = {KnightPos p ->
@@ -18,7 +16,7 @@ def moveKnight = {KnightPos p ->
 		pos(p.x - 2, p.y - 1), pos(p.x - 2, p.y + 1),
 		pos(p.x + 1, p.y - 2), pos(p.x + 1, p.y + 2),
 		pos(p.x - 1, p.y - 2), pos(p.x - 1, p.y + 2)
-	).filter(f { 1<= it.x && it.x <= 8 && 1 <= it.y && it.y <= 8})
+	).filter({ 1<= it.x && it.x <= 8 && 1 <= it.y && it.y <= 8 } as F)
 } as F
 
 def in3 = {KnightPos p ->
@@ -26,7 +24,7 @@ def in3 = {KnightPos p ->
 }
 
 def canReachIn3 = {KnightPos start, KnightPos end ->
-	in3(start).exists(f {it == end})
+	in3(start).exists({ it == end } as F)
 }
 
 println in3(pos(6, 2))
