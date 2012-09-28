@@ -21,11 +21,9 @@ def moveKnight = {KnightPos p ->
 } as F
 
 def inMany = {int x, KnightPos p ->
-	def fn = replicate(x, moveKnight).foldLeft1({a, b ->
-		{ n -> a.f(n).bind(b) } as F
+	list(p).bind replicate(x, moveKnight).foldLeft1({b, a ->
+		{ n -> b.f(n).bind(a) } as F
 	} as F2)
-
-	list(p).bind(fn)
 }
 
 def canReachIn = {int x, KnightPos start, KnightPos end ->
