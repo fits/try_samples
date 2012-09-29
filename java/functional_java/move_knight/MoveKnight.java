@@ -5,8 +5,7 @@ import static fj.Show.*;
 import static fj.data.List.*;
 
 /**
- * OpenJDK build 1.8.0-ea-lambda-nightly-h1171-20120911-b56-b00 ‚Ì
- * JSR-335 ‚ðŽg‚Á‚ÄŽÀ‘•‚µ‚½ Functional Java ‚ÌƒTƒ“ƒvƒ‹
+ * OpenJDK build 1.8.0-ea-lambda-nightly-h1171-20120911-b56-b00
  *
  */
 class MoveKnight {
