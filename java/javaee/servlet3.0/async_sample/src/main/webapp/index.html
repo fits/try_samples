@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#jobAdd").click(function() {
+			$.get("async");
+		});
+	});
+</script>
+</head>
+<body>
+	JOB: <input type="text" name="title" />
+	<button id="jobAdd">add</button>
+</body>
+</html>
