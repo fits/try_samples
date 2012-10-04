@@ -17,4 +17,14 @@ object Sample extends App {
 	// 34
 	println(4 |> plus >>> times >>> plus >>> times)
 
+	// (6, 10)
+	println( (plus *** times)(3, 5) )
+	// (6, 10)
+	println( (3, 5) |> plus *** times )
+
+	// (5, 4)
+	println( (plus &&& times)(2) )
+	// (5, 4)
+	println(2 |> plus &&& times )
+
 }
