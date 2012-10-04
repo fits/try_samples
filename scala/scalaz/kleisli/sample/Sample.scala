@@ -9,7 +9,11 @@ object Sample extends App {
 	val times = (x: Int) => some(x * 2)
 
 	// Some(14)
+	println(4 |> plus >>= times)
+
+	// Some(14)
 	println(some(4) >>= plus >>= times)
+
 	// Some(14)
 	println(some(4) >>= List(Kleisli(plus), Kleisli(times)).reduceLeft {(b, a) =>
 		b >=> a
