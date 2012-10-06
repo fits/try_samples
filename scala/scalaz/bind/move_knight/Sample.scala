@@ -15,7 +15,7 @@ object Sample extends App {
 	).filter { case (x, y) => 1 <= x && x <= 8 && 1 <= y && y <= 8 }
 
 	val in3 = (start: KnightPos) => {
-		List(start) >>= moveKnight >>= moveKnight >>= moveKnight
+		start |> moveKnight >>= moveKnight >>= moveKnight
 	}
 
 	println(in3 (6, 2))
