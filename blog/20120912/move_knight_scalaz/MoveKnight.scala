@@ -13,7 +13,7 @@ object MoveKnight extends App {
 		(p._1 - 1, p._2 - 2), (p._1 - 1, p._2 + 2)
 	).filter { case (x, y) => 1 <= x && x <= 8 && 1 <= y && y <= 8 }
 
-	val in3 = (start: KnightPos) => List(start) >>= moveKnight >>= moveKnight >>= moveKnight
+	val in3 = (start: KnightPos) => start |> moveKnight >>= moveKnight >>= moveKnight
 
 	val canReachIn3 = (start: KnightPos, end: KnightPos) => in3(start).contains(end)
 

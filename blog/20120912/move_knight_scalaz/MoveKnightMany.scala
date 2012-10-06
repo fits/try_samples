@@ -14,7 +14,7 @@ object MoveKnightMany extends App {
 	).filter { case (x, y) => 1 <= x && x <= 8 && 1 <= y && y <= 8 }
 
 	val inMany = (x: Int) => (start: KnightPos) => {
-		List(start) >>= List.fill(x){ Kleisli(moveKnight) }.reduceRight {(a, b) =>
+		start |> List.fill(x){ Kleisli(moveKnight) }.reduceRight {(a, b) =>
 			b <=< a
 		}
 	}
