@@ -16,7 +16,7 @@ object Sample extends App {
 
 
 	val inMany = (x: Int) => (start: KnightPos) => {
-		List(start) >>= List.fill(x){ Kleisli(moveKnight) }.reduceRight {(a, b) =>
+		start |> List.fill(x){ Kleisli(moveKnight) }.reduceRight {(a, b) =>
 			b <=< a
 		}
 	}
