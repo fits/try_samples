@@ -14,4 +14,7 @@ object Sample2 extends App {
 	// (8, 10) = (3 + (4 + 1), 2 * (4 + 1))
 	println(4 |> plus &&& times ^>> (_ + 1))
 
+	// 15
+	println(4 |> plus &&& times |> { (a) => a._1 + a._2 } )
+
 }
