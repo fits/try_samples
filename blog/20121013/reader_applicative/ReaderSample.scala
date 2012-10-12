@@ -8,16 +8,16 @@ object ReaderSample extends App {
 	val plus = (x: Int) => (y: Int) => x + y
 
 	val f1 = for {
-		a <- Reader(multiply(2))
-		b <- Reader(plus(10))
+		a <- multiply(2)
+		b <- plus(10)
 	} yield a + b
 
 	println(f1(4))
 
 	val f2 = for {
-		a <- Reader(multiply(2))
-		b <- Reader(plus(10))
-		c <- Reader(plus(5))
+		a <- multiply(2)
+		b <- plus(10)
+		c <- plus(5)
 	} yield a + b + c
 
 	println(f2(4))
