@@ -16,6 +16,15 @@ object ReaderSample extends App {
 
 	println(f1(3))
 
+	// 以下でも可
+	val f1a = for {
+		a <- 2 * (_: Int)
+		b <- 10 + (_: Int)
+		c <- -5 + (_: Int)
+	} yield a + b + c
+
+	println(f1a(3))
+
 	// for と同等処理
 	val f1b = Reader[Int, Int]( 2 * ) >>= { a =>
 		Reader[Int, Int]( 10 + ) >>= { b =>
