@@ -10,9 +10,9 @@ object ReaderSample extends App {
 	val times2: Int => Int = 2 *
 
 	val f = for {
-		a <- Reader(plus3)
-		b <- Reader(plus10)
-		c <- Reader(times2)
+		a <- plus3
+		b <- plus10
+		c <- times2
 	} yield a + b + c
 
 	println(f(4))
