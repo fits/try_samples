@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>jQuery UI Sortable sample</title>
+	<style type="text/css">
+		div.container {
+			margin-top: 30px;
+		}
+
+		ul#list {
+			margin: 0px;
+			padding: 0px;
+			/* 以下を指定しないと高さが 0 となり、
+			 * axis 指定が無いと横移動できなくなる
+			 */
+			overflow: hidden;
+		}
+
+		li.item {
+			list-style-position: outside;
+			list-style-type: none;
+			float: left;
+			border: 1px blue solid; 
+			margin: 5px;
+		}
+
+		div.content {
+			width: 100px;
+			height: 100px;
+		}
+
+	</style>
+	<script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+	<script>
+		$(function() {
+			$('#list').sortable({
+				// 横方向の移動のみ許可
+				axis: 'x',
+				// ul の外に移動できないように設定
+				containment: '#list'
+			});
+		});
+	</script>
+</head>
+<body>
+<div class="container">
+	<ul id="list">
+		<li class="item">
+			<div class="content">test1</div>
+		</li>
+		<li class="item">
+			<div class="content">test2</div>
+		</li>
+		<li class="item">
+			<div class="content">test3</div>
+		</li>
+		<li class="item">
+			<div class="content">test4</div>
+		</li>
+	</ul>
+</div>
+</body>
+</html>
