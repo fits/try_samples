@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>localStorage sample</title>
+	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+	<script>
+		$(function() {
+			if (window.localStorage) {
+				var preview = function() {
+					$('#preview').html(localStorage.getItem('sample1'))
+				};
+			
+				$('#btn').click(function() {
+					localStorage.setItem('sample1', $('#txt').val());
+					preview();
+				});
+
+				preview();
+			}
+		});
+	</script>
+</head>
+<body>
+	<div>
+		<input id="txt" type="text" />
+		<button id="btn">save</button>
+	</div>
+	<div id="preview"></div>
+</body>
+</html>
