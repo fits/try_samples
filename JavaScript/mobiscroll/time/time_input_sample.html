@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>mobiscroll sample</title>
+	<link rel="stylesheet" type="text/css" href="mobiscroll/css/mobiscroll-2.0.3.full.min.css" />
+	<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+	<script src="mobiscroll/js/mobiscroll-2.0.3.full.min.js"></script>
+	<script>
+		$(function() {
+			var sh = $('#timefield').scroller({
+				preset: 'time',
+				//フォーカス獲得で mobiscroll を表示しないように設定
+				showOnFocus: false,
+				//時（24）・分をホイール表示
+				timeWheels: 'HHii',
+				//時（24）・分のフォーマット
+				timeFormat: 'HH:ii',
+				hourText: '時',
+				minuteText: '分'
+			});
+
+			// ボタンをクリックした際に mobiscroll を表示
+			$('#btn').click(function() {
+				sh.scroller('show');
+			});
+
+		});
+	</script>
+</head>
+<body>
+	<div style="margin-top: 50px">
+
+		<input id="timefield" name="timefield" type="text" />
+		<button id="btn">時刻入力</button>
+
+	</div>
+</body>
+</html>
