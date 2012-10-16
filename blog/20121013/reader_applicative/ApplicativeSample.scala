@@ -13,8 +13,9 @@ object ApplicativeSample extends App {
 	val f1a = ^( multiply(2) <*> plus(10) ) { case (a, b) => a + b }
 	println(f1a(4))
 
-	val f1b = (multiply(2) |@| plus(10)) { _ + _ }
+	val f1b = ( multiply(2) |@| plus(10) ) { _ + _ }
 	println(f1b(4))
+
 
 	val f2 = multiply(2) <*> plus(10) <*> plus(5) >>> { case ((a, b), c) => a + b + c }
 	println(f2(4))
@@ -22,6 +23,6 @@ object ApplicativeSample extends App {
 	val f2a = ^( multiply(2) <*> plus(10) <*> plus(5) ) { case ((a, b), c) => a + b + c }
 	println(f2a(4))
 
-	val f2b = (multiply(2) |@| plus(10) |@| plus(5)) { _ + _ + _ }
+	val f2b = ( multiply(2) |@| plus(10) |@| plus(5) ) { _ + _ + _ }
 	println(f2b(4))
 }
