@@ -3,14 +3,6 @@ $( ->
 	$.ajaxSetup
 		contentType: 'application/json; charset=UTF-8'
 
-	ws = new WebSocket 'ws://localhost:9000/connect'
-	ws.onmessage = (event) ->
-		obj = JSON.parse event.data
-		$('#list').append "<li><image class=\"chatimg\" src=\"#{obj.image}\" /><span class=\"msg\">#{obj.message}</span></li>"
-
-	ws.onopen = (event) -> console.log "open : #{event}"
-	ws.onclose = (event) -> console.log "close : #{event}"
-
 	$('#sendMessage').click ->
 		params =
 			message: $('#message').val()
@@ -19,6 +11,29 @@ $( ->
 		$.post 'send', JSON.stringify(params), (d) ->
 			console.log(d)
 		, 'json'
+
+	addEventListener 'dragover', (ev) ->
+		ev.preventDefault()
+	,false
+
+	addEventListener 'drop', (ev) ->
+		ev.preventDefault()
+
+		file = ev.dataTransfer.files[0]
+
+		if file.type.indexOf('image/') is 0
+			r = new FileReader()
+			r.onload = (ev) -> $('#image').attr 'src', ev.target.result
+			r.readAsDataURL file
+
+
+	ws = new WebSocket 'ws://localhost:9000/connect'
+	ws.onmessage = (event) ->
+		obj = JSON.parse event.data
+		$('#list').append "<li><image class=\"chatimg\" src=\"#{obj.image}\" /><span class=\"msg\">#{obj.message}</span></li>"
+
+	ws.onopen = (event) -> console.log "open : #{event}"
+	ws.onclose = (event) -> console.log "close : #{event}"
 
 	$(window).bind 'beforeunload', ->
 		ws.onclose = ->
