@@ -30,12 +30,12 @@ $( ->
 	ws = new WebSocket 'ws://localhost:9000/connect'
 	ws.onmessage = (event) ->
 		obj = JSON.parse event.data
-		$('#list').append "<li><image class=\"chatimg\" src=\"#{obj.image}\" /><span class=\"msg\">#{obj.message}</span></li>"
+		$('#list').append "<div><img class=\"chatimg\" src=\"#{obj.image}\" /><p class=\"msg\">#{obj.message}</p></div>"
 
 	ws.onopen = (event) -> console.log "open : #{event}"
 	ws.onclose = (event) -> console.log "close : #{event}"
 
 	$(window).bind 'beforeunload', ->
-		ws.onclose = ->
+	#	ws.onclose = ->
 		ws.close()
 )
