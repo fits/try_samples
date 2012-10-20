@@ -36,6 +36,7 @@ $( ->
 	ws.onclose = (event) -> console.log "close : #{event}"
 
 	$(window).bind 'beforeunload', ->
+		console.log 'on before unload'
 	#	ws.onclose = ->
 		ws.close()
 )

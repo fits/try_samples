@@ -14,7 +14,7 @@ import akka.util.FiniteDuration;
 import org.codehaus.jackson.JsonNode;
 
 public class Application extends Controller {
-	private static List<WebSocket.Out<String>> clientList = new CopyOnWriteArrayList<>();
+	private static List<WebSocket.Out<JsonNode>> clientList = new CopyOnWriteArrayList<>();
 
 	public static Result index() {
 		return ok(index.render());
@@ -28,21 +28,18 @@ public class Application extends Controller {
 			new FiniteDuration(0, "seconds"),
 			new Runnable() {
 				public void run() {
-					sendMessage(json.toString());
+					sendMessage(json);
 				}
 			}
 		);
 
-		System.out.println(json);
-
-
 		return ok();
 	}
 
-	public static WebSocket<String> connect() {
-		return new WebSocket<String>() {
-			public void onReady(WebSocket.In<String> wsin,
-					final WebSocket.Out<String> wsout) {
+	public static WebSocket<JsonNode> connect() {
+		return new WebSocket<JsonNode>() {
+			public void onReady(WebSocket.In<JsonNode> wsin,
+					final WebSocket.Out<JsonNode> wsout) {
 
 				clientList.add(wsout);
 
@@ -50,16 +47,15 @@ public class Application extends Controller {
 					public void invoke() throws Throwable {
 						System.out.println("**** wsin close");
 						clientList.remove(wsout);
-						wsout.close();
 					}
 				});
 			}
 		};
 	}
 
-	private static void sendMessage(String msg) {
-		for (WebSocket.Out<String> wsout: clientList) {
-			wsout.write(msg);
+	private static void sendMessage(JsonNode json) {
+		for (WebSocket.Out<JsonNode> wsout: clientList) {
+			wsout.write(json);
 		}
 	}
 }
