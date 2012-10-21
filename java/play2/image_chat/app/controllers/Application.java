@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Callable;
 
 import play.*;
 import play.mvc.*;
@@ -24,14 +25,18 @@ public class Application extends Controller {
 	public static Result send() {
 		final JsonNode json = request().body().asJson();
 
-		Akka.system().scheduler().scheduleOnce(
-			new FiniteDuration(0, "seconds"),
-			new Runnable() {
-				public void run() {
-					sendMessage(json);
-				}
+		// コンテンツサイズが上限を超えていると null となる
+		if (json == null) {
+			System.out.println("*** json is null");
+			return badRequest("over size");
+		}
+
+		Akka.future(new Callable<Void>() {
+			public Void call() {
+				sendMessage(json);
+				return null;
 			}
-		);
+		});
 
 		return ok();
 	}
