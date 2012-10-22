@@ -2,6 +2,7 @@
 $( -> 
 	$.ajaxSetup
 		contentType: 'application/json; charset=UTF-8'
+		timeout: 5000
 
 	# メッセージ送信処理
 	$('#sendMessage').click ->
