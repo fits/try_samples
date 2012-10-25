@@ -8,14 +8,20 @@ public class CalcSample {
 	public static void main(String[] args) {
 
 		List<ProductItem> items = Arrays.asList(
-			new ProductItem("id1", "商品1", new BigDecimal(1000), 1),
-			new ProductItem("id2", "商品2", new BigDecimal(3000), 2),
-			new ProductItem("id3", "商品3", new BigDecimal(1500), 3)
+			new ProductItem("id1", "商品1", new BigDecimal("1000"), 1),
+			new ProductItem("id2", "商品2", new BigDecimal("3000"), 2),
+			new ProductItem("id3", "商品3", new BigDecimal("1500"), 3)
 		);
 
 		Stream<String> names = items.stream().map(it -> it.getName());
 
 		names.forEach(n -> System.out.println(n));
+
+		System.out.println("-----");
+
+		Stream<ProductItem> highItems = items.stream().filter(it -> it.getPrice().compareTo(new BigDecimal("1500")) >= 0);
+
+		highItems.forEach(it -> System.out.println(it.getName()));
 
 		System.out.println("-----");
 
