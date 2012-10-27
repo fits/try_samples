@@ -27,6 +27,12 @@ public class FunctionalJavaSample {
 				System.out.println(n);
 			}
 		});
+		//ˆÈ‰º‚Å‚à‰Â
+		/*
+		for (String n : names) {
+			System.out.println(n);
+		}
+		*/
 
 		System.out.println("-----");
 
