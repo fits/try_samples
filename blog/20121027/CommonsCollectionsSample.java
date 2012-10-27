@@ -25,6 +25,12 @@ public class CommonsCollectionsSample {
 				System.out.println(n);
 			}
 		});
+		// ˆÈ‰º‚Å‚à‰Â
+		/*
+		for (Object n : names) {
+			System.out.println(n);
+		}
+		*/
 
 		System.out.println("-----");
 
