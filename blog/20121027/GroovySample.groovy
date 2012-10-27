@@ -12,7 +12,7 @@ names.each { println it }
 println "-----"
 
 // (2) フィルタリング
-def highItems = items.findAll { it.getPrice().compareTo(new BigDecimal("1500")) >= 0 }
+def highItems = items.findAll { it.getPrice() >= 1500 }
 
 highItems.each { println it.name }
 
