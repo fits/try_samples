@@ -19,4 +19,16 @@ class DataSpock extends Specification {
 			null  | null
 	}
 
+	def "check many when-then"() {
+		when:
+			def res = new Data().check(msg)
+		then:
+			res == result
+		where:
+			msg   | result
+			"aaa" | "test:aaa"
+			""    | ""
+			null  | null
+	}
+
 }
