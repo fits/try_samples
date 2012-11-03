@@ -8,7 +8,7 @@ sample n = callCC $ \cc -> do
 		cc n
 
 	-- (2)
-	return $ n * 10
+	return (n * 10)
 
 main = do
 	runCont (sample 1) print -- (1)

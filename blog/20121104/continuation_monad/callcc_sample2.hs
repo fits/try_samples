@@ -10,17 +10,17 @@ sample n = callCC $ \cc1 -> do
 	r <- callCC $ \cc2 -> do
 		when (n < 4) $ do
 			-- (2)
-			cc2 $ n * 1000
+			cc2 (n * 1000)
 
 		when (n == 4) $ do
 			-- (3)
-			cc1 $ n * 100
+			cc1 (n * 100)
 
 		-- (4)
-		return $ n * 10
+		return (n * 10)
 
 	-- (5)
-	return $ r + 1
+	return (r + 1)
 
 main = do
 	runCont (sample 1) print -- (1)
