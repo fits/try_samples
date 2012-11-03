@@ -24,7 +24,7 @@ sample n = callCC $ \k1 -> do
 
 main = do
 	runCont (sample 1) print -- (1)
-	runCont (sample 2) print -- (2) (4)
+	runCont (sample 2) print -- (2) (5)
 	runCont (sample 3) print -- (1)
 	runCont (sample 4) print -- (4) (5)
 	runCont (sample 5) print -- (1)
