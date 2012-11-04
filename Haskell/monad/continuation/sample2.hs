@@ -13,6 +13,11 @@ calc3 x = return (x + 4)
 calcAll :: Int -> Cont r Int
 calcAll n = return n >>= calc1 >>= calc2 >>= calc3
 
+calcSample :: Int -> Cont r Int
+calcSample x = do
+	y <- calc1 x
+	return (y * 10)
+
 main = do
 	-- 2 + 3
 	runCont (calc1 2) print
@@ -23,4 +28,7 @@ main = do
 	-- runCont (calcAll 2) (\x -> print x)
 
 	print $ runCont (calcAll 2) (\x -> x - 9)
+
+	-- (2 + 3) * 10
+	runCont (calcSample 2) print
 
