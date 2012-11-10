@@ -1,5 +1,5 @@
 
-newtype Counter a = Counter { getCount :: (a, Int) } deriving Show
+newtype Counter a = Counter { getCount :: (a, Int) }
 
 instance Monad Counter where
 	return x = Counter (x, 1)
