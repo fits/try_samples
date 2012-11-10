@@ -5,9 +5,15 @@ instance Monad Counter where
 	return x = Counter (x, 1)
 	(Counter (a, c)) >>= f = let (b, _) = getCount(f a) in Counter (b, c + 1)
 
-countUp :: String -> Counter String
-countUp = return
+countUp :: String -> String -> Counter String
+countUp s x = return (x ++ s)
 
 main = do
-	-- ("a", 3)
-	print $ getCount $ countUp "a" >>= countUp >>= countUp
+	-- ("a", 1)
+	print $ getCount $ return "a"
+
+	-- ("ab", 2)
+	print $ getCount $ return "a" >>= countUp "b"
+
+	-- ("abc", 3)
+	print $ getCount $ return "a" >>= countUp "b" >>= countUp "c"
