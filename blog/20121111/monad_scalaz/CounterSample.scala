@@ -4,7 +4,7 @@ import scalaz._
 import Scalaz._
 
 // (1) モナドとして扱う型を定義
-case class Counter[A](val count: (A, Int))
+case class Counter[A](count: (A, Int))
 
 // (2) Monad のインスタンスを定義
 trait CounterInstances {
