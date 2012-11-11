@@ -7,8 +7,8 @@ instance Monad Counter where
 	return x = Counter (x, 1)
 	(Counter (x, c)) >>= f = let (y, _) = getCount(f x) in Counter (y, c + 1)
 
-countUp :: String -> String -> Counter String
-countUp s x = return (x ++ s)
+append :: String -> String -> Counter String
+append s x = return (x ++ s)
 
 -- Counter モナドの利用
 main = do
@@ -16,7 +16,7 @@ main = do
 	print $ getCount $ return "a"
 
 	-- ("ab",2)
-	print $ getCount $ return "a" >>= countUp "b"
+	print $ getCount $ return "a" >>= append "b"
 
 	-- ("abc",3)
-	print $ getCount $ return "a" >>= countUp "b" >>= countUp "c"
+	print $ getCount $ return "a" >>= append "b" >>= append "c"
