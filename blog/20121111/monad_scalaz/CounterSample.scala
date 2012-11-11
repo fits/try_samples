@@ -24,12 +24,12 @@ case object Counter extends CounterInstances
 object CounterSample extends App {
 	import Counter.counterInstance.point
 
-	val countUp = (s: String) => (x: String) => point(x + s)
+	val append = (s: String) => (x: String) => point(x + s)
 
 	// (a, 1)
 	point("a").count |> println
 	// (ab, 2)
-	( point("a") >>= countUp("b") ).count |> println
+	( point("a") >>= append("b") ).count |> println
 	// (abc, 3)
-	( point("a") >>= countUp("b") >>= countUp("c") ).count |> println
+	( point("a") >>= append("b") >>= append("c") ).count |> println
 }
