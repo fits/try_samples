@@ -1,0 +1,12 @@
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'sample.Sample'
+		classpath = runtimeClasspath
+	}
+}
