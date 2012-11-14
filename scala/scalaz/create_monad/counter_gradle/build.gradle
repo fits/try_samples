@@ -1,0 +1,27 @@
+
+apply plugin: 'scala'
+
+def scalaVersion = '2.10.0-RC2'
+def scalazVersion = '7.0.0-M4'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	scalaTools "org.scala-lang:scala-compiler:${scalaVersion}"
+	scalaTools "org.scala-lang:scala-library:${scalaVersion}"
+
+	compile "org.scalaz:scalaz-core_${scalaVersion}:${scalazVersion}"
+}
+
+compileScala {
+	scalaCompileOptions.targetCompatibility = '1.7'
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'fits.sample.CounterSample'
+		classpath = runtimeClasspath
+	}
+}
