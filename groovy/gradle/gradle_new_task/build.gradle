@@ -1,0 +1,17 @@
+task sample1 {
+	println '*** sample1'
+}
+
+task sample2 {
+	doFirst {
+		println '*** sample2 first'
+	}
+	doLast {
+		println '*** sample2 last'
+	}
+	println '*** sample2'
+}
+
+task sample3 << {
+	println '*** sample3'
+}
