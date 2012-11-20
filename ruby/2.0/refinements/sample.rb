@@ -17,3 +17,9 @@ end
 
 # test!
 SampleTest.new.echo("test")
+
+# ‰º‹L‚Í•s‰Â
+# "aaa".sample
+
+using Sample
+puts "aaa".sample
