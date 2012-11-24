@@ -4,17 +4,19 @@ import scalaz._
 import Scalaz._
 
 object CallCCSample extends App {
-	def sample[R](n: Int): Continuation[R, Int] = Continuation.callCC { cc1: (Int => Continuation[R, Int]) =>
-		if(n % 2 == 0) {
-			cc1(n)
+	import Continuation._
+
+	def sample[R](n: Int): Continuation[R, Int] = callCC { cc1: (Int => Continuation[R, Int]) =>
+		if(n % 2 == 1) {
+			cc1(n) // (1)
 		}
 		else {
-			Continuation.continuationInstance[R].point(0)
+			continuationInstance[R].point(0) // (2)
 		}
 	}
 
-	sample(1).runCont { println }
-	sample(2).runCont { println }
-	sample(3).runCont { println }
-	sample(4).runCont { println }
+	sample(1).runCont { println } // (1)
+	sample(2).runCont { println } // (2)
+	sample(3).runCont { println } // (1)
+	sample(4).runCont { println } // (2)
 }

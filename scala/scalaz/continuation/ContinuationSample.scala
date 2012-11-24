@@ -4,15 +4,19 @@ import scalaz._
 import Scalaz._
 
 object ContinuationSample extends App {
-	def calc1[R](x: Int) = Continuation.continuationInstance[R].point(x + 3)
+	import Continuation._
 
-	def calc2[R](x: Int) = Continuation.continuationInstance[R].point(x * 10)
+	def cont[R](a: Int) = continuationInstance[R].point(a)
 
-	def calcAll[R](x: Int) = Continuation.continuationInstance[R].point(x) >>= calc1 >>= calc2
+	def calc1[R](x: Int) = cont[R](x + 3)
+	def calc2[R](x: Int) = cont[R](x * 10)
 
-	calc1(2).runCont { println }
+	def calcAll[R](x: Int) = cont[R](x) >>= calc1 >>= calc2
 
-	calcAll(2).runCont { println }
 
-	calcAll(2).runCont { x => x - 9 } |> println
+	calc1(2).runCont { println } // 5
+
+	calcAll(2).runCont { println } // 50
+
+	calcAll(2).runCont { x => x - 9 } |> println // 41
 }
