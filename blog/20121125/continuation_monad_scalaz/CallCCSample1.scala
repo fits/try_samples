@@ -3,7 +3,7 @@ package fits.sample
 import scalaz._
 import Scalaz._
 
-object CallCCSample extends App {
+object CallCCSample1 extends App {
 	import Cont._
 
 	def sample[R](n: Int): Cont[R, Int] = callCC { cc: (Int => Cont[R, Int]) =>
