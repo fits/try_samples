@@ -23,21 +23,17 @@ object FreeSample2 extends App {
 
 	case object Greeting extends GreetingInstances
 
-	def hello[A](a: A): Free[({type f[+x] = Greeting[x]})#f, Unit] = {
-		Suspend[({type f[+x] = Greeting[x]})#f, Unit](
-			Functor[Greeting].map(Hello(a)) {
-				Return[({type f[+x] = Greeting[x]})#f, Unit](_)
+	def liftF[F[+_]: Functor, R](f: F[R]): Free[F, R] = {
+		Suspend[F, R](
+			Functor[F].map(f) {
+				Return[F, R](_)
 			}
 		)
 	}
 
-	def bye[A]: Free[({type f[+x] = Greeting[x]})#f, Unit] = {
-		Suspend[({type f[+x] = Greeting[x]})#f, Unit](
-			Functor[Greeting].map(Bye()) {
-				Return[({type f[+x] = Greeting[x]})#f, Unit](_)
-			}
-		)
-	}
+	def hello[A](a: A): Free[({type f[+x] = Greeting[x]})#f, Unit] = liftF[({type f[+x] = Greeting[x]})#f, Unit](Hello(a))
+
+	def bye[A]: Free[({type f[+x] = Greeting[x]})#f, Unit] = liftF[({type f[+x] = Greeting[x]})#f, Unit](Bye())
 
 	println(hello("aaaa"))
 
