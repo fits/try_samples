@@ -20,6 +20,16 @@ sampleData = do
 	hello "three"
 	bye
 
+showData :: (Show a, Show r) => Free (Greeting a) r -> String
+showData (Impure (Hello a next)) = "hello : " ++ show a ++ "\n" ++ showData next
+showData (Impure Bye) = "bye\n"
+showData (Pure r) = "return " ++ show r
+
 main = do
 	print $ hello "sample"
 	print $ sampleData
+
+	putStrLn "-----"
+	putStrLn $ showData (hello "sample")
+	putStrLn "-----"
+	putStrLn $ showData sampleData
