@@ -7,11 +7,14 @@ instance Functor (Greeting a) where
 	fmap f (Hello a next) = Hello a (f next)
 	fmap f Bye = Bye
 
+liftF :: (Functor f) => f r -> Free f r
+liftF f = Impure (fmap Pure f)
+
 hello :: a -> Free (Greeting a) ()
-hello x = Impure (Hello x (Pure ()))
+hello x = liftF (Hello x ())
 
 bye :: Free (Greeting a) r
-bye = Impure Bye
+bye = liftF Bye
 
 sampleData :: Free (Greeting [Char]) ()
 sampleData = do
