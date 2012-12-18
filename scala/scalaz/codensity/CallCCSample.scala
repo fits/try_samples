@@ -5,21 +5,7 @@ import Scalaz._
 
 object CallCCSample extends App {
 
-	def callCC[F[+_], A, B](f: (A => Codensity[F, B]) => Codensity[F, A]): Codensity[F, A] = {
-		new Codensity[F, A] { 
-			def apply[C](k: A => F[C]) = {
-				f { a: A =>
-					new Codensity[F, B] {
-						override def apply[D](f: B => F[D]) = {
-							k(a).asInstanceOf[F[D]]
-						}
-					}
-				}.apply(k)
-			}
-		}
-	}
-
-	def sample[F[+_]](n: Int): Codensity[F, Int] = callCC { cc1: (Int => Codensity[F, Int]) =>
+	def sample[F[+_]](n: Int): Codensity[F, Int] = CodensityFunc.callCC { cc1: (Int => Codensity[F, Int]) =>
 		if (n % 2 == 1) {
 			cc1(n)
 		}
