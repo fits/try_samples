@@ -12,9 +12,17 @@ GrettyServer server = []
 
 server.groovy = [
 	localAddress: new InetSocketAddress('localhost', 8080),
+	defaultHandler: {
+		response.redirect '/'
+	},
 	'/': {
 		get {
 			response.html = 'hello'
+		}
+	},
+	'/:name': {
+		get {
+			response.text = "param : ${request.parameters['name']}"
 		}
 	}
 ]
