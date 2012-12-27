@@ -20,6 +20,14 @@ server.groovy = [
 			response.html = 'hello'
 		}
 	},
+	// '/:name' ‚æ‚èæ‚É’è‹`‚·‚é•K—v‚ ‚è
+	'/tp/:title': {
+		get {
+			response.html = template('sample.gpptl', [
+				title: request.parameters['title']
+			])
+		}
+	},
 	'/:name': {
 		get {
 			response.text = "param : ${request.parameters['name']}"
