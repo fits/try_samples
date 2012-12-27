@@ -1,0 +1,9 @@
+<html>
+<body>
+  <!-- template メソッドに渡されたパラメータ title を利用 -->
+  <p>${title}</p>
+
+  <!-- 組み込みオブジェクト request の利用 -->
+  <p>${request.parameters['title']}</p>
+</body>
+</html>
