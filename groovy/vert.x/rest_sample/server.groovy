@@ -1,3 +1,4 @@
+
 import org.vertx.groovy.core.http.RouteMatcher
 import org.vertx.java.core.json.impl.Json
 
@@ -11,6 +12,16 @@ rm.get '/user/:id', { req ->
 		id: req.params['id'],
 		name: 'test'
 	])
+}
+
+rm.post '/user', { req ->
+	req.bodyHandler {
+		// it は Buffer オブジェクト
+		def data = Json.decodeValue(it.toString(), Map)
+		println data
+
+		req.response.end()
+	}
 }
 
 vertx.createHttpServer().requestHandler(rm.asClosure()).listen 8080
