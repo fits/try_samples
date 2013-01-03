@@ -4,6 +4,8 @@
  */
 @GrabResolver(name = 'gretty', root = 'http://groovypp.artifactoryonline.com/groovypp/libs-releases-local/')
 @Grab('org.mbte.groovypp:gretty:0.4.302')
+import static java.nio.charset.StandardCharsets.*
+
 import static org.mbte.gretty.JacksonCategory.*
 import org.mbte.gretty.httpserver.GrettyServer
 
@@ -24,7 +26,9 @@ server.groovy = [
 	},
 	'/user': {
 		post {
-			def data = fromJson(Map, request.contentText)
+			def data = fromJson(Map, request.content.toString(UTF_8))
+			// 以下のようにするとデフォルトエンコードで処理されてしまう
+			//def data = fromJson(Map, request.contentText)
 			println data
 
 			response.json = ''
