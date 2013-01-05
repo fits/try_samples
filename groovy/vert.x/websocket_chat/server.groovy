@@ -1,19 +1,20 @@
 
-def wsList = new java.util.concurrent.CopyOnWriteArrayList()
+def wsMap = [:] as java.util.concurrent.ConcurrentHashMap
 
 vertx.createHttpServer().websocketHandler { ws ->
-	wsList.add(ws)
-
 	ws.dataHandler { data ->
-		wsList.each {
-			it.writeTextFrame(data.toString())
+		wsMap.each { k, v ->
+			v.writeTextFrame(data.toString())
 		}
 	}
 
 	ws.closedHandler {
-		wsList.remove(ws)
-		println "*** closed : ${ws}"
+		wsMap.remove(ws.textHandlerID)
+		println "*** closed : ${ws.textHandlerID}"
 	}
+
+	println "*** connect : ${ws.textHandlerID}"
+	wsMap.put(ws.textHandlerID, ws)
 
 }.listen 8080
 
