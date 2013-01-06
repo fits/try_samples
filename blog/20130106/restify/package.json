@@ -1,0 +1,12 @@
+{
+  "name": "rest-json-sample",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "coffee app"
+  },
+  "dependencies": {
+    "coffee-script": "*",
+    "restify": "1.4.2"
+  }
+}
