@@ -18,9 +18,7 @@ object SampleApp extends Application {
 			wsList.single.transform( _ :+ out )
 
 			val in = Iteratee.foreach[JsValue] { json =>
-				atomic { implicit txn =>
-					wsList.get.foreach( _.push(json) )
-				}
+				wsList.single.get.foreach( _.push(json) )
 			}.mapDone { _ => 
 				wsList.single.transform {
 					_.filterNot( _ == out )
