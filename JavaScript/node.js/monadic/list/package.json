@@ -1,0 +1,13 @@
+{
+  "author": "fits",
+  "name": "monadic-sample",
+  "version": "0.0.0",
+  "dependencies": {
+    "monadic": "*"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
