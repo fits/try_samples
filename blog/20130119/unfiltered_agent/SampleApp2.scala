@@ -8,7 +8,7 @@ import akka.agent.Agent
 
 object SampleApp2 extends Application {
 
-	implicit val system = ActorSystem("sample")
+	implicit val system = ActorSystem()
 
 	// WebSocket のリスト
 	val wsList = Agent(List[WebSocket]())
