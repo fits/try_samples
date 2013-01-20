@@ -11,7 +11,7 @@ moveKnight = (p) ->
 	].filter (t) -> t.c in [1..8] && t.r in [1..8]
 
 inMany = (num, start) ->
-	[1..num].map( (a) -> moveKnight ).reduceRight (acc, elem) ->
+	[1..num].map( -> moveKnight ).reduceRight (acc, elem) ->
 		listM.mbind(acc, elem)
 	, [start]
 
