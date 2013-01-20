@@ -4,16 +4,16 @@ var listM = monadic.list();
 
 var moveKnight = function(p) {
 	return [
-		{x: p.x + 2, y: p.y - 1}, {x: p.x + 2, y: p.y + 1},
-		{x: p.x - 2, y: p.y - 1}, {x: p.x - 2, y: p.y + 1},
-		{x: p.x + 1, y: p.y - 2}, {x: p.x + 1, y: p.y + 2},
-		{x: p.x - 1, y: p.y - 2}, {x: p.x - 1, y: p.y + 2}
+		{c: p.c + 2, r: p.r - 1}, {c: p.c + 2, r: p.r + 1},
+		{c: p.c - 2, r: p.r - 1}, {c: p.c - 2, r: p.r + 1},
+		{c: p.c + 1, r: p.r - 2}, {c: p.c + 1, r: p.r + 2},
+		{c: p.c - 1, r: p.r - 2}, {c: p.c - 1, r: p.r + 2}
 	].filter(function(t) {
-		return (1 <= t.x && t.x <= 8 && 1 <= t.y && t.y <= 8);
+		return (1 <= t.c && t.c <= 8 && 1 <= t.r && t.r <= 8);
 	});
 };
 
-console.log(moveKnight({x: 3, y: 1}));
+console.log(moveKnight({c: 3, r: 1}));
 
 var in3 = function(start) {
 	return listM.mbind(
@@ -28,13 +28,13 @@ var in3 = function(start) {
 	);
 };
 
-console.log(in3({x: 6, y: 2}));
+console.log(in3({c: 6, r: 2}));
 
 var canReachIn3 = function(start, end) {
 	return in3(start).some(function(p) {
-		return (p.x == end.x && p.y == end.y);
+		return (p.c == end.c && p.r == end.r);
 	});
 };
 
-console.log(canReachIn3({x: 6, y: 2}, {x: 6, y: 1}));
-console.log(canReachIn3({x: 6, y: 2}, {x: 7, y: 3}));
+console.log(canReachIn3({c: 6, r: 2}, {c: 6, r: 1}));
+console.log(canReachIn3({c: 6, r: 2}, {c: 7, r: 3}));
