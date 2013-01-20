@@ -15,11 +15,11 @@ var moveKnight = function(p) {
 
 var in3 = function(start) {
 	return do listM {
-		first  <- moveKnight(start);
-		second <- moveKnight(first);
-		third  <- moveKnight(second);
+		first  <- moveKnight(start)
+		second <- moveKnight(first)
+		third  <- moveKnight(second)
 
-		return third;
+		return third
 	};
 };
 
