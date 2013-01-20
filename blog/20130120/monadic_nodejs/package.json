@@ -1,0 +1,7 @@
+{
+  "name": "monadic-list-sample",
+  "version": "0.0.0",
+  "dependencies": {
+    "monadic": "*"
+  }
+}
