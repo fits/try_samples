@@ -1,0 +1,8 @@
+{
+  "name": "monadic-list-sample-coffee",
+  "version": "0.0.0",
+  "dependencies": {
+    "coffee-script": "*",
+    "monadic": "*"
+  }
+}
