@@ -1,16 +1,25 @@
 <html>
 <head>
 	<title>knockout.js list sample</title>
-	<script src="http://code.jquery.com/jquery.min.js"></script>
+	<script src="jquery.min.js"></script>
 	<script src="knockout-2.2.1.js"></script>
 	<script>
 		jQuery(function() {
 
 			var Group = function(groupId, groupName) {
-				this.groupId = groupId;
+				var self = this;
+
+				self.groupId = groupId;
 				// observable すると値の変更が画面へ反映される
-				this.groupName = ko.observable(groupName);
-				this.updateDate = ko.observable(new Date());
+				self.groupName = ko.observable(groupName);
+				self.updateDate = ko.observable(new Date());
+
+				self.editMode = ko.observable(false);
+
+				self.updateDateString = ko.computed(function() {
+					var d = self.updateDate();
+					return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+				});
 			};
 
 			var viewModel = {
@@ -34,8 +43,11 @@
 				},
 				// グループ更新
 				editGroup: function(group) {
-					group.groupName(group.groupName() + 'edit');
+					group.editMode(true);
+				},
+				endEditGroup: function(group) {
 					group.updateDate(new Date());
+					group.editMode(false);
 				},
 			};
 
@@ -65,11 +77,15 @@
 	<tbody data-bind="foreach: groups">
 		<tr>
 			<td data-bind="text: groupId"></td>
-			<td data-bind="text: groupName"></td>
-			<td data-bind="text: updateDate"></td>
 			<td>
-				<button data-bind="click: $parent.editGroup">編集</button>
-				<button data-bind="click: $parent.removeGroup">削除</button>
+				<span data-bind="text: groupName, visible: !editMode()"></span>
+				<input data-bind="value: groupName, visible: editMode()"></input>
+			</td>
+			<td data-bind="text: updateDateString"></td>
+			<td>
+				<button data-bind="click: $parent.editGroup, visible: !editMode()">編集</button>
+				<button data-bind="click: $parent.removeGroup, visible: !editMode()">削除</button>
+				<button data-bind="click: $parent.endEditGroup, visible: editMode()">編集完了</button>
 			</td>
 		</tr>
 	</tbody>
