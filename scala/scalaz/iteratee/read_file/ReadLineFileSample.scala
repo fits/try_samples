@@ -5,7 +5,7 @@ import effect._, IO._
 import iteratee._, Iteratee._
 
 object ReadLineFileSample extends App {
-
+	// ファイルから 1行読み出す Enumerator を作成
 	def enumBufferedReader[F[_]](r: => java.io.BufferedReader)(implicit MO: MonadPartialOrder[F, IO]): EnumeratorT[IoExceptionOr[String], F] = {
 
 		new EnumeratorT[IoExceptionOr[String], F] {
@@ -34,8 +34,23 @@ object ReadLineFileSample extends App {
 
 	val r = enumBufferedReader(new BufferedReader(new FileReader(args(0))))
 
+	// 1行目を出力
 	(head[IoExceptionOr[String], IO] &= r).map {
 		_ flatMap ( _.toOption )
 	}.run.unsafePerformIO().foreach( println )
 
+	println("-----")
+
+	/**
+	 * 残りの全行出力
+	 *
+	 * collect[IoExceptionOr[String], IO] &= r とするとコンパイルエラーとなる
+	 *
+	 * "could not find implicit value for parameter mae: 
+	 *  scalaz.Monoid[Option[scalaz.effect.IoExceptionOr[String]]]"
+	 *
+	 */
+	(collect[IoExceptionOr[String], Stream].up[IO] &= r).map {
+		_ flatMap ( _.toOption )
+	}.run.unsafePerformIO().foreach( println )
 }
