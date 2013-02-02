@@ -33,20 +33,25 @@ object AccessLogParse extends App {
 
 	val enumerator = EnumeratorUtil.enumBufferedReader[IO](reader)
 
-	val iter = collect[Option[AccessLog], Stream].up[IO] %= map { s: IoExceptionOr[String] =>
+	val enumeratee: EnumerateeT[IoExceptionOr[String], Option[AccessLog], IO] = map { s =>
 		s.valueOr("") match {
-			case AccessLogPattern(h, l, u, t, r, s, b, ref, ua) =>
+			case AccessLogPattern(h, l, u, t, r, s, b, rf, ua) =>
 				val req = r match {
 					case RequestLogPattern(m, p, pr) => Some(RequestLog(m, p, pr))
 					case _ => None
 				}
 
-				Some(AccessLog(h, dformat.parse(t), req, s.toInt, b.toLong, ref, ua))
+				Some(AccessLog(h, dformat.parse(t), req, s.toInt, b.toLong, rf, ua))
 			case _ => None
 		}
 	}
 
-	(iter &= enumerator).run.unsafePerformIO().foreach {
+	// 全行を取得
+	val iteratee = collect[Option[AccessLog], Stream].up[IO]
+	// 3行だけ取得
+//	val iteratee = take[Option[AccessLog], Stream](3).up[IO]
+
+	(iteratee %= enumeratee &= enumerator).run.unsafePerformIO().foreach {
 		_ foreach(println)
 	}
 
