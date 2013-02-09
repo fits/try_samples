@@ -1,0 +1,8 @@
+{
+  "name": "simple-dns-server",
+  "version": "0.0.1",
+  "dependencies": {
+    "coffee-script": "*",
+    "native-dns": "*"
+  }
+}
