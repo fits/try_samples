@@ -2,7 +2,9 @@ package fits.sample
 
 import play.api.libs.iteratee._
 import java.io.File
-import scala.util.{Success, Failure}
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 object SampleApp extends App {
 	import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,8 +22,5 @@ object SampleApp extends App {
 		println(s"#${s}")
 	}
 
-	f onComplete {
-		case Success(v) => println(s"success: ${v}")
-		case Failure(e) => e.printStackTrace()
-	}
+	Await.ready(f, Duration.Inf)
 }
