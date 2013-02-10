@@ -14,10 +14,7 @@ object SampleApp2 extends App {
 	val enumerator = Enumerator.generateM( Future {
 		reader.readLine() match {
 			case line: String => Some(line)
-			case _ => {
-				reader.close()
-				None
-			}
+			case _ => None
 		}
 	})
 
@@ -26,4 +23,6 @@ object SampleApp2 extends App {
 	}
 
 	Await.ready(f, Duration.Inf)
+
+	reader.close()
 }
