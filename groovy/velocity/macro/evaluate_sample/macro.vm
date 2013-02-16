@@ -1,0 +1,10 @@
+#macro(sample $msg $id)
+#if(!$id)
+  #set($id = 'Default')
+#end
+#evaluate("#sfunc$id( '$msg' )")
+#end
+
+#macro(sfuncDefault $msg0)
+[macro.sfuncDefault] $!msg0 $!msg $!id
+#end

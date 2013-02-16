@@ -1,0 +1,3 @@
+#macro(sample $msg)
+[macro2.sample] $!msg
+#end

@@ -1,0 +1,13 @@
+Velocity Macro 引数で呼び出すマクロを変更するサンプル
+
+#sample('test0')
+
+#sample('test1' 1)
+
+#sample('test"2"' 'B')
+#sample("test''2''" 'B')
+## sfuncB を呼び出す際に 'test' と '2' に引数が分離される
+#sample('test''2''' 'B')
+
+## マクロが未定義の場合
+#sample('test3' 'C3')

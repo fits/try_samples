@@ -1,0 +1,3 @@
+#macro(sfuncB $msg2)
+[macro2.sfuncB] $!msg2 $!msg $!id
+#end
