@@ -1,0 +1,118 @@
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>knockout.js list sample</title>
+	<script src="http://code.jquery.com/jquery.min.js"></script>
+	<script src="knockout-2.2.1.js"></script>
+	<script>
+		jQuery(function() {
+			var baseUrl = 'http://localhost:8080/user';
+
+			var Group = function(groupId, groupName) {
+				this.groupId = groupId,
+				this.groupName = groupName,
+				this.updateDate = null
+			};
+
+			var viewModel = {
+				newGroupId: ko.observable(''),
+				newGroupName: ko.observable(''),
+
+				// 配列を observable の対象とする（配列の増減が反映される）
+				groups: ko.observableArray(),
+
+				// グループ追加
+				addGroup: function() {
+					var self = viewModel;
+
+					var group = new Group(self.newGroupId(), self.newGroupName());
+
+					jQuery.ajax({
+						type: 'POST',
+						url: baseUrl,
+						dataType: 'json',
+						contentType: 'application/json',
+						data: ko.toJSON(group),
+						success: function(data) {
+							console.log("post success");
+							group.updateDate = data.updateDate;
+
+							self.groups.push(group);
+
+							self.newGroupId('');
+							self.newGroupName('');
+						},
+						error: function(msg) {
+							console.log("post error");
+						}
+					});
+				},
+				// グループ削除
+				removeGroup: function(group, event) {
+					jQuery.ajax({
+						type: 'DELETE',
+						url: baseUrl + '/' + group.groupId,
+						dataType: 'json',
+						contentType: 'application/json',
+						success: function(data) {
+							console.log("delete success");
+
+							viewModel.groups.remove(group);
+						},
+						error: function(msg) {
+							console.log("delete error");
+						}
+					});
+				}
+			};
+
+			jQuery.ajax({
+				type: 'GET',
+				url: baseUrl,
+				dataType: 'json',
+				success: function(data) {
+					console.log("get success");
+					viewModel.groups(data);
+				},
+				error: function(msg) {
+					console.log("get error");
+				}
+			});
+
+			ko.applyBindings(viewModel);
+
+		});
+	</script>
+</head>
+<body>
+
+<div>
+	グループID: <input data-bind="value: newGroupId" />
+	グループ名: <input data-bind="value: newGroupName" />
+	<button data-bind="click: addGroup">追加</button>
+</div>
+
+<h3>グループ一覧</h3>
+<table>
+	<thead>
+		<tr>
+			<th>グループID</th>
+			<th>グループ名</th>
+			<th>更新日</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody data-bind="foreach: groups">
+		<tr>
+			<td data-bind="text: groupId"></td>
+			<td data-bind="text: groupName"></td>
+			<td data-bind="text: updateDate"></td>
+			<td>
+				<button data-bind="click: $parent.removeGroup">削除</button>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+</body>
+</html>
