@@ -9,11 +9,11 @@ case class Counter[A](count: (A, Int))
 // (2) Monad のインスタンスを定義
 trait CounterInstances {
 	implicit val counterInstance = new Monad[Counter] {
-		def point[A](x: => A): Counter[A] = Counter (x, 1)
+		def point[A](x: => A): Counter[A] = Counter (x, 0)
 		def bind[A, B](fa: Counter[A])(f: (A) => Counter[B]): Counter[B] = {
 			val (x, c) = fa.count
-			val (y, _) = f(x).count
-			Counter (y, c + 1)
+			val (y, d) = f(x).count
+			Counter (y, c + d)
 		}
 	}
 }
@@ -24,12 +24,18 @@ case object Counter extends CounterInstances
 object CounterSample extends App {
 	import Counter.counterInstance.point
 
-	val append = (s: String) => (x: String) => point(x + s)
+	val append = (s: String) => (x: String) => Counter (x + s, 1)
 
-	// (a, 1)
+	// (a, 0)
 	point("a").count |> println
-	// (ab, 2)
+	
+	// (ab, 1) 左恒等性
 	( point("a") >>= append("b") ).count |> println
-	// (abc, 3)
+	( append("b")("a") ).count |> println
+
+	// (abc, 2)
 	( point("a") >>= append("b") >>= append("c") ).count |> println
+
+	// (d, 3) 右恒等性
+	( Counter ("d", 3) >>= { s: String => point(s) } ).count |> println
 }
