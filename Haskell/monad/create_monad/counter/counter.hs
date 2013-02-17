@@ -2,18 +2,20 @@
 newtype Counter a = Counter { getCount :: (a, Int) }
 
 instance Monad Counter where
-	return x = Counter (x, 1)
-	(Counter (a, c)) >>= f = let (b, _) = getCount(f a) in Counter (b, c + 1)
+	return x = Counter (x, 0)
+	(Counter (a, c)) >>= f = let (b, d) = getCount(f a) in Counter (b, c + d)
 
 countUp :: String -> String -> Counter String
-countUp s x = return (x ++ s)
+countUp s x = Counter (x ++ s, 1)
 
 main = do
-	-- ("a", 1)
+	-- ("a", 0)
 	print $ getCount $ return "a"
 
-	-- ("ab", 2)
+	-- ("ab", 1)
 	print $ getCount $ return "a" >>= countUp "b"
 
-	-- ("abc", 3)
+	print $ getCount $ countUp "b" "a"
+
+	-- ("abc", 2)
 	print $ getCount $ return "a" >>= countUp "b" >>= countUp "c"
