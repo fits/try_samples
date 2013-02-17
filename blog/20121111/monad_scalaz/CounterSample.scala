@@ -37,5 +37,5 @@ object CounterSample extends App {
 	( point("a") >>= append("b") >>= append("c") ).count |> println
 
 	// (d, 3) 右恒等性
-	( Counter ("d", 3) >>= { s: String => point(s) } ).count |> println
+	( Counter ("d", 3) >>= { s => point(s) } ).count |> println
 }
