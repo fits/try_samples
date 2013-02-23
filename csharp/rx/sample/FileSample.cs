@@ -11,6 +11,10 @@ class FileSample
 	{
 		FromFile(args[0]).Subscribe(Console.WriteLine);
 
+		Console.WriteLine("-----");
+
+		FromFile(args[0]).Skip(1).Take(2).Select(x => "#" + x).Subscribe(Console.WriteLine);
+
 	}
 
 	private static IObservable<string> FromFile(string fileName)
@@ -28,6 +32,7 @@ class FileSample
 					}
 
 					observer.OnCompleted();
+					Console.WriteLine("*** close");
 				}
 			}
 			catch (Exception error) {
