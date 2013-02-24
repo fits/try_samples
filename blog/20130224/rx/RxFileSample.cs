@@ -27,9 +27,8 @@ class RxFileSample
 					{
 						observer.OnNext(reader.ReadLine());
 					}
-
-					observer.OnCompleted();
 				}
+				observer.OnCompleted();
 			}
 			catch (Exception error) {
 				observer.OnError(error);
