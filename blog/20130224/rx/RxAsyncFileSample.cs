@@ -29,9 +29,8 @@ class RxAsyncFileSample
 						var line = await reader.ReadLineAsync();
 						observer.OnNext(line);
 					}
-
-					observer.OnCompleted();
 				}
+				observer.OnCompleted();
 			}
 			catch (Exception error) {
 				observer.OnError(error);
