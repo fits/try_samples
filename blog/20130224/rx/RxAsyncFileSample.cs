@@ -31,7 +31,6 @@ class RxAsyncFileSample
 					}
 
 					observer.OnCompleted();
-					Console.WriteLine("*** close");
 				}
 			}
 			catch (Exception error) {
