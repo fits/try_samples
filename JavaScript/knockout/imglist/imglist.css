@@ -1,0 +1,57 @@
+
+#img-contents {
+	width: 800px;
+	background-color: gray;
+}
+
+#img-menu {
+	float: left;
+	width: 460px;
+}
+
+#img-note {
+	float: left;
+	color: white;
+	width: 320px;
+}
+
+#img-menu ul, #img-note p {
+	margin: 0px;
+	padding: 0px;
+}
+
+#img-menu li {
+	float: left;
+	list-style-image: none;
+	list-style-type: none;
+	margin: 4px;
+}
+
+.main-img {
+	width: 798px;
+	height: 240px;
+	border: 1px solid #DDDDDD;
+}
+
+.main-img:hover {
+	opacity: 0.8;
+}
+
+.sub-img {
+	width: 50px;
+	height: 50px;
+}
+
+.sub-img:hover {
+	width: 42px;
+	height: 42px;
+	margin: 4px;
+}
+
+.img-title {
+	font-weight: bold;
+}
+
+#img-footer {
+	clear: both;
+}
