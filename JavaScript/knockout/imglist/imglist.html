@@ -1,0 +1,35 @@
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>画像リスト表示サンプル</title>
+<link href="imglist.css" type="text/css" rel="stylesheet" />
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+<script src="imglist.js"></script>
+</head>
+<body>
+
+<div id="img-contents">
+	<div data-bind="with: currentItem">
+		<p>
+			<img class="main-img" data-bind="attr: { alt: title, src: imageUrl }" />
+		</p>
+	</div>
+	<div id="img-menu">
+		<ul data-bind="foreach: items">
+			<li data-bind="event: { mouseover: $parent.selectItem }">
+				<a data-bind="attr: { href: link}">
+					<img class="sub-img" data-bind="attr: {src: subImageUrl}" />
+				</a>
+			</li>
+		</ul>
+	</div>
+	<div id="img-note" data-bind="with: currentItem">
+		<p class="img-title" data-bind="text: title">&nbsp;</p>
+		<p data-bind="text: note">&nbsp;</p>
+	</div>
+	<div id="img-footer"></div>
+</div>
+
+</body>
+</html>
