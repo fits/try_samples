@@ -9,7 +9,7 @@ public class FaceCheck2 {
 
 	public static void main(String[] args) {
 		if (args.length < 1) {
-			System.out.println("java FaceCheck <image file> [<classifier file>]");
+			System.out.println("java FaceCheck2 <image file> [<classifier file>]");
 			return;
 		}
 
