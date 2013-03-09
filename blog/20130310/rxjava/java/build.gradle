@@ -1,0 +1,18 @@
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "com.netflix.rxjava:rxjava-groovy:0.5.4"
+}
+
+mainClassName = "fits.sample.ReadLineFile"
+
+run {
+	// プロジェクト引数を実行時引数に渡すための処理
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
