@@ -11,6 +11,6 @@ fromFile = (file) ->
 					observer.onNext line
 				observer.onCompleted()
 
-		rx.noop
+		->
 
 fromFile(process.argv[2]).skip(1).take(2).subscribe (x) -> console.log '#' + x
