@@ -5,7 +5,7 @@ repositories {
 }
 
 dependencies {
-	compile "com.netflix.rxjava:rxjava-groovy:0.5.3"
+	compile "com.netflix.rxjava:rxjava-groovy:0.5.4"
 }
 
 mainClassName = "fits.sample.ReadLineFile"

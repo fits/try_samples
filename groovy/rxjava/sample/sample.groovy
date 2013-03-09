@@ -1,4 +1,4 @@
-@Grab('com.netflix.rxjava:rxjava-groovy:0.5.3')
+@Grab('com.netflix.rxjava:rxjava-groovy:0.5.4')
 import rx.*
 
 Observable.toObservable("a", "b", "c").subscribe { println it }
