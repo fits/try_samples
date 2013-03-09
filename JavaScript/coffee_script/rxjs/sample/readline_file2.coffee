@@ -3,8 +3,6 @@ fs = require 'fs'
 
 fromFile = (file) ->
 	rx.Observable.create (observer) ->
-		buf = ''
-
 		stream = fs.createReadStream(file, {encoding: 'utf-8'})
 
 		stream.on 'error', (ex) -> observer.onError ex
@@ -12,17 +10,13 @@ fromFile = (file) ->
 
 		stream.on 'end', -> observer.onCompleted()
 
+		buf = ''
+
 		stream.on 'data', (data) ->
-			tempBuf = ''
+			list = (buf + data).split(/\n|\r\n/)
+			buf = list.pop()
 
-			for ch, i in buf + data
-				if ch is '\n'
-					observer.onNext tempBuf
-					tempBuf = ''
-				else
-					tempBuf += ch
-
-			buf = tempBuf
+			observer.onNext line for line in list
 
 		-> stream.destroy()
 
