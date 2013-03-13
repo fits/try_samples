@@ -3,7 +3,7 @@ fs = require 'fs'
 
 fromFile = (file) ->
 	rx.Observable.create (observer) ->
-		stream = fs.createReadStream(file, {encoding: 'utf-8'})
+		stream = fs.createReadStream file, {encoding: 'utf-8'}
 
 		# ƒGƒ‰[”­¶Žž
 		stream.on 'error', (ex) -> observer.onError ex
