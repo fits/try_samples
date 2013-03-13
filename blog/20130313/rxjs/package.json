@@ -1,0 +1,9 @@
+{
+  "author": "fits",
+  "name": "rxjs-sample",
+  "version": "0.0.0",
+  "dependencies": {
+    "coffee-script": "*",
+    "rxjs": "*"
+  }
+}
