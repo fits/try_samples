@@ -2,9 +2,6 @@ package fits.sample;
 
 import java.util.*;
 
-import org.aspectj.lang.annotation.*;
-import org.aspectj.lang.*;
-
 import org.drools.base.*;
 import org.drools.base.ClassFieldAccessorCache.CacheEntry;
 
