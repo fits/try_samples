@@ -1,0 +1,41 @@
+
+project.ext {
+	srcDir = 'src'
+	destDir = 'dest'
+	aspectJVersion = '1.7.2'
+}
+
+repositories {
+	mavenCentral()
+} 
+
+configurations {
+	tool
+	ajc
+	trg
+}
+
+dependencies {
+	tool "org.aspectj:aspectjtools:${project.aspectJVersion}"
+	ajc "org.aspectj:aspectjrt:${project.aspectJVersion}"
+	ajc 'org.slf4j:slf4j-api:1.7.5'
+	trg 'org.mybatis:mybatis:3.2.1'
+}
+
+ant.taskdef(resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties', classpath: configurations.tool.asPath)
+
+task aop << {
+	mkdir(project.destDir)
+
+	def destFile = "${project.destDir}/${configurations.trg.singleFile.name}"
+
+	ant.iajc(outjar: destFile, inpath: configurations.trg.asPath, source: '1.7', showWeaveInfo: true, classpath: configurations.ajc.asPath) {
+		sourceroots {
+			pathelement(location: project.srcDir)
+		}
+	}
+}
+
+task clean << {
+	delete(project.destDir)
+}
