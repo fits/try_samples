@@ -1,0 +1,13 @@
+host = '127.0.0.1'
+user = 'vagrant'
+keyfile = 'c:/vagrant/insecure_private_key'
+
+msg = host
+strconcat msg ':2222 /ssh /auth=publickey /user='
+strconcat msg user
+strconcat msg ' /keyfile="'
+strconcat msg keyfile
+strconcat msg '"'
+
+connect msg
+
