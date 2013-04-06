@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>sample</groupId>
+  <artifactId>sample</artifactId>
+  <packaging>war</packaging>
+  <version>1.0.0</version>
+  <name>POM Resources + Profiles Sample</name>
+  <url></url>
+  <build>
+    <finalName>sample</finalName>
+    <plugins>
+      <!-- Web リソースにフィルターを適用するための設定 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>src/main/webapp</directory>
+              <filtering>true</filtering>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <!-- filtering を true にする事でフィルターが適用される -->
+        <filtering>true</filtering>
+      </resource>
+      <!-- 下記のように設定しても Web リソースにフィルターは適用されない
+      <resource>
+        <directory>src/main/webapp</directory>
+        <filtering>true</filtering>
+      </resource>
+       -->
+    </resources>
+    <!-- (1) フィルター定義 -->
+    <filters>
+      <filter>setting.properties</filter>
+    </filters>
+  </build>
+  <profiles>
+    <profile>
+      <id>stg</id>
+      <build>
+        <resources>
+          <resource>
+            <directory>settings/stg/src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+        <!-- (2) stg 用のフィルター定義 -->
+        <filters>
+          <filter>settings/stg/setting.properties</filter>
+        </filters>
+      </build>
+    </profile>
+  </profiles>
+</project>

@@ -1,0 +1,4 @@
+<sample>
+	<id>product</id>
+	<value>${sample.value}</value>
+</sample>

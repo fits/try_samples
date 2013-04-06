@@ -1,0 +1,5 @@
+<sample>
+	<id>stg</id>
+	<value>${sample.value}</value>
+	<note>stg mode</note>
+</sample>
