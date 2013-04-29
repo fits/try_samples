@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8" />
+	<title>画像バックアップツール</title>
+	<link href="css/bootstrap.min.css" rel="stylesheet" />
+	<link href="css/backupimg.css" rel="stylesheet" />
+</head>
+<body>
+	<div>
+		<div class="row">
+			<div class="span2">
+					<div class="controls">
+						<label class="control-label">Directory ：</label>
+						<select class="span2" data-bind="options: dirList, value: selectedDir">
+						</select>
+						<label class="control-label">Name ：</label>
+						<input class="span2" type="text" data-bind="value: nameCondition">
+
+						<label id="only-undone" class="checkbox">
+							<input type="checkbox" data-bind="checked: onlyUndone">Only No Backup</input>
+						</label>
+					</div>
+			</div>
+			<div class="span10">
+				<ul class="thumbnails" data-bind="foreach: showImageList">
+					<li class="span1 img-group">
+						<img class="thumbnail" data-bind="attr: { src: url, title: name }, event: { dblclick: $parent.backup }" />
+						<div class="img-done" data-bind="text: done()? 'DONE': ''"></div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	<div>
+
+	<script src="js/jquery-2.0.0.min.js"></script>
+	<script src="js/knockout-2.2.1.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/backupimg.js"></script>
+</body>
+</html>
