@@ -1,0 +1,27 @@
+
+img.thumbnail {
+	width: 70px;
+	height: 70px;
+}
+
+img.thumbnail:hover {
+	background: #2ECC71;
+}
+
+.img-group {
+	position: relative;
+}
+
+.img-done {
+	text-align: center;
+	background: skyblue;
+	color: white;
+	position: absolute;
+	top: 30px;
+	width: 70px;
+}
+
+#only-undone {
+	margin-top: 30px;
+	margin-left: 5px;
+}
