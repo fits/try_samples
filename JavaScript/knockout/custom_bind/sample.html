@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<script src="http://code.jquery.com/jquery-2.0.0.min.js"></script>
+	<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+	<script>
+		jQuery(function() {
+			var data = [
+				{name: "サンプル1", startDate: new Date()},
+				{name: "サンプル2", startDate: new Date(2013, 3, 5, 6, 7, 8)},
+				{name: "サンプル3", startDate: new Date(2013, 11, 10, 13, 0)},
+				{name: "sample4", startDate: null}
+			];
+
+			var viewModel = {
+				items: ko.observableArray()
+			};
+
+			var padZero = function(num) {
+				return (num < 10)? '0' + num: num.toString();
+			};
+
+			var formatDate = function(element, valueAccessor) {
+				var date = valueAccessor();
+
+				if (date) {
+					var dateString = date.getFullYear() + "/" + padZero(date.getMonth() + 1) + "/" + padZero(date.getDate()) + " " + padZero(date.getHours()) + ":" + padZero(date.getMinutes()) + ":" + padZero(date.getSeconds());
+
+					jQuery(element).text(dateString);
+				}
+			};
+
+			ko.bindingHandlers.date = {
+				init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+					formatDate(element, valueAccessor);
+				},
+				update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+					formatDate(element, valueAccessor);
+				}
+			};
+
+			viewModel.items(data);
+			ko.applyBindings(viewModel);
+		});
+
+	</script>
+</head>
+<body>
+	<table border="1">
+		<thead>
+			<tr>
+				<th>名前</th>
+				<th>開始日時</th>
+			</tr>
+		</thread>
+		<tbody data-bind="foreach: items">
+			<tr>
+				<td data-bind="text: name"></td>
+				<td data-bind="date: startDate"></td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>
