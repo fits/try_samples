@@ -33,7 +33,7 @@ class IdentityMonad {
 		IdentityProc.unit(self)
 	}
 
-	static <T, V> Identity<T> bind(Identity<T> self, Closure<V> k) {
+	static <T, V> Identity<V> bind(Identity<T> self, Closure<Identity<V>> k) {
 		IdentityProc.bind(self, k)
 	}
 }
