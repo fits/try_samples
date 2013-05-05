@@ -19,6 +19,14 @@ Identity.metaClass.bind = { Closure k ->
 	IdentityProc.bind(delegate, k)
 }
 
+Identity.metaClass.methodMissing = { String name, args ->
+	if (name == '>>=') {
+		delegate.bind(args.head())
+	}
+	else {
+		super.methodMissing(name, args)
+	}
+}
 
 class IdentityMonad {
 	static <T> Identity<T> identity(T self) {
@@ -29,6 +37,7 @@ class IdentityMonad {
 		IdentityProc.bind(self, k)
 	}
 }
+
 
 import static IdentityProc.*
 
@@ -44,9 +53,13 @@ def res2 = unit(10) bind { unit(it + 5) } bind { unit(it + '!!!') }
 
 println res2.value
 
-use(IdentityMonad) {
-	def res3 = 10.identity() bind { (it * 5).identity() } bind { (it + '!!!').identity() }
+def res3 = unit(10) '>>=' { unit(it * 3) } '>>=' { unit(it + '!!!') }
 
-	println res3.value
+println res3.value
+
+use(IdentityMonad) {
+	def res4 = 10.identity() bind { (it * 5).identity() } bind { (it + '!!!').identity() }
+
+	println res4.value
 }
 
