@@ -59,7 +59,7 @@ println new El('sample')
 
 
 def <E, A> IterV<E, A> head() {
-	def stepHead = {}
+	def stepHead
 
 	stepHead = { Input<E> el ->
 		println "*** ${this} ${owner}"
@@ -74,12 +74,12 @@ def <E, A> IterV<E, A> head() {
 			new Done<E, A>(result: el.value, rest: new Empty<E>())
 		}
 	}
-	
+
 	new Cont<E, A>(result: stepHead)
 }
 
 def <E, A> IterV<E, A> skip() {
-	def stepSkip = {}
+	def stepSkip
 
 	stepSkip = { Input<E> el ->
 		if (el instanceof EOF) {
