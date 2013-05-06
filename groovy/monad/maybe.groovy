@@ -1,39 +1,45 @@
 
-import groovy.transform.*
-
-class Maybe<T> {
-	T value
+abstract class Maybe<T> {
+	abstract T value(T defaultValue)
 }
 
-class Nothing extends Maybe<Void> {
-	static Nothing instance = new Nothing()
-
-	private Nothing() {
+final class Nothing<T> extends Maybe<T> {
+	@Override T value(T defaultValue) {
+		defaultValue
 	}
 }
 
-class Just<T> extends Maybe<T> {
+final class Just<T> extends Maybe<T> {
+	private T value
+
+	Just(T value) {
+		this.value = value
+	}
+
+	@Override T value(T defaultValue = null) {
+		this.value
+	}
 }
 
 class MaybeMonad {
 	static <T> Maybe<T> just(T self) {
-//	self ‚ª null ‚Ìê‡‚Å‚à self == null ‚Í false ‚Æ‚È‚é
+//	self ‚ª null ‚Ìê‡‚É self == null ‚ª false ‚Æ‚È‚é–Í—l
 //		if (self == null) {
 		if (self.toString() == 'null') {
 			nothing()
 		}
 		else {
-			new Just(value: self)
+			new Just(self)
 		}
 	}
 
-	static <T> Maybe<T> nothing(T self) {
-		Nothing.instance
+	static <T> Maybe<T> nothing(T self = null) {
+		new Nothing<T>()
 	}
 
 	static <T, V> Maybe<V> bind(Maybe<T> self, Closure<Maybe<V>> k) {
 		if (self instanceof Just) {
-			k(self.value)
+			k(self.value())
 		}
 		else {
 			self
@@ -41,8 +47,8 @@ class MaybeMonad {
 	}
 }
 
-println new Just(value: "test")
-println Nothing.instance
+println new Just("test")
+println new Nothing()
 
 println "-------------"
 
@@ -57,10 +63,13 @@ use(MaybeMonad) {
 	def res1 = 10.just() bind { (it * 2).just() } bind { (it + '!!!').just() }
 
 	println res1
-	println res1.value
+	println res1.value()
 
 	def res2 = 10.just() bind { it.nothing() } bind { (it + '!!!').just() }
 
 	println res2
-	println res2.value
+	println res2.value('none')
+
+	def res3 = new Date().just() bind { it.format('yyyy/MM/dd HH:mm:ss').just() }
+	println res3.value('none')
 }
