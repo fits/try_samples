@@ -113,6 +113,27 @@ def <E, A, R> IterV<A, R> bind(IterV<E, A> iter, Closure<IterV<A, R>> f) {
 	}
 }
 
+def <E, A> IterV<List<E>, A> take(int n) {
+	def step
+
+	step = { int count, List<E> acc, Input<E> el ->
+		if (el instanceof EOF) {
+			new Done(result: acc, rest: new Empty())
+		}
+		else if (el instanceof Empty) {
+			new Cont(result: step.curry(count, acc))
+		}
+		else if (el instanceof El) {
+			println "---- ${el.value}"
+
+			(count == 1)? new Done(result: acc << el.value, rest: new Empty()): new Cont(result: step.curry(count - 1, acc << el.value))
+		}
+	}
+	println "** ${n}"
+
+	(n == 0)? new Done(result: [], rest: new EOF()): new Cont(result: step.curry(n, []))
+}
+
 
 println run(enumerator(head(), 'a1', 'b2', 'c3'))
 
@@ -120,3 +141,4 @@ println run(enumerator(skip(), 'a1', 'b2', 'c3'))
 
 println run(enumerator(bind(skip(), { head() }), 'a1', 'b2', 'c3'))
 
+println run(enumerator(bind(skip(), { take(2) }), 'a1', 'b2', 'c3', 'd4'))
