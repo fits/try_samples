@@ -134,6 +134,27 @@ def <E, A> IterV<List<E>, A> take(int n) {
 	(n == 0)? new Done(result: [], rest: new EOF()): new Cont(result: step.curry(n, []))
 }
 
+def <E, A> IterV<List<E>, A> take2(int n) {
+	def step
+
+	step = { int count, List<E> acc, Input<E> el ->
+		if (el instanceof EOF) {
+			new Done(result: acc, rest: el)
+		}
+		else if (el instanceof Empty) {
+			new Cont(result: step.curry(count, acc))
+		}
+		else if (el instanceof El) {
+			println "---- ${el.value}"
+
+			(count <= 0)? new Done(result: acc, rest: el): new Cont(result: step.curry(count - 1, acc << el.value))
+		}
+	}
+	println "** ${n}"
+
+	new Cont(result: step.curry(n, []))
+}
+
 
 println run(enumerator(head(), 'a1', 'b2', 'c3'))
 
@@ -141,4 +162,6 @@ println run(enumerator(skip(), 'a1', 'b2', 'c3'))
 
 println run(enumerator(bind(skip(), { head() }), 'a1', 'b2', 'c3'))
 
-println run(enumerator(bind(skip(), { take(2) }), 'a1', 'b2', 'c3', 'd4'))
+println run(enumerator(bind(skip(), { take(2) }), 'a1', 'b2', 'c3', 'd4', 'e5'))
+
+println run(enumerator(bind(skip(), { take2(2) }), 'a1', 'b2', 'c3', 'd4', 'e5'))
