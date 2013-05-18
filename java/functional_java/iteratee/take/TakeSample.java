@@ -67,12 +67,11 @@ class TakeSample {
 					public F<E, IterV<E, List<E>>> _1() {
 						return new F<E, IterV<E, List<E>>>() {
 							@Override
-							public IterV<E, List<E>> f(E e) {
+							public IterV<E, List<E>> f(final E value) {
 								if (count <= 0) {
 									return IterV.done(acc, s);
 								}
 								else {
-									final E value = s.apply((P1<E>)null, P.p(Function.<E>identity()), (P1<E>)null);
 									return IterV.cont(new F<Input<E>, IterV<E, List<E>>>() {
 										@Override
 										public IterV<E, List<E>> f(Input<E> e) {
