@@ -14,12 +14,11 @@ def take(int n) {
 		def eof = { IterV.done(acc, s) } as P1
 
 		def el = {
-			return {
+			return { value ->
 				if (count <= 0) {
 					IterV.done(acc, s)
 				}
 				else {
-					def value = s.apply(null, { return { it } as F } as P1, null)
 					IterV.cont({ step(count - 1, acc << value, it) } as F)
 				}
 			} as F
