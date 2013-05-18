@@ -14,9 +14,7 @@ def take(int n) {
 		def eof = { IterV.done(acc, Input.eof()) } as P1
 
 		def el = {
-			return {
-				def value = s.apply(null, { return { it } as F } as P1, null)
-
+			return { value ->
 				(count == 1)? IterV.done(acc << value, Input.empty()): IterV.cont({ step(count - 1, acc << value, it) } as F)
 			} as F
 		} as P1
