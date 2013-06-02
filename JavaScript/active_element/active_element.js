@@ -1,10 +1,10 @@
 
 function findActiveElement(doc) {
-	var result = doc.activeElement;
-
-	return (result.contentWindow)? findActiveElement(result.contentWindow.document): result;
-}
-
-function getActive() {
-	return findActiveElement(document);
+	if (doc) {
+		var result = doc.activeElement;
+		return (result.contentDocument)? findActiveElement(result.contentDocument): result;
+	}
+	else {
+		return findActiveElement(document);
+	}
 }
