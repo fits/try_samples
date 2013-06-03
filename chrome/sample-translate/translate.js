@@ -30,7 +30,6 @@ jQuery(document).ready(function() {
 				jQuery.ajax({
 					type: 'GET',
 					url: url,
-					data: params,
 					dataType: 'text',
 					success: function(data) {
 						callback(data.replace(/"/g, ''));

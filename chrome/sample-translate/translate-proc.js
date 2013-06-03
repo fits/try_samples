@@ -1,31 +1,21 @@
 
-var findElement = function(element) {
-	if (element.localName.indexOf('frame') > -1) {
-		for (var i = 0; i < window.frames.length; i++) {
-			if (window.frames[i].window == element.contentWindow) {
-				element = window.frames[i].document.activeElement;
-				break;
-			}
-		}
-	}
-	return (element.localName == 'textarea')? element: null;
-};
+function findActiveElement(doc) {
+	var result = doc.activeElement;
+	return (result.contentDocument)? findActiveElement(result.contentDocument): result;
+}
 
 chrome.extension.onRequest.addListener(function(req, sender, res) {
-	var el = findElement(document.activeElement);
+	var el = findActiveElement(document);
 	var result = {};
 
 	if (el) {
 		if (req.result) {
 			console.log(req.result);
-			el.value += '\n' + req.result + '\n';
 		}
 		else {
-			result.words = el.value;
+			result.words = (el.value)? el.value: el.textContent;
 		}
 	}
-	else {
-		console.log('not textarea');
-	}
+
 	res(result);
 });
