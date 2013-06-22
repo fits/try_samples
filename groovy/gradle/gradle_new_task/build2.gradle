@@ -15,5 +15,5 @@ sample.doLast {
 
 sample << {
 	// (4)
-	println '*** sample2'
+	println "*** ${sample.name}2"
 }
