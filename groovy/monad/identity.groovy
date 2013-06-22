@@ -19,6 +19,10 @@ Identity.metaClass.bind = { Closure k ->
 	IdentityProc.bind(delegate, k)
 }
 
+Identity.metaClass.rightShift = { Closure k ->
+	IdentityProc.bind(delegate, k)
+}
+
 Identity.metaClass.methodMissing = { String name, args ->
 	if (name == '>>=') {
 		delegate.bind(args.head())
@@ -62,4 +66,8 @@ use(IdentityMonad) {
 
 	println res4.value
 }
+
+def res5 = unit(10) >> { unit(it * 3) } >> { unit(it + '!!!') }
+
+println res5.value
 
