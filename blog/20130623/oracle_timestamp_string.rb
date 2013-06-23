@@ -1,5 +1,4 @@
 # -*- encoding: utf-8 -*-
-require 'java'
 require_relative 'lib/ojdbc14.jar'
 #require_relative 'lib/ojdbc5.jar'
 #require_relative 'lib/ojdbc6.jar'
