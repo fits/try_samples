@@ -2,9 +2,6 @@
 #
 # VirtualBox の仮想マシンをリストアップするサンプル
 
-from System import *
-from System.IO import *
-
 import clr
 clr.AddReference("VirtualBox")
 
