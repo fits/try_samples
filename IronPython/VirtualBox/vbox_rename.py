@@ -30,10 +30,14 @@ mc.LockMachine(session, LockType.LockType_Write)
 upMc = session.Machine
 
 upMc.Name = sys.argv[2]
-# 変更の適用
-upMc.SaveSettings()
 
-# ロックを解除する
-session.UnlockMachine()
+try:
+	# 変更の適用
+	upMc.SaveSettings()
 
-print "new name : %s" % mc.Name
+	print "new name : %s" % mc.Name
+
+finally:
+	# ロックを解除する
+	session.UnlockMachine()
+
