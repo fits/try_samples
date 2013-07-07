@@ -8,8 +8,6 @@ if len(sys.argv) < 2:
 	print "%s <input file>" % sys.argv[0]
 	sys.exit()
 
-import os
-
 import clr
 clr.AddReference("VirtualBox")
 
