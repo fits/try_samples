@@ -8,8 +8,6 @@ if len(sys.argv) < 3:
 	print "%s <machine name> <new name>" % sys.argv[0]
 	sys.exit()
 
-import os
-
 import clr
 clr.AddReference("VirtualBox")
 
