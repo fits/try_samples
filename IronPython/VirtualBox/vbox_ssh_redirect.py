@@ -13,7 +13,6 @@ import os
 import clr
 clr.AddReference("VirtualBox")
 
-from System import *
 from VirtualBox import *
 
 vb = VirtualBoxClass()
