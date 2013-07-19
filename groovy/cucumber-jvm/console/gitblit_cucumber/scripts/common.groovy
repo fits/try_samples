@@ -47,6 +47,10 @@ class WebTesterDriver {
 	def to(String url) {
 		driver.get(url)
 	}
+
+	def getUrl() {
+		driver.currentUrl
+	}
 }
 
 Before() {

@@ -8,6 +8,6 @@ When(~/"(.*)" へ "(.*)" を入力/) { name, value ->
 }
 
 Then(~'ログイン済みとなる') { ->
-	assert tester.byXpath("//span[@class = 'userPanel' and a = 'ログアウト']") != null
+	assert tester.byXpath("//a[. = 'ログアウト']") != null
 }
 
