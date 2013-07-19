@@ -8,5 +8,5 @@ When(~'リポジトリをクリック') { ->
 }
 
 Then(~'リポジトリページを表示') { ->
-	assert tester.url == "${TOP_URL}repositories/"
+	assert tester.url == "${TOP_URL}repositories/" && tester.byXpath('//table[@class="repositories"]') != null
 }
