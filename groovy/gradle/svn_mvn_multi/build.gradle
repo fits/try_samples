@@ -1,0 +1,107 @@
+
+import org.tmatesoft.svn.core.*
+import org.tmatesoft.svn.core.wc.*
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.tmatesoft.svnkit:svnkit:1.7.8'
+	}
+}
+
+class MProject {
+	String project
+	def profiles = ['']
+
+	MProject() {
+	}
+
+	MProject(String project) {
+		this.project = project
+	}
+
+	def run(closure) {
+		profiles.each {
+			closure(project, it)
+		}
+	}
+}
+
+def repoUrl = 'http://localhost/svn/sample'
+def workDir = 'work'
+def destDir = 'dest'
+
+def mProjects = [
+	new MProject('sample1'),
+	new MProject('sample2'),
+	new MProject(project: 'sample-app1', profiles: [
+		'prod', 'stg', 'dev'
+	])
+]
+
+task svn << {
+	def manager = SVNClientManager.newInstance()
+	def client = manager.updateClient
+
+	mProjects.each {
+		it.run { prj, profile ->
+			def res = client.doCheckout(SVNURL.parseURIDecoded("${repoUrl}/${prj}"), new File("${workDir}/${prj}_${profile}"), SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY, true)
+
+			println "${prj} <${profile}> checkout revision = ${res}"
+		}
+	}
+}
+
+task mvn << {
+	mProjects.each {
+		it.run { prj, profile ->
+			def cmd = ['mvn.bat', 'clean', 'install']
+
+			if (profile) {
+				cmd << "-P ${profile}"
+			}
+
+			exec {
+				commandLine cmd
+				workingDir "${workDir}/${prj}_${profile}"
+			}
+		}
+	}
+}
+
+task dest << {
+	mkdir(destDir)
+
+	mProjects.each {
+		it.run { prj, profile ->
+			copy {
+				from fileTree("${workDir}/${prj}_${profile}") {
+					include '**/target/*.jar'
+					include '**/target/*.war'
+				}.files
+
+				rename {
+					(profile)? "${it}.${profile}": it
+				}
+
+				into destDir
+			}
+		}
+	}
+}
+
+task clean << {
+	delete(destDir)
+}
+
+task cleanall << {
+	delete(workDir)
+}
+
+mvn.dependsOn svn
+dest.dependsOn clean
+dest.dependsOn mvn
+
+cleanall.dependsOn clean
