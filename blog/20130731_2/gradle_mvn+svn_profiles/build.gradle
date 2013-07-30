@@ -1,0 +1,72 @@
+
+import org.tmatesoft.svn.core.*
+import org.tmatesoft.svn.core.wc.*
+import org.apache.maven.cli.MavenCli
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.tmatesoft.svnkit:svnkit:1.7.8'
+		classpath 'org.apache.maven:maven-embedder:3.0.5'
+	}
+}
+
+// Subversion のリポジトリURL
+def repoUrl = 'http://localhost/svn/sample-app'
+def workDir = 'work'
+def destDir = 'dest'
+def profiles = ['prd', 'stg', 'dev']
+
+task svnco << {
+	def manager = SVNClientManager.newInstance()
+	def client = manager.updateClient
+
+	profiles.each { profile ->
+		// ソースを checkout
+		def res = client.doCheckout(SVNURL.parseURIDecoded(repoUrl), new File("${workDir}/${profile}"), SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY, true)
+
+		println "${profile} checkout revision = ${res}"
+	}
+}
+
+task mvn << {
+	profiles.each { profile ->
+		def cmd = "-f ${workDir}/${profile}/pom.xml package -Dmaven.test.skip=true -P ${profile}"
+
+		def res = MavenCli.doMain(cmd.split(' '), null)
+
+		if (res != 0) {
+			throw new RuntimeException()
+		}
+	}
+}
+
+task dest << {
+	mkdir(destDir)
+
+	profiles.each { profile ->
+		// 生成された war ファイルの末尾に .<profile名> を付けて
+		// dest ディレクトリへコピー
+		copy {
+			from fileTree("${workDir}/${profile}") {
+				include '**/target/*.war'
+			}.files
+
+			rename {
+				"${it}.${profile}"
+			}
+
+			into destDir
+		}
+	}
+}
+
+mvn.dependsOn svnco
+dest.dependsOn mvn
+
+task clean << {
+	delete(workDir)
+	delete(destDir)
+}

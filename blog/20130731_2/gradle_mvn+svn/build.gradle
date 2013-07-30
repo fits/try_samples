@@ -1,0 +1,43 @@
+
+import org.tmatesoft.svn.core.*
+import org.tmatesoft.svn.core.wc.*
+import org.apache.maven.cli.MavenCli
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.tmatesoft.svnkit:svnkit:1.7.8'
+		classpath 'org.apache.maven:maven-embedder:3.0.5'
+	}
+}
+
+def repoUrl = 'http://localhost/svn/sample-app'
+def workDir = 'work'
+
+task svnco << {
+	def manager = SVNClientManager.newInstance()
+	def client = manager.updateClient
+
+	// ソースを checkout
+	def res = client.doCheckout(SVNURL.parseURIDecoded(repoUrl), new File(workDir), SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY, true)
+
+	println "checkout revision = ${res}"
+}
+
+task mvn << {
+	def cmd = "-f ${workDir}/pom.xml package -Dmaven.test.skip=true"
+
+	def res = MavenCli.doMain(cmd.split(' '), null)
+
+	if (res != 0) {
+		throw new RuntimeException()
+	}
+}
+
+mvn.dependsOn svnco
+
+task clean << {
+	delete(workDir)
+}
