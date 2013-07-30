@@ -1,0 +1,16 @@
+import org.apache.maven.cli.MavenCli
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.apache.maven:maven-embedder:3.0.5'
+	}
+}
+
+task mvn << {
+	def argsLine = "-f work/sample-app/pom.xml clean package -Dmaven.test.skip=true"
+
+	MavenCli.doMain(argsLine.split(' '), null)
+}
