@@ -1,0 +1,6 @@
+package sample.Sample where
+
+main [] = do
+	let num = 3 + 6
+	putStrLn("test" ++ show(num))
+
