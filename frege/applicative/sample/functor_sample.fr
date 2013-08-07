@@ -1,0 +1,8 @@
+package sample.FunctorSample where
+
+instance Functor ((->) r) where
+	fmap = (.)
+
+main args = do
+	let f = fmap (*3) (+10)
+	putStrLn $ show $ f 4
