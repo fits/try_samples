@@ -1,0 +1,12 @@
+package sample.ApplicativeSample where
+
+instance Functor ((->) r) where
+	fmap = (.)
+
+instance Applicative ((->) r) where
+	return x = (\_ -> x)
+	f <*> g = \x -> f x (g x)
+
+main args = do
+	let f = (+) <$> (*3) <*> (+10)
+	println $ f 4
