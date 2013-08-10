@@ -1,0 +1,10 @@
+<html>
+<body>
+
+<ul th:each="item : ${items}">
+	<li th:text="${item.name} + ' : ' + ${item.point}">aaa</li>
+	<li th:remove="all">sample</li>
+</ul>
+
+</body>
+</html>
