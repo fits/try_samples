@@ -22,13 +22,14 @@ public class Sample {
 		final CountDownLatch stopLatch = new CountDownLatch(1);
 
 		Runtime.getRuntime().addShutdownHook(new Thread( () -> {
-			System.out.println("shtudown ...");
+			System.out.println("shutdown ...");
 			stopLatch.countDown();
 		}));
 
 		try {
 			stopLatch.await();
 		} catch (InterruptedException ex) {
+			ex.printStackTrace();
 		}
 	}
 }

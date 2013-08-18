@@ -15,7 +15,7 @@ println 'started ...'
 def stopLatch = new CountDownLatch(1)
 
 Runtime.runtime.addShutdownHook { ->
-	println 'shtudown ...'
+	println 'shutdown ...'
 	stopLatch.countDown()
 }
 
