@@ -2,6 +2,7 @@ package fits.sample;
 
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
+import java.util.concurrent.CountDownLatch;
 
 public class Sample {
 	public static void main(String... args) throws Exception {
@@ -12,6 +13,22 @@ public class Sample {
 			req.response().end("test data")
 		).listen(8080);
 
-		System.in.read();
+		System.out.println("started ...");
+
+		waitStop();
+	}
+
+	private static void waitStop() {
+		final CountDownLatch stopLatch = new CountDownLatch(1);
+
+		Runtime.getRuntime().addShutdownHook(new Thread( () -> {
+			System.out.println("shtudown ...");
+			stopLatch.countDown();
+		}));
+
+		try {
+			stopLatch.await();
+		} catch (InterruptedException ex) {
+		}
 	}
 }
