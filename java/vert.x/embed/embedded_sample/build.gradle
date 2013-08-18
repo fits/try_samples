@@ -5,7 +5,7 @@ repositories {
 }
 
 dependencies {
-	compile 'io.vertx:vertx-core:2.0.0-final'
+	compile 'io.vertx:vertx-core:2.0.1-final'
 }
 
 sourceCompatibility = 1.8
