@@ -1,0 +1,9 @@
+server {
+	listen      8180;
+	server_name <%= node[:nginx][:server] %>;
+
+	location /mvn_repo {
+		root <%= node[:nginx][:mvn_repo_dir] %>;
+		autoindex on;
+	}
+}
