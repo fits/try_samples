@@ -1,0 +1,13 @@
+package sample.BigDecimalSample where
+
+data BigDecimal = pure native java.math.BigDecimal where
+	pure native new :: String -> BigDecimal
+	pure native add :: BigDecimal -> BigDecimal -> BigDecimal
+	pure native toString :: BigDecimal -> String
+
+main args = do
+	let num1 = BigDecimal.new "100"
+	let num2 = BigDecimal.new "50"
+
+	putStrLn $ (num1.add num2).toString
+
