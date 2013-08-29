@@ -1,0 +1,10 @@
+package sample.PointSample where
+
+data Point = pure native java.awt.Point where
+	pure native new :: Int -> Int -> Point
+	pure native toString :: Point -> String
+
+main args = do
+	let p = Point.new 10 20
+	putStrLn $ p.toString
+
