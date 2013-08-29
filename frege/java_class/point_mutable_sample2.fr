@@ -1,0 +1,16 @@
+package sample.PointMutableSample2 where
+
+data Point = mutable native java.awt.Point where
+	native new :: Int -> Int -> ST s (Mutable s Point)
+	native toString :: Mutable s Point -> ST s String
+	native move :: Mutable s Point -> Int -> Int -> ST s ()
+	native translate :: Mutable s Point -> Int -> Int -> ST s ()
+
+sample :: Mutable s Point -> ST s String
+sample p = do
+	p.move 20 30
+	p.translate 5 3
+	p.toString
+
+main args = do
+	Point.new 10 20 >>= sample >>= putStrLn
