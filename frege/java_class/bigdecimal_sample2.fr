@@ -4,17 +4,18 @@ data BigDecimal = pure native java.math.BigDecimal where
 	pure native new :: String -> BigDecimal
 	pure native toString :: BigDecimal -> String
 	pure native zero java.math.BigDecimal.ZERO :: BigDecimal
-	pure native one java.math.BigDecimal.ONE :: BigDecimal
-	pure native (+) add :: BigDecimal -> BigDecimal -> BigDecimal
+	pure native one  java.math.BigDecimal.ONE  :: BigDecimal
+	pure native (+) add      :: BigDecimal -> BigDecimal -> BigDecimal
 	pure native (-) subtract :: BigDecimal -> BigDecimal -> BigDecimal
 	pure native (*) multiply :: BigDecimal -> BigDecimal -> BigDecimal
 	pure native hashCode :: BigDecimal -> Int
 	pure native compareTo :: BigDecimal -> BigDecimal -> Int
 
+instance Ord BigDecimal where
+	a <=> b = (a.compareTo b).<=> 0
+
 instance Num BigDecimal where
 	pure native fromInt java.math.BigDecimal.valueOf :: Int -> BigDecimal
-	(<=>) :: BigDecimal -> BigDecimal -> Ordering
-	a <=> b = (a.compareTo b).<=> 0
 
 
 main args = do
@@ -23,4 +24,5 @@ main args = do
 
 	putStrLn $ (num1 + num2).toString
 	putStrLn $ (num1 * num2).toString
+	putStrLn $ (num1 - num2).toString
 
