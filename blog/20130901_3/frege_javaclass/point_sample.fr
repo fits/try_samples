@@ -1,0 +1,14 @@
+package sample.PointSample where
+
+data Point = mutable native java.awt.Point where
+	native new :: Int -> Int -> IO Point
+	native toString :: Point -> IO String
+	native move :: Point -> Int -> Int -> IO ()
+	native translate :: Point -> Int -> Int -> IO ()
+
+main args = do
+	p <- Point.new 10 20
+	p.move 20 30
+	p.translate 5 3
+
+	p.toString >>= putStrLn
