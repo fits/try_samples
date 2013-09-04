@@ -1,0 +1,29 @@
+apply plugin: 'scala'
+
+def scalaVersion = '2.10.2'
+def scalazVersion = '7.1.0-M2'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.scala-lang:scala-compiler:${scalaVersion}"
+	compile "org.scala-lang:scala-library:${scalaVersion}"
+	compile "org.scalaz:scalaz-core_2.10:${scalazVersion}"
+}
+
+sourceSets {
+	main {
+		scala {
+			srcDirs = ['.']
+		}
+	}
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'fits.sample.Sample'
+		classpath = runtimeClasspath
+	}
+}
