@@ -1,0 +1,19 @@
+apply plugin: 'scala'
+
+def scalaVersion = '2.10.2'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.scala-lang:scala-compiler:${scalaVersion}"
+	compile "org.scala-lang:scala-library:${scalaVersion}"
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'SampleApp'
+		classpath = runtimeClasspath
+	}
+}
