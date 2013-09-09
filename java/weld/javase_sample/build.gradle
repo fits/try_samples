@@ -1,0 +1,33 @@
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.jboss.weld.se:weld-se-core:2.0.3.Final'
+	compile 'org.slf4j:slf4j-simple:1.7.5'
+}
+
+sourceSets {
+	main {
+		/* Weld を機能させるため build/classes/main へ
+		 * META-INF/beans.xml をコピーさせる必要あり
+		 */
+		output.resourcesDir = output.classesDir
+	}
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'org.jboss.weld.environment.se.StartMain'
+		classpath = runtimeClasspath
+	}
+}
+
+task printOutputList << {
+	println distsDir
+	println sourceSets.main.output.classesDir
+	println sourceSets.main.output.resourcesDir
+}
+
