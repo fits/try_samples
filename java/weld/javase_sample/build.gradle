@@ -22,10 +22,16 @@ task run(dependsOn: 'build') << {
 	javaexec {
 		main = 'org.jboss.weld.environment.se.StartMain'
 		classpath = runtimeClasspath
+
+	//	output.resourcesDir を変更せずに下記を指定しても可
+	//	classpath = runtimeClasspath + files(jar.archivePath)
 	}
 }
 
-task printOutputList << {
+task printEnv << {
+	println archivesBaseName
+	println jar.archivePath
+	println libsDir
 	println distsDir
 	println sourceSets.main.output.classesDir
 	println sourceSets.main.output.resourcesDir
