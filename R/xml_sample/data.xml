@@ -1,0 +1,10 @@
+<sample>
+	<data>
+		<item no="01" category="01">10</item>
+		<item no="02" category="01">4</item>
+		<item no="03" category="02">8</item>
+		<item no="04" category="02">9</item>
+		<item no="05" category="03">2</item>
+		<item no="06" category="04">1</item>
+	</data>
+</sample>
