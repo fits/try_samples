@@ -9,4 +9,4 @@ value <- sapply(items, function(x) strtoi(xmlValue(x)))
 
 d <- data.frame(no, category, value)
 
-write.csv(d, file = "data.csv", row.names = NA)
+write.csv(d, file = "data.csv", row.names = FALSE)
