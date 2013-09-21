@@ -1,0 +1,35 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+def groovyVer = '2.1.7'
+def cliVer = '1.2'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.codehaus.groovy:groovy-all:${groovyVer}"
+	compile "commons-cli:commons-cli:${cliVer}"
+}
+
+defaultTasks 'clean', 'build'
+
+// 出力された JAR を含めるために jar タスクの後に実行するよう依存関係を設定
+task dist(type: Zip, dependsOn: jar) {
+	from 'bin'
+	into('lib') {
+		// 出力 JAR
+		from jar.archivePath
+		// 依存ライブラリ
+		from configurations.runtime
+	}
+}
+
+artifacts {
+	archives dist
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.7'
+}
