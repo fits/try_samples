@@ -1,6 +1,6 @@
 library(XML)
 
-doc <- xmlInternalTreeParse("data.xml")
+doc <- xmlParse("data.xml")
 items <- getNodeSet(doc, "//item")
 
 no <- sapply(items, function(x) xmlGetAttr(x, "no"))
