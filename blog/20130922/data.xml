@@ -5,7 +5,7 @@
       <VALUE tab="20" cat01="10" cat02="0010" cat03="020" time="2013000000">15</VALUE>
       <VALUE tab="20" cat01="20" cat02="0010" cat03="020" time="2013000000">27</VALUE>
       <VALUE tab="20" cat01="30" cat02="0010" cat03="020" time="2013000000">36</VALUE>
-      <VALUE tab="20" cat01="40" cat02="0010" cat03="00" time="2013000000">66</VALUE>
+      <VALUE tab="20" cat01="40" cat02="0010" cat03="020" time="2013000000">66</VALUE>
       <VALUE tab="20" cat01="50" cat02="0010" cat03="020" time="2013000000">47</VALUE>
     </DATA_INF>
   </STATISTICAL_DATA>
