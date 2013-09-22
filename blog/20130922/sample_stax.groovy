@@ -14,6 +14,8 @@ def procValueNode = { stream ->
 	}
 }
 
+println '"tab","cat01","cat02","cat03","time","value"'
+
 while(xr.hasNext()) {
 	switch (xr.eventType) {
 		case XMLStreamConstants.START_ELEMENT:
