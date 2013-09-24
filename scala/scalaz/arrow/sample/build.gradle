@@ -1,14 +1,13 @@
 apply plugin: 'scala'
 
 def scalaVersion = '2.10.2'
-def scalazVersion = '7.1.0-M2'
+def scalazVersion = '7.1.0-M3'
 
 repositories {
 	mavenCentral()
 }
 
 dependencies {
-	compile "org.scala-lang:scala-compiler:${scalaVersion}"
 	compile "org.scala-lang:scala-library:${scalaVersion}"
 	compile "org.scalaz:scalaz-core_2.10:${scalazVersion}"
 }
@@ -19,6 +18,11 @@ sourceSets {
 			srcDirs = ['.']
 		}
 	}
+}
+
+compileScala {
+	scalaCompileOptions.useAnt = false
+	scalaCompileOptions.additionalParameters = ['-Xprint:typer']
 }
 
 task run(dependsOn: 'build') << {
