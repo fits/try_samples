@@ -22,7 +22,7 @@ sourceSets {
 
 compileScala {
 	scalaCompileOptions.useAnt = false
-	scalaCompileOptions.additionalParameters = ['-Xprint:typer']
+	scalaCompileOptions.additionalParameters = ['-Xprint:typer', '-feature']
 }
 
 task run(dependsOn: 'build') << {

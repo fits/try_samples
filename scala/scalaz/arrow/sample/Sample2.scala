@@ -1,5 +1,7 @@
 package fits.sample
 
+import scala.language.postfixOps
+
 import scalaz._
 import Scalaz._
 
