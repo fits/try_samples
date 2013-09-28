@@ -1,0 +1,22 @@
+apply plugin: 'scala'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.10.2'
+	compile 'org.scalaz:scalaz-core_2.10:7.1.0-M3'
+}
+
+compileScala {
+	scalaCompileOptions.useAnt = true
+	scalaCompileOptions.additionalParameters = ['-Xprint:typer', '-feature']
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'fits.sample.Sample'
+		classpath = runtimeClasspath
+	}
+}
