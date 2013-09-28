@@ -10,8 +10,8 @@ dependencies {
 }
 
 compileScala {
-	scalaCompileOptions.useAnt = true
 	scalaCompileOptions.additionalParameters = ['-Xprint:typer', '-feature']
+	scalaCompileOptions.useAnt = false
 }
 
 task run(dependsOn: 'build') << {
