@@ -48,7 +48,7 @@ def cmdLine = new PosixParser().parse(opt, args)
 def appId = cmdLine.getOptionValue('a')
 
 if (!appId || cmdLine.hasOption('h')) {
-	new HelpFormatter().printHelp('statscmd', opt, true)
+	new HelpFormatter().printHelp('get_stats', opt, true)
 	return
 }
 
