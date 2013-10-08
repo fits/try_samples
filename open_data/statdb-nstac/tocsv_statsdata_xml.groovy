@@ -10,16 +10,15 @@ import groovy.transform.Immutable
 // データ内容に合わせて下記を調整
 def params = [
 	category: 'cat01',
-	type: 'cat02',
+	subCategory: 'cat02',
 	time: 'time',
 	value: 'cat03',
-	valueTypes: (1..75).collect { String.format('%04d', it * 10) },
 	defaultValue: 0
 ]
 
 @Immutable class StHeader {
 	String category
-	String type
+	String subCategory
 	String time
 }
 
@@ -28,12 +27,13 @@ def factory = XMLInputFactory.newInstance()
 def xr = factory.createXMLStreamReader(new File(args[0]).newReader("UTF-8"))
 
 def dataMap = [:] as LinkedHashMap
+def valueTypes = [] as TreeSet
 
 def procValueNode = { stream ->
 	if (stream.name.localPart == 'VALUE') {
 		def header = new StHeader(
 			category: stream.getAttributeValue(null, params.category),
-			type: stream.getAttributeValue(null, params.type),
+			subCategory: stream.getAttributeValue(null, params.subCategory),
 			time: stream.getAttributeValue(null, params.time)
 		)
 
@@ -44,10 +44,10 @@ def procValueNode = { stream ->
 			dataMap.put(header, valueMap)
 		}
 
-		valueMap.put(
-			stream.getAttributeValue(null, params.value),
-			stream.elementText
-		)
+		def vtype = stream.getAttributeValue(null, params.value)
+
+		valueMap.put(vtype, stream.elementText)
+		valueTypes << vtype
 	}
 }
 
@@ -62,11 +62,11 @@ while(xr.hasNext()) {
 
 xr.close()
 
-print 'category,type,time,'
-println params.valueTypes.join(',')
+print 'category,subCategory,time,'
+println valueTypes.join(',')
 
 dataMap.each {k, v ->
-	def items = params.valueTypes.inject([k.category, k.type, k.time]) { acc, val ->
+	def items = valueTypes.inject([k.category, k.subCategory, k.time]) { acc, val ->
 		def item = v.get(val)
 		acc << ( (item == null)? params.defaultValue: item )
 		acc
