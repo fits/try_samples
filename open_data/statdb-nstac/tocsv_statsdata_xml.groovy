@@ -1,5 +1,12 @@
+@Grab('commons-cli:commons-cli:1.2')
 import javax.xml.stream.*
 import groovy.transform.Immutable
+
+import org.apache.commons.cli.Options
+import org.apache.commons.cli.PosixParser
+import org.apache.commons.cli.HelpFormatter
+
+import static org.apache.commons.cli.OptionBuilder.*
 
 /**
  * 次世代統計利用システム API で取得した統計データを
@@ -7,7 +14,6 @@ import groovy.transform.Immutable
  *
  */
 
-// データ内容に合わせて下記を調整
 def params = [
 	category: 'cat01',
 	subCategory: 'cat02',
@@ -22,9 +28,30 @@ def params = [
 	String time
 }
 
+def opt = new Options()
+
+opt.addOption('c', 'category', true, 'category attribute name')
+opt.addOption('s', 'subCategory', true, 'subCategory attribute name')
+opt.addOption('v', 'value', true, 'value attribute name')
+opt.addOption('d', 'defaultValue', true, 'default value')
+opt.addOption('h', 'help', false, 'help')
+
+def cmdLine = new PosixParser().parse(opt, args)
+
+if (cmdLine.hasOption('h')) {
+	new HelpFormatter().printHelp('tocsv_statsdata_xml', opt, true)
+	return
+}
+
+params.keySet().each { k ->
+	if (cmdLine.hasOption(k)) {
+		params[k] = cmdLine.getOptionValue(k)
+	}
+}
+
 
 def factory = XMLInputFactory.newInstance()
-def xr = factory.createXMLStreamReader(new File(args[0]).newReader("UTF-8"))
+def xr = factory.createXMLStreamReader(new File(cmdLine.args[0]).newReader("UTF-8"))
 
 def dataMap = [:] as LinkedHashMap
 def valueTypes = [] as TreeSet
@@ -74,4 +101,3 @@ dataMap.each {k, v ->
 
 	println items.join(',')
 }
-
