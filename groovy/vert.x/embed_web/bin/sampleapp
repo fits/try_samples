@@ -1,0 +1,13 @@
+#!/bin/sh
+
+BASE_DIR=`dirname $_`
+LIB=$BASE_DIR/lib
+
+CP=$BASE_DIR:$BASE_DIR/conf
+
+for jar in $LIB/*.jar
+do
+  CP=$CP:$jar
+done
+
+java -cp $CP fits.sample.App $*

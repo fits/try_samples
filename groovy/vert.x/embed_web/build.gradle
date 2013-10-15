@@ -1,0 +1,51 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+def groovyVer = '2.1.8'
+def vertxVer = '2.0.2-final'
+def vertxGroovyVer = '2.0.0-final'
+
+def env = hasProperty('env')? env: 'dev'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.codehaus.groovy:groovy-all:${groovyVer}"
+	compile "io.vertx:vertx-core:${vertxVer}"
+	compile "io.vertx:lang-groovy:${vertxGroovyVer}"
+}
+
+defaultTasks 'clean', 'build'
+
+task dist(type: Zip, dependsOn: jar) {
+	archiveName = "${baseName}_${env}.${extension}"
+
+	from 'bin'
+	into('conf') {
+		from "conf/$env"
+	}
+	into('lib') {
+		from jar.archivePath
+		from configurations.runtime
+	}
+	into('web') {
+		from 'web'
+	}
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'fits.sample.App'
+		classpath = runtimeClasspath + files("conf/$env")
+	}
+}
+
+artifacts {
+	archives dist
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.8'
+}
