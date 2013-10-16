@@ -1,6 +1,7 @@
 package fits.sample
 
 import org.vertx.groovy.core.http.RouteMatcher
+import net.arnx.jsonic.JSON
 
 class RoutingFactory {
 	final static String CONTENTS_DIR = 'web'
@@ -9,7 +10,14 @@ class RoutingFactory {
 		def rm = new RouteMatcher()
 
 		rm.get '/item', { req ->
-			req.response.end 'item1,item2'
+			def res = req.response
+
+			res.putHeader('Content-Type', 'application/json')
+
+			res.end JSON.encode([
+				new Item('a1', 'test1'),
+				new Item('b2', 'test2')
+			])
 		}
 
 		rm.get '.*', { req -> 
