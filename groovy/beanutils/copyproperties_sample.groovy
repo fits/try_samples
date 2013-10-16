@@ -77,3 +77,13 @@ def d2 = new Data('sample2')
 println d2
 
 cmdList.each { it(d2) }
+
+println '--------------------'
+
+def d3 = [
+	name: 'sample3',
+	value: 10
+]
+
+copyPropsSpring(d3)
+copyPropsCommons(d3)
