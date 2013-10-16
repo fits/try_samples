@@ -4,6 +4,7 @@ apply plugin: 'groovy'
 def groovyVer = '2.1.8'
 def vertxVer = '2.0.2-final'
 def vertxGroovyVer = '2.0.0-final'
+def jsonicVer = '1.3.0'
 
 def env = hasProperty('env')? env: 'dev'
 
@@ -15,6 +16,7 @@ dependencies {
 	compile "org.codehaus.groovy:groovy-all:${groovyVer}"
 	compile "io.vertx:vertx-core:${vertxVer}"
 	compile "io.vertx:lang-groovy:${vertxGroovyVer}"
+	compile "net.arnx:jsonic:${jsonicVer}"
 }
 
 defaultTasks 'clean', 'build'
