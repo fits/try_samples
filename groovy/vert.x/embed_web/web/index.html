@@ -1,8 +1,28 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<script src="js/jquery-2.0.3.min.js"></script>
+	<script src="js/knockout-3.0.0rc.js"></script>
+	<script src="js/sample.js"></script>
+</head>
 <body>
 
 <h1>sample</h1>
-
+<table>
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>名前</th>
+		</tr>
+	</thead>
+	<tbody data-bind="foreach: items">
+		<tr>
+			<td data-bind="text: id"></td>
+			<td data-bind="text: name"></td>
+		</tr>
+	</tbody>
+</table>
 
 </body>
 </html>
