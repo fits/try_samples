@@ -21,13 +21,20 @@ class RoutingFactory {
 		}
 
 		rm.get '.*', { req -> 
-			def path = "${CONTENTS_DIR}${req.path}"
+			def path = req.path
 
 			if (path.split('/|\\\\').contains('..')) {
 				req.response.setStatusCode(404).end()
 			}
 			else {
-				req.response.sendFile(path)
+				if (path == '/') {
+					path += 'index.html'
+				}
+				else if (!path.startsWith('/')) {
+					path = "/${path}"
+				}
+
+				req.response.sendFile("${CONTENTS_DIR}${path}")
 			}
 		}
 
