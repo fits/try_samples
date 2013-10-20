@@ -1,7 +1,8 @@
 package sample.provider;
 
-import java.io.*;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.ext.Provider;
