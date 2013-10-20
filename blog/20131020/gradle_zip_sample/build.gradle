@@ -1,0 +1,45 @@
+apply plugin: 'groovy'
+
+def env = hasProperty('env')? env: 'dev'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.codehaus.groovy:groovy-all:2.1.8'
+	compile 'io.vertx:vertx-core:2.0.2-final'
+	compile 'io.vertx:lang-groovy:2.0.0-final'
+}
+
+defaultTasks 'clean', 'build'
+
+task zipApp(type: Zip, dependsOn: jar) {
+	archiveName = "${baseName}_${env}.${extension}"
+
+	from 'bin'
+
+	into('conf') {
+		from "conf/$env"
+	}
+
+	into('lib') {
+		from jar.archivePath
+		from configurations.runtime
+	}
+
+	into('web') {
+		from 'web'
+	}
+}
+
+task run(dependsOn: 'build') << {
+	javaexec {
+		main = 'fits.sample.App'
+		classpath = runtimeClasspath + files("conf/$env")
+	}
+}
+
+artifacts {
+	archives zipApp
+}
