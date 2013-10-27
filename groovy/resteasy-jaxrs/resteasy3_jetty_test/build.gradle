@@ -1,0 +1,57 @@
+apply plugin: 'java'
+apply plugin: 'war'
+
+def resteasyVer = '3.0.4.Final'
+def jettyVer = '9.0.6.v20130930'
+
+configurations {
+	jettyRunner
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.jboss.resteasy:resteasy-jaxrs:${resteasyVer}"
+	compile "org.jboss.resteasy:resteasy-jackson-provider:${resteasyVer}"
+
+	providedCompile 'javax.servlet:javax.servlet-api:3.+'
+
+	jettyRunner "org.eclipse.jetty:jetty-runner:${jettyVer}"
+}
+
+defaultTasks 'clean', 'build'
+
+war {
+	baseName = 'sample'
+}
+
+task runJetty(type: JavaExec) {
+	main = 'org.eclipse.jetty.runner.Runner'
+	args = ['--path', '/sample', war.archivePath]
+	// コンテキストパスを '/' にする場合は以下
+	//args = [war.archivePath]
+	classpath configurations.jettyRunner
+}
+
+// Jetty 起動（別プロセス）
+task antStartJetty << {
+	ant.java(
+		classname: 'org.eclipse.jetty.runner.Runner',
+		classpath: configurations.jettyRunner.asPath,
+		fork: true,
+		spawn: true
+	) {
+		arg(line: "--stop-port 8181 --stop-key sample1 --path /sample ${war.archivePath}")
+	}
+}
+
+// Jetty 終了
+task antStopJetty << {
+	def socket = new Socket('localhost', 8181)
+
+	socket.withStreams {input, output ->
+		output << 'sample1\r\n' << 'stop\r\n'
+	}
+}
