@@ -32,10 +32,14 @@ class MoneyCount {
 	private long count = 0
 	private String key
 
+	@Activation
+	void setMoneyKey(String key) {
+		println 'MoneyCount.activation'
+		this.key = key
+	}
+
 	@MessageHandler
 	void countMoney(Money money) {
-		println money
-		key = money.moneyText
 		count++
 	}
 
