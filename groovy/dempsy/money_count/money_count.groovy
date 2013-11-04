@@ -1,5 +1,3 @@
-//@Grab('net.dempsy:lib-dempsyapi:0.7.9')
-//@Grab('net.dempsy:lib-dempsycore:0.7.9')
 @Grab('net.dempsy:lib-dempsyimpl:0.7.9')
 @Grab('org.slf4j:slf4j-log4j12:1.7.5')
 import com.nokia.dempsy.annotations.*
@@ -53,7 +51,7 @@ class MoneyAdaptor implements Adaptor {
 	Dispatcher dispatcher
 
 	void start() {
-		println 'start ...'
+		println 'MoneyAdaptor.start ...'
 
 		dispatcher.dispatch(new Money('100'))
 		dispatcher.dispatch(new Money('100'))
@@ -63,12 +61,31 @@ class MoneyAdaptor implements Adaptor {
 	}
 
 	void stop() {
-		println 'stop'
+		println 'MoneyAdaptor.stop'
 	}
 }
 
 def mp = new ClusterDefinition('mp', new MoneyCount())
-mp.outputExecuter = new com.nokia.dempsy.output.RelativeOutputSchedule(1, java.util.concurrent.TimeUnit.SECONDS)
+
+// 1秒毎に結果を出力
+//mp.outputExecuter = new com.nokia.dempsy.output.RelativeOutputSchedule(1, java.util.concurrent.TimeUnit.SECONDS)
+
+// 終了時に結果を出力
+mp.outputExecuter = [
+	setOutputInvoker: { invoker ->
+		println 'OutputInvoker.setOutputInvoker'
+		this.invoker = invoker
+	},
+	start: { ->
+		println 'OutputInvoker.start'
+	},
+	stop: { ->
+		println 'OutputInvoker.stop'
+		// 処理結果を出力
+		invoker.invokeOutput()
+	}
+] as OutputExecuter
+
 
 def app = new ApplicationDefinition('money-count').add(
 	new ClusterDefinition('adaptor', new MoneyAdaptor()), 
