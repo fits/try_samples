@@ -89,7 +89,7 @@ mp.outputExecuter = [
 def dempsy = new Dempsy()
 
 def app = new ApplicationDefinition('money-count').add(
-	new ClusterDefinition('adaptor', new MoneyAdaptor(new File(args[0]), dempsy)),
+	new ClusterDefinition('adaptor', new MoneyAdaptor(new File(args[0]))),
 	mp
 )
 
