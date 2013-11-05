@@ -103,10 +103,8 @@ dempsy.defaultStatsCollectorFactory = new StatsCollectorFactoryCoda()
 dempsy.defaultTransport = new BlockingQueueTransport()
 
 dempsy.start()
-//dempsy.waitToBeStopped()
 
-
-System.in.read()
-
-dempsy.stop()
-
+Runtime.runtime.addShutdownHook { ->
+	println 'shutdown ...'
+	dempsy.stop()
+}

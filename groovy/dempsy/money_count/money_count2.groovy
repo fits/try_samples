@@ -103,6 +103,7 @@ dempsy.defaultTransport = new BlockingQueueTransport()
 
 dempsy.start()
 
-System.in.read()
-
-dempsy.stop()
+Runtime.runtime.addShutdownHook { ->
+	println 'shutdown ...'
+	dempsy.stop()
+}
