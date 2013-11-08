@@ -119,5 +119,5 @@ Runtime.runtime.addShutdownHook { ->
 	println 'shutdown ...'
 	dempsy.stop()
 }
-
+// Adaptor が終了するのを防止するため（MessageProcessor は不要）
 dempsy.waitToBeStopped()
