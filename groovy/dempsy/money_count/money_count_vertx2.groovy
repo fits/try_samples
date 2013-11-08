@@ -7,6 +7,8 @@ import com.nokia.dempsy.*
 import com.nokia.dempsy.config.*
 import com.nokia.dempsy.output.*
 
+import com.nokia.dempsy.config.ClusterId
+import com.nokia.dempsy.cluster.zookeeper.ZookeeperSessionFactory
 import com.nokia.dempsy.router.SpecificClusterCheck
 import com.nokia.dempsy.router.DecentralizedRoutingStrategy
 import com.nokia.dempsy.serialization.kryo.KryoSerializer
@@ -103,8 +105,8 @@ def app = new ApplicationDefinition('money-count').add(
 )
 
 dempsy.applicationDefinitions = [app]
-dempsy.clusterSessionFactory = new com.nokia.dempsy.cluster.zookeeper.ZookeeperSessionFactory('localhost:2181', 5000)
-dempsy.clusterCheck = new SpecificClusterCheck(new com.nokia.dempsy.config.ClusterId('money-count', cluster))
+dempsy.clusterSessionFactory = new ZookeeperSessionFactory('localhost:2181', 5000)
+dempsy.clusterCheck = new SpecificClusterCheck(new ClusterId('money-count', cluster))
 // mp を 3ノード構成で処理する設定
 dempsy.defaultRoutingStrategy = new DecentralizedRoutingStrategy(MoneyKeySource.MONEYS.size(), 3)
 dempsy.defaultSerializer = new KryoSerializer()
