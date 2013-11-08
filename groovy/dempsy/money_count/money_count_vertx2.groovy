@@ -54,7 +54,7 @@ class MoneyCount {
 
 class MoneyKeySource implements KeySource<String> {
 	final static def MONEYS = [
-		'1', '5', '10', '100', '500', '1000', '2000', '5000', '10000'
+		'1', '5', '10', '50', '100', '500', '1000', '2000', '5000', '10000'
 	]
 
 	Iterable<String> getAllPossibleKeys() {
@@ -91,23 +91,7 @@ class MoneyAdaptor implements Adaptor {
 
 def mp = new ClusterDefinition('mp', new MoneyCount()).setKeySource(new MoneyKeySource())
 mp.outputExecuter = new com.nokia.dempsy.output.RelativeOutputSchedule(10, java.util.concurrent.TimeUnit.SECONDS)
-/*
-// 終了時に結果を出力
-mp.outputExecuter = [
-	setOutputInvoker: { invoker ->
-		println 'OutputInvoker.setOutputInvoker'
-		this.invoker = invoker
-	},
-	start: { ->
-		println 'OutputInvoker.start'
-	},
-	stop: { ->
-		println 'OutputInvoker.stop'
-		// 処理結果を出力
-		invoker.invokeOutput()
-	}
-] as OutputExecuter
-*/
+
 
 def cluster = args[0]
 
