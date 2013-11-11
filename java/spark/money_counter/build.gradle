@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+
+	maven {
+		url 'http://repo.typesafe.com/typesafe/releases/'
+	}
+}
+
+dependencies {
+	compile 'org.apache.spark:spark-core_2.9.3:0.8.0-incubating'
+}
+
+mainClassName = "fits.sample.MoneyCount"
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
