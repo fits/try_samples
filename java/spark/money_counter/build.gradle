@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
 	compile 'org.apache.spark:spark-core_2.9.3:0.8.0-incubating'
+	compile 'org.slf4j:slf4j-nop:1.7.5'
+//	compile 'org.slf4j:slf4j-simple:1.7.5'
 }
 
 mainClassName = "fits.sample.MoneyCount"
