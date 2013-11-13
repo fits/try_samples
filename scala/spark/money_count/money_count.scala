@@ -1,4 +1,6 @@
-import spark._
+package fits.sample
+
+import org.apache.spark._
 import SparkContext._
 
 object MoneyCount {
