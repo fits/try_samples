@@ -1,0 +1,35 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+def scalaVersion = '2.9.3'
+
+repositories {
+	mavenCentral()
+
+	maven {
+		url 'http://repo.typesafe.com/typesafe/releases/'
+	}
+}
+
+dependencies {
+	compile "org.scala-lang:scala-library:${scalaVersion}"
+	compile "org.apache.spark:spark-core_${scalaVersion}:0.8.0-incubating"
+	compile 'org.slf4j:slf4j-nop:1.7.5'
+//	compile 'org.slf4j:slf4j-simple:1.7.5'
+}
+
+sourceSets {
+	main {
+		scala {
+			srcDirs = ['.']
+		}
+	}
+}
+
+mainClassName = "fits.sample.MoneyCount"
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
