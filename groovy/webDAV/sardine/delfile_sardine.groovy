@@ -1,7 +1,6 @@
-@GrabResolver(name = 'sardine-google-svn-repo', root = 'http://sardine.googlecode.com/svn/maven')
-@Grab('com.googlecode.sardine:sardine:314')
-@Grab('org.slf4j:slf4j-nop:1.6.6')
-import com.googlecode.sardine.*
+@Grab('com.github.lookfirst:sardine:5.0.1')
+@Grab('org.slf4j:slf4j-nop:1.7.5')
+import com.github.sardine.*
 
 if (args.length < 3) {
 	println "groovy delfile_sardine.groovy <user> <password> <file url>"
