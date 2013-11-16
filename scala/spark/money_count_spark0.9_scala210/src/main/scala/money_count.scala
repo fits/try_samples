@@ -14,6 +14,6 @@ object MoneyCount {
 			(_, 1)
 		}.reduceByKey(_ + _)
 
-		res.foreach { t => println(t._1 + " = " + t._2) }
+		res.foreach { t => println(s"${t._1} = ${t._2}") }
 	}
 }
