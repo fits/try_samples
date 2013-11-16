@@ -1,0 +1,21 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+def scalaVersion = '2.10.3'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.scala-lang:scala-library:${scalaVersion}"
+	compile files('lib/spark-assembly-0.9.0-incubating-SNAPSHOT-hadoop1.0.4.jar')
+}
+
+mainClassName = "fits.sample.MoneyCount"
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
