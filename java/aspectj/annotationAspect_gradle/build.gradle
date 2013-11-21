@@ -1,0 +1,39 @@
+apply plugin: 'java'
+
+def aspectjVersion = '1.7.4'
+
+def destDir = 'dest'
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	ajc
+}
+
+dependencies {
+	ajc "org.aspectj:aspectjtools:${aspectjVersion}"
+	compile "org.aspectj:aspectjrt:${aspectjVersion}"
+}
+
+task ajc << {
+	ant.taskdef(resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties', classpath: configurations.ajc.asPath) {
+	}
+
+	ant.iajc(destDir: destDir, source: '1.7', showWeaveInfo: 'true') {
+		sourceroots {
+			sourceSets.main.java.srcDirs.each {
+				pathelement(location: it.absolutePath)
+			}
+		}
+		classpath {
+			pathelement(location: configurations.compile.asPath)
+		}
+	}
+}
+
+task clean(overwrite: true) << {
+	delete destDir
+}
+
