@@ -1,0 +1,13 @@
+apply plugin: 'application'
+apply plugin: 'scala'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.10.3'
+	compile 'org.scalaz:scalaz-core_2.10:7.1.0-M4'
+}
+
+mainClassName = "sample.ArrowSample"
