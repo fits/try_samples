@@ -1,0 +1,12 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'com.typesafe.akka:akka-actor_2.10:2.3-M1'
+}
+
+mainClassName = 'sample.SampleMain'
