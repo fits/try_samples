@@ -1,0 +1,32 @@
+<html>
+<head>
+	<title>MathJax sample</title>
+	<script src="js/knockout-3.0.0.js"></script>
+	<script type="text/x-mathjax-config">
+	  MathJax.Hub.Config({
+	    tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+	  });
+	</script>
+	<script src="js/mathjax/MathJax.js?config=TeX-AMS_HTML-full"></script>
+</head>
+<body>
+<textarea data-bind="value: content">
+</textarea>
+
+<div id="ct">${}$</div>
+
+<script>
+	var viewModel = {
+		content: ko.observable('')
+	};
+
+	viewModel.content.subscribe(function(value) {
+		var el = MathJax.Hub.getAllJax('ct')[0];
+		MathJax.Hub.Queue(['Text', el, value])();
+	});
+
+	ko.applyBindings(viewModel);
+</script>
+
+</body>
+</html>
