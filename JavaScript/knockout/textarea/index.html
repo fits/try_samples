@@ -1,0 +1,21 @@
+<html>
+<head>
+	<title>knockout.js sample</title>
+	<script src="knockout-3.0.0.js"></script>
+</head>
+<body>
+<textarea data-bind="value: content">
+</textarea>
+
+<div data-bind="text: content"></div>
+
+<script>
+	var viewModel = {
+		content: ko.observable('')
+	};
+
+	ko.applyBindings(viewModel);
+</script>
+
+</body>
+</html>
