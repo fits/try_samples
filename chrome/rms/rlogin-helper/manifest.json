@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "R-Login Helper",
+  "description": "R-Login Helper",
+  "version": "1.0",
+  "browser_action": {
+    "default_icon": "images/rlogin.png"
+  },
+  "background": {
+    "scripts": [
+      "rlogin-constants.js", 
+      "rlogin-base.js"
+    ],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://glogin.rms.rakuten.co.jp/"
+      ],
+      "js": [
+        "rlogin-ui.js"
+      ]
+    }
+  ],
+  "options_page": "options.html",
+  "content_security_policy": "script-src 'self' 'unsafe-eval' chrome-extension-resource:; object-src 'self'",
+  "permissions": [
+    "tabs"
+  ]
+}
