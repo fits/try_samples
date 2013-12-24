@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html ng-app>
+<head>
+	<title>AngularJS sample</title>
+	<script src="http://code.angularjs.org/1.2.6/angular.min.js"></script>
+	<script>
+		function sample($scope) {
+			$scope.titles = [];
+			$scope.currentTitle = '';
+
+			$scope.addTitle = function(title) {
+				if (title) {
+					$scope.currentTitle = '';
+					$scope.titles.push(title);
+				}
+			};
+		}
+	</script>
+</head>
+<body>
+
+	<div> 1 + 2 = {{ 1 + 2 }}</div>
+
+	<div ng-controller="sample">
+		<div>
+			<input type="text" ng-model="currentTitle" />
+			<button ng-click="addTitle(currentTitle)">Add Title</button>
+		</div>
+		<div>
+			<ul>
+				<!--
+					track by は必須。
+					これが無いと何度か追加処理を実施すると
+					Error: [ngRepeat:dupes] エラーが発生して動作しなくなる
+				 -->
+				<li ng-repeat="t in titles track by $index">{{t}}</li>
+			</ul>
+		</div>
+	</div>
+
+</body>
+</html>
