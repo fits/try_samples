@@ -3,7 +3,7 @@ library(MCMCpack)
 d <- read.csv('data4a.csv')
 
 func <- function(beta, data) {
-  eta <- beta[1] + beta[2] * data$x + beta[3] * as.integer(data$f)
+  eta <- beta[1] + beta[2] * data$x + beta[3] * as.numeric(data$f)
   p <- 1.0 / (1.0 + exp(-eta))
   sum(log(choose(data$N, data$y)) + data$y * log(p) + (data$N - data$y) * log(1 - p))
 }
