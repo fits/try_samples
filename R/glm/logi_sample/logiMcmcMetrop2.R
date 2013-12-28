@@ -11,3 +11,15 @@ func <- function(beta, data) {
 d.res <- MCMCmetrop1R(func, theta.init = c(0, 0, 0), data = d, burnin = 1000, logfun = TRUE)
 
 summary(d.res)
+
+plot(d$x, d$y, col = c("red", "blue")[d$f])
+
+xx <- seq(min(d$x), max(d$x), length = 50)
+ft <- factor("T", levels = c("C", "T"))
+fc <- factor("C", levels = c("C", "T"))
+
+d.zt <- mean(d.res[,1]) + mean(d.res[,2]) * xx + mean(d.res[,3]) * as.numeric(ft)
+d.zc <- mean(d.res[,1]) + mean(d.res[,2]) * xx + mean(d.res[,3]) * as.numeric(fc)
+
+lines(xx, max(d$N) * 1.0 / (1.0 + exp(-d.zt)), col="green")
+lines(xx, max(d$N) * 1.0 / (1.0 + exp(-d.zc)), col="yellow")
