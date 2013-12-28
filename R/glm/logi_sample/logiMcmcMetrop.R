@@ -15,8 +15,8 @@ summary(d.res)
 plot(d$x, d$y, col = c("red", "blue")[d$f])
 
 xx <- seq(min(d$x), max(d$x), length = 50)
-ft <- factor("T", levels = c("C", "T"))
-fc <- factor("C", levels = c("C", "T"))
+ft <- factor("T", levels = levels(d$f))
+fc <- factor("C", levels = levels(d$f))
 
 d.zt <- mean(d.res[,1]) + mean(d.res[,2]) * xx + mean(d.res[,3]) * as.numeric(ft)
 d.zc <- mean(d.res[,1]) + mean(d.res[,2]) * xx + mean(d.res[,3]) * as.numeric(fc)
