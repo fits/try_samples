@@ -1,0 +1,30 @@
+<html ng-app>
+<head>
+	<title>MathJax sample (AngularJS)</title>
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+		});
+	</script>
+	<script src="js/mathjax/MathJax.js?config=TeX-AMS_HTML-full"></script>
+	<script src="js/angular.min.js"></script>
+	<script>
+		function mathjax($scope) {
+			$scope.formula = '';
+
+			$scope.changeFormula = function(formula) {
+				var el = MathJax.Hub.getAllJax('ct')[0];
+				MathJax.Hub.Queue(['Text', el, formula])();
+			};
+		}
+	</script>
+</head>
+<body>
+	<p ng-controller="mathjax">
+		<textarea ng-model="formula" ng-change="changeFormula(formula)"></textarea>
+	</p>
+	<p>
+		<div id="ct">${}$</div>
+	</p>
+</body>
+</html>
