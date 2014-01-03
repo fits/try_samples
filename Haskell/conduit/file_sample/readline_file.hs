@@ -12,6 +12,6 @@ main = do
 		_ <- CL.drop 1
 		CL.take 3
 
-	mapM (B.putStrLn) x
+	mapM (B.putStrLn . B.cons('#')) x
 
 	return ()
