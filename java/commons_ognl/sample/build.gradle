@@ -1,0 +1,14 @@
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+	maven {
+		url 'http://repository.apache.org/snapshots'
+	}
+}
+
+dependencies {
+	compile 'org.apache.commons:commons-ognl:4.0-SNAPSHOT'
+}
+
+mainClassName = 'sample.Main'
