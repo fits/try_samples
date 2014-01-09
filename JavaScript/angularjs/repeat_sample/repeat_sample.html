@@ -1,0 +1,34 @@
+<html ng-app>
+<head>
+<meta charset="utf-8">
+<script src="angular.min.js"></script>
+<script>
+	function Items($scope) {
+		$scope.items = {
+			ToDo: [
+				{title: 'サンプル1', url: 'http://localhost/sample1.html'},
+				{title: 'サンプル2', url: 'http://localhost/sample2.html'},
+			],
+			Done: [
+				{title: 'テスト1', url: 'http://localhost/test1.html'},
+			],
+			Pending: [
+				{title: '仕様変更1', url: ''},
+			]
+		};
+	}
+</script>
+</head>
+<body>
+<div ng-controller="Items">
+	<div ng-repeat="(k, values) in items">
+		<p>
+			{{k}}
+			<dl ng-repeat="v in values">
+				<li><a href="{{v.url}}">{{v.title}}</a></li>
+			</dl>
+		</p>
+	</div>
+</div>
+</body>
+</html>
