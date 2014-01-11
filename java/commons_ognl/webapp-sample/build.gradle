@@ -1,0 +1,25 @@
+apply plugin: 'jettyEclipse'
+
+buildscript {
+	repositories {
+		mavenCentral()
+		maven {
+			url 'http://dl.bintray.com/khoulaiz/gradle-plugins'
+		}
+	}
+	dependencies {
+		classpath (group: 'com.sahlbach.gradle', name: 'gradle-jetty-eclipse-plugin', version: '1.9.+')
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url 'http://repository.apache.org/snapshots'
+	}
+}
+
+dependencies {
+	compile 'org.apache.commons:commons-ognl:4.0-SNAPSHOT'
+	providedCompile 'javax.servlet:javax.servlet-api:3.0.1'
+}
