@@ -108,7 +108,7 @@ dempsy.applicationDefinitions = [app]
 dempsy.clusterSessionFactory = new ZookeeperSessionFactory('localhost:2181', 5000)
 dempsy.clusterCheck = new SpecificClusterCheck(new ClusterId('money-count', cluster))
 // mp を 3ノード構成で処理する設定
-dempsy.defaultRoutingStrategy = new DecentralizedRoutingStrategy(MoneyKeySource.MONEYS.size(), 3)
+dempsy.defaultRoutingStrategy = new DecentralizedRoutingStrategy(6, 3)
 dempsy.defaultSerializer = new KryoSerializer()
 dempsy.defaultStatsCollectorFactory = new StatsCollectorFactoryCoda()
 dempsy.defaultTransport = new TcpTransport()
