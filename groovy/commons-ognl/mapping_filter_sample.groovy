@@ -24,6 +24,8 @@ def ctx = Ognl.createDefaultContext(null, { String className, Map<String, Object
 	Class.forName(className)
 } as ClassResolver)
 
+println Ognl.getValue("lines.{ #this.code == 2 }", ctx, data)
+
 println Ognl.getValue("lines.{? #this.code == 2 }", ctx, data)
 
 def expr = Ognl.compileExpression(ctx, null, 'lines.{? #this.code not in {"1"} }')
