@@ -13,13 +13,8 @@ class Sample {
 @Immutable
 class Item {
 	int code
-	BigDecimal price = BigDecimal.ZERO
+	int price
 }
-
-def data = new Sample()
-data.lines << new Item(code: 1, price: 100)
-data.lines << new Item(code: 2, price: 200)
-data.lines << new Item(code: 3, price: 300)
 
 def ctx = Ognl.createDefaultContext(null, { String className, Map<String, Object> context ->
 	Class.forName(className)
@@ -29,6 +24,20 @@ def expr1 = Ognl.compileExpression(ctx, null, '#v = 0, lines.{ #v = #v + #this.p
 
 def expr2 = Ognl.compileExpression(ctx, null, '#fold = :[ #this[2].size() > 0 ? #fold({ #this[0], #this[0]({ #this[1], #this[2][0] }), #this[2].subList(1, #this[2].size()) }) : #this[1] ], #fold({ :[ #this[0] + #this[1].price ], 0, lines })')
 
+def createData = { i ->
+	def data = new Sample()
+	data.lines << new Item(code: 1, price: i)
+	data.lines << new Item(code: 2, price: i + 1)
+	data.lines << new Item(code: 3, price: i + 2)
+	data
+}
+
+def sum = { data ->
+	data.lines.inject(0){ acc, val ->
+		acc + val.price
+	}
+}
+
 def printResult = {
 	it.groupBy().each { k, v -> println "${k} ${v.size()}" }
 }
@@ -37,29 +46,33 @@ def count = 50
 
 GParsPool.withPool(20) {
 	def res1 = (0..<count).collectParallel {
-		// #v は Global スコープ変数のため問題が生じる
+		def d = createData(it)
 		try {
-			Ognl.getValue('#v = 0, lines.{ #v = #v + #this.price }, #v', ctx, data)
+			sum(d) == Ognl.getValue('#v = 0, lines.{ #v = #v + #this.price }, #v', ctx, d)
 		} catch (e) {
-			null
+			println e
+			false
 		}
 	}
 
 	def res2 = (0..<count).collectParallel {
-		Ognl.getValue(expr1, data)
+		def d = createData(it)
+		sum(d) == Ognl.getValue(expr1, d)
 	}
 
 	def res3 = (0..<count).collectParallel {
-		// #fold は Global スコープ変数のため問題が生じる
+		def d = createData(it)
 		try {
-			Ognl.getValue('#fold = :[ #this[2].size() > 0 ? #fold({ #this[0], #this[0]({ #this[1], #this[2][0] }), #this[2].subList(1, #this[2].size()) }) : #this[1] ], #fold({ :[ #this[0] + #this[1].price ], 0, lines })', ctx, data)
+			sum(d) == Ognl.getValue('#fold = :[ #this[2].size() > 0 ? #fold({ #this[0], #this[0]({ #this[1], #this[2][0] }), #this[2].subList(1, #this[2].size()) }) : #this[1] ], #fold({ :[ #this[0] + #this[1].price ], 0, lines })', ctx, d)
 		} catch (e) {
-			null
+			println e
+			false
 		}
 	}
 
 	def res4 = (0..<count).collectParallel {
-		Ognl.getValue(expr2, data)
+		def d = createData(it)
+		sum(d) == Ognl.getValue(expr2, d)
 	}
 
 	println '----- res1 -----'
