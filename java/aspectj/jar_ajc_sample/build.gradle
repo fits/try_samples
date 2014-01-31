@@ -1,0 +1,41 @@
+apply plugin: 'java'
+
+configurations.all {
+	resolutionStrategy {
+		force 'xml-apis:xml-apis:1.0.b2'
+	}
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+configurations {
+	ajc
+}
+
+dependencies {
+	ajc 'org.aspectj:aspectjtools:1.7.4'
+	compile 'org.aspectj:aspectjrt:1.7.4'
+	compile 'fits:sample:1.0'
+}
+
+task ajc << {
+	ant.taskdef(resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties', classpath: configurations.ajc.asPath) {
+	}
+
+	ant.iajc(outJar: 'sample-1.0.custom.jar', source: '1.7', showWeaveInfo: 'true') {
+		sourceroots {
+			sourceSets.main.java.srcDirs.each {
+				pathelement(location: it.absolutePath)
+			}
+		}
+		classpath {
+			pathelement(location: configurations.compile.asPath)
+		}
+		inpath {
+			pathelement(location: configurations.compile.files.find { it.path.contains 'sample-1.0.jar' }.absolutePath)
+		}
+	}
+}
