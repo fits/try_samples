@@ -1,0 +1,24 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+
+	maven {
+		url 'http://repo.typesafe.com/typesafe/maven-releases/'
+	}
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.10.3'
+	compile 'com.typesafe.slick:slick_2.10:2.0.0'
+	compile 'org.postgresql:postgresql:9.3-1100-jdbc41'
+}
+
+mainClassName = 'OrderSearch'
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
