@@ -11,11 +11,14 @@ repositories {
 
 dependencies {
 	compile 'org.scala-lang:scala-library:2.10.3'
+	// DIRECT EMBEDDING を使うには scala-compiler が必要
+	compile 'org.scala-lang:scala-compiler:2.10.3'
+
 	compile 'com.typesafe.slick:slick_2.10:2.0.0'
 	compile 'org.postgresql:postgresql:9.3-1100-jdbc41'
 }
 
-mainClassName = 'OrderSearch'
+mainClassName = 'OrderSearchDirect'
 
 run {
 	if (project.hasProperty('args')) {
