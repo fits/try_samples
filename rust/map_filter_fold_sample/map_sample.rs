@@ -1,4 +1,3 @@
-extern mod std;
 
 fn main() {
 	let list = [1, 2, 3];
@@ -6,14 +5,18 @@ fn main() {
 	let res2: ~[int] = list.iter().map(|&x| x * 10).collect();
 
 	for &x in list.iter() {
-		println(format!("{}", x));
+		println!("{}", x);
 	}
 
 	for x in res {
-		println(format!("{}", x));
+		println!("{}", x);
 	}
 
 	for &x in res2.iter() {
-		println(format!("{}", x));
+		println!("{}", x);
 	}
+
+	println!("{:?}", list);
+	println!("{:?}", res);
+	println!("{:?}", res2);
 }
