@@ -1,6 +1,8 @@
 
 fn main() {
-	let t1: (~str, int) = (~"tuple1", 1);
+//	let t1: (~str, int) = (~"tuple1", 1);
+	let t1 = (~"tuple1", 1);
+
 	println!("{:?}", t1);
 
 	match t1 {
