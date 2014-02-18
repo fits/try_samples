@@ -1,0 +1,34 @@
+apply plugin: 'java'
+
+def xjcDestDir = 'src/main/xjc-generated'
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	jaxb
+}
+
+dependencies {
+	jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.8-b01'
+	jaxb 'com.sun.xml.bind:jaxb-impl:2.2.8-b01'
+}
+
+task xjc << {
+	ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.jaxb.asPath)
+
+	mkdir(xjcDestDir)
+
+	ant.xjc(
+		destdir: xjcDestDir,
+		schema: 'xsd/amzn-envelope.xsd',
+		package: 'com.amazon.mws.schema',
+		removeOldOutput: true
+	)
+}
+
+compileJava {
+	dependsOn xjc
+	source xjcDestDir
+}
