@@ -11,4 +11,9 @@ d.data <- data.frame(
 
 d.res <- MCMClogit(Survived~., data=d.data)
 
-summary(d.res)
+d.summ <- summary(d.res)
+
+d.summ
+
+#オッズ比
+exp(d.summ$statistics[, "Mean"])
