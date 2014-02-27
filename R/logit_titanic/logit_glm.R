@@ -7,10 +7,10 @@ d.data <- data.frame(
   Survived = rep(d$Survived, d$Freq)
 )
 
-d.logit <- glm(Survived~., data = d.data, family = binomial)
-summary(d.logit)
+d.res <- glm(Survived~., data = d.data, family = binomial)
+summary(d.res)
 
 library(epicalc)
 
-logistic.display(d.logit, simplified = T)
+logistic.display(d.res, simplified = T)
 
