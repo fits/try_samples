@@ -10,6 +10,9 @@ d.data <- data.frame(
 d.res <- glm(Survived~., data = d.data, family = binomial)
 summary(d.res)
 
+# オッズ比
+exp(d.res$coefficients)
+
 library(epicalc)
 
 logistic.display(d.res, simplified = T)
