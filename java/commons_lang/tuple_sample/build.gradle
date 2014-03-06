@@ -1,0 +1,11 @@
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.apache.commons:commons-lang3:3.3'
+}
+
+mainClassName = 'fits.sample.App'
