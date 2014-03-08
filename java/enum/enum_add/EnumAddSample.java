@@ -1,6 +1,8 @@
 
 import java.lang.reflect.*;
-import sun.reflect.ConstructorAccessor;
+
+import sun.misc.Unsafe;
+import sun.reflect.*;
 
 public class EnumAddSample {
 	public static void main(String... args) throws Exception {
@@ -13,6 +15,10 @@ public class EnumAddSample {
 		System.out.println(t2);
 
 		System.out.println("First == t2 : " + (Type.First == t2));
+
+		System.out.println(Type.valueOf("Third"));
+
+		System.out.println("Thrid == t2 : " + (Type.valueOf("Third") == t2));
 	}
 
 	private static Type createThird() throws Exception {
@@ -39,7 +45,27 @@ public class EnumAddSample {
 
 		Type result = (Type)ca.newInstance(new Object[]{"Third", 2});
 
+		addValuesToType(result);
+
 		return result;
+	}
+
+	private static void addValuesToType(Type newType) throws Exception {
+		Field f = Type.class.getDeclaredField("$VALUES");
+		f.setAccessible(true);
+
+		Type[] values = (Type[])f.get(null);
+		Type[] newValues = new Type[values.length + 1];
+
+		System.arraycopy(values, 0, newValues, 0, values.length);
+		newValues[values.length] = newType;
+
+		Field uf = Unsafe.class.getDeclaredField("theUnsafe");
+		uf.setAccessible(true);
+
+		Unsafe unsafe = (Unsafe)uf.get(null);
+
+		unsafe.putObjectVolatile(unsafe.staticFieldBase(f), unsafe.fieldOffset(f), newValues);
 	}
 
 	enum Type {
