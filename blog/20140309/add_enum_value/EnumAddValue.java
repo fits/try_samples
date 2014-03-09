@@ -36,13 +36,13 @@ public class EnumAddValue {
 		@SuppressWarnings("unchecked")
 		T result = (T)ca.newInstance(new Object[]{name, ordinal});
 
-		addValuesToEnum(result);
+		addValueToEnum(result);
 
 		return result;
 	}
 
 	// (2) sun.misc.Unsafe で列挙型の $VALUES フィールドへ (1) を追加
-	private static <T extends Enum<?>> void addValuesToEnum(T newValue) throws Exception {
+	private static <T extends Enum<?>> void addValueToEnum(T newValue) throws Exception {
 		Field f = newValue.getClass().getDeclaredField("$VALUES");
 		f.setAccessible(true);
 
