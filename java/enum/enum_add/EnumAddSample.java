@@ -1,5 +1,6 @@
 
 import java.lang.reflect.*;
+import java.util.Arrays;
 
 import sun.misc.Unsafe;
 import sun.reflect.*;
@@ -8,26 +9,32 @@ public class EnumAddSample {
 	public static void main(String... args) throws Exception {
 		System.out.println(Type.First);
 
-		Type t1 = createThird();
+		Type t1 = addEnumWithInvalid(Type.class, "Second", 1);
 		System.out.println(t1);
 
-		Type t2 = createThird2();
+		Type t2 = addEnum(Type.class, "Second", 1);
 		System.out.println(t2);
-
 		System.out.println("First == t2 : " + (Type.First == t2));
 
+		Type t3 = addEnum(Type.class, "Third", 2);
 		System.out.println(Type.valueOf("Third"));
+		System.out.println("Thrid == t3 : " + (Type.valueOf("Third") == t3));
 
-		System.out.println("Thrid == t2 : " + (Type.valueOf("Third") == t2));
+		System.out.println("-----");
+
+		for (Type type : Type.values()) {
+			System.out.println(type);
+		}
 	}
 
-	private static Type createThird() throws Exception {
-		Constructor<Type> cls = Type.class.getDeclaredConstructor(String.class, int.class);
+	private static <T extends Enum> T addEnumWithInvalid(Class<T> enumClass, String name, int ordinal) throws Exception {
+
+		Constructor<T> cls = enumClass.getDeclaredConstructor(String.class, int.class);
 		cls.setAccessible(true);
 
 		try {
 			// Enum Ç newInstance Ç∑ÇÈéñÇ™Ç≈Ç´Ç»Ç¢ÇΩÇﬂâ∫ãLÇ≈ÉGÉâÅ[Ç™î≠ê∂
-			return cls.newInstance("Third", 2);
+			return cls.newInstance(name, ordinal);
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}
@@ -35,30 +42,29 @@ public class EnumAddSample {
 		return null;
 	}
 
-	private static Type createThird2() throws Exception {
-		Constructor<Type> cls = Type.class.getDeclaredConstructor(String.class, int.class);
+	private static <T extends Enum> T addEnum(Class<T> enumClass, String name, int ordinal) throws Exception {
+		Constructor<T> cls = enumClass.getDeclaredConstructor(String.class, int.class);
 
 		Method m = Constructor.class.getDeclaredMethod("acquireConstructorAccessor");
 		m.setAccessible(true);
 
 		ConstructorAccessor ca = (ConstructorAccessor)m.invoke(cls);
 
-		Type result = (Type)ca.newInstance(new Object[]{"Third", 2});
+		T result = (T)ca.newInstance(new Object[]{name, ordinal});
 
-		addValuesToType(result);
+		addValuesToEnum(result);
 
 		return result;
 	}
 
-	private static void addValuesToType(Type newType) throws Exception {
-		Field f = Type.class.getDeclaredField("$VALUES");
+	private static <T extends Enum> void addValuesToEnum(T newValue) throws Exception {
+		Field f = newValue.getClass().getDeclaredField("$VALUES");
 		f.setAccessible(true);
 
-		Type[] values = (Type[])f.get(null);
-		Type[] newValues = new Type[values.length + 1];
+		T[] values = (T[])f.get(null);
 
-		System.arraycopy(values, 0, newValues, 0, values.length);
-		newValues[values.length] = newType;
+		T[] newValues = Arrays.copyOf(values, values.length + 1);
+		newValues[values.length] = newValue;
 
 		Field uf = Unsafe.class.getDeclaredField("theUnsafe");
 		uf.setAccessible(true);
@@ -69,7 +75,6 @@ public class EnumAddSample {
 	}
 
 	enum Type {
-		First,
-		Second
+		First
 	}
 }
