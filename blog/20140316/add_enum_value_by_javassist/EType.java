@@ -1,3 +1,3 @@
-public enum EType {
+enum EType {
 	First
 }
