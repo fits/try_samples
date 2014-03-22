@@ -1,0 +1,14 @@
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+	maven {
+		url 'http://repository.apache.org/content/groups/snapshots/'
+	}
+}
+
+dependencies {
+	compile 'org.apache.bcel:bcel:6.0-SNAPSHOT'
+}
+
+mainClassName = 'fits.sample.LambdaSample'
