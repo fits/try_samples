@@ -2,10 +2,10 @@ apply plugin: 'groovy'
 
 repositories {
     mavenCentral()
-    maven { url "http://repo1.maven.org/maven2/org/spockframework/" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 dependencies {
-    groovy "org.codehaus.groovy:groovy-all:2.0.5"
-    testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+    groovy "org.codehaus.groovy:groovy-all:2.2.2"
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.0-SNAPSHOT"
 }
