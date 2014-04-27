@@ -13,8 +13,15 @@ public class MethodHandleProxiesSample {
 
 		MethodHandle mh2 = mh.bindTo("a,b,c,d,e,f").bindTo(",");
 
-		Function<String, String> f = MethodHandleProxies.asInterfaceInstance(Function.class, mh2);
+		@SuppressWarnings("unchecked")
+		Function<String, String> f1 = MethodHandleProxies.asInterfaceInstance(Function.class, mh2);
 
-		System.out.println(f.apply("-"));
+		System.out.println(f1.apply("-"));
+
+		System.out.println("-----");
+
+		Function<String, String> f2 = s -> "a,b,c,d,e,f".replaceAll(",", s);
+
+		System.out.println(f2.apply("-"));
 	}
 }
