@@ -1,0 +1,35 @@
+<html>
+<head>
+<script src="knockout-3.1.0.js"></script>
+<script src="rlogin-constants.js"></script>
+<script src="rlogin-core.js"></script>
+</head>
+<body>
+	<div>
+			<dl>
+				<dt>ê›íË :</dt>
+				<dd>
+					<input type="text" size="50" data-bind="value: title" />
+					<button data-bind="click: addItem">í«â¡</button>
+				</dd>
+			</dl>
+	</div>
+	<hr />
+	<div data-bind="visible: items().length > 0">
+		<select data-bind="options: items, optionsText: 'title', value: selectedItem"></select>
+		<button data-bind="click: removeItem">çÌèú</button>
+		<dl>
+			<dt>R-Login ID :</dt>
+			<dd><input type="text" size="50" data-bind="value: selectedItem().rloginId, event: { change: updateItem }" /></dd>
+			<dt>R-Login Password :</dt>
+			<dd><input type="password" size="50" data-bind="value: selectedItem().rloginPassword, event: { change: updateItem }" /></dd>
+		</dl>
+		<dl>
+			<dt>User ID :</dt>
+			<dd><input type="text" size="50" data-bind="value: selectedItem().userId, event: { change: updateItem }" /></dd>
+			<dt>User Password :</dt>
+			<dd><input type="password" size="50" data-bind="value: selectedItem().userPassword, event: { change: updateItem }" /></dd>
+		</dl>
+	</div>
+</body>
+</html>

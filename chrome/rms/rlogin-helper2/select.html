@@ -1,0 +1,13 @@
+<html>
+<head>
+<script src="knockout-3.1.0.js"></script>
+<script src="rlogin-constants.js"></script>
+<script src="rlogin-core.js"></script>
+</head>
+<body>
+	<div>
+		<select data-bind="options: items, optionsText: 'title', value: selectedItem"></select>
+		<button data-bind="click: doLogin, enable: selectedItem">Login</button>
+	</div>
+</body>
+</html>
