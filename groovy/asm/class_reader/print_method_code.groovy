@@ -19,5 +19,7 @@ node.methods.each {
 
 	it.accept(mv)
 
-	println t.text
+	t.text.each {
+		print "${it.class} : ${it}"
+	}
 }
