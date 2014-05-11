@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+repositories {
+	if (project.hasProperty('maven.settings')) {
+		def xml = new XmlSlurper().parse(new File(project['maven.settings']))
+
+		maven {
+			url xml.localRepository.text()
+		}
+	}
+	else {
+		mavenLocal()
+	}
+}
+
+dependencies {
+	compile 'sample:tester:1.0'
+}
