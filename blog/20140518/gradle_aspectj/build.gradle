@@ -1,0 +1,35 @@
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	ajc
+}
+
+dependencies {
+	ajc "org.aspectj:aspectjtools:1.8.0"
+	compile "org.aspectj:aspectjrt:1.8.0"
+	compile "org.apache.struts:struts-core:1.3.10"
+	compile 'commons-fileupload:commons-fileupload:1.3.1'
+	compile 'javax.servlet:servlet-api:2.5'
+}
+
+task ajc << {
+	ant.taskdef(resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties', classpath: configurations.ajc.asPath)
+
+	ant.iajc(outJar: "struts-core_custom.jar", source: '1.7', showWeaveInfo: 'true') {
+		sourceroots {
+			sourceSets.main.java.srcDirs.each {
+				pathelement(location: it.absolutePath)
+			}
+		}
+		classpath {
+			pathelement(location: configurations.compile.asPath)
+		}
+		inpath {
+			pathelement(location: configurations.compile.files.find { it.path.contains 'struts-core' }.absolutePath)
+		}
+	}
+}
