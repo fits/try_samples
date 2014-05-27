@@ -11,7 +11,7 @@ def calcGini2 = { list ->
 
 	def prob = { counts[it] / list.size() }
 
-	[counts.keySet(), counts.keySet()].combinations().findAll {
+	Collections.nCopies(2, counts.keySet()).combinations().findAll {
 		it[0] != it[1]
 	}.inject(0) { acc, val ->
 		prob(val[0]) * prob(val[1]) + acc
