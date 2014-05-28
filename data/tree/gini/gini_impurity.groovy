@@ -18,7 +18,7 @@ def calcGini2 = { list ->
 	}
 }
 
-def list = ['A', 'A', 'B', 'B', 'B', 'C']
+def list = ['A', 'B', 'B', 'C', 'B', 'A']
 
 println calcGini(list)
 println calcGini2(list)
