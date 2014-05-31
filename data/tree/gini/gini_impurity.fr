@@ -5,12 +5,12 @@ import Data.List
 
 size = fromIntegral . length
 
-calcGini1 xs = (1 - ) . (foldl' calc 0) . group . sort $ xs
+calcGini1 xs = (1 - ) . fold calc 0 . group . sort $ xs
 	where
 		listSize = size xs
 		calc acc x = acc + (size x / listSize) ** 2
 
-calcGini2 xs = foldl' sndSum 0 . combination . map prob . group . sort $ xs
+calcGini2 xs = fold sndSum 0 . combination . map prob . group . sort $ xs
 	where
 		listSize = size xs
 		prob ys = (head ys, size ys / listSize)
