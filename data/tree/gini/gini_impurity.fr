@@ -1,0 +1,24 @@
+package sample.GiniImpurity where
+
+import frege.prelude.Math (**)
+import Data.List
+
+size = fromIntegral . length
+
+calcGini1 xs = (1 - ) . (foldl' calc 0) . group . sort $ xs
+	where
+		listSize = size xs
+		calc acc x = acc + (size x / listSize) ** 2
+
+calcGini2 xs = foldl' sndSum 0 . combination . map prob . group . sort $ xs
+	where
+		listSize = size xs
+		prob ys = (head ys, size ys / listSize)
+		sndSum acc x = acc + snd x
+		combination zs = [(fst x ++ fst y, snd x * snd y) | x <- zs, y <- zs, fst x /= fst y]
+
+main args = do
+	let list = ["A", "B", "B", "C", "B", "A"]
+
+	println $ calcGini1 list
+	println $ calcGini2 list
