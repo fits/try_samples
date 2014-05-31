@@ -63,6 +63,14 @@ class GiniImpurity {
 	}
 
 	private static <T, S> Collection<? extends List<Map.Entry<T, S>>> combination(Map<T, S> data) {
+
+		return data.entrySet().stream().flatMap( x ->
+			data.entrySet().stream().flatMap ( y ->
+				(x.getKey().equals(y.getKey()))? Stream.empty(): Stream.of(Arrays.asList(x, y))
+			)
+		).collect(toList());
+
+	/* 以下でも可
 		ArrayList<List<Map.Entry<T, S>>> result = new ArrayList<>();
 
 		for (Map.Entry<T, S> x : data.entrySet()) {
@@ -74,5 +82,6 @@ class GiniImpurity {
 		}
 
 		return result;
+	*/
 	}
 }
