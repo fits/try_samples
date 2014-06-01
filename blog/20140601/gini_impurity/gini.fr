@@ -1,0 +1,25 @@
+package sample.Gini where
+
+import frege.prelude.Math (**)
+import Data.List
+
+size = fromIntegral . length
+
+-- (a) 1 - (AA + BB + CC)
+giniA xs = (1 - ) . sum . map calc . group . sort $ xs
+	where
+		listSize = size xs
+		calc x = (size x / listSize) ** 2
+
+-- (b) AB + AC + BA + BC + CA + CB
+giniB xs = fold (+) 0 . calcProb . map prob . group . sort $ xs
+	where
+		listSize = size xs
+		prob ys = (head ys, size ys / listSize)
+		calcProb zs = [ snd x * snd y | x <- zs, y <- zs, fst x /= fst y]
+
+main args = do
+	let list = ["A", "B", "B", "C", "B", "A"]
+
+	println $ giniA list
+	println $ giniB list
