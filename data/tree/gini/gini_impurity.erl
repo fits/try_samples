@@ -9,9 +9,9 @@ gini1(Xs) -> 1 - dict:fold(fun(K, V, Acc) -> Acc + math:pow(V / length(Xs), 2) e
 
 gini1a(Xs) -> 1 - lists:sum([ math:pow(V / length(Xs), 2) || {_, V} <- dict:to_list(countBy(Xs)) ]).
 
-gini2(Xs) -> lists:sum([ (V1 / length(Xs)) * (V2 / length(Xs)) || {V1, V2} <- combinationProb(dict:to_list(countBy(Xs))) ]).
+gini2(Xs) -> lists:sum([ (Vx / length(Xs)) * (Vy / length(Xs)) || {Vx, Vy} <- combinationProb(dict:to_list(countBy(Xs))) ]).
 
-combinationProb(Xs) -> [ {VX, VY} || {KX, VX} <- Xs, {KY, VY} <- Xs, KX /= KY ].
+combinationProb(Xs) -> [ {Vx, Vy} || {Kx, Vx} <- Xs, {Ky, Vy} <- Xs, Kx /= Ky ].
 main(_) ->
 	List = ["A", "B", "B", "C", "B", "A"],
 
