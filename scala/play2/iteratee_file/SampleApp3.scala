@@ -17,7 +17,10 @@ object SampleApp3 extends App {
 				case _            => None
 			}
 			Future.successful(chunk)
-		}, {println("*** close");input.close})
+		}, {
+			input.close
+			println("*** close")
+		})
 	}
 
 	val enumerator = fromStreamLine(new BufferedReader(new FileReader(args(0))))
@@ -31,7 +34,7 @@ object SampleApp3 extends App {
 	println("----------")
 
 	val enumerator2 = fromStreamLine(new BufferedReader(new FileReader(args(0))))
-	val future2 = enumerator2 &> Enumeratee.take(3) |>>> Iteratee.foreach { s => 
+	val future2 = enumerator2 &> Enumeratee.drop(1) &> Enumeratee.take(2) |>>> Iteratee.foreach { s => 
 		println(s"#${s}")
 	}
 
