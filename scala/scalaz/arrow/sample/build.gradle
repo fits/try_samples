@@ -31,3 +31,8 @@ task run(dependsOn: 'build') << {
 		classpath = runtimeClasspath
 	}
 }
+
+task print() << {
+	println scalaVersion
+}
+
