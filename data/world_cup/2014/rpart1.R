@@ -1,7 +1,7 @@
 library(rpart)
 library(partykit)
 
-excRows = c(
+excCols = c(
   "Matches.Played",
   "Goals.for",
   "Total.Goals.scored",
@@ -16,7 +16,7 @@ excRows = c(
 )
 
 wd.all <- read.delim("data/teams_result.txt", row.names = 1)
-wd.data <- wd.all[, !(colnames(wd.all) %in% excRows)]
+wd.data <- wd.all[, !(colnames(wd.all) %in% excCols)]
 
 wd.rpart <- rpart(League.Result ~ ., data = wd.data)
 
