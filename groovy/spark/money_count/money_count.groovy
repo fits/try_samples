@@ -1,6 +1,5 @@
 @Grab('org.apache.spark:spark-core_2.10:1.0.0')
 import org.apache.spark.api.java.JavaSparkContext
-import org.apache.spark.api.java.function.Function
 
 def spark = new JavaSparkContext('local', 'MoneyCount')
 
