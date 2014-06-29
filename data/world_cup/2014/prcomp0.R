@@ -1,5 +1,5 @@
 
-excRows = c(
+excCols = c(
   "Matches.Played",
   "Clearances.completion.rate",
   "Passes.Completed.1",
@@ -7,7 +7,7 @@ excRows = c(
 )
 
 wd.all <- read.delim("data/teams_result.txt", row.names = 1)
-wd.data <- wd.all[, !(colnames(wd.all) %in% excRows)]
+wd.data <- wd.all[, !(colnames(wd.all) %in% excCols)]
 
 wd.prcomp <- prcomp(wd.data, scale = T)
 
