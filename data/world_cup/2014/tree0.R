@@ -10,7 +10,7 @@ excCols = c(
 wd.all <- read.delim("data/teams_result.txt", row.names = 1)
 wd.data <- wd.all[, !(colnames(wd.all) %in% excCols)]
 
-wd.tree <- tree(League.Result ~ ., data = wd.data)
+wd.tree <- tree(Group.Stage.Result ~ ., data = wd.data)
 
 plot(wd.tree)
 text(wd.tree)
