@@ -12,8 +12,6 @@ import org.apache.commons.cli.HelpFormatter
 import groovy.sql.Sql
 import groovy.sql.DataSet
 
-def CSV_ENCODE = 'Windows-31J'
-
 def parseArgs = { cmdArgs ->
 	def opt = new Options()
 	opt.addOption('c', 'config', true, 'config file')
@@ -76,7 +74,7 @@ def db = createDb(setting)
 def csvFile = cmdLine.getOptionValue('f');
 def table = cmdLine.getOptionValue('t');
 
-def csv = new CsvMapReader(new File(csvFile).newReader(CSV_ENCODE), CsvPreference.STANDARD_PREFERENCE)
+def csv = new CsvMapReader(new File(csvFile).newReader(setting.file_encode), CsvPreference.STANDARD_PREFERENCE)
 
 def headers = csv.getHeader(true)
 
