@@ -17,11 +17,11 @@ let moveKnight (p: KnightPos) = _.filter [
 	{c: p.c - 1, r: p.r - 2}, {c: p.c - 1, r: p.r + 2}
 ] (\t -> 1 <= t.c && t.c <= 8 && 1 <= t.r && t.r <= 8)
 
-let in3 (start: KnightPos) = (do listMonad
+let in3 (start: KnightPos) = do listMonad
 	fst <- moveKnight start
 	snd <- moveKnight fst
 	moveKnight snd
-)
+
 
 console.log (in3 {c: 6, r: 2})
 
