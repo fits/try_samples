@@ -1,0 +1,28 @@
+
+let _ = require 'underscore'
+
+let concat xs = _.reduce xs (\a b -> a.concat b) []
+
+let listMonad = {
+	return: \x -> [x]
+	bind: \xs f -> concat (_.map xs (\y -> f y))
+}
+
+let f1 = (do listMonad
+	x <- [1, 3, 5]
+	return [x, x * 2]
+)
+
+console.log f1
+
+let f2 = (do listMonad
+	x <- [1, 2, 3]
+	y <- ['a', 'b']
+	return (x, y)
+)
+
+console.log f2
+
+
+console.log (concat [1, 2])
+console.log (concat [[1, 2], [3]])
