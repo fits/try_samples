@@ -1,0 +1,14 @@
+
+let _ = require 'underscore'
+
+let plus n = n + 3
+let times n = n * 2
+
+console.log(plus 2)
+console.log(times 2)
+
+let f1 = _.compose times plus
+let f2 = _.compose plus times
+
+console.log(f1 3)
+console.log(f2 3)
