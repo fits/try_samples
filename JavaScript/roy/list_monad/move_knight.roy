@@ -10,12 +10,14 @@ let listMonad = {
 
 type KnightPos = {c: Number, r: Number}
 
+let inRange (n: Number) = _.contains (_.range 1 9) n
+
 let moveKnight (p: KnightPos) = _.filter [
 	{c: p.c + 2, r: p.r - 1}, {c: p.c + 2, r: p.r + 1},
 	{c: p.c - 2, r: p.r - 1}, {c: p.c - 2, r: p.r + 1},
 	{c: p.c + 1, r: p.r - 2}, {c: p.c + 1, r: p.r + 2},
 	{c: p.c - 1, r: p.r - 2}, {c: p.c - 1, r: p.r + 2}
-] (\t -> 1 <= t.c && t.c <= 8 && 1 <= t.r && t.r <= 8)
+] ( \t -> (inRange t.c) && (inRange t.r) )
 
 let in3 (start: KnightPos) = do listMonad
 	fst <- moveKnight start
