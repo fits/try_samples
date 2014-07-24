@@ -1,0 +1,15 @@
+let _ = require 'underscore'
+
+let concat xs = _.reduce xs (\a b -> a.concat b) []
+
+let listMonad = {
+	return: \x -> [x]
+	bind: \xs f -> concat (_.map xs (\y -> f y))
+}
+
+let res = do listMonad
+	x <- [1, 3, 5]
+	y <- ['a', 'b']
+	return (x * 2, y)
+
+console.log res
