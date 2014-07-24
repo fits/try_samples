@@ -1,0 +1,30 @@
+
+let _ = require 'underscore'
+
+let concat xs = _.reduce xs (\a b -> a.concat b) []
+
+let listMonad = {
+	return: \x -> [x]
+	bind: \xs f -> concat (_.map xs (\y -> f y))
+}
+
+type KnightPos = {c: Number, r: Number}
+
+let inRange (n: Number) = _.contains (_.range 1 9) n
+
+let moveKnight (p: KnightPos) = _.filter [
+	{c: p.c + 2, r: p.r - 1}, {c: p.c + 2, r: p.r + 1},
+	{c: p.c - 2, r: p.r - 1}, {c: p.c - 2, r: p.r + 1},
+	{c: p.c + 1, r: p.r - 2}, {c: p.c + 1, r: p.r + 2},
+	{c: p.c - 1, r: p.r - 2}, {c: p.c - 1, r: p.r + 2}
+] ( \t -> (inRange t.c) && (inRange t.r) )
+
+
+let inMany (n: Number) (start: KnightPos) = _.reduce (_.range n) (\a b -> listMonad.bind a moveKnight) [start]
+
+console.log (inMany 3 {c: 6, r: 2})
+
+let canReachInMany (n: Number) (start: KnightPos) (end: KnightPos) = _.any (inMany 3 start) (\p -> p.c == end.c && p.r == end.r)
+
+console.log (canReachInMany 3 {c: 6, r: 2} {c: 6, r: 1})
+console.log (canReachInMany 3 {c: 6, r: 2} {c: 7, r: 3})
