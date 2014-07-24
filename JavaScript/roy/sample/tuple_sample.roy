@@ -1,0 +1,4 @@
+
+let t1 = (1, 2, 'a')
+
+console.log t1
