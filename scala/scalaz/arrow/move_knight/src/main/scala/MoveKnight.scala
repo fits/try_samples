@@ -20,7 +20,7 @@ object MoveKnight extends App {
 
 	in3 (6, 2) |> println
 
-	val canReachIn3 = (end: KnightPos) => in3.run >>> { (xs: List[KnightPos]) => xs.contains(end) }
+	val canReachIn3 = (end: KnightPos) => in3.run >>> { xs => xs.contains(end) }
 
 	(6, 2) |> canReachIn3 (6, 1) |> println
 	(6, 2) |> canReachIn3 (7, 3) |> println
