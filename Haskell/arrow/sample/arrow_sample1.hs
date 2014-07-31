@@ -15,6 +15,7 @@ main = do
 
 	-- (3 + 3, 5 * 2) = (6, 10)
 	print $ plus *** times $ (3, 5)
+	print $ first plus >>> second times $ (3, 5)
 
 	-- (4 + 3, 4 * 2) = (7, 8)
 	print $ plus &&& times $ 4
