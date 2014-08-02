@@ -12,8 +12,10 @@ moveKnight (c, r) = filter onBoard
 	]
 	where onBoard (c', r') = c' `elem` [1..8] && r' `elem` [1..8]
 
+in3 :: Kleisli [] KnightPos KnightPos
 in3 = Kleisli moveKnight >>> Kleisli moveKnight >>> Kleisli moveKnight
 
+canReachIn3 :: KnightPos -> KnightPos -> Bool
 canReachIn3 end = runKleisli in3 >>> elem end
 
 main = do
