@@ -15,6 +15,7 @@ moveKnight (c, r) = filter onBoard
 inMany :: Int -> Kleisli [] KnightPos KnightPos
 inMany x = foldr (>>>) returnA (replicate x (Kleisli moveKnight))
 
+canReachInMany :: Int -> KnightPos -> KnightPos -> Bool
 canReachInMany x end = runKleisli (inMany x) >>> elem end
 
 main = do
