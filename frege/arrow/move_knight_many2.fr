@@ -1,0 +1,28 @@
+package sample.MoveKnightMany2 where
+
+import frege.control.Arrow
+import frege.control.arrow.Kleisli
+
+type KnightPos = (Int, Int)
+
+moveKnight :: KnightPos -> [KnightPos]
+moveKnight (c, r) = filter onBoard
+	[
+		(c + 2, r - 1), (c + 2, r + 1),
+		(c - 2, r - 1), (c - 2, r + 1),
+		(c + 1, r - 2), (c + 1, r + 2),
+		(c - 1, r - 2), (c - 1, r + 2)
+	]
+	where onBoard (c', r') = c' `elem` [1..8] && r' `elem` [1..8]
+
+inMany :: Int -> Kleisli [] KnightPos KnightPos
+inMany x = foldr (.) id (replicate x (Kleisli moveKnight))
+
+canReachInMany :: Arrow a => Int -> KnightPos -> a KnightPos Bool
+canReachInMany x end = arr (elem end) . arr (inMany x).run
+
+main args = do
+	println $ (inMany 3).run $ (6, 2)
+
+	println $ canReachInMany 3 (6, 1) $ (6, 2)
+	println $ canReachInMany 3 (7, 3) $ (6, 2)
