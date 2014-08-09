@@ -1,0 +1,25 @@
+apply plugin: 'application'
+apply plugin: 'scala'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.11.2'
+	compile 'org.scalaz:scalaz-core_2.11:7.1.0'
+}
+
+if (!hasProperty('many')) {
+	println 'MoveKnight'
+	mainClassName = "sample.MoveKnight"
+}
+else {
+	println 'MoveKnightMany'
+	mainClassName = "sample.MoveKnightMany"
+}
+
+
+compileScala {
+	scalaCompileOptions.additionalParameters = ['-Xprint:typer', '-feature']
+}

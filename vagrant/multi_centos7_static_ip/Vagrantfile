@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+	config.vm.define :ap1 do |ap1|
+		ap1.vm.box = "centos7"
+		ap1.vm.network "forwarded_port", id: "ssh", guest: 22, host: 2232
+		ap1.vm.network "private_network", ip: "192.168.100.11", virtualbox__intnet: "intnet"
+
+		ap1.vm.synced_folder "ap1_vagrant", "/vagrant"
+
+		ap1.vm.provision :shell, :inline => "sudo ip addr add 192.168.100.11/24 dev enp0s8; sudo ip link set enp0s8 up"
+	end
+
+	config.vm.define :ap2 do |ap2|
+		ap2.vm.box = "centos7"
+		ap2.vm.network "forwarded_port", id: "ssh", guest: 22, host: 2233
+		ap2.vm.network "private_network", ip: "192.168.100.12", virtualbox__intnet: "intnet"
+
+		ap2.vm.synced_folder "ap2_vagrant", "/vagrant"
+
+		ap2.vm.provision :shell, :inline => "sudo ip addr add 192.168.100.12/24 dev enp0s8; sudo ip link set enp0s8 up"
+	end
+end
