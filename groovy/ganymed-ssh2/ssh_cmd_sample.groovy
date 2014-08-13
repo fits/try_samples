@@ -1,7 +1,7 @@
 /*
  * 指定のホストに SSH で接続してコマンドを実行するスクリプト
  */
-@Grab('ch.ethz.ganymed:ganymed-ssh2:build210')
+@Grab('ch.ethz.ganymed:ganymed-ssh2:262')
 import ch.ethz.ssh2.*
 
 def host = args[0]

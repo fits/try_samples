@@ -1,5 +1,5 @@
 
-@Grab('ch.ethz.ganymed:ganymed-ssh2:build210')
+@Grab('ch.ethz.ganymed:ganymed-ssh2:262')
 import ch.ethz.ssh2.*
 import static ch.ethz.ssh2.ChannelCondition.*
 
