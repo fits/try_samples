@@ -1,0 +1,20 @@
+apply plugin: 'application'
+apply plugin: 'scala'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.11.2'
+	compile 'org.scalaz:scalaz-core_2.11:7.1.0'
+	compile 'org.scalaz:scalaz-effect_2.11:7.1.0'
+}
+
+mainClassName = "sample.FileRead"
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args.split(' ')
+	}
+}
