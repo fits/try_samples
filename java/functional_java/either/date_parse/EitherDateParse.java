@@ -24,12 +24,7 @@ public class EitherDateParse {
             s -> Date.from(ZonedDateTime.parse(s).toInstant()),
             simpleParseDate.f("yyyy-MM-dd HH:mm:ss"),
             simpleParseDate.f("yyyy-MM-dd"),
-            s -> {
-                if ("now".equals(s)) {
-                    return new Date();
-                }
-                throw new RuntimeException("not now");
-            }
+            s -> "now".equals(s)? new Date(): null
         );
 
         System.out.println("------");
@@ -53,7 +48,8 @@ public class EitherDateParse {
             @Override
             public Either<S, T> f(S s) {
                 try {
-                    return Either.right(func.f(s));
+                    T res = func.f(s);
+                    return (res == null)? Either.left(s): Either.right(res);
                 } catch (Exception ex) {
                     System.out.println(ex.getMessage());
                     return Either.left(s);
