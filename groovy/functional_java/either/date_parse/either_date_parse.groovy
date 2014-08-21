@@ -16,7 +16,7 @@ def f3 = {
 	Date.parse('yyyy-MM-dd', it)
 }
 
-def liftE = { f ->
+def eitherK = { f ->
 	return {
 		try {
 			Either.right( f(it) )
@@ -30,7 +30,7 @@ def liftE = { f ->
 def data = Either.left(args[0])
 
 def res = [ f1, f2, f3 ].inject(data) { acc, f ->
-	acc.left().bind liftE(f)
+	acc.left().bind eitherK(f)
 }
 
 println '-----'
