@@ -43,12 +43,12 @@ public class EitherDateParse {
         Either<String, Date> res = Either.left(date);
 
         for (F<String, Date> func : funcList) {
-            res = res.left().bind( liftE(func) );
+            res = res.left().bind( eitherK(func) );
         }
         return res;
     }
 
-    private static <S, T> F<S, Either<S, T>> liftE(final F<S, T> func) {
+    private static <S, T> F<S, Either<S, T>> eitherK(final F<S, T> func) {
         return new F<S, Either<S, T>>() {
             @Override
             public Either<S, T> f(S s) {
