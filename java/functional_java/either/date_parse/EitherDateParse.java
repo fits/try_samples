@@ -10,20 +10,21 @@ import java.util.Date;
 
 public class EitherDateParse {
     public static void main(String... args) {
-        F<String, F<String, Date>> simpleParseDate = f -> s -> {
+        F<String, F<String, Date>> simpleDate = df -> s -> {
             try {
-                return new SimpleDateFormat(f).parse(s);
+                return new SimpleDateFormat(df).parse(s);
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }
         };
 
-        Either<String, Date> res = parseDate(args[0],
+        Either<String, Date> res = parseDate(
+            Either.left(args[0]),
             s -> Date.from(LocalDateTime.parse(s).toInstant(ZoneOffset.UTC)),
             s -> Date.from(OffsetDateTime.parse(s).toInstant()),
             s -> Date.from(ZonedDateTime.parse(s).toInstant()),
-            simpleParseDate.f("yyyy-MM-dd HH:mm:ss"),
-            simpleParseDate.f("yyyy-MM-dd"),
+            simpleDate.f("yyyy-MM-dd HH:mm:ss"),
+            simpleDate.f("yyyy-MM-dd"),
             s -> "now".equals(s)? new Date(): null
         );
 
@@ -34,26 +35,22 @@ public class EitherDateParse {
 
 
     @SafeVarargs
-    public static Either<String, Date> parseDate(final String date, final F<String, Date>... funcList) {
-        Either<String, Date> res = Either.left(date);
+    public static Either<String, Date> parseDate(Either<String, Date> date, F<String, Date>... funcList) {
 
         for (F<String, Date> func : funcList) {
-            res = res.left().bind( eitherK(func) );
+            date = date.left().bind( eitherK(func) );
         }
-        return res;
+        return date;
     }
 
     private static <S, T> F<S, Either<S, T>> eitherK(final F<S, T> func) {
-        return new F<S, Either<S, T>>() {
-            @Override
-            public Either<S, T> f(S s) {
-                try {
-                    T res = func.f(s);
-                    return (res == null)? Either.left(s): Either.right(res);
-                } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
-                    return Either.left(s);
-                }
+        return s -> {
+            try {
+                T res = func.f(s);
+                return (res == null)? Either.left(s): Either.right(res);
+            } catch (Exception ex) {
+                System.out.println("* " + ex.getMessage());
+                return Either.left(s);
             }
         };
     }
