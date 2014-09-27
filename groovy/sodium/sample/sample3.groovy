@@ -9,10 +9,10 @@ def ba4 = ba2.lift({ a, b ->
 	a + b
 }, ba3)
 
-def l1 = ba4.value().listen { a -> println "*** $a" }
+def li = ba4.value().listen { a -> println "*** $a" }
 
 (1..5).each {
 	ba.send it
 }
 
-l1.unlisten()
+li.unlisten()
