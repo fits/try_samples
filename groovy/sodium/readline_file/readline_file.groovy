@@ -19,12 +19,12 @@ def batch = { Lambda1<Integer, Boolean> cond, int n, Event ev ->
 def skip = batch.curry { it <= 0 }
 def take = batch.curry { it > 0 }
 
-def line = new BehaviorSink(null)
-
 def skipAndTake3 = skip.curry(1) >> take.curry(3)
 
-def li = skipAndTake3(line.updates()).map { "# ${it}" }.listen { println it }
+def bh = new BehaviorSink(null)
 
-new File(args[0]).eachLine { line.send it }
+def li = skipAndTake3(bh.updates()).map { "# ${it}" }.listen { println it }
+
+new File(args[0]).eachLine { bh.send it }
 
 li.unlisten()
