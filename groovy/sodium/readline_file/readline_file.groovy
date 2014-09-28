@@ -4,21 +4,31 @@ import sodium.*
 def line = new BehaviorSink(null)
 
 def skip = { Event ev ->
-	def sk = new BehaviorSink(false)
+	def skipper = new BehaviorSink(false)
+	def li = null
 
-	def li = ev.once().listen { sk.send true }
-	ev.addCleanup li
+	li = ev.once().listen {
+		skipper.send true
+		li?.unlisten()
+	}
 
-	ev.gate(sk)
+	ev.gate skipper
 }
 
 def take = { int n, Event ev ->
 	def counter = new BehaviorSink(n)
+	def li = null
 
-	def li = ev.listen { counter.send( counter.sample() - 1 ) }
-	ev.addCleanup li
+	li = ev.listen {
+		def newValue = counter.sample() - 1
+		counter.send newValue
+	
+		if (newValue <= 0) {
+			li?.unlisten()
+		}
+	}
 
-	ev.gate(counter.map { v -> v > 0 })
+	ev.gate counter.map { it > 0 }
 }
 
 def skipAndTake3 = skip.curry() >> take.curry(3)
