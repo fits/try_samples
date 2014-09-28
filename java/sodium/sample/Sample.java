@@ -10,7 +10,7 @@ class Sample {
 
 		Behavior<Integer> c1 = a1.lift( (a, b) -> a + b, b1 );
 
-		Listener li = c1.value().listen( a -> prtl.accept("c1 = " + a) );
+		Listener li = c1.value().listen( v -> prtl.accept("c1 = " + v) );
 
 		prtl.accept("--- a1.send 10");
 		a1.send(10);
