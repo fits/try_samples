@@ -4,20 +4,18 @@ if (args.length < 2) {
 	return
 }
 
-def trim = { it.replaceAll('"', '') }
 def toNumForIP = { Integer.toUnsignedLong(it.hashCode()) }
 
-def csv = args[0]
 def ip = toNumForIP( InetAddress.getByName(args[1]) )
 
-new File(csv).eachLine() {
-	def items = it.split(',')
+new File(args[0]).eachLine() {
+	def items = it.replaceAll('"', '').split(',')
 
-	def from = trim(items[2]) as long
-	def to = trim(items[3]) as long
+	def from = items[2] as long
+	def to = items[3] as long
 
 	if (from <= ip && ip <= to) {
-		println trim(items.last())
+		println items.last()
 		System.exit(0)
 	}
 }
