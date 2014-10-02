@@ -5,6 +5,8 @@ if (args.length < 2) {
 }
 
 def toNumForIP = { Integer.toUnsignedLong(it.hashCode()) }
+// 以下でも可
+// def toNumForIP = { (it.hashCode() & 0xffffffff) as long }
 
 def ip = toNumForIP( InetAddress.getByName(args[1]) )
 
