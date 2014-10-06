@@ -1,0 +1,19 @@
+apply plugin: 'application'
+apply plugin: 'scala'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.10.4'
+	compile 'org.apache.spark:spark-sql_2.10:1.1.0'
+}
+
+mainClassName = 'GetCountry'
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args.split(' ')
+	}
+}
