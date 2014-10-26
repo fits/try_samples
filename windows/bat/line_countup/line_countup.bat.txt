@@ -1,0 +1,14 @@
+@echo off
+
+setlocal enabledelayedexpansion
+
+set ct=0
+
+for /f "delims=" %%u in (%1) do (
+	set /a ct=!ct! + 1
+
+	echo !ct! %%u
+)
+
+echo !ct!
+echo %ct%
