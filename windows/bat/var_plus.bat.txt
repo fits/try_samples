@@ -1,0 +1,15 @@
+@echo off
+
+setlocal
+
+set ct=1
+echo %ct%
+
+set ct=ct+1
+echo %ct%
+
+set /a ct=ct + 1
+echo %ct%
+
+set /a ct=%ct% + 1
+echo %ct%
