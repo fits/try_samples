@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sample">
+
+  <resultMap id="envMap" type="EnvModel">
+    <id property="name" column="NAME" />
+    <result property="value" column="VALUE" />
+  </resultMap>
+
+  <select id="findEnv" resultMap="envMap">
+    select
+      NAME,
+      VALUE
+    from
+      env
+    where
+      ENABLE = #{enable}
+      <if test="name != null">
+        and NAME = #{name}
+      </if>
+  </select>
+
+  <insert id="insertEnv">
+    insert into env (
+      NAME,
+      VALUE
+    ) values (
+      #{name},
+      #{value}
+    )
+  </insert>
+
+  <delete id="deleteEnv" parameterType="String">
+    delete from env where NAME = #{name}
+  </delete>
+
+</mapper>
+
