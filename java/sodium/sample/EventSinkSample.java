@@ -1,5 +1,4 @@
 import sodium.*;
-import java.util.function.Consumer;
 
 class EventSinkSample {
 	public static void main(String... args) {
