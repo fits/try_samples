@@ -1,0 +1,26 @@
+
+apply plugin: 'war'
+
+def springVersion = '4.1.2.RELEASE'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath 'com.sahlbach.gradle:gradle-jetty-eclipse-plugin:1.9.+'
+	}
+}
+
+apply plugin: 'jettyEclipse'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.springframework:spring-webmvc:${springVersion}"
+
+	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+}
+
