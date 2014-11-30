@@ -1,0 +1,15 @@
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+def springBootVersion = '1.1.9.RELEASE'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.springframework.boot:spring-boot-starter-batch:${springBootVersion}"
+}
+
+mainClassName = 'sample.Main'
