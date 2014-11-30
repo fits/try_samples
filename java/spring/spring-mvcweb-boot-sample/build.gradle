@@ -1,0 +1,31 @@
+
+apply plugin: 'war'
+
+def springBootVersion = '1.2.0.RC2'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.0.RC2'
+	}
+}
+
+apply plugin: 'spring-boot'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	providedRuntime
+}
+
+dependencies {
+	compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+
+	providedRuntime "org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}"
+}
+
