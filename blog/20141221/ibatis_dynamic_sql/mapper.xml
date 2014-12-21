@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="sample">
+
+  <select id="findData">
+    SELECT * FROM data
+    WHERE
+      title like #title#
+    <isNotNull property="author">
+      <isNotNull property="author.name">
+        AND author_name like #author.name#
+      </isNotNull>
+    </isNotNull>
+    <isNotNull property="types">
+      AND type in
+      <iterate property="types" open="(" conjunction="," close=")">
+        #types[]#
+      </iterate>
+    </isNotNull>
+  </select>
+
+</sqlMap>
