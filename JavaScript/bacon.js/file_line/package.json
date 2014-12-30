@@ -1,0 +1,10 @@
+{
+  "name": "file-line-sample",
+  "version": "0.0.0",
+  "description": "file-line sample",
+  "repository": {},
+  "dependencies": {
+    "baconjs": "*",
+    "coffee-script": "*"
+  }
+}
