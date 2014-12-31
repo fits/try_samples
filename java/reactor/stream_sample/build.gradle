@@ -1,0 +1,14 @@
+
+apply plugin: 'application'
+
+repositories {
+	maven { url 'http://repo.spring.io/libs-snapshot' }
+	jcenter()
+}
+
+dependencies {
+	compile 'io.projectreactor:reactor-core:2.0.0.M2'
+	runtime 'org.slf4j:slf4j-nop:1.7.9'
+}
+
+mainClassName = 'sample.StreamSample'
