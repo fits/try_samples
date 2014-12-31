@@ -6,8 +6,6 @@ import reactor.rx.Streams;
 import reactor.rx.stream.Broadcaster;
 import reactor.rx.action.support.TapAndControls;
 
-import java.util.concurrent.CountDownLatch;
-
 public class TakeSample {
 	public static void main(String... args) throws Exception {
 		Environment env = new Environment();
