@@ -10,3 +10,11 @@ console.log '-----'
 stream2 = Bacon.fromArray([1..6].map (i) -> "sample#{i}")
 
 stream2.skip(2).take(3).map((s) -> "##{s}").log()
+
+console.log '-----'
+
+bus = new Bacon.Bus()
+
+bus.skip(2).take(3).map((s) -> "##{s}").log()
+
+[1..6].forEach (i) -> bus.push "sample#{i}"
