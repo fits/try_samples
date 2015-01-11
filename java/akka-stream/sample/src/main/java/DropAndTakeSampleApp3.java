@@ -3,6 +3,7 @@ import akka.actor.ActorSystem;
 import akka.dispatch.OnComplete;
 import akka.stream.FlowMaterializer;
 import akka.stream.javadsl.Source;
+import akka.stream.OverflowStrategy;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -29,13 +30,17 @@ public class DropAndTakeSampleApp3 {
 		try (SamplePublisher<String> publisher = new SamplePublisher<>()) {
 
 			Source.from(publisher)
+				// backpressure へ変更しておかないと
+				// drop(3) と take(2) をコメント化した場合に
+				// Input buffer overrun エラーが発生するようになる
+				.buffer(5, OverflowStrategy.backpressure())
 				.drop(3)
 				.take(2)
 				.map(s -> "#" + s)
 				.foreach(System.out::println, materializer)
 				.onComplete(complete, system.dispatcher());
 
-			IntStream.range(1, 6)
+			IntStream.range(1, 7)
 				.mapToObj(i -> "sample" + i)
 				.forEach(d -> publisher.send(d));
 		}
