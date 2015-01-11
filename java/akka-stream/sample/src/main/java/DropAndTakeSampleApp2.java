@@ -29,7 +29,7 @@ public class DropAndTakeSampleApp2 {
 			.take(2)
 			.map(s -> "#" + s);
 
-		List<String> data = IntStream.range(1, 6).mapToObj(i -> "sample" + i).collect(Collectors.toList());
+		List<String> data = IntStream.range(1, 7).mapToObj(i -> "sample" + i).collect(Collectors.toList());
 
 		flow.runWith(
 			Source.from(data), 
