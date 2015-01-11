@@ -22,7 +22,7 @@ public class DropAndTakeSampleApp {
 			}
 		};
 
-		List<String> data = IntStream.range(1, 6).mapToObj(i -> "sample" + i).collect(Collectors.toList());
+		List<String> data = IntStream.range(1, 7).mapToObj(i -> "sample" + i).collect(Collectors.toList());
 
 		Source.from(data)
 			.drop(3)
