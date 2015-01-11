@@ -30,10 +30,8 @@ public class DropAndTakeSampleApp3 {
 		try (SamplePublisher<String> publisher = new SamplePublisher<>()) {
 
 			Source.from(publisher)
-				// backpressure へ変更しておかないと
-				// drop(3) と take(2) をコメント化した場合に
-				// Input buffer overrun エラーが発生するようになる
-				.buffer(5, OverflowStrategy.backpressure())
+				// Input buffer overrun
+				.buffer(5, OverflowStrategy.dropHead())
 				.drop(3)
 				.take(2)
 				.map(s -> "#" + s)
