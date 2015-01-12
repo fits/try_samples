@@ -5,6 +5,10 @@ import akka.stream.FlowMaterializer;
 import akka.stream.javadsl.Source;
 import akka.stream.OverflowStrategy;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -17,7 +21,10 @@ import java.util.stream.IntStream;
 
 public class DropAndTakeSampleApp3 {
 	public static void main(String... args) {
-		final ActorSystem system = ActorSystem.create("sample");
+		final Config config = ConfigFactory.load()
+			.withValue("akka.loglevel", ConfigValueFactory.fromAnyRef("error"));
+
+		final ActorSystem system = ActorSystem.create("sample", config);
 		final FlowMaterializer materializer = FlowMaterializer.create(system);
 
 		final OnComplete<BoxedUnit> complete = new OnComplete<BoxedUnit>() {
@@ -31,7 +38,7 @@ public class DropAndTakeSampleApp3 {
 
 			Source.from(publisher)
 				// Input buffer overrun
-				.buffer(5, OverflowStrategy.dropHead())
+				.buffer(10, OverflowStrategy.backpressure())
 				.drop(3)
 				.take(2)
 				.map(s -> "#" + s)
