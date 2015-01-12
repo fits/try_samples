@@ -1,0 +1,14 @@
+apply plugin: 'application'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.typesafe.akka:akka-stream-experimental_2.11:1.0-M2'
+}
+
+//mainClassName = 'sample.Sample1'
+//mainClassName = 'sample.Sample2'
+//mainClassName = 'sample.ProducerSample1'
+mainClassName = 'sample.ProducerSample2'
