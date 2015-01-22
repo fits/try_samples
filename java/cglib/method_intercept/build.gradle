@@ -1,0 +1,12 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'cglib:cglib:3.1'
+}
+
+mainClassName = 'SampleApp2'
