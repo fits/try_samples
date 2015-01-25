@@ -1,0 +1,13 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+def enc = 'UTF-8'
+
+[compileJava, compileTestJava].each {
+	it.options.encoding = enc
+}
+
+dependencies {
+	compile files("${System.properties['java.home']}/../lib/tools.jar")
+}
