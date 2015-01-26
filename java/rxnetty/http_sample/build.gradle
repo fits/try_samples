@@ -9,4 +9,4 @@ dependencies {
 	compile 'io.reactivex:rxnetty:0.4.5-rc.2'
 }
 
-mainClassName = 'sample.HttpSample'
+mainClassName = hasProperty('mainClass')? mainClass: 'sample.HttpSample'
