@@ -1,0 +1,12 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'io.reactivex:rxnetty:0.4.5-rc.2'
+}
+
+mainClassName = 'sample.HttpSample'
