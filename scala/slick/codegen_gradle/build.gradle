@@ -1,0 +1,22 @@
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.typesafe.slick:slick-codegen_2.11:3.0.0-M1'
+		classpath 'org.scala-lang:scala-reflect:2.11.5'
+		classpath 'mysql:mysql-connector-java:5.1.34'
+	}
+}
+
+task generate << {
+	scala.slick.codegen.SourceCodeGenerator.main(
+		'scala.slick.driver.MySQLDriver',
+		'com.mysql.jdbc.Driver',
+		'jdbc:mysql://localhost:3306/sample?user=root',
+		'src/main/scala',
+		'sample.model'
+	)
+}
