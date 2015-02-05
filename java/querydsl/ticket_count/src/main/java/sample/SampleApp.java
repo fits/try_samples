@@ -4,7 +4,6 @@ import com.mysema.query.sql.Configuration;
 import com.mysema.query.sql.MySQLTemplates;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
-import com.mysema.query.types.Projections;
 import sample.model.QTickets;
 import sample.model.QUsedTickets;
 
