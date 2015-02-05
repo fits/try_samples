@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.mysema.querydsl:querydsl-sql-codegen:3.6.0'
+		classpath 'mysql:mysql-connector-java:5.1.34'
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.mysema.querydsl:querydsl-sql:3.6.0'
+	runtime 'mysql:mysql-connector-java:5.1.34'
+	runtime 'org.slf4j:slf4j-simple:1.7.10'
+}
+
+mainClassName = 'sample.SampleApp'
+
+task generate << {
+	def con = new com.mysql.jdbc.Driver().connect('jdbc:mysql://localhost/ticket?user=root', null)
+
+	def exporter = new com.mysema.query.sql.codegen.MetaDataExporter()
+
+	def conf = new com.mysema.query.sql.Configuration(
+		new com.mysema.query.sql.MySQLTemplates()
+	)
+
+	exporter.setConfiguration(conf)
+
+	exporter.packageName = 'sample.model'
+	exporter.targetFolder = new File('src/main/java')
+
+	exporter.export(con.metaData)
+
+	con.close()
+}
