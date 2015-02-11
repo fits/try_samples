@@ -1,0 +1,56 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'org.jooq:jooq-codegen:3.5.1'
+		classpath 'mysql:mysql-connector-java:5.1.34'
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.jooq:jooq-codegen:3.5.1'
+	runtime 'mysql:mysql-connector-java:5.1.34'
+}
+
+mainClassName = 'sample.SampleApp'
+
+task generate << {
+	def writer = new StringWriter()
+
+	new groovy.xml.MarkupBuilder(writer) 
+		.configuration('xmlns': 'http://www.jooq.org/xsd/jooq-codegen-3.5.0.xsd') {
+		jdbc() {
+			url 'jdbc:mysql://localhost/ticket'
+			user 'root'
+			password ''
+
+			inputSchema 'ticket'
+		}
+		generator() {
+			database() {
+			}
+			generate() {
+			}
+			target() {
+				packageName 'sample.model'
+				directory 'src/main/java'
+			}
+		}
+	}
+
+	org.jooq.util.GenerationTool.main(
+		javax.xml.bind.JAXB.unmarshal(
+			new StringReader(writer.toString()),
+			org.jooq.util.jaxb.Configuration
+		)
+	)
+}
