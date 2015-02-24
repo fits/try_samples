@@ -1,5 +1,5 @@
-@Grab('org.thymeleaf:thymeleaf:2.1.0-m1')
-@Grab('org.slf4j:slf4j-nop:1.7.5')
+@Grab('org.thymeleaf:thymeleaf:2.1.4.RELEASE')
+@Grab('org.slf4j:slf4j-nop:1.7.10')
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templateresolver.FileTemplateResolver
@@ -16,5 +16,5 @@ ctx.variables = [
 	]
 ]
 
-println engine.process('sample.html', ctx)
+println engine.process(args[0], ctx)
 
