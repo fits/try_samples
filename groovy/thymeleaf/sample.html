@@ -6,5 +6,11 @@
 	<li th:remove="all">sample</li>
 </ul>
 
+<ul>
+	<li th:each="item : ${items}" th:inline="text">
+		name: [[${item.name}]], point: [[${item.point}]]
+	</li>
+</ul>
+
 </body>
 </html>
