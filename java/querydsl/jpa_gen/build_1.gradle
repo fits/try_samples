@@ -3,8 +3,6 @@ apply plugin: 'java'
 def enc = 'UTF-8'
 tasks.withType(AbstractCompile)*.options*.encoding = enc
 
-def qdslDestDir = 'src/main/qdsl-generated'
-
 repositories {
 	jcenter()
 }
