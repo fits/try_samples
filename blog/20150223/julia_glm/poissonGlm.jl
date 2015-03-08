@@ -1,5 +1,5 @@
 
-using DataFrames, GLM, Gadfly
+using DataFrames, GLM
 
 d = readtable("data3a.csv")
 
