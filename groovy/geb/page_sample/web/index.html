@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TOP</title>
+	<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+	<script>
+		$(function() {
+
+			$('div#data-list').delay(2000).queue(function(next) {
+				$(this).html("<ul><li><a href=\"sample1.html\">sample1</a></li></ul>");
+				next();
+			});
+
+		});
+	</script>
+</head>
+<body>
+	<div>
+		sample
+	</div>
+
+	<div id="data-list">
+	</div>
+
+</body>
+</html>
