@@ -1,0 +1,34 @@
+apply plugin: 'scala'
+
+def gatlingTargetDir = 'target'
+def gatlingResultDir = 'results'
+def gatlingClassDir = "${gatlingTargetDir}/test-classes"
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'io.gatling.highcharts:gatling-charts-highcharts:2.1.4'
+}
+
+task gatling(dependsOn: 'build') << {
+	copy {
+		from sourceSets.main.output.classesDir
+		into gatlingClassDir
+	}
+
+	javaexec {
+		main = 'io.gatling.app.Gatling'
+		classpath = sourceSets.main.runtimeClasspath
+
+		args '-s'
+		args project.args
+	}
+}
+
+clean {
+	delete gatlingTargetDir
+	delete gatlingResultDir
+}
+
