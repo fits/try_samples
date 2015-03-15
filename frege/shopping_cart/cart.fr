@@ -1,0 +1,28 @@
+module sample.Cart where
+
+import Data.List
+
+data Cart = Cart { total :: Int, items :: [Item] }
+derive Eq Cart
+derive Show Cart
+
+data Item = Item { name :: String, value :: Int }
+derive Eq Item
+derive Show Item
+
+addItem :: Item -> Cart -> Cart
+addItem i c = Cart { total = c.total + i.value, items = c.items ++ [i] }
+
+removeItem :: Item -> Cart -> Cart
+removeItem i c = Cart { total = c.total - i.value, items = delete i c.items }
+
+emptyCart :: Cart
+emptyCart = Cart { total = 0, items = [] }
+
+main args = do
+	let p1 = Item { name = "P1", value = 10 }
+	let p2 = Item { name = "P2", value = 80 }
+	let p3 = Item { name = "P3", value = 45 }
+
+	println $ addItem p2 $ addItem p1 $ emptyCart
+	println $ addItem p3 $ removeItem p2 $ addItem p2 $ addItem p1 $ emptyCart
