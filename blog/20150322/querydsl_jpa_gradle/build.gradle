@@ -1,0 +1,28 @@
+apply plugin: 'java'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	apt
+}
+
+dependencies {
+	apt 'com.mysema.querydsl:querydsl-apt:3.6.2'
+
+	compile 'com.mysema.querydsl:querydsl-jpa:3.6.2'
+	compile 'javax:javaee-api:7.0'
+}
+
+compileJava {
+	classpath += configurations.apt
+
+	options.compilerArgs += [
+		'-processor', 'com.mysema.query.apt.jpa.JPAAnnotationProcessor'
+	]
+}
+
+jar {
+	excludes << '**/*.java'
+}
