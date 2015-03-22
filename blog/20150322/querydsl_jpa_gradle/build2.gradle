@@ -1,0 +1,40 @@
+apply plugin: 'java'
+
+def qdslDestDir = 'src/main/qdsl-generated'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	apt
+}
+
+dependencies {
+	apt 'com.mysema.querydsl:querydsl-apt:3.6.2'
+
+	compile 'com.mysema.querydsl:querydsl-jpa:3.6.2'
+	compile 'javax:javaee-api:7.0'
+}
+
+task generate(type: JavaCompile) {
+
+	source = sourceSets.main.java
+	classpath = configurations.compile + configurations.apt
+
+	destinationDir = new File(qdslDestDir)
+
+	options.compilerArgs += [
+		'-proc:only', 
+		'-processor', 'com.mysema.query.apt.jpa.JPAAnnotationProcessor'
+	]
+}
+
+compileJava {
+	dependsOn generate
+	sourceSets.main.java.srcDir qdslDestDir
+}
+
+clean {
+	delete qdslDestDir
+}
