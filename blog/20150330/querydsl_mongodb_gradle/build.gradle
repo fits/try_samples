@@ -1,0 +1,45 @@
+apply plugin: 'application'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+def qdslDestDir = 'src/main/qdsl-generated'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	apt
+}
+
+dependencies {
+	apt 'com.mysema.querydsl:querydsl-apt:3.6.2'
+
+	compile 'com.mysema.querydsl:querydsl-mongodb:3.6.2'
+	compile 'org.mongodb.morphia:morphia:0.110'
+}
+
+task generate(type: JavaCompile) {
+
+	source = sourceSets.main.java
+	classpath = configurations.compile + configurations.apt
+
+	destinationDir = new File(qdslDestDir)
+
+	options.compilerArgs += [
+		'-proc:only',
+		'-processor', 'com.mysema.query.apt.morphia.MorphiaAnnotationProcessor'
+	]
+}
+
+compileJava {
+	dependsOn generate
+	sourceSets.main.java.srcDir qdslDestDir
+}
+
+clean {
+	delete qdslDestDir
+}
+
+mainClassName = 'sample.App'

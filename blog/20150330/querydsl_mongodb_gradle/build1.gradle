@@ -1,0 +1,28 @@
+apply plugin: 'java'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	apt
+}
+
+dependencies {
+	apt 'com.mysema.querydsl:querydsl-apt:3.6.2'
+
+	compile 'com.mysema.querydsl:querydsl-mongodb:3.6.2'
+	compile 'org.mongodb.morphia:morphia:0.110'
+}
+
+compileJava {
+	classpath += configurations.apt
+
+	options.compilerArgs += [
+		'-processor', 'com.mysema.query.apt.morphia.MorphiaAnnotationProcessor'
+	]
+}
+
+jar {
+	excludes << '**/*.java'
+}
