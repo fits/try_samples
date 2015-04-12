@@ -1,0 +1,45 @@
+apply plugin: 'java'
+
+def qdslDbUrl = 'jdbc:mysql://localhost:3306/sample1?user=root'
+def qdslDestDir = 'src/main/qdsl-generated'
+def qdslDestPackage = 'sample.model'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	querydsl
+}
+
+dependencies {
+	querydsl 'com.mysema.querydsl:querydsl-sql-codegen:3.6.3'
+	querydsl 'mysql:mysql-connector-java:5.1.35'
+	querydsl 'org.slf4j:slf4j-simple:1.7.12'
+
+	compile 'com.mysema.querydsl:querydsl-sql:3.6.3'
+}
+
+task generate << {
+	ant.taskdef(
+		name: 'export', 
+		classname: 'com.mysema.query.sql.ant.AntMetaDataExporter', 
+		classpath: configurations.querydsl.asPath
+	)
+
+	ant.export(
+		jdbcDriverClass: 'com.mysql.jdbc.Driver',
+		dbUrl: qdslDbUrl,
+		targetSourceFolder: qdslDestDir,
+		targetPackage: qdslDestPackage
+	)
+}
+
+compileJava {
+	dependsOn generate
+	sourceSets.main.java.srcDir qdslDestDir
+}
+
+clean {
+	delete qdslDestDir
+}
