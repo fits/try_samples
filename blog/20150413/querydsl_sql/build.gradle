@@ -1,0 +1,54 @@
+apply plugin: 'application'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+def qdslDbUrl = 'jdbc:mysql://localhost:3306/sample1?user=root'
+def qdslDestDir = 'src/main/qdsl-generated'
+def qdslDestPackage = 'sample.model'
+
+mainClassName = 'sample.App'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.mysema.querydsl:querydsl-sql-codegen:3.6.3'
+		classpath 'mysql:mysql-connector-java:5.1.35'
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.mysema.querydsl:querydsl-sql:3.6.3'
+
+	runtime 'mysql:mysql-connector-java:5.1.35'
+	runtime 'org.slf4j:slf4j-nop:1.7.12'
+}
+
+task generate << {
+	def con = new com.mysql.jdbc.Driver().connect(qdslDbUrl, null)
+
+	def exporter = new com.mysema.query.sql.codegen.MetaDataExporter()
+
+	exporter.targetFolder = new File(qdslDestDir)
+	exporter.packageName = qdslDestPackage
+
+	exporter.export(con.metaData)
+
+	con.close()
+}
+
+compileJava {
+	dependsOn generate
+	sourceSets.main.java.srcDir qdslDestDir
+}
+
+clean {
+	delete qdslDestDir
+}
