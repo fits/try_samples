@@ -1,0 +1,26 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+def scalaVersion = '2.11.6'
+def sparkVersion = '1.3.0'
+
+mainClassName = 'LogiRegApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile "org.scala-lang:scala-library:${scalaVersion}"
+	compile "org.apache.spark:spark-core_2.11:${sparkVersion}"
+	compile "org.apache.spark:spark-mllib_2.11:${sparkVersion}"
+
+	runtime 'org.slf4j:slf4j-nop:1.7.12'
+
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args.split(' ')
+	}
+}
