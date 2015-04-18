@@ -16,7 +16,7 @@ public class GroupBySample {
 			Collectors.groupingBy(Data::getId)
 		);
 
-		res1.entrySet().stream().forEach(System.out::println);
+		res1.entrySet().forEach(System.out::println);
 
 		System.out.println("-----");
 
@@ -24,7 +24,7 @@ public class GroupBySample {
 			Collectors.toMap(Data::getId, UnaryOperator.identity(), (a, b) -> a)
 		);
 
-		res2.entrySet().stream().forEach(System.out::println);
+		res2.entrySet().forEach(System.out::println);
 
 		System.out.println("-----");
 
@@ -32,7 +32,7 @@ public class GroupBySample {
 			Collectors.toMap(Data::getId, a -> a, (a, b) -> a)
 		);
 
-		res2b.entrySet().stream().forEach(System.out::println);
+		res2b.entrySet().forEach(System.out::println);
 
 		System.out.println("-----");
 
@@ -40,7 +40,7 @@ public class GroupBySample {
 			Collectors.groupingBy(Data::getId, toHead())
 		);
 
-		res3.entrySet().stream().forEach(System.out::println);
+		res3.entrySet().forEach(System.out::println);
 
 		System.out.println("-----");
 
@@ -54,7 +54,7 @@ public class GroupBySample {
 			Collectors.groupingBy(Data::getId, Collectors.minBy((a, b) -> 0))
 		);
 
-		res4.entrySet().stream().forEach(System.out::println);
+		res4.entrySet().forEach(System.out::println);
 
 		System.out.println("-----");
 
@@ -68,7 +68,7 @@ public class GroupBySample {
 			)
 		);
 
-		res5.entrySet().stream().forEach(System.out::println);
+		res5.entrySet().forEach(System.out::println);
 
 		System.out.println("-----");
 
@@ -82,7 +82,7 @@ public class GroupBySample {
 			)
 		);
 
-		res6.entrySet().stream().forEach(System.out::println);
+		res6.entrySet().forEach(System.out::println);
 
 		System.out.println("-----");
 
@@ -92,7 +92,7 @@ public class GroupBySample {
 			Map::putAll
 		);
 
-		res7.entrySet().stream().forEach(System.out::println);
+		res7.entrySet().forEach(System.out::println);
 	}
 
 	private static <T> Collector<T, ?, Optional<T>> toHead() {
