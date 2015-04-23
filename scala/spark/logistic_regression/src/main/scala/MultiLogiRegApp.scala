@@ -4,7 +4,7 @@ import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.linalg.Vectors
 
-object LogiRegApp extends App {
+object MultiLogiRegApp extends App {
 	val factor = (s: String) => s match {
 		case "C" => 0.0
 		case _ => 1.0
@@ -31,8 +31,10 @@ object LogiRegApp extends App {
 
 	val xx = Range.Double.inclusive(xlist.min(), xlist.max(), 0.1)
 
-	xx.foreach { x =>
-		val y = res.predict(Vectors.dense(x, 0.0))
-		println(s"${x},${y}")
+	List(0.0, 1.0).foreach { i =>
+		xx.foreach { x =>
+			val y = res.predict(Vectors.dense(x, i))
+			println(s"${x},${i},${y}")
+		}
 	}
 }
