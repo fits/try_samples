@@ -11,5 +11,9 @@ if (getConnectorAddress() == null) {
 
 	vm.loadAgent("${javaHome}/lib/management-agent.jar")
 
-	print getConnectorAddress()
+	println '*** load agent'
 }
+
+println getConnectorAddress()
+
+vm.detach()
