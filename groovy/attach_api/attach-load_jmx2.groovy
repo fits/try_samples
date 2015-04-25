@@ -16,3 +16,5 @@ if (getConnectorAddress() == null) {
 }
 
 println getConnectorAddress()
+
+vm.detach()
