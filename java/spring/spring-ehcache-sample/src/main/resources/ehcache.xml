@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+    <cache name="sample"
+           maxElementsInMemory="100"
+           eternal="false"
+           timeToLiveSeconds="60"
+            />
+</ehcache>
