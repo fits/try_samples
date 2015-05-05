@@ -1,0 +1,18 @@
+apply plugin: 'application'
+apply plugin: 'scala'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.11.6'
+	compile 'org.scalaz:scalaz-core_2.11:7.2.0-M1'
+}
+/*
+compileScala {
+	scalaCompileOptions.additionalParameters = ['-Xprint:typer', '-feature']
+}
+*/
+
+mainClassName = "sample.DiscountSample"
