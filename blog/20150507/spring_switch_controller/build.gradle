@@ -1,4 +1,4 @@
-apply plugin: 'java'
+
 apply plugin: 'spring-boot'
 
 def enc = 'UTF-8'
