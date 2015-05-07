@@ -1,6 +1,7 @@
 package sample;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
 import javax.annotation.processing.*;
 
@@ -8,7 +9,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
-import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.LambdaExpressionTree;
 import com.sun.tools.javac.model.JavacElements;
@@ -17,13 +17,10 @@ import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 
-import com.sun.source.tree.VariableTree;
-
 import com.sun.source.util.Trees;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreeScanner;
 
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.*;
 
@@ -67,7 +64,7 @@ public class DoExprProcessor extends AbstractProcessor {
 	}
 
 	private class DoExprVisitor extends TreeScanner<Void, Void> {
-		public static final String DO_SUFFIX = "$do";
+		public static final String DO_TYPE = "$do";
 		private ParserFactory parserFactory;
 
 		DoExprVisitor() {
@@ -79,35 +76,45 @@ public class DoExprProcessor extends AbstractProcessor {
 			if (node instanceof JCLambda) {
 				JCLambda lm = (JCLambda)node;
 
-				if (lm.params.size() == 1) {
-					String arg = lm.params.get(0).name.toString();
+				if (lm.params.size() == 1
+						&& lm.params.get(0).vartype instanceof JCTypeApply) {
 
-					if (arg.endsWith(DO_SUFFIX)) {
+					JCVariableDecl param = lm.params.get(0);
+					JCTypeApply paramType = (JCTypeApply)param.vartype;
+
+					if (DO_TYPE.equals(paramType.clazz.toString())) {
+						String varName = param.name.toString();
+						String mType = paramType.arguments.get(0).toString();
+						String vType = paramType.arguments.get(1).toString();
+
 						lm.params = com.sun.tools.javac.util.List.nil();
 						lm.paramKind = com.sun.tools.javac.tree.JCTree.JCLambda.ParameterKind.EXPLICIT;
 
-
 						JCBlock block = (JCBlock)lm.body;
-						String var = arg.replace(DO_SUFFIX, "");
 
-						block.stats = com.sun.tools.javac.util.List.of(convertToDoExpr(var, block));
+						block.stats = com.sun.tools.javac.util.List.of(
+								convertToDoExpr(varName, mType, vType, block));
 					}
 				}
 			}
 			return super.visitLambdaExpression(node, p);
 		}
 
-		private JCStatement convertToDoExpr(String var, JCBlock block) {
+		private JCStatement convertToDoExpr(String varName, String mType, String vType, JCBlock block) {
 			Stream<String> expr = block.stats.stream().map(s -> s.toString().replaceAll(";", ""));
+
+			String resType = mType + "<" + vType + ">";
+
+			BinaryOperator<String> bindType = (arg, proc) -> "new java.util.function.Function<" + vType + ", " + resType + ">(){ @Override public " + resType + " apply(" + vType + " " + arg + ") { " + proc + " }}";
 
 			String exprString = reverse(expr).reduce("", (acc, v) -> {
 				if (v.startsWith("let")) {
 					String[] vexp = v.substring(3).split("=");
 
-					acc = var + ".bind(" + vexp[1].trim() + ", " + vexp[0].trim() + " -> " + acc + " )";
+					acc = " return " + varName + ".bind(" + vexp[1].trim() + ", " + bindType.apply(vexp[0].trim(), acc) + ");";
 				}
 				else if (v.startsWith("return")) {
-					acc = acc + var + ".unit(" + v.substring(6).trim() + ")";
+					acc = acc + " return " + varName + ".unit(" + v.substring(6).trim() + ");";
 				}
 				return acc;
 			});
@@ -117,8 +124,7 @@ public class DoExprProcessor extends AbstractProcessor {
 
 		private JCStatement createExpression(String doExpr) {
 			JavacParser parser = parserFactory.newParser(doExpr, false, false, false);
-
-			return maker.Return(parser.parseExpression());
+			return parser.parseStatement();
 		}
 
 		private <T> Stream<T> reverse(Stream<T> src) {
