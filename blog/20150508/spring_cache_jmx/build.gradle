@@ -1,0 +1,29 @@
+apply plugin: 'spring-boot'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE'
+	}
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter-web:1.2.3.RELEASE'
+	// 以下は org.springframework.cache.ehcache のために必要
+	compile 'org.springframework:spring-context-support:4.1.6.RELEASE'
+
+	compile 'javax:javaee-api:7.0'
+	compile 'javax.cache:cache-api:1.0.0-PFD'
+
+	compile 'net.sf.ehcache:ehcache:2.10.0'
+}
