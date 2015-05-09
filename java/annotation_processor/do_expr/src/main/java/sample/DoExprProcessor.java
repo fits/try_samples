@@ -1,7 +1,6 @@
 package sample;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
 import javax.annotation.processing.*;
 
@@ -11,7 +10,6 @@ import javax.lang.model.element.TypeElement;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.LambdaExpressionTree;
-import com.sun.tools.javac.model.JavacElements;
 
 import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
@@ -21,7 +19,6 @@ import com.sun.source.util.Trees;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreeScanner;
 
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.*;
 
 import com.sun.tools.javac.util.Context;
@@ -31,8 +28,6 @@ import com.sun.tools.javac.util.Context;
 public class DoExprProcessor extends AbstractProcessor {
 	private Trees trees;
 	private Context context;
-	private TreeMaker maker;
-	private JavacElements elements;
 
 	@Override
 	public void init(ProcessingEnvironment procEnv) {
@@ -40,9 +35,6 @@ public class DoExprProcessor extends AbstractProcessor {
 		
 		JavacProcessingEnvironment env = (JavacProcessingEnvironment)procEnv;
 		context = env.getContext();
-		
-		maker = TreeMaker.instance(context);
-		elements = JavacElements.instance(context);
 	}
 
 	@Override
@@ -65,6 +57,11 @@ public class DoExprProcessor extends AbstractProcessor {
 
 	private class DoExprVisitor extends TreeScanner<Void, Void> {
 		public static final String DO_TYPE = "$do";
+		private static final String BIND_CODE = " return ${var}.bind(${rExpr}, new java.util.function.Function<${vType}, ${mType}<${vType}>>(){" +
+												"  @Override public ${mType}<${vType}> apply(${vType} ${lExpr}){ ${body} }" +
+												" });";
+		private static final String UNIT_CODE = " ${body} return ${var}.unit( ${expr} );";
+
 		private ParserFactory parserFactory;
 
 		DoExprVisitor() {
@@ -76,45 +73,58 @@ public class DoExprProcessor extends AbstractProcessor {
 			if (node instanceof JCLambda) {
 				JCLambda lm = (JCLambda)node;
 
-				if (lm.params.size() == 1
-						&& lm.params.get(0).vartype instanceof JCTypeApply) {
+				if (isSingleTypeApplyParam(lm)) {
 
 					JCVariableDecl param = lm.params.get(0);
 					JCTypeApply paramType = (JCTypeApply)param.vartype;
 
-					if (DO_TYPE.equals(paramType.clazz.toString())) {
-						String varName = param.name.toString();
-						String mType = paramType.arguments.get(0).toString();
-						String vType = paramType.arguments.get(1).toString();
-
+					if (isDoType(paramType)) {
 						lm.params = com.sun.tools.javac.util.List.nil();
 						lm.paramKind = com.sun.tools.javac.tree.JCTree.JCLambda.ParameterKind.EXPLICIT;
+
+						String mType = paramType.arguments.get(0).toString();
+						String vType = paramType.arguments.get(1).toString();
 
 						JCBlock block = (JCBlock)lm.body;
 
 						block.stats = com.sun.tools.javac.util.List.of(
-								convertToDoExpr(varName, mType, vType, block));
+								convertToDoExpr(param.name.toString(), mType, vType, block));
 					}
 				}
 			}
 			return super.visitLambdaExpression(node, p);
 		}
 
+		private boolean isDoType(JCTypeApply paramType) {
+			return DO_TYPE.equals(paramType.clazz.toString());
+		}
+
+		private boolean isSingleTypeApplyParam(JCLambda lm) {
+			return lm.params.size() == 1
+					&& lm.params.get(0).vartype instanceof JCTypeApply;
+		}
+
 		private JCStatement convertToDoExpr(String varName, String mType, String vType, JCBlock block) {
-			Stream<String> expr = block.stats.stream().map(s -> s.toString().replaceAll(";", ""));
+			Stream<String> revExpr = block.stats.reverse().stream().map(s -> s.toString().replaceAll(";", ""));
 
-			String resType = mType + "<" + vType + ">";
+			HashMap<String, String> baseMap = new HashMap<>();
+			baseMap.put("var", varName);
+			baseMap.put("mType", mType);
+			baseMap.put("vType", vType);
 
-			BinaryOperator<String> bindType = (arg, proc) -> "new java.util.function.Function<" + vType + ", " + resType + ">(){ @Override public " + resType + " apply(" + vType + " " + arg + ") { " + proc + " }}";
+			String exprString = revExpr.reduce("", (acc, v) -> {
+				int spacePos = v.indexOf(" ");
 
-			String exprString = reverse(expr).reduce("", (acc, v) -> {
-				if (v.startsWith("let")) {
-					String[] vexp = v.substring(3).split("=");
+				String action = v.substring(0, spacePos);
+				String expr = v.substring(spacePos + 1);
 
-					acc = " return " + varName + ".bind(" + vexp[1].trim() + ", " + bindType.apply(vexp[0].trim(), acc) + ");";
-				}
-				else if (v.startsWith("return")) {
-					acc = acc + " return " + varName + ".unit(" + v.substring(6).trim() + ");";
+				switch (action) {
+					case "let":
+						acc = template(BIND_CODE, createBindParams(baseMap, acc, expr));
+						break;
+					case "return":
+						acc = template(UNIT_CODE, createUnitParams(baseMap, acc, expr));
+						break;
 				}
 				return acc;
 			});
@@ -122,13 +132,33 @@ public class DoExprProcessor extends AbstractProcessor {
 			return createExpression(exprString);
 		}
 
+		private HashMap<String, String> createBindParams(HashMap<String, String> baseMap, String body, String expr) {
+			HashMap<String, String> params = createUnitParams(baseMap, body, expr);
+
+			String[] vexp = expr.split("=");
+			params.put("lExpr", vexp[0]);
+			params.put("rExpr", vexp[1]);
+
+			return params;
+		}
+
+		private HashMap<String, String> createUnitParams(HashMap<String, String> baseMap, String body, String expr) {
+			HashMap<String, String> params = new HashMap<>(baseMap);
+			params.put("body", body);
+			params.put("expr", expr);
+			return params;
+		}
+
 		private JCStatement createExpression(String doExpr) {
 			JavacParser parser = parserFactory.newParser(doExpr, false, false, false);
 			return parser.parseStatement();
 		}
 
-		private <T> Stream<T> reverse(Stream<T> src) {
-			return src.sorted((a, b) -> -1);
+		private String template(String template, Map<String, String> params) {
+			return params.entrySet().stream().reduce(template,
+					(acc, v) -> acc.replaceAll("\\$\\{" + v.getKey() + "\\}", v.getValue()),
+					(a, b) -> a);
+
 		}
 	}
 }
