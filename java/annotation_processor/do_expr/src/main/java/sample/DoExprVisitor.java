@@ -2,13 +2,13 @@ package sample;
 
 import com.sun.source.tree.LambdaExpressionTree;
 import com.sun.source.util.TreeScanner;
-import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.parser.ParserFactory;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.Context;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public class DoExprVisitor extends TreeScanner<Void, Void> {
@@ -16,80 +16,85 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 	private static final String BIND_CODE = " return ${var}.bind(${rExpr}, new java.util.function.Function<${vType}, ${mType}<${vType}>>(){" +
 			"  @Override public ${mType}<${vType}> apply(${vType} ${lExpr}){ ${body} }" +
 			" });";
-	private static final String UNIT_CODE = " ${body} return ${var}.unit( ${expr} );";
+	private static final String UNIT_CODE = "  return ${var}.unit( ${expr} );";
 
 	private ParserFactory parserFactory;
+	private Map<String, TemplateBuilder> builderMap = new HashMap<>();
 
 	public DoExprVisitor(Context context) {
 		parserFactory = ParserFactory.instance(context);
+
+		builderMap.put("let", new TemplateBuilder(BIND_CODE, this::createBindParams));
+		builderMap.put("return", new TemplateBuilder(UNIT_CODE, this::createUnitParams));
 	}
 
 	@Override
 	public Void visitLambdaExpression(LambdaExpressionTree node, Void p) {
-		if (node instanceof JCTree.JCLambda) {
-			JCTree.JCLambda lm = (JCTree.JCLambda)node;
+		if (node instanceof JCLambda) {
+			JCLambda lm = (JCLambda)node;
 
 			if (isSingleTypeApplyParam(lm)) {
+				JCVariableDecl param = lm.params.get(0);
 
-				JCTree.JCVariableDecl param = lm.params.get(0);
-				JCTree.JCTypeApply paramType = (JCTree.JCTypeApply)param.vartype;
-
-				if (isDoType(paramType)) {
+				if (isDoType(param)) {
+					// ラムダの引数を消去
 					lm.params = com.sun.tools.javac.util.List.nil();
-					lm.paramKind = com.sun.tools.javac.tree.JCTree.JCLambda.ParameterKind.EXPLICIT;
+					lm.paramKind = JCLambda.ParameterKind.EXPLICIT;
 
-					String mType = paramType.arguments.get(0).toString();
-					String vType = paramType.arguments.get(1).toString();
-
-					JCTree.JCBlock block = (JCTree.JCBlock)lm.body;
-
-					block.stats = com.sun.tools.javac.util.List.of(
-							convertToDoExpr(param.name.toString(), mType, vType, block));
+					JCBlock block = (JCBlock)lm.body;
+					// 新しい処理内容
+					JCStatement newStats = parseStatement(createStatement(block, createBaseParams(param)));
+					// ラムダの内容を書き換え
+					block.stats = com.sun.tools.javac.util.List.of(newStats);
 				}
 			}
 		}
 		return super.visitLambdaExpression(node, p);
 	}
 
-	private boolean isDoType(JCTree.JCTypeApply paramType) {
-		return DO_TYPE.equals(paramType.clazz.toString());
-	}
-
-	private boolean isSingleTypeApplyParam(JCTree.JCLambda lm) {
-		return lm.params.size() == 1
-				&& lm.params.get(0).vartype instanceof JCTree.JCTypeApply;
-	}
-
-	private JCTree.JCStatement convertToDoExpr(String varName, String mType, String vType, JCTree.JCBlock block) {
+	private String createStatement(JCBlock block, Map<String, String> params) {
 		Stream<String> revExpr = block.stats.reverse().stream().map(s -> s.toString().replaceAll(";", ""));
 
-		HashMap<String, String> baseMap = new HashMap<>();
-		baseMap.put("var", varName);
-		baseMap.put("mType", mType);
-		baseMap.put("vType", vType);
-
-		String exprString = revExpr.reduce("", (acc, v) -> {
+		return revExpr.reduce("", (acc, v) -> {
 			int spacePos = v.indexOf(" ");
-
 			String action = v.substring(0, spacePos);
-			String expr = v.substring(spacePos + 1);
 
-			switch (action) {
-				case "let":
-					acc = template(BIND_CODE, createBindParams(baseMap, acc, expr));
-					break;
-				case "return":
-					acc = template(UNIT_CODE, createUnitParams(baseMap, acc, expr));
-					break;
+			if (builderMap.containsKey(action)) {
+				acc = builderMap.get(action).build(params, acc, v.substring(spacePos + 1));
 			}
+
 			return acc;
 		});
-
-		return createExpression(exprString);
 	}
 
-	private HashMap<String, String> createBindParams(HashMap<String, String> baseMap, String body, String expr) {
-		HashMap<String, String> params = createUnitParams(baseMap, body, expr);
+	private JCStatement parseStatement(String doExpr) {
+		return parserFactory.newParser(doExpr, false, false, false).parseStatement();
+	}
+
+	private boolean isDoType(JCVariableDecl param) {
+		String type = ((JCTypeApply)param.vartype).clazz.toString();
+		return DO_TYPE.equals(type);
+	}
+
+	private boolean isSingleTypeApplyParam(JCLambda lm) {
+		return lm.params.size() == 1
+				&& lm.params.get(0).vartype instanceof JCTypeApply;
+	}
+
+	private Map<String, String> createBaseParams(JCVariableDecl param) {
+		Map<String, String> params = new HashMap<>();
+
+		params.put("var", param.name.toString());
+
+		JCTypeApply paramType = (JCTypeApply)param.vartype;
+		params.put("mType", paramType.arguments.get(0).toString());
+		params.put("vType", paramType.arguments.get(1).toString());
+
+		return params;
+	}
+
+	private Map<String, String> createBindParams(String body, String expr) {
+		Map<String, String> params = createUnitParams(body, expr);
 
 		String[] vexp = expr.split("=");
 		params.put("lExpr", vexp[0]);
@@ -98,23 +103,37 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 		return params;
 	}
 
-	private HashMap<String, String> createUnitParams(HashMap<String, String> baseMap, String body, String expr) {
-		HashMap<String, String> params = new HashMap<>(baseMap);
+	private Map<String, String> createUnitParams(String body, String expr) {
+		Map<String, String> params = new HashMap<>();
+
 		params.put("body", body);
 		params.put("expr", expr);
+
 		return params;
 	}
 
-	private JCTree.JCStatement createExpression(String doExpr) {
-		JavacParser parser = parserFactory.newParser(doExpr, false, false, false);
-		return parser.parseStatement();
+	private class TemplateBuilder {
+		private static final String VAR_PREFIX = "\\$\\{";
+		private static final String VAR_SUFFIX = "\\}";
+
+		private String template;
+		private BiFunction<String, String, Map<String, String>> paramCreator;
+
+		TemplateBuilder(String template, BiFunction<String, String, Map<String, String>> paramCreator) {
+			this.template = template;
+			this.paramCreator = paramCreator;
+		}
+
+		public String build(Map<String, String> params, String body, String expr) {
+			return buildTemplate(
+					buildTemplate(template, params),
+					paramCreator.apply(body, expr));
+		}
+
+		private String buildTemplate(String template, Map<String, String> params) {
+			return params.entrySet().stream().reduce(template,
+					(acc, v) -> acc.replaceAll(VAR_PREFIX + v.getKey() + VAR_SUFFIX, v.getValue()),
+					(a, b) -> a);
+		}
 	}
-
-	private String template(String template, Map<String, String> params) {
-		return params.entrySet().stream().reduce(template,
-				(acc, v) -> acc.replaceAll("\\$\\{" + v.getKey() + "\\}", v.getValue()),
-				(a, b) -> a);
-
-	}
-
 }
