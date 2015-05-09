@@ -23,16 +23,12 @@ public class DoExprProcessor extends AbstractProcessor {
 	@Override
 	public void init(ProcessingEnvironment procEnv) {
 		trees = Trees.instance(procEnv);
-		
-		JavacProcessingEnvironment env = (JavacProcessingEnvironment)procEnv;
-		context = env.getContext();
+		context = ((JavacProcessingEnvironment)procEnv).getContext();
 	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
 		roundEnv.getRootElements().stream().map(this::toUnit).forEach(this::processUnit);
-
 		return false;
 	}
 
@@ -42,7 +38,9 @@ public class DoExprProcessor extends AbstractProcessor {
 	}
 
 	private void processUnit(CompilationUnitTree cu) {
+		// AST 変換
 		cu.accept(new DoExprVisitor(context), null);
+		// 変換内容を出力
 		System.out.println(cu);
 	}
 }
