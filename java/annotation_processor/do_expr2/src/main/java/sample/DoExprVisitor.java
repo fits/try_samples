@@ -9,13 +9,11 @@ import com.sun.tools.javac.util.Context;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class DoExprVisitor extends TreeScanner<Void, Void> {
 	private static final String DO_TYPE = "$do";
-	private static final String BIND_CODE = "${var}.bind(${rExpr}, ${lExpr} -> ${body})";
-	private static final String UNIT_CODE = "${var}.unit( ${expr} )";
 
 	private ParserFactory parserFactory;
 	private Map<String, TemplateBuilder> builderMap = new HashMap<>();
@@ -23,8 +21,11 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 	public DoExprVisitor(Context context) {
 		parserFactory = ParserFactory.instance(context);
 
-		builderMap.put("let", new TemplateBuilder(BIND_CODE, this::createBindParams));
-		builderMap.put("return", new TemplateBuilder(UNIT_CODE, this::createUnitParams));
+		builderMap.put("let",
+				new TemplateBuilder("${var}.bind(${rExpr}, ${lExpr} -> ${body})", this::createBindParams));
+
+		builderMap.put("return",
+				new TemplateBuilder("${var}.unit( ${expr} )", this::createBasicParams));
 	}
 
 	@Override
@@ -33,25 +34,24 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 			JCLambda lm = (JCLambda)node;
 
 			if (lm.params.size() == 1) {
-				JCVariableDecl param = lm.params.get(0);
-
-				if (isDoType(param)) {
+				getDoVar(lm.params.get(0)).ifPresent(var -> {
 					// ラムダの引数を消去
 					lm.params = com.sun.tools.javac.util.List.nil();
 					lm.paramKind = JCLambda.ParameterKind.EXPLICIT;
 
-					JCExpression ne = parseExpression(createExpression((JCBlock)lm.body, createBaseParams(param)));
-					adjustPos(ne, lm.pos);
+					// 変換後の処理内容を作成
+					JCExpression ne = parseExpression(createExpression((JCBlock)lm.body, var));
+					fixPos(ne, lm.pos);
 
 					lm.body = ne;
-				}
+				});
 			}
 		}
 		return super.visitLambdaExpression(node, p);
 	}
 
-	// pos の値を調整する
-	private void adjustPos(JCExpression ne, final int basePos) {
+	// pos の値を修正する
+	private void fixPos(JCExpression ne, final int basePos) {
 		ne.accept(new com.sun.tools.javac.tree.TreeScanner() {
 			public void scan(JCTree tree) {
 				if(tree!=null) {
@@ -62,7 +62,7 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 		});
 	}
 
-	private String createExpression(JCBlock block, Map<String, String> params) {
+	private String createExpression(JCBlock block, String var) {
 		Stream<String> revExpr = block.stats.reverse().stream().map(s -> s.toString().replaceAll(";", ""));
 
 		return revExpr.reduce("", (acc, v) -> {
@@ -70,7 +70,7 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 			String action = v.substring(0, spacePos);
 
 			if (builderMap.containsKey(action)) {
-				acc = builderMap.get(action).build(params, acc, v.substring(spacePos + 1));
+				acc = builderMap.get(action).build(var, acc, v.substring(spacePos + 1));
 			}
 
 			return acc;
@@ -81,20 +81,14 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 		return parserFactory.newParser(doExpr, false, false, false).parseExpression();
 	}
 
-	private boolean isDoType(JCVariableDecl param) {
-		return param.name.toString().endsWith(DO_TYPE);
+	private Optional<String> getDoVar(JCVariableDecl param) {
+		String name = param.name.toString();
+
+		return name.endsWith(DO_TYPE)? Optional.of(name.replace(DO_TYPE, "")): Optional.empty();
 	}
 
-	private Map<String, String> createBaseParams(JCVariableDecl param) {
-		Map<String, String> params = new HashMap<>();
-
-		params.put("var", param.name.toString().replace(DO_TYPE, ""));
-
-		return params;
-	}
-
-	private Map<String, String> createBindParams(String body, String expr) {
-		Map<String, String> params = createUnitParams(body, expr);
+	private Map<String, String> createBindParams(String var, String body, String expr) {
+		Map<String, String> params = createBasicParams(var, body, expr);
 
 		String[] vexp = expr.split("=");
 		params.put("lExpr", vexp[0]);
@@ -103,13 +97,18 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 		return params;
 	}
 
-	private Map<String, String> createUnitParams(String body, String expr) {
+	private Map<String, String> createBasicParams(String var, String body, String expr) {
 		Map<String, String> params = new HashMap<>();
 
+		params.put("var", var);
 		params.put("body", body);
 		params.put("expr", expr);
 
 		return params;
+	}
+
+	private interface ParamCreator {
+		Map<String, String> create(String var, String body, String expr);
 	}
 
 	private class TemplateBuilder {
@@ -117,17 +116,15 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 		private static final String VAR_SUFFIX = "\\}";
 
 		private String template;
-		private BiFunction<String, String, Map<String, String>> paramCreator;
+		private ParamCreator paramCreator;
 
-		TemplateBuilder(String template, BiFunction<String, String, Map<String, String>> paramCreator) {
+		TemplateBuilder(String template, ParamCreator paramCreator) {
 			this.template = template;
 			this.paramCreator = paramCreator;
 		}
 
-		public String build(Map<String, String> params, String body, String expr) {
-			return buildTemplate(
-					buildTemplate(template, params),
-					paramCreator.apply(body, expr));
+		public String build(String var, String body, String expr) {
+			return buildTemplate(template, paramCreator.create(var, body, expr));
 		}
 
 		private String buildTemplate(String template, Map<String, String> params) {
