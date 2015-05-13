@@ -9,6 +9,7 @@ import com.sun.tools.javac.util.Context;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 public class DoExprVisitor extends TreeScanner {
@@ -16,30 +17,39 @@ public class DoExprVisitor extends TreeScanner {
 
 	private ParserFactory parserFactory;
 	private Map<String, TemplateBuilder> builderMap = new HashMap<>();
+	private BiConsumer<JCLambda, JCExpression> changeNode = (lm, ne) -> {};
 
 	public DoExprVisitor(Context context) {
 		parserFactory = ParserFactory.instance(context);
 
 		builderMap.put("let",
-				new TemplateBuilder("${var}.bind(${rExpr}, ${lExpr} -> ${body})", this::createBindParams));
+				new TemplateBuilder("#{var}.bind(#{rExpr}, #{lExpr} -> #{body})", this::createBindParams));
 
 		builderMap.put("return",
-				new TemplateBuilder("${var}.unit( ${expr} )", this::createBasicParams));
+				new TemplateBuilder("#{var}.unit( #{expr} )", this::createBasicParams));
+	}
+
+	@Override
+	public void visitVarDef(JCVariableDecl node) {
+		if (node.init != null) {
+			changeNode = (lm, ne) -> {
+				if (node.init == lm) {
+					node.init = ne;
+				}
+			};
+		}
+		super.visitVarDef(node);
 	}
 
 	@Override
 	public void visitLambda(JCLambda node) {
 		if (node.params.size() == 1) {
 			getDoVar(node.params.get(0)).ifPresent(var -> {
-				// ラムダの引数を消去
-				node.params = com.sun.tools.javac.util.List.nil();
-				node.paramKind = JCLambda.ParameterKind.EXPLICIT;
-
 				// 変換後の処理内容を作成
 				JCExpression ne = parseExpression(createExpression((JCBlock) node.body, var));
 				fixPos(ne, node.pos);
 
-				node.body = ne;
+				changeNode.accept(node, ne);
 			});
 		}
 		super.visitLambda(node);
@@ -111,8 +121,8 @@ public class DoExprVisitor extends TreeScanner {
 	}
 
 	private class TemplateBuilder {
-		private static final String VAR_PREFIX = "\\$\\{";
-		private static final String VAR_SUFFIX = "\\}";
+		private static final String VAR_PREFIX = "#{";
+		private static final String VAR_SUFFIX = "}";
 
 		private String template;
 		private ParamCreator paramCreator;
@@ -128,8 +138,9 @@ public class DoExprVisitor extends TreeScanner {
 
 		private String buildTemplate(String template, Map<String, String> params) {
 			return params.entrySet().stream().reduce(template,
-					(acc, v) -> acc.replaceAll(VAR_PREFIX + v.getKey() + VAR_SUFFIX, v.getValue()),
-					(a, b) -> a);
+					(acc, v) -> acc.replace(VAR_PREFIX + v.getKey() + VAR_SUFFIX, v.getValue()),
+					(a, b) -> a
+			);
 		}
 	}
 }
