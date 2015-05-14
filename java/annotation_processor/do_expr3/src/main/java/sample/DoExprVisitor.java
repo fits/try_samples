@@ -58,15 +58,14 @@ public class DoExprVisitor extends TreeScanner {
 
 	@Override
 	public void visitLambda(JCLambda node) {
-		if (node.params.size() == 1) {
-			getDoVar(node.params.get(0)).ifPresent(var -> {
-				// 変換後の処理内容を作成
-				JCExpression ne = parseExpression(createExpression((JCBlock) node.body, var));
-				fixPos(ne, node.pos);
+		getDoVar(node).ifPresent(var -> {
+			// 変換後の処理内容を作成
+			JCExpression ne = parseExpression(createExpression((JCBlock) node.body, var));
+			fixPos(ne, node.pos);
 
-				changeNode.accept(node, ne);
-			});
-		}
+			changeNode.accept(node, ne);
+		});
+		
 		super.visitLambda(node);
 	}
 
@@ -102,10 +101,15 @@ public class DoExprVisitor extends TreeScanner {
 		return parserFactory.newParser(doExpr, false, false, false).parseExpression();
 	}
 
-	private Optional<String> getDoVar(JCVariableDecl param) {
-		String name = param.name.toString();
+	private Optional<String> getDoVar(JCLambda node) {
+		if (node.params.size() == 1) {
+			String name = node.params.get(0).name.toString();
 
-		return name.endsWith(DO_TYPE)? Optional.of(name.replace(DO_TYPE, "")): Optional.empty();
+			if (name.endsWith(DO_TYPE)) {
+				return Optional.of(name.replace(DO_TYPE, ""));
+			}
+		}
+		return Optional.empty();
 	}
 
 	private Map<String, String> createBindParams(String var, String body, String expr) {
