@@ -33,12 +33,27 @@ public class DoExprVisitor extends TreeScanner {
 	public void visitVarDef(JCVariableDecl node) {
 		if (node.init != null) {
 			changeNode = (lm, ne) -> {
+				// 変数への代入式を置換
 				if (node.init == lm) {
 					node.init = ne;
 				}
 			};
 		}
 		super.visitVarDef(node);
+	}
+
+	@Override
+	public void visitApply(JCMethodInvocation node) {
+		if (node.args != null && node.args.size() > 0) {
+			changeNode = (lm, ne) -> {
+				// メソッドの引数を置換
+				if (node.args.contains(lm)) {
+					Stream<JCExpression> newArgs = node.args.stream().map(a -> (a == lm)? ne: a);
+					node.args = com.sun.tools.javac.util.List.from(newArgs::iterator);
+				}
+			};
+		}
+		super.visitApply(node);
 	}
 
 	@Override

@@ -20,6 +20,22 @@ public class LaSample {
 
 		// Optional[13]
 		System.out.println(res);
+
+		Opt<String> opt2 = new Opt<>();
+
+		Optional<String> res2 = opt2$do -> {
+			let a = Optional.of("a");
+			let b = Optional.of("b");
+			return a + b;
+		};
+
+		System.out.println(res2);
+
+		System.out.println(opt2$do -> {
+			let a = Optional.of("a");
+			let b = Optional.of("b");
+			return "***" + b + a;
+		});
 	}
 
 	static class Opt<T> {
