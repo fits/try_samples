@@ -13,11 +13,11 @@ public class DoExprBuilder {
 	private static final String LET_CODE = "#{var}.bind(#{rExpr}, #{lExpr} -> #{body})";
 	private static final String RETURN_CODE = "#{var}.unit( #{expr} )";
 
-	private Map<Class<? extends JCStatement>, CodeCreator<JCStatement>> builderMap2 = new HashMap<>();
+	private Map<Class<? extends JCStatement>, CodeCreator<JCStatement>> builderMap = new HashMap<>();
 
 	public DoExprBuilder() {
-		builderMap2.put(JCReturn.class, (n, v, b) -> createCodeForJCReturn(cast(n), v, b));
-		builderMap2.put(JCVariableDecl.class, (n, v, b) -> createCodeForJCVariableDecl(cast(n), v, b));
+		builderMap.put(JCVariableDecl.class, (n, v, b) -> createCodeForJCVariableDecl(cast(n), v, b));
+		builderMap.put(JCReturn.class, (n, v, b) -> createCodeForJCReturn(cast(n), v, b));
 	}
 
 	public Optional<String> build(JCLambda node) {
@@ -28,20 +28,13 @@ public class DoExprBuilder {
 		String res = "";
 
 		for (JCStatement st : block.stats.reverse()) {
-			res = builderMap2.getOrDefault(st.getClass(), this::createNoneCode).create(st, var, res);
+			res = builderMap.getOrDefault(st.getClass(), this::createCode).create(st, var, res);
 		}
 		return res;
 	}
 
-	private String createNoneCode(JCStatement node, String var, String body) {
+	private String createCode(JCStatement node, String var, String body) {
 		return body;
-	}
-
-	private String createCodeForJCReturn(JCReturn node, String var, String body) {
-		Map<String, String> params = createParams(var);
-		params.put("expr", node.expr.toString());
-
-		return buildTemplate(RETURN_CODE, params);
 	}
 
 	private String createCodeForJCVariableDecl(JCVariableDecl node, String var, String body) {
@@ -63,6 +56,13 @@ public class DoExprBuilder {
 		}
 
 		return res;
+	}
+
+	private String createCodeForJCReturn(JCReturn node, String var, String body) {
+		Map<String, String> params = createParams(var);
+		params.put("expr", node.expr.toString());
+
+		return buildTemplate(RETURN_CODE, params);
 	}
 
 	private Optional<String> getDoVar(JCLambda node) {
