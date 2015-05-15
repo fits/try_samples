@@ -29,13 +29,14 @@ public class LaSample {
 			let c = opt2$do -> {
 				let c1 = Optional.of("c1");
 				let c2 = Optional.of("c2");
-				return c1 + "/" + c2;
+				return c1 + "-" + c2;
 			};
-			return a + b + c;
+			return a + b + "/" + c;
 		};
-
+		// Optional[ab/c1-c2]
 		System.out.println(res2);
 
+		// Optional[***ba]
 		System.out.println(opt2$do -> {
 			let a = Optional.of("a");
 			let b = Optional.of("b");
