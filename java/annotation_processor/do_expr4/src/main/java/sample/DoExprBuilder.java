@@ -8,15 +8,16 @@ import java.util.Optional;
 
 public class DoExprBuilder {
 	private static final String DO_TYPE = "$do";
-	private Map<String, TemplateBuilder> builderMap = new HashMap<>();
+	private static final String VAR_PREFIX = "#{";
+	private static final String VAR_SUFFIX = "}";
+	private static final String LET_CODE = "#{var}.bind(#{rExpr}, #{lExpr} -> #{body})";
+	private static final String RETURN_CODE = "#{var}.unit( #{expr} )";
+
+	private Map<Class<? extends JCStatement>, CodeCreator<JCStatement>> builderMap2 = new HashMap<>();
 
 	public DoExprBuilder() {
-		builderMap.put("let",
-				new TemplateBuilder("#{var}.bind(#{rExpr}, #{lExpr} -> #{body})", this::createBindParams));
-
-		builderMap.put("return",
-				new TemplateBuilder("#{var}.unit( #{expr} )", this::createBasicParams));
-
+		builderMap2.put(JCReturn.class, (n, v, b) -> createCodeForJCReturn(cast(n), v, b));
+		builderMap2.put(JCVariableDecl.class, (n, v, b) -> createCodeForJCVariableDecl(cast(n), v, b));
 	}
 
 	public Optional<String> build(JCLambda node) {
@@ -27,30 +28,42 @@ public class DoExprBuilder {
 		String res = "";
 
 		for (JCStatement st : block.stats.reverse()) {
-			if (st instanceof JCReturn) {
-				res = builderMap.get("return").build(var, res, ((JCReturn)st).expr.toString());
-			}
-			else if (st instanceof JCVariableDecl) {
-				JCVariableDecl vd = (JCVariableDecl)st;
-
-				if ("let".equals(vd.vartype.toString())) {
-					Map<String, String> params = createBasicParams(var, res, "");
-					params.put("lExpr", vd.name.toString());
-					params.put("rExpr", vd.init.toString());
-
-					if (vd.init instanceof JCLambda) {
-						JCLambda lm = (JCLambda)vd.init;
-
-						getDoVar(lm).ifPresent(childVar ->
-								params.put("rExpr", createExpression((JCBlock) lm.body, childVar)));
-					}
-					res = builderMap.get("let").build(params);
-				}
-			}
+			res = builderMap2.getOrDefault(st.getClass(), this::createNoneCode).create(st, var, res);
 		}
 		return res;
 	}
 
+	private String createNoneCode(JCStatement node, String var, String body) {
+		return body;
+	}
+
+	private String createCodeForJCReturn(JCReturn node, String var, String body) {
+		Map<String, String> params = createParams(var);
+		params.put("expr", node.expr.toString());
+
+		return buildTemplate(RETURN_CODE, params);
+	}
+
+	private String createCodeForJCVariableDecl(JCVariableDecl node, String var, String body) {
+		String res = body;
+
+		if ("let".equals(node.vartype.toString())) {
+			Map<String, String> params = createParams(var);
+			params.put("body", res);
+			params.put("lExpr", node.name.toString());
+			params.put("rExpr", node.init.toString());
+
+			if (node.init instanceof JCLambda) {
+				JCLambda lm = (JCLambda)node.init;
+
+				getDoVar(lm).ifPresent(childVar ->
+						params.put("rExpr", createExpression((JCBlock) lm.body, childVar)));
+			}
+			res = buildTemplate(LET_CODE, params);
+		}
+
+		return res;
+	}
 
 	private Optional<String> getDoVar(JCLambda node) {
 		if (node.params.size() == 1) {
@@ -63,58 +76,27 @@ public class DoExprBuilder {
 		return Optional.empty();
 	}
 
-	private Map<String, String> createBindParams(String var, String body, String expr) {
-		Map<String, String> params = createBasicParams(var, body, expr);
-
-		int eqPos = expr.indexOf("=");
-
-		if (eqPos > 0) {
-			params.put("lExpr", expr.substring(0, eqPos));
-			params.put("rExpr", expr.substring(eqPos + 1));
-		}
-
-		return params;
-	}
-
-	private Map<String, String> createBasicParams(String var, String body, String expr) {
+	private Map<String, String> createParams(String var) {
 		Map<String, String> params = new HashMap<>();
 
 		params.put("var", var);
-		params.put("body", body);
-		params.put("expr", expr);
 
 		return params;
 	}
 
-	private interface ParamCreator {
-		Map<String, String> create(String var, String body, String expr);
+	private String buildTemplate(String template, Map<String, String> params) {
+		return params.entrySet().stream().reduce(template,
+				(acc, v) -> acc.replace(VAR_PREFIX + v.getKey() + VAR_SUFFIX, v.getValue()),
+				(a, b) -> a
+		);
 	}
 
-	private class TemplateBuilder {
-		private static final String VAR_PREFIX = "#{";
-		private static final String VAR_SUFFIX = "}";
+	@SuppressWarnings("unchecked")
+	private <S, T> T cast(S obj) {
+		return (T)obj;
+	}
 
-		private String template;
-		private ParamCreator paramCreator;
-
-		TemplateBuilder(String template, ParamCreator paramCreator) {
-			this.template = template;
-			this.paramCreator = paramCreator;
-		}
-
-		public String build(String var, String body, String expr) {
-			return buildTemplate(template, paramCreator.create(var, body, expr));
-		}
-
-		public String build(Map<String, String> params) {
-			return buildTemplate(template, params);
-		}
-
-		private String buildTemplate(String template, Map<String, String> params) {
-			return params.entrySet().stream().reduce(template,
-					(acc, v) -> acc.replace(VAR_PREFIX + v.getKey() + VAR_SUFFIX, v.getValue()),
-					(a, b) -> a
-			);
-		}
+	private interface CodeCreator<T> {
+		String create(T node, String var, String body);
 	}
 }
