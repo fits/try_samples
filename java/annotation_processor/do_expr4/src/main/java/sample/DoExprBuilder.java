@@ -10,14 +10,16 @@ public class DoExprBuilder {
 	private static final String DO_TYPE = "$do";
 	private static final String VAR_PREFIX = "#{";
 	private static final String VAR_SUFFIX = "}";
+	// let 用のコードテンプレート
 	private static final String LET_CODE = "#{var}.bind(#{rExpr}, #{lExpr} -> #{body})";
+	// return 用のコードテンプレート
 	private static final String RETURN_CODE = "#{var}.unit( #{expr} )";
 
-	private Map<Class<? extends JCStatement>, CodeCreator<JCStatement>> builderMap = new HashMap<>();
+	private Map<Class<? extends JCStatement>, CodeGenerator<JCStatement>> builderMap = new HashMap<>();
 
 	public DoExprBuilder() {
-		builderMap.put(JCVariableDecl.class, (n, v, b) -> createCodeForJCVariableDecl(cast(n), v, b));
-		builderMap.put(JCReturn.class, (n, v, b) -> createCodeForJCReturn(cast(n), v, b));
+		builderMap.put(JCVariableDecl.class, (n, v, b) -> generateCodeForLet(cast(n), v, b));
+		builderMap.put(JCReturn.class, (n, v, b) -> generateCodeForReturn(cast(n), v, b));
 	}
 
 	public Optional<String> build(JCLambda node) {
@@ -28,16 +30,17 @@ public class DoExprBuilder {
 		String res = "";
 
 		for (JCStatement st : block.stats.reverse()) {
-			res = builderMap.getOrDefault(st.getClass(), this::createCode).create(st, var, res);
+			res = builderMap.getOrDefault(st.getClass(), this::generateNoneCode).generate(st, var, res);
 		}
 		return res;
 	}
 
-	private String createCode(JCStatement node, String var, String body) {
+	private String generateNoneCode(JCStatement node, String var, String body) {
 		return body;
 	}
 
-	private String createCodeForJCVariableDecl(JCVariableDecl node, String var, String body) {
+	// let 用のソースコード生成
+	private String generateCodeForLet(JCVariableDecl node, String var, String body) {
 		String res = body;
 
 		if ("let".equals(node.vartype.toString())) {
@@ -46,6 +49,7 @@ public class DoExprBuilder {
 			params.put("lExpr", node.name.toString());
 			params.put("rExpr", node.init.toString());
 
+			// 入れ子への対応
 			if (node.init instanceof JCLambda) {
 				JCLambda lm = (JCLambda)node.init;
 
@@ -58,13 +62,15 @@ public class DoExprBuilder {
 		return res;
 	}
 
-	private String createCodeForJCReturn(JCReturn node, String var, String body) {
+	// return 用のソースコード生成
+	private String generateCodeForReturn(JCReturn node, String var, String body) {
 		Map<String, String> params = createParams(var);
 		params.put("expr", node.expr.toString());
 
 		return buildTemplate(RETURN_CODE, params);
 	}
 
+	// 処理変数名の抽出
 	private Optional<String> getDoVar(JCLambda node) {
 		if (node.params.size() == 1) {
 			String name = node.params.get(0).name.toString();
@@ -84,6 +90,7 @@ public class DoExprBuilder {
 		return params;
 	}
 
+	// テンプレート処理
 	private String buildTemplate(String template, Map<String, String> params) {
 		return params.entrySet().stream().reduce(template,
 				(acc, v) -> acc.replace(VAR_PREFIX + v.getKey() + VAR_SUFFIX, v.getValue()),
@@ -96,7 +103,7 @@ public class DoExprBuilder {
 		return (T)obj;
 	}
 
-	private interface CodeCreator<T> {
-		String create(T node, String var, String body);
+	private interface CodeGenerator<T> {
+		String generate(T node, String var, String body);
 	}
 }
