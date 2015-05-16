@@ -92,10 +92,12 @@ public class DoExprBuilder {
 
 	// テンプレート処理
 	private String buildTemplate(String template, Map<String, String> params) {
-		return params.entrySet().stream().reduce(template,
-				(acc, v) -> acc.replace(VAR_PREFIX + v.getKey() + VAR_SUFFIX, v.getValue()),
-				(a, b) -> a
-		);
+		String res = template;
+
+		for(Map.Entry<String, String> param : params.entrySet()) {
+			res = res.replace(VAR_PREFIX + param.getKey() + VAR_SUFFIX, param.getValue());
+		}
+		return res;
 	}
 
 	@SuppressWarnings("unchecked")
