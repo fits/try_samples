@@ -51,7 +51,7 @@ public class DoExprBuilder {
 
 			// 入れ子への対応
 			if (node.init instanceof JCLambda) {
-				JCLambda lm = (JCLambda)node.init;
+				JCLambda lm = cast(node.init);
 
 				getDoVar(lm).ifPresent(childVar ->
 						params.put("rExpr", createExpression((JCBlock) lm.body, childVar)));
