@@ -3,7 +3,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.Optional;
 
-public class LaSample {
+public class DoExprSample {
 	public static void main(String... args) {
 		Optional<Integer> o1 = Optional.of(2);
 		Optional<Integer> o2 = Optional.of(3);
