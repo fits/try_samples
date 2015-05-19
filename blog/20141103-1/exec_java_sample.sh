@@ -2,7 +2,7 @@
 
 APP_CLASS=sample.SampleApp
 
-BASE_DIR=`dirname $_`
+BASE_DIR=`dirname $0`
 
 CP=$BASE_DIR
 LIB=$BASE_DIR/lib
