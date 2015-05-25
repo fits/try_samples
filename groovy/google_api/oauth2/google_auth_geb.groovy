@@ -71,9 +71,13 @@ post.entity = new UrlEncodedFormEntity([
 
 def res = client.execute(post)
 
+res.entity.writeTo(System.out)
+
+/*
 def resJson = json.parse(res.entity.content)
 
 def accessToken = resJson.access_token
 
 println accessToken
 println resJson
+*/
