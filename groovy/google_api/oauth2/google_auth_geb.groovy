@@ -17,13 +17,12 @@ import org.apache.http.ssl.SSLContextBuilder
 import javax.net.ssl.HostnameVerifier
 import groovy.json.JsonSlurper
 
-def scope = 'https://mail.google.com/%20https://www.googleapis.com/auth/gmail.compose%20https://www.googleapis.com/auth/gmail.modify'
-
 def json = new JsonSlurper()
 def conf = json.parse(new File(args[0])).installed
 
 def userId = args[1]
 def password = args[2]
+def scope = new File(args[3]).readLines().join('%20')
 
 def code = null
 
