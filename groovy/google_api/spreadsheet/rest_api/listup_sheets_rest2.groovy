@@ -2,8 +2,7 @@
 @Grab("org.apache.httpcomponents:httpclient:4.4.1")
 import com.google.api.client.googleapis.auth.oauth2.*
 import com.google.api.client.googleapis.GoogleUtils
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.googleapis.util.Utils
 
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
@@ -20,8 +19,8 @@ def conf = new Properties()
 conf.load(new File(confFile).newInputStream())
 
 def credential = new GoogleCredential.Builder()
-	.setTransport(new NetHttpTransport())
-	.setJsonFactory(JacksonFactory.getDefaultInstance())
+	.setTransport(Utils.getDefaultTransport())
+	.setJsonFactory(Utils.getDefaultJsonFactory())
 	.setServiceAccountId(conf.mailAddress)
 	.setServiceAccountPrivateKeyFromP12File(new File(conf.p12File))
 	.setServiceAccountScopes([SPREADSHEETS_FEED_BASE])
