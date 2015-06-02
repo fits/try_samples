@@ -1,0 +1,23 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	provided
+}
+
+dependencies {
+	compile 'org.codehaus.groovy:groovy-json:2.4.3'
+	provided files("${System.properties['java.home']}/../lib/tools.jar")
+}
+
+sourceSets {
+	main.compileClasspath += configurations.provided
+}
+
+startScripts.enabled = false
+
+mainClassName = 'JmxStat'
