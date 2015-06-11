@@ -1,0 +1,11 @@
+apply plugin: 'application'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.ow2.asm:asm-all:5.0.4'
+}
+
+mainClassName = 'sample.App'
