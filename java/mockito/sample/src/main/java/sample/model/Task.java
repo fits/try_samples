@@ -13,15 +13,7 @@ public class Task {
 		return taskId;
 	}
 
-	public void setTaskId(String taskId) {
-		this.taskId = taskId;
-	}
-
 	public String getTitle() {
 		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
 	}
 }
