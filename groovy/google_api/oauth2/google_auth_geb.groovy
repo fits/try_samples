@@ -1,20 +1,16 @@
 @Grab('org.gebish:geb-core:0.10.0')
 @Grab('com.codeborne:phantomjsdriver:1.2.1')
 //@Grab('org.seleniumhq.selenium:selenium-firefox-driver:2.45.0')
-@Grab("org.apache.httpcomponents:httpclient:4.4.1")
+@Grab("org.apache.httpcomponents:httpclient:4.5")
 import geb.Browser
 import org.openqa.selenium.phantomjs.PhantomJSDriver
 import org.openqa.selenium.remote.DesiredCapabilities
 
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpPost
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.message.BasicNameValuePair
-import org.apache.http.ssl.SSLContextBuilder
 
-import javax.net.ssl.HostnameVerifier
 import groovy.json.JsonSlurper
 
 def json = new JsonSlurper()
@@ -34,8 +30,12 @@ Browser.drive {
 	go url
 
 	$('input[name="Email"]').value(userId)
-	$('input[name="Passwd"]').value(password)
 	$('input[type="submit"]').click()
+
+	waitFor(30) { $('div.second div.slide-in').isDisplayed() }
+
+	$('input[name="Passwd"]').value(password)
+	$('div.second input[type="submit"]').click()
 
 	waitFor(30) { $('button[id="submit_approve_access"]').isDisabled() == false }
 
@@ -50,13 +50,7 @@ Browser.drive {
 
 def param = { name, value -> new BasicNameValuePair(name, value) }
 
-def sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustSelfSignedStrategy()).build()
-
-def sslFactory = new SSLConnectionSocketFactory(sslContext, {hostname, session -> true } as HostnameVerifier)
-
-def client = HttpClientBuilder.create()
-	.setSSLSocketFactory(sslFactory)
-	.build()
+def client = HttpClientBuilder.create().build()
 
 def post = new HttpPost('https://www.googleapis.com/oauth2/v3/token')
 
@@ -71,12 +65,3 @@ post.entity = new UrlEncodedFormEntity([
 def res = client.execute(post)
 
 res.entity.writeTo(System.out)
-
-/*
-def resJson = json.parse(res.entity.content)
-
-def accessToken = resJson.access_token
-
-println accessToken
-println resJson
-*/
