@@ -1,0 +1,45 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.querydsl:querydsl-sql-codegen:4.0.2'
+		classpath 'com.querydsl:querydsl-scala:4.0.2'
+		classpath 'org.scala-lang:scala-library:2.11.7'
+		classpath 'mysql:mysql-connector-java:5.1.36'
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.querydsl:querydsl-scala:4.0.2'
+	compile 'com.querydsl:querydsl-sql:4.0.2'
+	compile 'org.scala-lang:scala-library:2.11.7'
+
+	runtime 'mysql:mysql-connector-java:5.1.36'
+}
+
+mainClassName = 'sample.SampleApp'
+
+task generate << {
+	def con = new com.mysql.jdbc.Driver().connect('jdbc:mysql://localhost:3306/sample?user=root', null)
+
+	def exporter = new com.querydsl.sql.codegen.MetaDataExporter()
+
+	exporter.packageName = 'sample.model'
+	exporter.targetFolder = new File('src/main/scala')
+	exporter.serializerClass = com.querydsl.scala.sql.ScalaMetaDataSerializer
+	exporter.typeMappings = com.querydsl.scala.ScalaTypeMappings.create()
+	exporter.createScalaSources = true
+
+	exporter.export(con.metaData)
+
+	con.close()
+}
