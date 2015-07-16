@@ -44,7 +44,7 @@ task modelCompile(type: ScalaCompile) {
 
 	destinationDir = file(destDir)
 
-	scalaCompileOptions.incrementalOptions.analysisFile = file("${buildDir}/tmp/scalaCompilerAnalysis.analysis")
+	scalaCompileOptions.incrementalOptions.analysisFile = file("${buildDir}/tmp/scala/compilerAnalysis/compileCustomScala.analysis")
 }
 
 task generate(dependsOn: modelCompile) {
