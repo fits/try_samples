@@ -1,0 +1,72 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+ext.modelPackage = 'sample.model'
+
+buildscript {
+	ext.destDir = "$buildDir/classes/main"
+
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.querydsl:querydsl-codegen:4.0.2'
+		classpath 'com.querydsl:querydsl-scala:4.0.2'
+		classpath 'org.scala-lang:scala-library:2.12.0-M1'
+		classpath 'javax:javaee-api:7.0'
+
+		classpath files(destDir)
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.querydsl:querydsl-scala:4.0.2'
+	compile 'com.querydsl:querydsl-jpa:4.0.2'
+	compile 'org.scala-lang:scala-library:2.12.0-M1'
+	compile 'org.apache.commons:commons-dbcp2:2.1'
+	compile 'javax:javaee-api:7.0'
+
+	runtime 'mysql:mysql-connector-java:5.1.36'
+	runtime 'org.slf4j:slf4j-nop:1.7.12'
+}
+
+mainClassName = 'sample.SampleApp'
+
+task modelCompile(type: ScalaCompile) {
+	source = 'src/main/scala-model'
+
+	classpath = buildscript.configurations.classpath
+
+	destinationDir = file(destDir)
+
+	scalaCompileOptions.incrementalOptions.analysisFile = file("${buildDir}/tmp/scalaCompilerAnalysis.analysis")
+}
+
+task generate(dependsOn: modelCompile) {
+	def exporter = new com.querydsl.codegen.GenericExporter()
+
+	// src/main/scala
+	exporter.targetFolder = sourceSets.main.scala.srcDirs.first()
+
+	exporter.serializerClass = com.querydsl.scala.ScalaEntitySerializer
+	exporter.typeMappingsClass = com.querydsl.scala.ScalaTypeMappings
+
+	exporter.entityAnnotation = javax.persistence.Entity
+	exporter.embeddableAnnotation = javax.persistence.Embeddable
+	exporter.embeddedAnnotation = javax.persistence.Embedded
+	exporter.skipAnnotation = javax.persistence.Transient
+	exporter.supertypeAnnotation = javax.persistence.MappedSuperclass
+
+	exporter.createScalaSources = true
+
+	exporter.export(modelPackage)
+}
+
+compileScala {
+	dependsOn generate
+}
