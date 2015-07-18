@@ -1,0 +1,52 @@
+apply plugin: 'application'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+ext.qdslDestDir = 'src/main/qdsl-generated'
+
+mainClassName = 'sample.SampleApp'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	apt
+}
+
+dependencies {
+	apt 'com.querydsl:querydsl-apt:4.0.2'
+
+	compile 'com.querydsl:querydsl-jpa:4.0.2'
+	compile 'javax:javaee-api:7.0'
+	compile 'org.projectlombok:lombok:1.16.4'
+
+	runtime 'org.eclipse.persistence:eclipselink:2.6.1-RC1'
+	runtime 'mysql:mysql-connector-java:5.1.36'
+	runtime 'org.slf4j:slf4j-nop:1.7.12'
+}
+
+task generate(type: JavaCompile) {
+	def destDir = new File(qdslDestDir)
+	destDir.mkdirs()
+
+	source = sourceSets.main.java
+	classpath = configurations.compile + configurations.apt
+
+	options.compilerArgs += [
+		'-proc:only', 
+		'-processor', 'com.querydsl.apt.jpa.JPAAnnotationProcessor'
+	]
+
+	destinationDir = destDir
+}
+
+compileJava {
+	dependsOn generate
+	sourceSets.main.java.srcDir qdslDestDir
+}
+
+clean {
+	delete qdslDestDir
+}
