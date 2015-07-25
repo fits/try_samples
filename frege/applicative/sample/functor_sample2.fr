@@ -1,0 +1,4 @@
+package sample.FunctorSample2 where
+
+main args = do
+	print $ fmap (*2) [1..5]
