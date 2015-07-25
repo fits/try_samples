@@ -1,0 +1,22 @@
+package sample.FreeSample1 where
+
+data Free f a = Pure a | Free (f (Free f a))
+
+instance Monad Functor f => (Free f) where
+	return = Pure
+	Free x >>= f = Free (fmap (>>= f) x)
+	Pure x >>= f = f x
+
+data Greeting a = Hello a | Bye
+
+instance Functor Greeting where
+	fmap f (Hello a) = Hello (f a)
+	fmap f Bye = Bye
+
+runGreeting :: Free Greeting a -> IO ()
+runGreeting (Free (Hello a)) = print "hello\n" >> runGreeting a
+runGreeting (Free Bye) = print "bye\n"
+runGreeting (Pure a) = print "end\n"
+
+main args = do
+	runGreeting $ Free (Hello (Free (Hello (Free Bye))))
