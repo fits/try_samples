@@ -1,0 +1,25 @@
+package sample.FreeSample2 where
+
+data Free f a = Pure a | Free (f (Free f a))
+
+instance Monad Functor f => (Free f) where
+	return = Pure
+	Free x >>= f = Free (fmap (>>= f) x)
+	Pure x >>= f = f x
+
+data Calc v a = Value v | Add a a | Subtract a a
+
+instance Functor (Calc v) where
+	fmap f (Add x y) = Add (f x) (f y)
+	fmap f (Subtract x y) = Subtract (f x) (f y)
+	fmap f (Value v) = Value v
+
+calculate :: Num n => Free (Calc n) a -> n
+
+calculate (Free (Add x y)) = calculate x + calculate y
+calculate (Free (Subtract x y)) = calculate x - calculate y
+calculate (Free (Value n)) = n
+calculate (Pure _) = 0
+
+main args = do
+ 	print $ calculate $ Free (Add (Free (Value 11)) (Free (Subtract (Free (Value 10)) (Free (Value 7)))))
