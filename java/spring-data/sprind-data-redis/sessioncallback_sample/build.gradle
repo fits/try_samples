@@ -1,0 +1,23 @@
+apply plugin: 'spring-boot'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.4.RELEASE'
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter-redis:1.2.4.RELEASE'
+    compile 'org.projectlombok:lombok:1.16.4'
+}
