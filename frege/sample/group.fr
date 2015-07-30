@@ -1,0 +1,12 @@
+package sample.Group where
+
+group :: Eq a => [a] -> [[a]]
+group = foldr dist []
+
+dist :: Eq a => a -> [[a]] -> [[a]]
+dist x [] = [[x]]
+dist x (xs:ys) = if (elem x xs) then (x:xs):ys else [x]:xs:ys
+
+main args = do
+	println $ group [1, 1, 2, 3, 3, 3]
+	println $ group ["A", "B", "B", "C", "A", "A", "B", "B"]
