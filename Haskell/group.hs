@@ -16,14 +16,14 @@ group2 (x:xs) =
 group3 :: Eq a => [a] -> [[a]]
 group3 [] = []
 group3 [x] = [[x]]
-group3 xs@(x:xs') = ys:group3 zs
-	where (ys, zs) = span' (x ==) xs
+group3 all@(x:xs) = ys:group3 zs
+	where (ys, zs) = span' (x ==) all
 
 span' :: (a -> Bool) -> [a] -> ([a], [a])
 span' _ [] = ([], [])
-span' p xs@(x:xs')
-	| p x       = let (ys, zs) = span' p xs' in (x:ys, zs)
-	| otherwise = ([], xs)
+span' p all@(x:xs)
+	| p x       = let (ys, zs) = span' p xs in (x:ys, zs)
+	| otherwise = ([], all)
 
 main = do
 	print $ group [1, 1, 2, 3, 3, 3]
