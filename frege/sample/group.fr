@@ -7,6 +7,18 @@ dist :: Eq a => a -> [[a]] -> [[a]]
 dist x [] = [[x]]
 dist x (xs:ys) = if (x == head xs) then (x:xs):ys else [x]:xs:ys
 
+group2 :: Eq a => [a] -> [[a]]
+group2 [] = []
+group2 [x] = [[x]]
+group2 (x:xs) = 
+	let ys = group xs
+	in if x == (head . head) ys then (x:head ys):(tail ys) else [x]:ys
+
+
 main args = do
 	println $ group [1, 1, 2, 3, 3, 3]
 	println $ group ["A", "B", "B", "C", "A", "A", "B", "B"]
+
+	println $ group2 [1, 1, 2, 3, 3, 3]
+	println $ group2 ["A", "B", "B", "C", "A", "A", "B", "B"]
+
