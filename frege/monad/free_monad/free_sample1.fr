@@ -14,9 +14,14 @@ instance Functor Greeting where
 	fmap f Bye = Bye
 
 runGreeting :: Free Greeting a -> IO ()
-runGreeting (Free (Hello a)) = print "hello\n" >> runGreeting a
-runGreeting (Free Bye) = print "bye\n"
-runGreeting (Pure a) = print "end\n"
+runGreeting (Free (Hello a)) = println "hello" >> runGreeting a
+runGreeting (Free Bye) = println "bye"
+runGreeting (Pure a) = println "end"
 
 main args = do
 	runGreeting $ Free (Hello (Free (Hello (Free Bye))))
+
+	println "-----"
+
+	runGreeting $ Free (Hello (Free (Hello (Pure ())))) >> Free (Hello (Free Bye))
+
