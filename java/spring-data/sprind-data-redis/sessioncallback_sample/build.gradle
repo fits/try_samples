@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.4.RELEASE'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE'
     }
 }
 
@@ -18,6 +18,6 @@ repositories {
 }
 
 dependencies {
-	compile 'org.springframework.boot:spring-boot-starter-redis:1.2.4.RELEASE'
+	compile 'org.springframework.boot:spring-boot-starter-redis:1.2.5.RELEASE'
     compile 'org.projectlombok:lombok:1.16.4'
 }
