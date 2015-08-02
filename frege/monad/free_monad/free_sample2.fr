@@ -22,4 +22,7 @@ calculate (Free (Value n)) = n
 calculate (Pure _) = 0
 
 main args = do
- 	print $ calculate $ Free (Add (Free (Value 11)) (Free (Subtract (Free (Value 10)) (Free (Value 7)))))
+ 	println $ calculate $ Free (Add (Free (Value 11)) (Free (Subtract (Free (Value 10)) (Free (Value 7)))))
+
+ 	println $ calculate $ Free (Add ( Free (Value 100)) (Pure ())) >> Free (Add (Free (Value 11)) (Free (Subtract (Free (Value 10)) (Free (Value 7)))))
+
