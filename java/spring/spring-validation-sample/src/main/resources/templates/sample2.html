@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head lang="ja">
+  <meta charset="UTF-8" />
+  <title>sample2</title>
+</head>
+<body>
+
+<h2>ERROR</h2>
+
+<p th:text="${#fields}">fields</p>
+
+<ul>
+	<li th:each="err : ${#fields.allErrors()}" th:text="${err}">error list</li>
+</ul>
+
+</body>
+</html>
