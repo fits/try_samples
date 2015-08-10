@@ -1,0 +1,60 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+ext.modelPackage = 'sample.model'
+ext.qdslDestDir = 'src/main/qdsl-generated'
+ext.dbUrl = 'jdbc:mysql://localhost:3306/jpa_sample?user=root'
+
+mainClassName = 'sample.SampleApp'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.querydsl:querydsl-sql-codegen:4.0.3'
+		classpath 'com.querydsl:querydsl-scala:4.0.3'
+		classpath 'org.scala-lang:scala-library:2.11.7'
+		classpath 'mysql:mysql-connector-java:5.1.36'
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.querydsl:querydsl-scala:4.0.3'
+	compile 'com.querydsl:querydsl-sql:4.0.3'
+	compile 'org.scala-lang:scala-library:2.11.7'
+
+	runtime 'mysql:mysql-connector-java:5.1.36'
+	runtime 'org.slf4j:slf4j-nop:1.7.12'
+}
+
+task generate << {
+	def con = new com.mysql.jdbc.Driver().connect(dbUrl, null)
+
+	def exporter = new com.querydsl.sql.codegen.MetaDataExporter()
+
+	exporter.packageName = modelPackage
+	exporter.targetFolder = new File(qdslDestDir)
+	exporter.serializerClass = com.querydsl.scala.sql.ScalaMetaDataSerializer
+	exporter.typeMappings = com.querydsl.scala.ScalaTypeMappings.create()
+	exporter.createScalaSources = true
+
+	exporter.export(con.metaData)
+
+	con.close()
+}
+
+compileScala {
+	dependsOn generate
+
+	sourceSets.main.scala.srcDir qdslDestDir
+}
+
+clean {
+	delete qdslDestDir
+}
