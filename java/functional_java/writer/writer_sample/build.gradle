@@ -1,0 +1,12 @@
+apply plugin: 'application'
+
+mainClassName = 'sample.App'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.functionaljava:functionaljava:4.4'
+}
+
