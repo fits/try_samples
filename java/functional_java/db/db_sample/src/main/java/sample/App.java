@@ -11,9 +11,7 @@ import java.sql.SQLException;
 
 public class App {
     public static void main(String... args) throws Exception {
-        String url = "jdbc:mysql://localhost:3306/jpa_sample?user=root";
-
-        DbState dbs = DbState.reader(url);
+        DbState dbs = DbState.reader(args[0]);
 
         String sql = "select count(*) from product";
 
