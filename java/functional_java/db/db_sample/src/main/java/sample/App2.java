@@ -5,15 +5,12 @@ import fj.Try;
 import fj.Unit;
 import fj.control.db.DB;
 import fj.control.db.DbState;
-import fj.data.Either;
 import fj.data.Option;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class App2 {
     public static void main(String... args) throws Exception {
