@@ -15,12 +15,13 @@ public class App {
 
         String sql = "select count(*) from product";
 
-        F<ResultSet, ?> firstRow = rs -> tryGet(() -> rs.next()?
-                Option.some(rs.getObject(1)): Option.none());
+        F<ResultSet, Option<Integer>> countRow = rs -> tryGet(() -> rs.next()?
+                Option.some(rs.getInt(1)): Option.none());
 
         DB<?> q = DB.db(con -> statement(sql, con)).bind(ps ->
                 DB.unit(resultSet(ps)).bind(rs ->
-                        DB.unit(firstRow.f(rs)).map(res -> {
+                        DB.unit(countRow.f(rs)).map(res -> {
+                            // problem about close
                             tryCall(rs::close);
                             tryCall(ps::close);
                             return res;
