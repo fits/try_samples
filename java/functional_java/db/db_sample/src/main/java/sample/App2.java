@@ -19,7 +19,7 @@ public class App2 {
         String sql = "select count(*) from product";
 
         DB<?> q = DB.db(select(sql, Try.f(rs ->
-            rs.next() ? Option.some(rs.getObject(1)): Option.none()
+            rs.next() ? Option.some(rs.getInt(1)) : Option.none()
         )));
 
         System.out.println(dbs.run(q));
