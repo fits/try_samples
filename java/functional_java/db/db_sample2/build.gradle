@@ -1,0 +1,21 @@
+apply plugin: 'application'
+
+mainClassName = 'sample.App'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.functionaljava:functionaljava:4.4'
+	compile 'commons-dbutils:commons-dbutils:1.6'
+
+	runtime 'mysql:mysql-connector-java:5.1.36'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
+
