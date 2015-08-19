@@ -16,13 +16,20 @@ public class App4 {
     public static void main(String... args) throws Exception {
         DbState dbs = DbState.reader(args[0]);
 
-        String sql = "select count(*) from product";
-
-        DB<?> q = query(sql, rs ->
-            rs.next() ? Option.some(rs.getInt(1)) : Option.none()
-        );
+        DB<?> q = query("select count(*) from product", App4::scalarValue);
 
         System.out.println(dbs.run(q));
+
+        DbState dbw = DbState.writer(args[0]);
+
+        DB<?> q2 = command("insert into product (name, price) values (?, ?)", "aaa", 3000)
+                .bind(v -> v.map(r -> query("select last_insert_id()", App4::scalarValue)).success());
+
+        System.out.println(dbw.run(q2));
+    }
+
+    private static Option<Integer> scalarValue(ResultSet rs) throws SQLException {
+        return rs.next() ? Option.some(rs.getInt(1)) : Option.none();
     }
 
     private static DB<Validation<SQLException, Integer>> command(String sql, Object... params) {
