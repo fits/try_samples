@@ -8,6 +8,7 @@ import fj.data.Option;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class App {
     public static void main(String... args) throws Exception {
@@ -15,8 +16,8 @@ public class App {
 
         String sql = "select count(*) from product";
 
-        F<ResultSet, Option<Integer>> countRow = rs -> tryGet(() -> rs.next()?
-                Option.some(rs.getInt(1)): Option.none());
+        F<ResultSet, Option<?>> countRow = rs -> tryGet(() ->
+                rs.next()? Option.some(rs.getInt(1)): Option.none());
 
         DB<?> q = DB.db(con -> statement(sql, con)).bind(ps ->
                 DB.unit(resultSet(ps)).bind(rs ->
