@@ -1,0 +1,23 @@
+
+apply plugin: 'application'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+mainClassName = 'sample.Application'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter-jdbc:1.2.5.RELEASE'
+	compile('org.springframework.boot:spring-boot-starter-redis:1.2.5.RELEASE') {
+		exclude module: 'jedis'
+	}
+
+	compile 'redis.clients:jedis:2.6.3'
+	compile 'com.zaxxer:HikariCP:2.4.0'
+
+	runtime 'mysql:mysql-connector-java:5.1.36'
+}
