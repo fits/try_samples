@@ -1,4 +1,4 @@
-@Grab('io.undertow:undertow-core:1.3.0.Beta6')
+@Grab('io.undertow:undertow-core:1.3.0.Beta9')
 import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.undertow.util.Headers
