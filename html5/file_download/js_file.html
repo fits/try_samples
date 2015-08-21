@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+</head>
+<body>
+
+<a id="dlink" href="#">download</a>
+
+<script>
+	var data = new Blob(["サンプルデータ"], {type: "text/plain"});
+
+	var trg = document.getElementById("dlink");
+
+	trg.href = window.URL.createObjectURL(data);
+	trg.download = "sample.txt";
+
+</script>
+</body>
+</html>
