@@ -2,6 +2,7 @@ package sample;
 
 import fj.control.db.DB;
 import fj.control.db.DbState;
+import fj.data.List;
 import fj.data.Option;
 import fj.function.Try1;
 
@@ -29,6 +30,18 @@ public class App5 {
                                 .bind(t -> command(insertVariationSql, id.some(), "Pink", "LL")));
 
         System.out.println(dbw.run(q2));
+
+        DB<?> q3 = command("insert into product (name, price) values (?, ?)", "ccc", 6200)
+                .bind(v -> query("select last_insert_id()", App5::scalarValue))
+                .bind(id ->
+                        append(
+                                command(insertVariationSql, id.some(), "Silver", "F"),
+                                command(insertVariationSql, id.some(), "Gold", "F")
+                        )
+                );
+
+        System.out.println(dbw.run(q3));
+
     }
 
     private static Option<Integer> scalarValue(ResultSet rs) {
@@ -72,6 +85,17 @@ public class App5 {
         }
 
         return ps;
+    }
+
+    @SafeVarargs
+    private static <T> DB<List<T>> append(DB<T>... dbs) {
+        return DB.db(con -> List.list(dbs).map(db -> {
+            try {
+                return db.run(con);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }));
     }
 
     private interface ResultHandler<T> extends Try1<ResultSet, T, SQLException> {
