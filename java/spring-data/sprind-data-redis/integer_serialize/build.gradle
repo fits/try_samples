@@ -6,9 +6,9 @@ tasks.withType(AbstractCompile)*.options*.encoding = enc
 mainClassName = 'sample.App'
 
 repositories {
-    jcenter()
+	jcenter()
 }
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-starter-redis:1.2.5.RELEASE'
+	compile 'org.springframework.boot:spring-boot-starter-redis:1.2.5.RELEASE'
 }
