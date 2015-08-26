@@ -66,4 +66,23 @@ public class SampleRepository {
 			}
 		});
 	}
+
+	public Object updateWithCas3(String key, IntUnaryOperator func) {
+		RedisConnectionUtils.bindConnection(redisTemplate.getConnectionFactory());
+		try {
+			redisTemplate.watch(key);
+
+			BoundValueOperations<String, Integer> valueOps = redisTemplate.boundValueOps(key);
+			Integer value = valueOps.get();
+
+			redisTemplate.multi();
+
+			valueOps.set(func.applyAsInt(value));
+
+			return redisTemplate.exec();
+
+		} finally {
+			RedisConnectionUtils.unbindConnection(redisTemplate.getConnectionFactory());
+		}
+	}
 }

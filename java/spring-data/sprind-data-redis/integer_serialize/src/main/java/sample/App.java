@@ -27,6 +27,10 @@ public class App implements CommandLineRunner {
 		Object res2 = sampleRepository.updateWithCas2(key, v -> v + 8);
 		System.out.println("res2 = " + res2);
 		System.out.println(sampleRepository.get(key));
+
+		Object res3 = sampleRepository.updateWithCas3(key, v -> v * 10);
+		System.out.println("res3 = " + res3);
+		System.out.println(sampleRepository.get(key));
 	}
 
 	public static void main(String... args) {
