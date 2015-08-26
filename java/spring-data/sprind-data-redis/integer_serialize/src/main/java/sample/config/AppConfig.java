@@ -25,7 +25,7 @@ public class AppConfig {
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setValueSerializer(new GenericToStringSerializer<>(Integer.class));
 
-		template.setEnableTransactionSupport(true);
+	//	template.setEnableTransactionSupport(true);
 
 		return template;
 	}
