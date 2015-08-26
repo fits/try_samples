@@ -22,8 +22,8 @@ public class SampleRepository {
 		valueOps.set(func.applyAsInt(valueOps.get()));
 	}
 
-	// エラーが発生
-	public void updateWithCas1(String key, IntUnaryOperator func) {
+	// enableTransactionSupport = false の場合はエラーが発生
+	public Object updateWithCas1(String key, IntUnaryOperator func) {
 		try {
 			redisTemplate.watch(key);
 
@@ -34,15 +34,17 @@ public class SampleRepository {
 
 			valueOps.set(func.applyAsInt(value));
 
-			redisTemplate.exec();
+			return redisTemplate.exec();
 		} catch (Exception e) {
 			// InvalidDataAccessApiUsageException: ERR EXEC without MULTI
 			System.out.println(e);
 		}
+
+		return null;
 	}
 
-	public void updateWithCas2(String key, IntUnaryOperator func) {
-		redisTemplate.execute(new SessionCallback<Object>() {
+	public Object updateWithCas2(String key, IntUnaryOperator func) {
+		return redisTemplate.execute(new SessionCallback<Object>() {
 			@Override
 			public <K, V> Object execute(RedisOperations<K, V> operations) throws DataAccessException {
 				@SuppressWarnings("unchecked")
