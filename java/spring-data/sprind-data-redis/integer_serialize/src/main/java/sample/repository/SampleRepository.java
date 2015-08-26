@@ -3,11 +3,11 @@ package sample.repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.*;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.util.function.IntUnaryOperator;
 
-@Service
+@Repository
 public class SampleRepository {
 	@Autowired
 	private RedisTemplate<String, Integer> redisTemplate;
