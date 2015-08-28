@@ -23,5 +23,15 @@ object SampleApp extends App {
 
 		db.run(q.result).map(_.foreach(println))
 
+		val insert = DBIO.seq {
+			products += ((0, "slicksample01", 100.0))
+		}
+
+		val res = db.run(insert)
+
+		res onSuccess {
+			case msg => println(msg)
+		}
+
 	} finally db.close
 }
