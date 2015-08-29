@@ -10,7 +10,7 @@ object SampleApp extends App {
 		val price = 3000.0
 
 		val res = DB readOnly { implicit session =>
-			sql"select name from product where price > ${price}".map(rs => rs.string("name")).toList().apply()
+			sql"select name from product where price > ${price}".map(rs => rs.string("name")).list.apply()
 		}
 
 		println(res)
