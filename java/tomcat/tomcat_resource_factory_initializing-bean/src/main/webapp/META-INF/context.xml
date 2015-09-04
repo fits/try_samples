@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<Context>
+
+    <Resource name="redis/ConnectionFactory" auth="Container"
+              type="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+              factory="sample.InitializingBeanFactory"
+              port="6378"
+              password="pass"
+              poolConfig.maxTotal="100"
+              poolConfig.maxIdle="100"
+            />
+
+</Context>
