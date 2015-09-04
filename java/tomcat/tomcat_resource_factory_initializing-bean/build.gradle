@@ -1,0 +1,14 @@
+apply plugin: 'war'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.springframework.data:spring-data-redis:1.6.0.RELEASE'
+	compile 'redis.clients:jedis:2.7.3'
+	compile 'commons-beanutils:commons-beanutils:1.9.2'
+
+	providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+	providedCompile 'org.apache.tomcat:tomcat-catalina-ws:8.0.26'
+}
