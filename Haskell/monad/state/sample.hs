@@ -1,7 +1,7 @@
 
 import Control.Monad.State
 
-pop :: State [Int] Int
+pop :: Num a => State [a] a
 pop = do
 	st <- get
 	case st of
@@ -10,7 +10,7 @@ pop = do
 			put xs
 			return x
 
-sum3 :: State [Int] Int
+sum3 :: Num a => State [a] a
 sum3 = do
 	x <- pop
 	y <- pop
