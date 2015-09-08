@@ -1,0 +1,25 @@
+#!/bin/sh
+
+INDENT="    "
+CONF_DIR=/tmp/conf
+CONTAINER_CONF_DIR=/conf
+TWEMPROXY_IMAGE=sample/twemproxy:0.1
+
+CONTAINER_REDIS_LIST="redis1 redis2"
+CONTAINER_TWEMPROXY=twemproxy1
+
+REDIS_SERVERS=""
+
+docker rm -f $CONTAINER_TWEMPROXY
+
+for n in $CONTAINER_REDIS_LIST
+do
+  docker rm -f $n
+  docker run --name $n -d redis
+
+  REDIS_SERVERS="$REDIS_SERVERS$INDENT- `docker inspect $n | grep -oP '(?<=IPAddress": ").*(?=")'`:6379:1\n"
+done
+
+sed -e "s/#{SERVERS}/$REDIS_SERVERS/g" nutcracker.yml.tpl > $CONF_DIR/nutcracker.yml
+
+docker run --name $CONTAINER_TWEMPROXY -d -p 6379:6379 -v $CONF_DIR:$CONTAINER_CONF_DIR $TWEMPROXY_IMAGE nutcracker -s 22211 -c $CONTAINER_CONF_DIR/nutcracker.yml
