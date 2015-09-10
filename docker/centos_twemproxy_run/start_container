@@ -10,15 +10,15 @@ CONTAINER_TWEMPROXY=twemproxy1
 
 REDIS_SERVERS=""
 
-for n in $CONTAINER_REDIS_LIST
+for s in $CONTAINER_REDIS_LIST
 do
-  if test -z `docker start $n`; then
-    docker run --name $n -d redis
+  if test -z `docker start $s`; then
+    docker run --name $s -d redis
   else
-    echo start $n
+    echo start $s
   fi
 
-  REDIS_SERVERS="$REDIS_SERVERS$INDENT- `docker inspect $n | grep -oP '(?<=IPAddress": ").*(?=")'`:6379:1\n"
+  REDIS_SERVERS="$REDIS_SERVERS$INDENT- `docker inspect -f '{{.NetworkSettings.IPAddress}}' $s`:6379:1\n"
 done
 
 sed -e "s/#{SERVERS}/$REDIS_SERVERS/g" nutcracker.yml.tpl > $CONF_DIR/nutcracker.yml
