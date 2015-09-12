@@ -1,7 +1,7 @@
 
 fn main() {
-	let d = Data { name: ~"data1", value: 10 };
-	let mut d2 = Data { name: ~"data2", value: 5};
+	let d = Data { name: "data1".to_string(), value: 10 };
+	let mut d2 = Data { name: "data2".to_string(), value: 5};
 
 	println!("{:?}", d);
 	println!("{:?}", d2);
@@ -12,7 +12,8 @@ fn main() {
 	println!("{:?}", d2);
 }
 
+#[derive(Debug)]
 struct Data {
-	name: ~str,
-	value: int
+	name: String,
+	value: i32
 }

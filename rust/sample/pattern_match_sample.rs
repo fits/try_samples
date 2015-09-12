@@ -1,48 +1,52 @@
 
 fn main() {
-	printNum(0);
-	printNum(3);
-	printNum(7);
+	print_num(0);
+	print_num(3);
+	print_num(5);
+	print_num(7);
 
-	printNum2(0);
-	printNum2(3);
-	printNum2(7);
+	print_num2(0);
+	print_num2(3);
+	print_num2(5);
+	print_num2(7);
 
-	println!("{}", updateNum(0));
-	println!("{}", updateNum(3));
-	println!("{}", updateNum(7));
+	println!("{}", update_num(0));
+	println!("{}", update_num(3));
+	println!("{}", update_num(5));
+	println!("{}", update_num(7));
 
-	println!("{}", updateNum2(3));
-	println!("{}", updateNum2(7));
+	println!("{}", update_num2(3));
+	println!("{}", update_num2(5));
+	println!("{}", update_num2(7));
 }
 
-fn printNum (x: int) {
+fn print_num (x: i32) {
 	match x {
 		0 => println!("zero"),
-		1..5 => println!("one to five"),
+		1...5 => println!("one to five"),
 		_ => println!("else")
 	}
 }
 
-fn printNum2 (x: int) {
+fn print_num2 (x: i32) {
 	match x {
 		0 => { println!("zero") }
-		1..5 => { println!("one to five") }
+		1...5 => { println!("one to five") }
 		_ => { println!("else") }
 	}
 }
 
-fn updateNum (x: int) -> int {
+fn update_num (x: i32) -> i32 {
 	match x {
 		0 => x + 1,
-		1..5 => x * 2,
+		1...5 => x * 2,
 		_ => x
 	}
 }
 
-fn updateNum2 (x: int) -> int {
+fn update_num2 (x: i32) -> i32 {
 	match x {
-		a @ 1..5 => a * 2,
+		a @ 1...5 => a * 2,
 		_ => 0
 	}
 }

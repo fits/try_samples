@@ -1,25 +1,26 @@
 
 fn main() {
-	let d = Data { name: ~"data", value: 4 };
+	let d = Data { name: "data", value: 4 };
 
+	println!("{}", d.name);
 	println!("{}", d.times());
 }
 
 struct Data {
-	name: ~str,
-	value: int
+	name: &'static str,
+	value: i32
 }
 
 trait Sample {
-	fn sample(&self) -> int;
+	fn sample(&self) -> i32;
 
-	fn times(&self) -> int {
+	fn times(&self) -> i32 {
 		self.sample() * 2
 	}
 }
 
 impl Sample for Data {
-	fn sample(&self) -> int {
+	fn sample(&self) -> i32 {
 		self.value
 	}
 }
