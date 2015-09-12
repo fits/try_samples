@@ -1,8 +1,8 @@
 
 fn main() {
 	let list = [1, 2, 3];
-	let mut res = list.iter().map(|&x| x * 10);
-	let res2: ~[int] = list.iter().map(|&x| x * 10).collect();
+	let res = list.iter().map(|&x| x * 10);
+	let res2: Vec<_> = list.iter().map(|&x| x * 10).collect();
 
 	for &x in list.iter() {
 		println!("{}", x);
@@ -17,6 +17,6 @@ fn main() {
 	}
 
 	println!("{:?}", list);
-	println!("{:?}", res);
+//	println!("{:?}", res);
 	println!("{:?}", res2);
 }
