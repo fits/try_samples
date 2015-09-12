@@ -1,6 +1,6 @@
 
 fn main() {
-	let d = Data { name: ~"data", value: 4 };
+	let d = Data { value: 4 };
 
 	println!("{}", d.times());
 	println!("{}", d.plus(3));
@@ -8,22 +8,21 @@ fn main() {
 }
 
 struct Data {
-	name: ~str,
-	value: int
+	value: i32
 }
 
 impl Data {
-	fn times(&self) -> int {
+	fn times(&self) -> i32 {
 		self.value * 2
 	}
 
-	fn plus(&self, v: int) -> int {
+	fn plus(&self, v: i32) -> i32 {
 		self.value + v
 	}
 }
 
 impl Data {
-	fn plus2(&self) -> int {
+	fn plus2(&self) -> i32 {
 		self.plus(2)
 	}
 }

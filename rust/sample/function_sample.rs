@@ -1,6 +1,6 @@
 
 fn main() {
-	fn plus(x: int) -> int {
+	fn plus(x: i32) -> i32 {
 		x + 2
 	}
 
@@ -8,6 +8,6 @@ fn main() {
 	println!("{}", times(2));
 }
 
-fn times(x: int) -> int {
+fn times(x: i32) -> i32 {
 	x * 3
 }

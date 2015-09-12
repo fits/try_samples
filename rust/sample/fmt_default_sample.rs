@@ -1,18 +1,37 @@
 
-fn main() {
-	let d = Data { name: ~"data1", value: 10 };
+use std::fmt;
 
-	println!("{}", d);
-	println!("{:?}", d);
+fn main() {
+	let d = Data { name: "data1", value: 10 };
+
+	println!("{}", d);   // Display
+	println!("{:?}", d); // Debug
+
+	let d2 = Data2 { name: "data1", value: 10 };
+
+	println!("debug : {:?}", d2); // Debug
+	println!("debug : {:#?}", d2); // Debug
 }
 
 struct Data {
-	name: ~str,
-	value: int
+	name: &'static str,
+	value: i32
 }
 
-impl std::fmt::Default for Data {
-	fn fmt(obj: &Data, f: &mut std::fmt::Formatter) {
-		write!(f.buf, "Data: name={}, value={}", obj.name, obj.value)
+impl fmt::Display for Data {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		write!(f, "Data: name={}, value={}", self.name, self.value)
 	}
+}
+
+impl fmt::Debug for Data {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		write!(f, "*** debug : Data: name={}, value={}", self.name, self.value)
+	}
+}
+
+#[derive(Debug)]
+struct Data2 {
+	name: &'static str,
+	value: i32
 }
