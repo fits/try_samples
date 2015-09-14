@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<Context>
+    <Resource name="sample/Data" auth="Container"
+              type="sample.DataBean"
+              factory="org.apache.naming.factory.BeanFactory"
+              closeMethod="close"
+              info="sample1"
+            />
+
+</Context>
