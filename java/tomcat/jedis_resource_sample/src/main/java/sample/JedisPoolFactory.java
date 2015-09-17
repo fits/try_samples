@@ -44,7 +44,7 @@ public class JedisPoolFactory implements ObjectFactory {
     }
 
     private class JedisPoolBuilder {
-        private JedisPoolConfig poolConfig;
+        private JedisPoolConfig poolConfig = new JedisPoolConfig();
         private URI uri;
 
         public void setUri(URI uri) {
