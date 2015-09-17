@@ -4,11 +4,7 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.RefAddr;
 import javax.naming.spi.ObjectFactory;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.naming.ResourceRef;
@@ -43,12 +39,23 @@ public class JedisPoolFactory implements ObjectFactory {
         return builder.build();
     }
 
-    private class JedisPoolBuilder {
+    public class JedisPoolBuilder {
         private JedisPoolConfig poolConfig = new JedisPoolConfig();
-        private URI uri;
 
-        public void setUri(URI uri) {
-            this.uri = uri;
+        private String host = Protocol.DEFAULT_HOST;
+        private int port = Protocol.DEFAULT_PORT;
+        private int timeout = Protocol.DEFAULT_TIMEOUT;
+
+        public void setHost(String host) {
+            this.host = host;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public void setTimeout(int timeout) {
+            this.timeout = timeout;
         }
 
         public JedisPoolConfig getPoolConfig() {
@@ -56,9 +63,7 @@ public class JedisPoolFactory implements ObjectFactory {
         }
 
         public JedisPool build() {
-            return (uri == null)?
-                    new JedisPool(poolConfig, Protocol.DEFAULT_HOST):
-                    new JedisPool(poolConfig, uri);
+            return new JedisPool(poolConfig, host, port, timeout);
         }
     }
 }
