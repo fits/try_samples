@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<Context>
+
+    <Resource name="redis/Pool" auth="Container"
+              factory="sample.JedisPoolFactory"
+              closeMethod="close"
+              port="6380"
+              timeout="500"
+              poolConfig.maxTotal="100"
+              poolConfig.maxIdle="100"
+            />
+
+</Context>
