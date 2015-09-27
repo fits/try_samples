@@ -26,10 +26,11 @@ public class App6 {
 
         DB<?> q2 = command("insert into product (name, price) values (?, ?)", "app6-" + System.currentTimeMillis(), 3600)
                 .bind(v -> lastInsertId())
-                .bind(v -> v.map(r -> r.map(id ->
+                .map(v -> v.success().some())
+                .bind(id ->
                         command(insertVariationSql, id, "Pink", "S")
                                 .bind(_v -> command(insertVariationSql, id, "Yellow", "M"))
-                ).some()).success())
+                )
                 .map(v -> v.success());
 
         System.out.println(run(connector, q2));
