@@ -8,7 +8,6 @@ import fj.control.db.DbState;
 import fj.data.Option;
 import fj.data.Validation;
 import fj.function.Try1;
-import fj.function.TryEffect0;
 import fj.function.TryEffect1;
 
 import java.sql.Connection;
