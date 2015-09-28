@@ -4,6 +4,7 @@ import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.RefAddr;
+import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -12,22 +13,20 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.naming.ResourceRef;
-import org.apache.naming.factory.Constants;
 import org.springframework.beans.factory.InitializingBean;
 
 public class InitializingBeanFactory implements ObjectFactory {
     private final List<String> ignoreProperties =
-            Arrays.asList(Constants.FACTORY, "auth", "scope", "singleton");
+            Arrays.asList("factory", "auth", "scope", "singleton");
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
                                     Hashtable<?, ?> environment) throws Exception {
 
-        return (obj instanceof ResourceRef)? createBean((ResourceRef) obj): null;
+        return (obj instanceof Reference)? createBean((Reference) obj): null;
     }
 
-    private Object createBean(ResourceRef ref) throws Exception {
+    private Object createBean(Reference ref) throws Exception {
         Object bean = loadClass(ref.getClassName()).newInstance();
 
         initBean(bean, ref.getAll());
