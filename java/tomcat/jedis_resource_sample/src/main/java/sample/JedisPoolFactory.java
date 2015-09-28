@@ -3,14 +3,13 @@ package sample;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.RefAddr;
+import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.naming.ResourceRef;
-import org.apache.naming.factory.Constants;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Protocol;
@@ -20,7 +19,7 @@ import redis.clients.jedis.Protocol;
  */
 public class JedisPoolFactory implements ObjectFactory {
     private final List<String> ignoreProperties =
-            Arrays.asList(Constants.FACTORY, "auth", "scope", "singleton");
+            Arrays.asList("factory", "auth", "scope", "singleton");
 
     /**
      *
@@ -35,7 +34,7 @@ public class JedisPoolFactory implements ObjectFactory {
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
                                     Hashtable<?, ?> environment) throws Exception {
 
-        return (obj instanceof ResourceRef)? createPool((ResourceRef) obj): null;
+        return (obj instanceof Reference)? createPool((Reference) obj): null;
     }
 
     /**
@@ -44,7 +43,7 @@ public class JedisPoolFactory implements ObjectFactory {
      * @return
      * @throws Exception
      */
-    private JedisPool createPool(ResourceRef ref) throws Exception {
+    private JedisPool createPool(Reference ref) throws Exception {
         JedisPoolBuilder builder = new JedisPoolBuilder();
 
         for (Enumeration<RefAddr> em = ref.getAll(); em.hasMoreElements();) {
