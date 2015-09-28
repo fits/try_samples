@@ -1,11 +1,13 @@
 package sample;
 
 import fj.Try;
+import fj.control.db.Connector;
 import fj.control.db.DB;
 import fj.control.db.DbState;
 import fj.data.Option;
 import fj.data.Validation;
 import fj.function.Try1;
+import fj.function.TryEffect1;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,18 +16,43 @@ import java.sql.SQLException;
 
 public class App4 {
     public static void main(String... args) throws Exception {
-        DbState dbs = DbState.reader(args[0]);
+        Connector connector = DbState.driverManager(args[0]);
 
         DB<?> q = query("select count(*) from product", App4::scalarValue);
 
-        System.out.println(dbs.run(q));
-
-        DbState dbw = DbState.writer(args[0]);
+        System.out.println(runReadOnly(connector, q));
 
         DB<?> q2 = command("insert into product (name, price) values (?, ?)", "aaa", 3000)
                 .bind(v -> v.map(r -> query("select last_insert_id()", App4::scalarValue)).success());
 
-        System.out.println(dbw.run(q2));
+        System.out.println(run(connector, q2));
+    }
+
+    private static <A> A runReadOnly(Connector connector, DB<A> dba) throws SQLException {
+        return run(connector, dba, Connection::rollback);
+    }
+
+    private static <A> A run(Connector connector, DB<A> dba) throws SQLException {
+        return run(connector, dba, Connection::commit);
+    }
+
+    private static <A> A run(Connector connector, DB<A> dba, TryEffect1<Connection, SQLException> trans)
+            throws SQLException {
+        try (Connection con = connector.connect()) {
+            con.setAutoCommit(false);
+
+            try {
+                A result = dba.run(con);
+
+                trans.f(con);
+
+                return result;
+
+            } catch (Throwable e) {
+                con.rollback();
+                throw e;
+            }
+        }
     }
 
     private static Option<Integer> scalarValue(ResultSet rs) throws SQLException {
