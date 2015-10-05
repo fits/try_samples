@@ -1,0 +1,17 @@
+apply plugin: 'war'
+
+war.baseName = 'sample'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'redis.clients:jedis:2.7.3'
+    compile 'commons-beanutils:commons-beanutils:1.9.2'
+    compile 'org.springframework.data:spring-data-redis:1.6.0.RELEASE'
+    compile 'org.springframework:spring-web:4.2.1.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.2.1.RELEASE'
+
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+}
