@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ResultSetSpliterator<T> implements Spliterator<T> {
 
@@ -42,5 +44,9 @@ public class ResultSetSpliterator<T> implements Spliterator<T> {
 	@Override
 	public int characteristics() {
 		return ORDERED;
+	}
+
+	public Stream<T> stream() {
+		return StreamSupport.stream(this, false);
 	}
 }

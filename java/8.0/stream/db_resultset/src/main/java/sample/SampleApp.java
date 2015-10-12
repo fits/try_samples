@@ -1,8 +1,6 @@
 package sample;
 
 import java.sql.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class SampleApp {
 	public static void main(String... args) throws Exception {
@@ -14,11 +12,10 @@ public class SampleApp {
 			PreparedStatement ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery()
 		) {
-			StreamSupport.stream(
-					new ResultSetSpliterator<String>(rs,
-							r -> r.getString("id") + " : " + r.getString("name")),
-					false
-			).forEach(System.out::println);
+			new ResultSetSpliterator<String>(
+					rs,
+					r -> r.getString("id") + " : " + r.getString("name")
+			).stream().forEach(System.out::println);
 		}
 	}
 }
