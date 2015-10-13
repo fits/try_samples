@@ -1,0 +1,20 @@
+apply plugin: 'application'
+
+mainClassName = 'sample.DbSample2'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.functionaljava:functionaljava:4.4'
+
+	runtime 'mysql:mysql-connector-java:5.1.36'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
+
