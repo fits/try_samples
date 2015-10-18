@@ -11,6 +11,10 @@ public class SampleApp {
 			System.out.println("---");
 
 			sample2(con);
+
+			System.out.println("---");
+
+			sample3(con);
 		}
 	}
 
@@ -41,6 +45,20 @@ public class SampleApp {
 			).stream().count();
 
 			System.out.println("count : " + count);
+		}
+	}
+
+	private static void sample3(Connection con) throws SQLException {
+		String sql = "select * from product p join product_variation v on v.product_id=p.id";
+
+		try (
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()
+		) {
+			new ResultSetSpliterator2<>(
+					rs,
+					r -> r.getString("name") + ", " + r.getString("color") + "," + r.getString("size")
+			).stream().forEach(System.out::println);
 		}
 	}
 }
