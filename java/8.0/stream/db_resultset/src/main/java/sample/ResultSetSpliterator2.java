@@ -13,7 +13,7 @@ public class ResultSetSpliterator2<T> extends Spliterators.AbstractSpliterator<T
 	private TryFunction<ResultSet, T, SQLException> converter;
 
 	public ResultSetSpliterator2(ResultSet resultSet, TryFunction<ResultSet, T, SQLException> converter) {
-		super(Long.MAX_VALUE, IMMUTABLE | ORDERED);
+		super(Long.MAX_VALUE, ORDERED);
 
 		this.resultSet = resultSet;
 		this.converter = converter;

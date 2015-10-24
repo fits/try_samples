@@ -43,7 +43,7 @@ public class ResultSetSpliterator<T> implements Spliterator<T> {
 
 	@Override
 	public int characteristics() {
-		return IMMUTABLE | ORDERED;
+		return ORDERED;
 	}
 
 	public Stream<T> stream() {
