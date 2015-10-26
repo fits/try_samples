@@ -1,0 +1,17 @@
+apply plugin: 'application'
+
+mainClassName = 'sample.SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	runtime 'mysql:mysql-connector-java:5.1.36'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
