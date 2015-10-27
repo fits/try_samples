@@ -4,6 +4,6 @@ from sklearn import svm
 iris = datasets.load_iris()
 
 svc = svm.SVC()
-res = svc.fit(iris.data, iris.target)
+svc.fit(iris.data, iris.target)
 
-print(res)
+print(svc.predict([[5, 3, 4, 1], [6, 3, 5, 2]]))
