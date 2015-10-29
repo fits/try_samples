@@ -1,0 +1,50 @@
+apply plugin: 'java'
+
+def thriftDestDir = 'src/main/thrift-gen'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.apache.thrift:libthrift:0.9.3'
+}
+
+task thrift(type: Exec) {
+	mkdir thriftDestDir
+
+	commandLine 'thrift', '-v', '-strict', '-gen', 'java',
+		'-out', thriftDestDir, 'sample.thrift'
+}
+
+compileJava {
+	dependsOn thrift
+	source thriftDestDir
+}
+
+clean {
+	delete thriftDestDir
+}
+
+subprojects {
+	apply plugin: 'application'
+
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		compile 'org.apache.thrift:libthrift:0.9.3'
+		compile rootProject
+
+		runtime 'org.slf4j:slf4j-simple:1.7.12'
+	}
+}
+
+project(':example-server') {
+	mainClassName = 'sample.SampleServer'
+}
+
+project(':example-client') {
+	mainClassName = 'sample.SampleClient'
+}
