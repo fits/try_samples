@@ -9,3 +9,12 @@ def d = new DataSet(
 )
 
 println d
+
+println ''
+
+def d2 = new DataSet(
+	Nd4j.create([7, 9, 11] as float[]), 
+	Nd4j.create([4] as float[])
+)
+
+println DataSet.merge([d, d2])
