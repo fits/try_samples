@@ -1,0 +1,24 @@
+apply plugin: 'application'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+mainClassName = 'sample.App'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.deeplearning4j:deeplearning4j-core:0.4-rc3.4'
+	compile 'org.nd4j:nd4j-java:0.4-rc3.5'
+
+	// nd4j-java の代わりに以下を使うと Windows・CentOS7 環境で JVM がクラッシュした
+//	compile 'org.nd4j:nd4j-jblas:0.4-rc3.5'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
