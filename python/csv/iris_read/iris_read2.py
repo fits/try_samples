@@ -1,7 +1,6 @@
 
 import sys
 import csv
-import random
 
 iris_type = {"setosa": 0, "versicolor": 1, "virginica": 2}
 
