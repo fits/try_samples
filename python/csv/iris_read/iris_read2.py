@@ -12,6 +12,11 @@ lines = list(csv.reader(open(sys.argv[1], 'r')))
 
 values = lines[1:]
 
-d = [( features(v), iris_type[v[4]] ) for v in values]
+dlist = [( features(v), iris_type[v[4]] ) for v in values]
 
-print(d)
+print(dlist)
+
+print('-----')
+
+print([d[0] for d in dlist])
+print([d[1] for d in dlist])
