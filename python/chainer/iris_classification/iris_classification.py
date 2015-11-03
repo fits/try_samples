@@ -11,7 +11,7 @@ num = 5
 iris_type = {"setosa": 0, "versicolor": 1, "virginica": 2}
 
 def dataset_tuple(items):
-	return ( [ np.float32(v) for v in items[0:4] ], np.int32(iris_type[items[4]]) )
+	return ( [ v for v in items[0:4] ], iris_type[items[4]] )
 
 lines = list(csv.reader(open(sys.argv[1], 'r')))
 
@@ -36,8 +36,8 @@ def forward(x):
 def loss(h, t):
 	return F.softmax_cross_entropy(h, t)
 
-def to_variable(a):
-	return chainer.Variable(np.asarray(a))
+def to_variable(ds, typ):
+	return chainer.Variable(np.asarray(ds, dtype = typ))
 
 def learn(dataset, batchsize = 10, times = 1):
 	datasize = len(dataset)
@@ -45,13 +45,11 @@ def learn(dataset, batchsize = 10, times = 1):
 	for n in range(times):
 		perm = np.random.permutation(datasize)
 
-		ds = np.array(dataset)
-
 		for i in range(0, datasize, batchsize):
-			tds = ds[perm[i : i + batchsize]]
+			ds = dataset[perm[i : i + batchsize]]
 
-			x = to_variable([ d[0] for d in tds ])
-			t = to_variable([ d[1] for d in tds ])
+			x = to_variable([ d[0] for d in ds ], np.float32)
+			t = to_variable([ d[1] for d in ds ], np.int32)
 
 			optimizer.zero_grads()
 
@@ -66,6 +64,6 @@ def learn(dataset, batchsize = 10, times = 1):
 			e.backward()
 			optimizer.update()
 
-learn(dataset, 30, 5)
+learn(np.asarray(dataset), 30, 5)
 
 print(model.parameters)
