@@ -24,7 +24,7 @@ model = chainer.FunctionSet(
 
 optimizer = chainer.optimizers.Adam()
 #optimizer = chainer.optimizers.SGD()
-optimizer.setup(model.parameters)
+optimizer.setup(model)
 
 def forward(x):
 	u2 = model.l1(x)
