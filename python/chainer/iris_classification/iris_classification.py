@@ -6,7 +6,10 @@ import chainer.functions as F
 import chainer.optimizers
 import numpy as np
 
-num = 5
+batch = 10
+max_epoch = 10000
+loss_rate = 0.1
+hidden_layer_num = 5
 
 iris_type = {"setosa": 0, "versicolor": 1, "virginica": 2}
 
@@ -18,31 +21,31 @@ lines = list(csv.reader(open(sys.argv[1], 'r')))
 dataset = [ dataset_tuple(v) for v in lines[1:] ]
 
 model = chainer.FunctionSet(
-	l1 = F.Linear(4, num),
-	l2 = F.Linear(num, 3),
+	l1 = F.Linear(4, hidden_layer_num),
+	l2 = F.Linear(hidden_layer_num, 3),
 )
 
 optimizer = chainer.optimizers.Adam()
-#optimizer = chainer.optimizers.SGD()
 optimizer.setup(model)
 
-def forward(x):
+def forward(x, t):
 	u2 = model.l1(x)
-	#z2 = F.sigmoid(u2)
-	z2 = F.relu(u2)
-	u3 = model.l2(z2)
-	return F.sigmoid(u3)
+	z2 = F.sigmoid(u2)
+	#z2 = F.relu(u2)
 
-def loss(h, t):
-	return F.softmax_cross_entropy(h, t)
+	h = model.l2(z2)
+
+	return F.softmax_cross_entropy(h, t), F.accuracy(h, t)
 
 def to_variable(ds, typ):
 	return chainer.Variable(np.asarray(ds, dtype = typ))
 
-def learn(dataset, batchsize = 10, times = 1):
+def learn(dataset, batchsize = 10, epoch = 1000):
 	datasize = len(dataset)
 
-	for n in range(times):
+	train_res = []
+
+	for n in range(epoch):
 		perm = np.random.permutation(datasize)
 
 		for i in range(0, datasize, batchsize):
@@ -53,17 +56,19 @@ def learn(dataset, batchsize = 10, times = 1):
 
 			optimizer.zero_grads()
 
-			h = forward(x)
-			e = loss(h, t)
-
-			a = F.accuracy(h, t)
-
-			print(e.data)
-			print(a.data)
+			e, a = forward(x, t)
 
 			e.backward()
 			optimizer.update()
 
-learn(np.asarray(dataset), 30, 5)
+			train_res.append( (e.data, a.data) )
 
-print(model.parameters)
+		if train_res[-1][0] <= loss_rate:
+			break
+
+	return train_res
+
+train_res = learn(np.asarray(dataset), batch, max_epoch)
+
+print(train_res[-3:])
+print(len(train_res))
