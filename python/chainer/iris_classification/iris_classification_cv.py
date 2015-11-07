@@ -9,15 +9,18 @@ import numpy as np
 from functools import reduce
 
 pnum = 5
-kdiv = 150
+max_epoch = 10000
+loss_base = 0.1
+kdiv = 10
 optimizer = chainer.optimizers.Adam()
-#optimizer = chainer.optimizers.SGD()
 
 iris_type = {"setosa": 0, "versicolor": 1, "virginica": 2}
 
 def divide_list(xs, n):
 	q = len(xs) // n
 	m = len(xs) % n
+
+	n = min(n, len(xs))
 
 	return reduce(
 		lambda acc, i:
@@ -47,11 +50,7 @@ def forward(model, x):
 	u2 = model.l1(x)
 	#z2 = F.sigmoid(u2)
 	z2 = F.relu(u2)
-	u3 = model.l2(z2)
-
-	return F.sigmoid(u3)
-	#return F.softmax(u3)
-	#return u3
+	return model.l2(z2)
 
 def loss(h, t):
 	return F.softmax_cross_entropy(h, t)
@@ -64,16 +63,22 @@ def learn(model, opt, ds):
 	t = to_variable([ d[1] for d in ds ], np.int32)
 
 	opt.setup(model)
-	opt.zero_grads()
 
-	h = forward(model, x)
-	e = loss(h, t)
-	a = F.accuracy(h, t)
+	for i in range(max_epoch):
+		opt.zero_grads()
 
-	e.backward()
+		h = forward(model, x)
+		e = loss(h, t)
+		a = F.accuracy(h, t)
 
-	opt.weight_decay(0.0001)
-	opt.update()
+		e.backward()
+
+		opt.weight_decay(0.001)
+		opt.update()
+
+		if e.data < loss_base:
+			print("iterate: ", i, ", loss: ", e.data)
+			break
 
 def test(model, ds):
 	x = to_variable([ d[0] for d in ds ], np.float32)
