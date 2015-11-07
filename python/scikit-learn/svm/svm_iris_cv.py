@@ -72,4 +72,4 @@ dataset = [ dataset_tuple(v) for v in lines[1:] ]
 
 res = cross_validation(np.asarray(dataset), kdiv)
 
-print(sum(res) / len(res))
+print(res.mean())
