@@ -63,7 +63,7 @@ def learn(dataset, batchsize = 10, epoch = 1000):
 
 			train_res.append( (e.data, a.data) )
 
-		if train_res[-1][0] <= loss_rate:
+		if any(x[0] <= loss_rate for x in train_res[-batchsize:]):
 			break
 
 	return train_res
@@ -71,4 +71,4 @@ def learn(dataset, batchsize = 10, epoch = 1000):
 train_res = learn(np.asarray(dataset), batch, max_epoch)
 
 print(train_res[-3:])
-print(len(train_res))
+print('times: ', len(train_res))
