@@ -65,6 +65,8 @@ def cross_validation(dataset, k):
 			for idx in divide_list(perm, k)
 	]
 
+def mean(data):
+	return sum(data) / len(data)
 
 lines = list(csv.reader(open(sys.argv[1], 'r')))
 
@@ -72,4 +74,4 @@ dataset = [ dataset_tuple(v) for v in lines[1:] ]
 
 res = cross_validation(np.asarray(dataset), kdiv)
 
-print(res.mean())
+print('accuracy:', mean(res))
