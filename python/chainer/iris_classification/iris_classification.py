@@ -7,7 +7,7 @@ import chainer.optimizers
 import numpy as np
 
 batch = 10
-max_epoch = 10000
+max_epoch = 1000
 loss_rate = 0.1
 hidden_layer_num = 5
 
@@ -40,35 +40,53 @@ def forward(x, t):
 def to_variable(ds, typ):
 	return chainer.Variable(np.asarray(ds, dtype = typ))
 
-def learn(dataset, batchsize = 10, epoch = 1000):
-	datasize = len(dataset)
+def to_variable_data(ds):
+	return (
+		to_variable([ d[0] for d in ds ], np.float32),
+		to_variable([ d[1] for d in ds ], np.int32),
+	)
+
+def learn(dataset, batch_size = 10, epoch = 1000, train_size_rate = 0.9):
+	data_size = len(dataset)
 
 	train_res = []
+	test_res = []
+
+	train_size = int(data_size * train_size_rate)
 
 	for n in range(epoch):
-		perm = np.random.permutation(datasize)
+		perm = np.random.permutation(data_size)
 
-		for i in range(0, datasize, batchsize):
-			ds = dataset[perm[i : i + batchsize]]
-
-			x = to_variable([ d[0] for d in ds ], np.float32)
-			t = to_variable([ d[1] for d in ds ], np.int32)
-
+		for i in range(0, train_size, batch_size):
 			optimizer.zero_grads()
+
+			x, t = to_variable_data( dataset[perm[i : i + batch_size]] )
 
 			e, a = forward(x, t)
 
 			e.backward()
+
+			optimizer.weight_decay(0.001)
 			optimizer.update()
 
 			train_res.append( (e.data, a.data) )
 
-		if any(x[0] <= loss_rate for x in train_res[-batchsize:]):
+		tx, tt = to_variable_data( dataset[perm[train_size:]] )
+
+		te, ta = forward(tx, tt)
+
+		test_res.append( (te.data, ta.data) )
+
+		if any(x[0] <= loss_rate for x in train_res[-batch_size:]):
 			break
 
-	return train_res
+	return train_res, test_res
 
-train_res = learn(np.asarray(dataset), batch, max_epoch)
+train_res, test_res = learn(np.asarray(dataset), batch, max_epoch)
 
 print(train_res[-3:])
+print(test_res[-5:])
+print()
+
 print('times: ', len(train_res))
+print('accuracy: ', sum(x[1] for x in test_res) / len(test_res))
