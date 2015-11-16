@@ -6,8 +6,8 @@ import numpy as np
 from sklearn import datasets
 
 iris = datasets.load_iris()
-iris.data = np.asarray(iris.data, np.float32)
-iris.target = np.asarray(iris.target, np.int32)
+iris.data = iris.data.astype(np.float32)
+iris.target = iris.target.astype(np.int32)
 
 model = chainer.FunctionSet(
 	l1 = F.Linear(4, 3),
