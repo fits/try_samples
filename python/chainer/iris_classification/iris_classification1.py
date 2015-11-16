@@ -64,3 +64,15 @@ for n in range(iterations):
 
 print('iterations: ', len(train_res))
 print('accuracy: ', sum(x[1] for x in test_res) / len(test_res))
+
+
+import matplotlib.pyplot as plt
+
+x = range(1, len(train_res) + 1)
+
+plt.plot(x, [t[0] for t in test_res], label = "test", color = "green")
+plt.plot(x, [t[0] for t in train_res], label = "train", color = "red")
+
+plt.savefig('iris1.png')
+
+plt.close()
