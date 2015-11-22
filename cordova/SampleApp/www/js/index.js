@@ -12,11 +12,10 @@ var app = {
     receivedEvent: function(id) {
         console.log('Received Event: ' + id);
 
-        console.log(navigator.camera);
-
         navigator.camera.getPicture(
-            d => document.getElementById('sample').src = `data:image/jpeg;base64,${d}`,
-            e => alert(`failed: ${e}`)
+            function(d) { document.getElementById('sample').src = 'data:image/jpeg;base64,' + d },
+            function(e) { el.textContent = 'failed: ' + e },
+            { destinationType: Camera.DestinationType.DATA_URL }
         );
     }
 };
