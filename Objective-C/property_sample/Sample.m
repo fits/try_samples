@@ -14,7 +14,7 @@
 
 int main(int argc, const char * argv[]) {
 	@autoreleasepool {
-		Sample *s = [[Sample new] autorelease];
+		Sample* s = [[Sample new] autorelease];
 
 		s.name = @"abc";
 
