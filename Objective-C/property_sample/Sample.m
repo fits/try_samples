@@ -7,19 +7,24 @@
 @synthesize name = _name;
 
 - (void)log {
-	NSLog(@"%@", _name);
+    NSLog(@"%@", _name);
+}
+
+- (void)dealloc {
+    [_name release];
+    [super dealloc];
 }
 
 @end
 
 int main(int argc, const char * argv[]) {
-	@autoreleasepool {
-		Sample* s = [[Sample new] autorelease];
+    @autoreleasepool {
+        Sample* s = [[Sample new] autorelease];
 
-		s.name = @"abc";
+        s.name = @"test";
 
-		[s log];
-	}
+        [s log];
+    }
 
-	return 0;
+    return 0;
 }

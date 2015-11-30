@@ -3,10 +3,10 @@
 #import <Foundation/NSString.h>
 
 @interface Sample : NSObject {
-	NSString* _name;
+    NSString* _name;
 }
 
-@property (retain) NSString* name;
+@property (nonatomic, copy) NSString* name;
 
 - (void)log;
 
