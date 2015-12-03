@@ -1,4 +1,4 @@
-@Grab('io.reactivex:rxnetty:0.4.6')
+@Grab('io.reactivex:rxnetty:0.5.1')
 import static io.netty.handler.codec.http.HttpMethod.*
 import static io.netty.handler.codec.http.HttpResponseStatus.*
 
