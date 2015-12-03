@@ -1,0 +1,32 @@
+<!DOCTYPE>
+<html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.0.7/rx.lite.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs-dom/7.0.3/rx.dom.min.js"></script>
+
+<script>
+	Rx.DOM.ready().subscribe(() => {
+
+		var params = {
+			url: 'http://localhost:8080/data',
+			crossDomain: true,
+			async: true
+		};
+
+		Rx.DOM.click(document.getElementById('btn'))
+			.flatMap(() => Rx.DOM.ajax(params))
+			.map((d) => d.response)
+			.subscribe(
+				(x) => document.getElementById('res').value = x,
+				(err) => console.error(err),
+				() => console.log('completed')
+			);
+	});
+
+</script>
+<body>
+
+	<button id="btn" type="button">do ajax</button>
+	<textarea id="res"></textarea>
+
+</body>
+</html>
