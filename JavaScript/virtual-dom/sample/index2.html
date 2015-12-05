@@ -1,0 +1,34 @@
+<!DOCTYPE>
+<html>
+<script src="virtual-dom.js"></script>
+<body>
+	<h1>virtual-dom sample2</h1>
+	<div id="d"></div>
+
+	<script>
+		var h = virtualDom.h;
+		var create = virtualDom.create;
+		var diff = virtualDom.diff;
+		var patch = virtualDom.patch;
+
+		var render = (v) => h('div', [
+			h('ul', [
+				h('li', String(v))
+			])
+		]);
+
+		var tree = h();
+
+		var update = (v) => {
+			var newTree = render(v);
+
+			patch(document.getElementById('d'), diff(tree, newTree));
+
+			tree = newTree;
+		};
+
+		update(1);
+
+	</script>
+</body>
+</html>
