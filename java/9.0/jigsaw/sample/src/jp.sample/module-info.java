@@ -1,0 +1,2 @@
+
+module jp.sample {}
