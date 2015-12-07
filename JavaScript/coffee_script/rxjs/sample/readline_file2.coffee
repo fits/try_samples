@@ -1,4 +1,4 @@
-rx = require 'rxjs'
+rx = require 'rx'
 fs = require 'fs'
 
 fromFile = (file) ->
