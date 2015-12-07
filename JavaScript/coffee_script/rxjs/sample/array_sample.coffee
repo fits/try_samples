@@ -1,4 +1,4 @@
-rx = require 'rxjs'
+rx = require 'rx'
 
 rx.Observable.fromArray(["a", "b", "c"]).subscribe (x) -> console.log x
 
