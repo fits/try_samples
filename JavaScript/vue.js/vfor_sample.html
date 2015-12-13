@@ -1,0 +1,47 @@
+<!DOCTYPE>
+<html>
+<head>
+	<script src="js/vue.js"></script>
+</head>
+<body>
+	<div id="d">
+		<div>{{title}}</div>
+	</div>
+
+	<div id="list">
+		<ul>
+			<li v-for="item in items">
+				{{ $index }} : {{ item.name }}
+			</li>
+		</ul>
+
+		<button type="button" v-on:click="initItems">init</button>
+	</div>
+
+	<script>
+		new Vue({
+			el: '#d',
+			data: {
+				title: 'sample'
+			}
+		});
+
+		new Vue({
+			el: '#list',
+			data: {
+				items: []
+			},
+			methods: {
+				initItems: function(ev) {
+					console.log(ev);
+
+					this.items = [
+						{ name: 'aaa1' },
+						{ name: 'test data' }
+					];
+				}
+			}
+		});
+	</script>
+</body>
+</html>
