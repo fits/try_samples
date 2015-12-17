@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Sample</title>
+	<link rel="stylesheet" href="css/onsenui.css">
+	<link rel="stylesheet" href="css/onsen-css-components.css">
+	<script src="js/onsenui.min.js"></script>
+	<script>
+		ons.ready(function() {
+			console.log('onsenui ready');
+		});
+
+		function btn_click(btn) {
+			console.log(`clicked : ${btn.tagName}`);
+		}
+
+	</script>
+</head>
+<body>
+	<ons-navigator title="Navi" var="nav">
+		<ons-page>
+
+			<ons-toolbar>
+				<div class="left">
+					<ons-toolbar-button onclick="btn_click(this)">
+						<ons-icon icon="fa-bars" />
+					</ons-toolbar-button>
+				</div>
+				<div class="center">Sample</div>
+			</ons-toolbar>
+
+			<div>Content</div>
+			<ons-button onclick="btn_click(this)">click button</ons-button>
+		</ons-page>
+	</ons-navigator>
+
+</body>
+</html>
