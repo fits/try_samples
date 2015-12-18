@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<style>
+		x-sample {
+			color: cyan;
+		}
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/0.7.2/CustomElements.min.js"></script>
+</head>
+<body>
+	<x-sample>test data</x-sample>
+
+	<script>
+		(function() {
+
+			if (document.registerElement) {
+
+				document.registerElement('x-sample', {
+					prototype: Object.create(HTMLElement.prototype, {
+						createdCallback: {
+							value: function() {
+								console.log("createdCallback");
+								this.style.backgroundColor = 'black';
+							}
+						}
+					})
+				});
+
+			}
+			else {
+				console.log('not supported');
+			}
+		})();
+	</script>
+
+</body>
+</html>
