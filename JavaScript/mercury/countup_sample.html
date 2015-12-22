@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<script src="js/mercury.js"></script>
+<body>
+	<h1>mercury sample</h1>
+
+	<div id="d"></div>
+
+	<script>
+		var hg = mercury;
+		var h = mercury.h;
+
+		var app = () => hg.state({
+			value: hg.value(0),
+			channels: {
+				clicks: (state) => state.value.set(state.value() + 1)
+			}
+		});
+
+		var render = (state) => h('div', [
+			h('button', 
+				{
+					'ev-click': hg.send(state.channels.clicks)
+				}, 
+				['countUp']
+			),
+			h('br'),
+			'counter: ' + state.value
+		]);
+
+		hg.app(document.getElementById('d'), app(), render);
+
+	</script>
+</body>
+</html>
