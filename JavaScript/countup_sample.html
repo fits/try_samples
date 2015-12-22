@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div>
+		<button id="b" type="button">CountUp</button>
+		<br />
+		counter: <span id="v">1</span>
+	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', (ev) => {
+
+			document.getElementById('b').addEventListener('click', (cev) => {
+				var trg = document.getElementById('v');
+				trg.textContent = parseInt(trg.textContent) + 1;
+			}, false);
+
+		}, false);
+
+	</script>
+</body>
+</html>
