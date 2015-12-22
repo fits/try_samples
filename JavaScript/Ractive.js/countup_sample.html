@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<script src="http://cdn.ractivejs.org/latest/ractive.min.js"></script>
+<body>
+	<h1>Ractive.js sample</h1>
+
+	<div id="d"></div>
+
+	<script id="template" type="text/ractive">
+		<div>
+			<button type="button" on-click="countup">CountUp</button>
+			<br />
+			counter: {{counter}}
+		</div>
+	</script>
+
+	<script>
+		var ractive = new Ractive({
+			el: '#d',
+			template: '#template',
+			data: { counter: 1 }
+		});
+
+		ractive.on('countup', function(ev) {
+			this.set('counter', this.get('counter') + 1);
+		});
+	</script>
+</body>
+</html>
