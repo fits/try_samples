@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="js/react.js"></script>
+	<script src="js/react-dom.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+</head>
+<body>
+	<h1>React sample</h1>
+
+	<div id="d"></div>
+
+	<script type="text/babel">
+		var Counter = React.createClass({
+			getInitialState: function() {
+				return { counter: 1 };
+			},
+			handleClick: function(ev) {
+				this.setState({ counter: this.state.counter + 1 });
+			},
+			render: function() {
+				return (
+					<div>
+						<button type="button" onClick={this.handleClick}>CountUp</button>
+						<br />
+						counter: {this.state.counter}
+					</div>
+				);
+			}
+		});
+	
+		ReactDOM.render(
+			<Counter />,
+			document.getElementById('d')
+		);
+	</script>
+</body>
+</html>
