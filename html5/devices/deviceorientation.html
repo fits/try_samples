@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div>
+		<div>
+			alpha: <span id="alpha"></span>
+		</div>
+		<div>
+			beta: <span id="beta"></span>
+		</div>
+		<div>
+			gamma: <span id="gamma"></span>
+		</div>
+	</div>
+
+	<script>
+
+		window.addEventListener('deviceorientation', (ev) => {
+			console.log(`alpha:${ev.alpha}, beta:${ev.beta},gamma:${ev.gamma}`);
+
+			['alpha', 'beta', 'gamma'].forEach( (x) => 
+				document.getElementById(x).textContent = ev[x]
+			);
+
+		});
+
+	</script>
+</body>
+</html>

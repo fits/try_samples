@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div id="level"></div>
+	<script>
+		navigator.getBattery()
+			.then( (bt) => {
+				console.log(`charging=${bt.charging}, level=${bt.level}, dischargingTime=${bt.dischargingTime}`);
+
+				var updateLevel = () => {
+					console.log(`change level: ${bt.level}`);
+					document.getElementById('level').textContent = bt.level;
+				};
+
+				updateLevel();
+
+				bt.onlevelchange = updateLevel;
+			})
+			.catch( (err) => console.error(err) );
+	</script>
+</body>
+</html>
