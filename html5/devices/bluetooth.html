@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<button id="btn">click</button>
+
+	<script>
+		document.getElementById('btn').onclick = () => {
+			navigator.bluetooth.requestDevice({ filters: [] })
+				.then( (device) => console.log(device) )
+				.catch( (err) => console.error(err) );
+		};
+
+	</script>
+</body>
+</html>

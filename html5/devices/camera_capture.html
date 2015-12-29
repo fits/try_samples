@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div>
+		<video id="monitor" width="320" height="240"></video>
+	</div>
+	<div>
+		<canvas id="snap" width="320" height="240"></canvas>
+		<button id="btn" type="button">snapshot</button>
+	</div>
+
+	<script>
+		navigator.mediaDevices.getUserMedia( {video: true} )
+			.then( (ms) => {
+				console.log(ms);
+
+				var video = document.getElementById('monitor');
+				video.src = URL.createObjectURL(ms);
+				video.play();
+
+				btn.onclick = () => document.getElementById('snap').getContext('2d').drawImage(video, 0, 0, 320, 240);
+			})
+			.catch( (err) => console.error(err) );
+	</script>
+</body>
+</html>
