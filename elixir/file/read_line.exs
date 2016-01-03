@@ -1,2 +1,4 @@
 
-System.argv() |> List.first |> File.stream! |> Enum.map(&String.strip/1) |> Enum.each(&IO.puts/1)
+print_line = &(String.strip(&1)) |> IO.puts
+
+System.argv() |> List.first |> File.stream! |> Enum.each print_line
