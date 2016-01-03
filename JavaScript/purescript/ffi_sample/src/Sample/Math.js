@@ -3,8 +3,4 @@
 
 // module Sample.Math
 
-exports.plus = function(a) {
-	return function(b) {
-		return a + b;
-	}
-};
+exports.plus = (a) => (b) => a + b;
