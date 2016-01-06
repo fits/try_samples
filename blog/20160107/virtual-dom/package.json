@@ -1,0 +1,11 @@
+{
+  "name": "vdom-click-sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "dom-delegator": "^13.1.0"
+  },
+  "devDependencies": {
+    "gulp-flatten": "^0.2.0"
+  }
+}

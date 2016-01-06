@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<script src="js/virtual-dom.js"></script>
+<script src="js/dom-delegator.js"></script>
+<body>
+	<h1>virtual-dom click sample</h1>
+
+	<div id="ct"></div>
+
+	<script>
+		(function() {
+			// ev-click の有効化
+			new DOMDelegator();
+
+			var h = virtualDom.h;
+			var create = virtualDom.create;
+			var diff = virtualDom.diff;
+			var patch = virtualDom.patch;
+
+			var index = 1;
+			var tree = h();
+
+			var render = function(v) {
+				return h('div', [
+					h('button', 
+						{
+							'ev-click': function(ev) { update(index++) }
+						},
+						['countUp']
+					),
+					h('br'),
+					'counter: ' + String(v)
+				]);
+			}
+
+			var update = function(v) {
+				var newTree = render(v);
+
+				patch(document.getElementById('ct'), diff(tree, newTree));
+
+				tree = newTree;
+			};
+
+			update(index++);
+		})();
+
+	</script>
+</body>
+</html>
