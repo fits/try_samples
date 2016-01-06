@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<script src="js/virtual-dom.js"></script>
+<body>
+	<h1>virtual-dom click sample2</h1>
+
+	<div id="ct"></div>
+
+	<script>
+		(function() {
+			document.addEventListener('click', function(ev) {
+				var store = ev.target['__EV_STORE_KEY@7'];
+
+				if (store && store[ev.type]) {
+					store[ev.type](ev);
+				}
+			}, true);
+
+			var h = virtualDom.h;
+			var create = virtualDom.create;
+			var diff = virtualDom.diff;
+			var patch = virtualDom.patch;
+
+			var index = 1;
+			var tree = h();
+
+			var render = function(v) {
+				return h('div', [
+					h('button', 
+						{
+							'ev-click': function(ev) { update(index++) }
+						},
+						['countUp']
+					),
+					h('br'),
+					'counter: ' + String(v)
+				]);
+			}
+
+			var update = function(v) {
+				var newTree = render(v);
+
+				patch(document.getElementById('ct'), diff(tree, newTree));
+
+				tree = newTree;
+			};
+
+			update(index++);
+		})();
+
+	</script>
+</body>
+</html>
