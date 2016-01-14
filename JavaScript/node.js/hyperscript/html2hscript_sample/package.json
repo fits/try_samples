@@ -1,0 +1,11 @@
+{
+  "name": "html2hscript_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sample.js",
+  "dependencies": {
+    "bluebird": "^3.1.1",
+    "html2hscript": "^1.2.2"
+  },
+  "devDependencies": {}
+}
