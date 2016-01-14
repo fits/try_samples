@@ -1,0 +1,10 @@
+{
+  "name": "hscript_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sample.js",
+  "dependencies": {
+    "hyperscript": "^1.4.7"
+  },
+  "devDependencies": {}
+}
