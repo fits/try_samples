@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<h2>Virtual-DOM + Mustache<h2>
+
+	<button id="btn" type="button">set items</button>
+
+	<div id="a">
+		{{title}}
+		<br />
+		<ul>
+			{{#items}}
+			<li>{{name}}</li>
+			{{/items}}
+		</ul>
+	</div>
+
+	<script src="v-tpl_dist.js"></script>
+	<script>
+		var vtpl = VTpl(document.getElementById('a'));
+
+		vtpl({title: 'sample1', items: []});
+
+		document.getElementById('btn').addEventListener('click', ev => {
+			vtpl({title: 'sample2', items: [
+				{name: 'item1'},
+				{name: 'item2'},
+				{name: 'item3'}
+			]});
+		});
+
+	</script>
+</body>
+</html>
