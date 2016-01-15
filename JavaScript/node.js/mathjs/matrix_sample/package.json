@@ -1,0 +1,8 @@
+{
+  "name": "matrix_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "mathjs": "^2.6.0"
+  }
+}
