@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<body>
+	<h1>Google Maps JavaScript API<h1>
+
+	<div>
+		<input type="text" id="searchTxt" />
+		<button type="button" id="searchBtn" disabled>search</button>
+	</div>
+
+	<div id="map" style="width: 500px; height: 500px"></div>
+
+	<script type="text/javascript">
+		function initMap() {
+			var btn = document.getElementById('searchBtn');
+			var geocoder = new google.maps.Geocoder();
+
+			var map = new google.maps.Map(document.getElementById('map'), {
+				center: {lat: 35.681382, lng: 139.766084},
+				zoom: 8
+			});
+
+			var moveTo = loc => {
+				var pos = loc.geometry.location
+
+				map.panTo(pos);
+
+				var marker = new google.maps.Marker({
+					map: map,
+					position: pos
+				});
+
+				new google.maps.InfoWindow({
+					content: loc.formatted_address
+				}).open(map, marker);
+			};
+
+			btn.addEventListener('click', () => {
+				var params = {
+					address: document.getElementById('searchTxt').value
+				};
+
+				geocoder.geocode(params, (results, status) => {
+					if (status == google.maps.GeocoderStatus.OK) {
+						moveTo(results[0]);
+					}
+					else {
+						console.error(`failed: ${status}`);
+					}
+				});
+			});
+
+			btn.disabled = false;
+		}
+	</script>
+
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=<API key>&callback=initMap"></script>
+
+</body>
+</html>
