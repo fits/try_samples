@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+	<script>
+		window.addEventListener('WebComponentsReady', (ev) => {
+			console.log(ev);
+		});
+	</script>
+
+	<link rel="import" href="my-tag.html" />
+	<link rel="import" href="my-tag2.html" />
+</head>
+<body>
+	<h1>WebComponents</h1>
+
+	<div>(1)</div>
+
+	<my-tag></my-tag>
+	<my-tag></my-tag>
+
+	<div>(2)</div>
+
+	<my-tag2 v="abc"></my-tag2>
+	<my-tag2></my-tag2>
+
+</body>
+</html>

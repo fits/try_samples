@@ -1,0 +1,14 @@
+
+<dom-module id="my-tag">
+	<script>
+		(function() {
+			var proto = Object.create(HTMLElement.prototype);
+
+			proto.createdCallback = function() {
+				this.textContent = 'sample1';
+			};
+
+			document.registerElement('my-tag', { prototype: proto });
+		})();
+	</script>
+</dom-module>
