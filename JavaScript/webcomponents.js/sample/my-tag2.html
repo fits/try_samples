@@ -1,0 +1,41 @@
+
+<dom-module id="my-tag2">
+	<style>
+		my-tag2 div {
+			color: red;
+		}
+	</style>
+	<template>
+		<div>sample2</div>
+	</template>
+
+	<script>
+		(function() {
+			var doc = (document._currentScript || document.currentScript).ownerDocument;
+
+			var proto = Object.create(HTMLElement.prototype);
+
+			proto.createdCallback = function() {
+				var tpl = doc.querySelector('template');
+
+				if (tpl) {
+					var clone = document.importNode(tpl.content, true);
+
+					if (this.getAttribute('v')) {
+						clone.children[0].textContent += this.getAttribute('v');
+					}
+
+					this.appendChild(clone);
+				}
+			};
+
+			proto.attributeChangedCallback = function(attr, oldVal, newVal) {
+				console.log(`${attr}: ${oldVal} -> ${newVal}`);
+			};
+
+			document.registerElement('my-tag2', { prototype: proto });
+		})();
+
+	</script>
+
+</dom-module>
