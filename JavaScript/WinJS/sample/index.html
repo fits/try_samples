@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="bower_components/winjs/css/ui-light.min.css">
+	<script src="bower_components/winjs/js/base.min.js"></script>
+	<script src="bower_components/winjs/js/ui.min.js"></script>
+</head>
+<body>
+	<h1>WinJS Sample</h1>
+
+	<div class="itemTpl" data-win-control="WinJS.Binding.Template">
+		<div>
+			<div data-win-bind="textContent: title"></div>
+			<div data-win-bind="textContent: value"></div>
+		</div>
+	</div>
+
+	<div data-win-control="WinJS.UI.Rating"></div>
+
+	<div id="listView"
+		data-win-control="WinJS.UI.ListView"
+		data-win-options="{
+			itemDataSource: SampleData.data.dataSource,
+			itemTemplate: select('.itemTpl')
+		}">
+	</div>
+
+	<script>
+		var items = [
+			{title: 'item1', value: 1},
+			{title: 'item2', value: 2},
+			{title: 'item3', value: 3},
+			{title: 'item4', value: 4},
+			{title: 'item5', value: 5}
+		];
+
+		WinJS.Namespace.define('SampleData', { data: new WinJS.Binding.List(items) });
+
+		WinJS.UI.processAll();
+	</script>
+</body>
+</html>
