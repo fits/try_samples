@@ -1,0 +1,11 @@
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.apache.flink:flink-java8:0.10.1'
+}
