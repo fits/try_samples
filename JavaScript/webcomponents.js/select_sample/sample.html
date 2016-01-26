@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<body>
+	<h1>HTMLSelectElement Custom Sample</h1>
+
+	<script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+	<script>
+		var p = Object.create(HTMLSelectElement.prototype);
+
+		p.createdCallback = function() {
+			this.addItem('1', 'item1');
+			this.addItem('2', 'item2');
+			this.addItem('3', 'item3');
+		};
+
+		p.addItem = function(value, title) {
+			if (value != null) {
+				var opt = document.createElement('option');
+
+				opt.value = value;
+				opt.text = (title)? title: value;
+
+				this.add(opt);
+			}
+		};
+
+		var CustomSelect = document.registerElement('my-select',  {
+			prototype: p, 
+			extends: 'select'
+		});
+
+		document.body.appendChild(new CustomSelect());
+
+	</script>
+</body>
+</html>
