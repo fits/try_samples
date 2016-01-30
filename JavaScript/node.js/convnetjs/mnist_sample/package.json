@@ -1,0 +1,10 @@
+{
+  "name": "mnist_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "bluebird": "^3.1.5",
+    "convnetjs": "^0.3.0",
+    "shuffle-array": "^0.1.2"
+  }
+}
