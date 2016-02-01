@@ -1,0 +1,15 @@
+apply plugin: 'application'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+mainClassName = 'sample.App'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.deeplearning4j:deeplearning4j-core:0.4-rc3.8'
+	compile 'org.nd4j:nd4j-x86:0.4-rc3.8'
+}
