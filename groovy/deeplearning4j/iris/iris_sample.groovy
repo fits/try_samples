@@ -36,9 +36,11 @@ def conf = new NeuralNetConfiguration.Builder()
 	.build()
 
 def model = new MultiLayerNetwork(conf)
-//model.setListeners(new ScoreIterationListener())
+model.setListeners(new ScoreIterationListener())
 
 model.init()
+
+def totalEv = new Evaluation(3)
 
 (0..<epoch).each {
 	data.shuffle()
@@ -54,6 +56,11 @@ model.init()
 	def ev = new Evaluation(3)
 
 	ev.eval(test.labels, model.output(test.featureMatrix))
+	totalEv.eval(test.labels, model.output(test.featureMatrix))
 
 	println ev.stats()
 }
+
+println '***** total *****'
+
+println totalEv.stats()
