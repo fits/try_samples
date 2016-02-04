@@ -7,6 +7,7 @@ import groovy.transform.BaseScript
 
 @BaseScript MnistLoader baseScript
 
+// for CNN (avoid OutOfMemoryError)
 def batchSize = 50
 
 def loadModel = { f -> 
