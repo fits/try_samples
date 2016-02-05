@@ -28,8 +28,10 @@ model.layers.findAll { it.type() == Layer.Type.CONVOLUTIONAL }.each {
 	def w = normalize(it.paramTable().W)
 	def shape = w.shape()
 
+	def blockWidth = shape[3] + 1
+
 	def img = new BufferedImage(
-		shape[0] * (shape[3] + 1), 
+		shape[0] * blockWidth, 
 		shape[2], 
 		BufferedImage.TYPE_INT_RGB
 	)
@@ -37,12 +39,16 @@ model.layers.findAll { it.type() == Layer.Type.CONVOLUTIONAL }.each {
 	(0..<shape[0]).each { s ->
 		def data = w.get(new PointIndex(s)).get(new PointIndex(0))
 
+		def offset = s * blockWidth
+
 		(0..<data.rows()).each { r ->
 			(0..<data.columns()).each { c ->
 				def v = data.getDouble(r, c) * 255 as int
 
-				img.setRGB(c + (s * (data.columns() + 1)), r, (v << 16 | v << 8 | v))
+				img.setRGB(c + offset, r, (v << 16 | v << 8 | v))
 			}
+
+			img.setRGB(data.columns() + offset, r, 0x00ff00)
 		}
 	}
 
