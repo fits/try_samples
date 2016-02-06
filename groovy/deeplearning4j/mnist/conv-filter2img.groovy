@@ -52,7 +52,7 @@ model.layers.findAll { it.type() == Layer.Type.CONVOLUTIONAL }.each {
 		}
 	}
 
-	def f = new File("${new File(modelFile).name}.${imgType}")
+	def f = new File("${new File(modelFile).name}.${it.index}.${imgType}")
 
 	ImageIO.write(img, imgType, f)
 }
