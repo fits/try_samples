@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "basic-csv": "0.0.2",
+    "bluebird": "^3.2.2",
     "convnetjs": "^0.3.0",
     "shuffle-array": "^0.1.2"
   }
