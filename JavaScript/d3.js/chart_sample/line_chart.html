@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+</head>
+<body>
+	<h1>line chart</h1>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+	<script>
+		var w = 500;
+		var h = 300;
+		var margin = { left: 50, top: 20, bottom: 50, right: 30 };
+		var xDomain = [0, 10];
+		var yDomain = [15, 0];
+
+		var svg = d3.select('body')
+			.append('svg')
+			.attr('width', w + margin.left + margin.right)
+			.attr('height', h + margin.top + margin.bottom)
+			.append('g')
+				.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+		var data = [
+			[1, 5, 4, 6, 2, 1, 8, 6, 5, 12],
+			[0, 4, 5, 7, 3, 2, 1, 2, 10, 6]
+		];
+
+		// 横軸のスケール
+		var x = d3.scale.linear().range([0, w]).domain(xDomain);
+		// 縦軸のスケール
+		var y = d3.scale.linear().range([0, h]).domain(yDomain);
+
+		// 横軸の定義
+		var xAxis = d3.svg.axis().scale(x).orient('bottom');
+		// 縦軸の定義
+		var yAxis = d3.svg.axis().scale(y).orient('left');
+
+		// 横軸の描画
+		svg.append('g')
+			.attr('transform', 'translate(0, ' + h + ')')
+			.call(xAxis)
+			.append('text')
+				.attr('x', w / 2)
+				.attr('y', 40)
+				.text('番号');
+
+		// 縦軸の描画
+		svg.append('g')
+			.call(yAxis)
+			.append('text')
+				.attr('x', -h / 2)
+				.attr('y', -(margin.left) / 2)
+				.attr('transform', 'rotate(-90)')
+				.text('個数');
+
+
+		// 折れ線の描画関数
+		var createLine = d3.svg.line()
+			.x((d, i) => x(i + 1))
+			.y(d => y(d));
+
+		[
+			{ values: data[0], color: 'red' },
+			{ values: data[1], color: 'blue' }
+		].forEach( v => {
+			// 折れ線の描画
+			svg.append('path')
+				.attr('d', createLine(v.values))
+				.attr('stroke', v.color)
+				.attr('fill', 'none');
+		});
+
+	</script>
+</body>
+</html>
