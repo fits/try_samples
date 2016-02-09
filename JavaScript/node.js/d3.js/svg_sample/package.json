@@ -1,0 +1,9 @@
+{
+  "name": "d3-svg_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "d3": "^3.5.14",
+    "jsdom": "^8.0.2"
+  }
+}
