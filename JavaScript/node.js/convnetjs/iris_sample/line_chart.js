@@ -8,7 +8,7 @@ var readCSV = Promise.promisify(basicCsv.readCSV);
 
 var document = jsdom();
 
-// レイアウトの生成
+// グラフのレイアウト生成
 var chartLayout = (xnum, w, h, margin) => {
 	var borderWidth = w + margin.left + margin.right;
 	var borderHeight = h + margin.top + margin.bottom;
@@ -46,6 +46,14 @@ var createLine = d3.svg.line()
 	.x((d, i) => x(i + 1))
 	.y(d => y(d));
 
+// 折れ線の描画
+var drawLine = (g, data, colIndex, color) => {
+	g.append('path')
+		.attr('d', createLine(data.map(d => d[colIndex])))
+		.attr('stroke', color)
+		.attr('fill', 'none');
+};
+
 var gs = chartLayout(2, w, h, margin);
 
 // X・Y軸の描画
@@ -69,26 +77,13 @@ gs.forEach( (g, i) => {
 
 readCSV(process.argv[2])
 	.then( ds => {
+		// 学習
+		drawLine(gs[0], ds, 0, 'blue');
+		drawLine(gs[1], ds, 1, 'blue');
 
-		gs[0].append('path')
-			.attr('d', createLine(ds.map(d => d[0])))
-			.attr('stroke', 'blue')
-			.attr('fill', 'none');
-
-		gs[0].append('path')
-			.attr('d', createLine(ds.map(d => d[2])))
-			.attr('stroke', 'red')
-			.attr('fill', 'none');
-
-		gs[1].append('path')
-			.attr('d', createLine(ds.map(d => d[1])))
-			.attr('stroke', 'blue')
-			.attr('fill', 'none');
-
-		gs[1].append('path')
-			.attr('d', createLine(ds.map(d => d[3])))
-			.attr('stroke', 'red')
-			.attr('fill', 'none');
+		// テスト
+		drawLine(gs[0], ds, 2, 'red');
+		drawLine(gs[1], ds, 3, 'red');
 
 		console.log(document.body.innerHTML);
 	});
