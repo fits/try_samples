@@ -40,6 +40,24 @@ var trainer = new convnetjs.Trainer(net, {
 	method: updateMethod
 });
 
+var batchLearn = (data, learnLossFunc) => {
+	var res = data.reduce(
+		(acc, d) => {
+			acc.loss += learnLossFunc(d);
+			acc.accuracy += net.getPrediction() == d.label? 1: 0;
+
+			return acc;
+		},
+		{ loss: 0.0, accuracy: 0 }
+	);
+
+	for (var key in res) {
+		res[key] /= data.length;
+	}
+
+	return res;
+};
+
 readCSV('iris.data')
 	.then( ds => 
 		ds.map(d => 
@@ -61,27 +79,20 @@ readCSV('iris.data')
 		for (var i = 0; i < epoch; i++) {
 			var trainData = shuffle(data.train, {copy: true});
 
-			var trainLossSum = trainData.reduce( (acc, d) => {
-				var stats = trainer.train(d.features, d.label);
-				return acc + stats.loss;
-			}, 0.0);
+			var trainRes = batchLearn(trainData, d => 
+				trainer.train(d.features, d.label).loss
+			);
 
-			var testRes = data.test.reduce( (acc, d) => {
+			var testRes = batchLearn(data.test, d => {
+
 				net.forward(d.features);
 
-				var actual = net.getPrediction();
-				var loss = net.backward(d.label);
+				return net.backward(d.label);
+			});
 
-				return {
-					loss: acc.loss + loss,
-					accuracy: acc.accuracy + (actual == d.label? 1: 0)
-				};
-			}, {loss: 0.0, accuracy: 0});
-
-			var trainLoss = trainLossSum / trainData.length;
-			var testLoss = testRes.loss / data.test.length;
-			var testAccuracy = testRes.accuracy / data.test.length;
-
-			console.log( [trainLoss, testLoss, testAccuracy].join(',') );
+			console.log([
+				trainRes.loss, trainRes.accuracy, 
+				testRes.loss, testRes.accuracy
+			].join(','));
 		}
 	});
