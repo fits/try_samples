@@ -1,0 +1,14 @@
+{
+  "name": "convnetjs_iris_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "basic-csv": "0.0.2",
+    "bluebird": "^3.2.2",
+    "convnetjs": "^0.3.0",
+    "d3": "^3.5.14",
+    "jsdom": "^8.0.2",
+    "shuffle-array": "^0.1.2"
+  }
+}
