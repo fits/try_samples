@@ -12,21 +12,22 @@ import java.nio.file.Paths
 def dataDir = args[0]
 def searchWord = args[1]
 
-def reader = DirectoryReader.open(FSDirectory.open(Paths.get(dataDir)))
-def searcher = new IndexSearcher(reader)
+DirectoryReader.open(FSDirectory.open(Paths.get(dataDir))).withCloseable { reader ->
+	def searcher = new IndexSearcher(reader)
 
-def analyzer = new JapaneseAnalyzer()
+	def analyzer = new JapaneseAnalyzer()
 
-def parser = new QueryParser('message', analyzer)
+	def parser = new QueryParser('message', analyzer)
 
-def query = parser.parse(searchWord)
+	def query = parser.parse(searchWord)
 
-def results = searcher.search(query, 10)
+	def results = searcher.search(query, 10)
 
-println "hits: ${results.totalHits}"
+	println "hits: ${results.totalHits}"
 
-println ''
+	println ''
 
-results.scoreDocs.each {
-	println "score: ${it.score}, doc: ${reader.document(it.doc)}"
+	results.scoreDocs.each {
+		println "score: ${it.score}, doc: ${reader.document(it.doc)}"
+	}
 }
