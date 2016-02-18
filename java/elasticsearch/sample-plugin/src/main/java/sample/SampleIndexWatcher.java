@@ -12,7 +12,7 @@ public class SampleIndexWatcher {
     @Inject
     public SampleIndexWatcher(IndicesService service) {
 
-        System.out.println("*** SampleIndexWatcher : " + settings);
+        System.out.println("*** new SampleIndexWatcher");
 
         service.indicesLifecycle().addListener(new IndicesLifecycle.Listener() {
             @Override
