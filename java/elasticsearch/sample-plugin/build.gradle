@@ -1,0 +1,61 @@
+apply plugin: 'java'
+
+version = '0.0.1'
+
+project.ext {
+	encode = 'UTF-8'
+
+	esPluginConfig = [
+		name: name,
+		version: version,
+		description: '',
+		site: 'false',
+		jvm: 'true',
+		classname: 'sample.SamplePlugin',
+		'elasticsearch.version': '2.2.0',
+		'java.version': '1.8'
+	] as Properties
+}
+
+tasks.withType(AbstractCompile)*.options*.encoding = encode
+
+configurations {
+	provided
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	provided 'org.elasticsearch:elasticsearch:2.2.0'
+}
+
+sourceSets {
+	main.compileClasspath += configurations.provided
+	test.compileClasspath += configurations.provided
+	test.runtimeClasspath += configurations.provided
+}
+
+task esPackage(type: Zip, dependsOn: jar) {
+	archiveName = "${baseName}-${version}.${extension}"
+
+	from jar.archivePath
+	from configurations.runtime
+
+	from createDescriptorFile()
+}
+
+def createDescriptorFile() {
+	def f = new File("${rootDir}/plugin-descriptor.properties")
+
+	f.withWriter(encode) {
+		esPluginConfig.store(it, null)
+	}
+
+	f.path
+}
+
+artifacts {
+	archives esPackage
+}
