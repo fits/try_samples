@@ -6,10 +6,10 @@ import java.nio.file.Paths
 
 def dataDir = args[0]
 
-def reader = DirectoryReader.open(FSDirectory.open(Paths.get(dataDir)))
+DirectoryReader.open(FSDirectory.open(Paths.get(dataDir))).withCloseable { reader ->
+	println reader.numDocs()
 
-println reader.numDocs()
-
-(0..<reader.numDocs()).each {
-	println reader.document(it)
+	(0..<reader.numDocs()).each {
+		println reader.document(it)
+	}
 }
