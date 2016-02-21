@@ -1,0 +1,9 @@
+{
+  "name": "d3_nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "d3": "^3.5.15",
+    "jsdom": "^8.0.2"
+  }
+}
