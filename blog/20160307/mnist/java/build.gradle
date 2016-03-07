@@ -1,0 +1,21 @@
+apply plugin: 'application'
+
+def enc = 'UTF-8'
+tasks.withType(AbstractCompile)*.options*.encoding = enc
+
+mainClassName = 'TestMnistLoader'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.nd4j:nd4j-x86:0.4-rc3.8'
+	runtime 'org.slf4j:slf4j-nop:1.7.18'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args.split(' ')
+	}
+}

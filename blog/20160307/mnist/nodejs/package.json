@@ -1,0 +1,9 @@
+{
+  "name": "mnist_parse_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "bluebird": "^3.3.3",
+    "convnetjs": "^0.3.0"
+  }
+}
