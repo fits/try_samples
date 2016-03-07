@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class MnistLoader {
-    private final static int LABEL_KIND = 10;
+    private final static int LABELS_NUM = 10;
 
     /**
      *
@@ -81,10 +81,10 @@ public class MnistLoader {
 
             buf.rewind();
 
-            INDArray res = Nd4j.create(num, LABEL_KIND);
+            INDArray res = Nd4j.create(num, LABELS_NUM);
 
             for (int i = 0; i < num; i++) {
-                res.putRow(i, FeatureUtil.toOutcomeVector(buf.get(), LABEL_KIND));
+                res.putRow(i, FeatureUtil.toOutcomeVector(buf.get(), LABELS_NUM));
             }
 
             return res;
