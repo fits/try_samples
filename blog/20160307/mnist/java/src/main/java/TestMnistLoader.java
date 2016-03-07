@@ -8,6 +8,8 @@ public class TestMnistLoader {
 	public static void main(String... args) {
 		DataSet ds = MnistLoader.loadMnist(args[0], args[1]);
 
+		System.out.println("size: " + ds.numExamples());
+
 		printData(ds.get(0));
 
 		System.out.println("----------");
