@@ -8,12 +8,25 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public class MnistLoader {
     private final static int LABELS_NUM = 10;
+
+    /**
+     *
+     * @param imageFileName
+     * @param labelFileName
+     * @return
+     */
+    public static CompletableFuture<DataSet> loadMnist(String imageFileName, String labelFileName) {
+
+        return CompletableFuture.supplyAsync(() -> loadImages(imageFileName))
+            .thenCombineAsync(
+                CompletableFuture.supplyAsync(() -> loadLabels(labelFileName)),
+                DataSet::new
+            );
+    }
 
     /**
      *
@@ -21,7 +34,7 @@ public class MnistLoader {
      * @return
      * @throws IOException
      */
-    public static INDArray loadImages(String fileName) throws IOException {
+    private static INDArray loadImages(String fileName) {
         try (FileChannel fc = FileChannel.open(Paths.get(fileName))) {
             ByteBuffer headerBuf = ByteBuffer.allocateDirect(16);
 
@@ -54,6 +67,9 @@ public class MnistLoader {
                 res.putRow(n, d);
             }
             return res;
+
+        } catch(IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -63,7 +79,7 @@ public class MnistLoader {
      * @return
      * @throws IOException
      */
-    public static INDArray loadLabels(String fileName) throws IOException {
+    private static INDArray loadLabels(String fileName) {
         try (FileChannel fc = FileChannel.open(Paths.get(fileName))) {
 
             ByteBuffer headerBuf = ByteBuffer.allocateDirect(8);
@@ -88,26 +104,8 @@ public class MnistLoader {
             }
 
             return res;
-        }
-    }
 
-    /**
-     *
-     * @param imageFileName
-     * @param labelFileName
-     * @return
-     */
-    public static DataSet loadMnist(String imageFileName, String labelFileName) {
-        ExecutorService es = Executors.newFixedThreadPool(2);
-
-        Future<INDArray> imagesFuture = es.submit(() -> loadImages(imageFileName));
-        Future<INDArray> labelsFuture = es.submit(() -> loadLabels(labelFileName));
-
-        es.shutdown();
-
-        try {
-            return new DataSet(imagesFuture.get(), labelsFuture.get());
-        } catch (Exception ex) {
+        } catch(IOException ex) {
             throw new RuntimeException(ex);
         }
     }
