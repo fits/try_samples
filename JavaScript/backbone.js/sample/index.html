@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/underscore/underscore-min.js"></script>
+	<script src="bower_components/backbone/backbone-min.js"></script>
+
+	<script>
+		$(document).ready(() => {
+			var items = [
+				{id: 1, name: 'item1'},
+				{id: 2, name: 'item2'},
+				{id: 3, name: 'item3'}
+			];
+
+			var ItemView = Backbone.View.extend({
+				el: $('#items'),
+				template: _.template($('#tpl').text()),
+				initialize: function() {
+					console.log('ItemView initialize');
+
+					this.render();
+				},
+				render: function() {
+					$(this.el).html(this.template({ items: items }));
+
+					return this;
+				}
+			});
+
+			new ItemView();
+		});
+
+	</script>
+</head>
+<body>
+	<h3>items</h3>
+	<div id="items"></div>
+
+	<script type="text/template" id="tpl">
+		<ul>
+			<% _.each(items, (item) => { %>
+				<li><%= item.id %> : <%= item.name %></li>
+			<% }); %>
+		</ul>
+	</script>
+
+</body>
+</html>
