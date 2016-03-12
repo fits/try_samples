@@ -15,5 +15,14 @@ main = do
     procData3 { name : "c3", v : 3, k : 1.5 }
     procData4 { name : "d4", v : 4, k : 1.5 }
 
-    runFunc id "e5"
-    runFunc id { name : "f6" }
+    procData5 { name : "e5", v : 5, k : 1.5 }
+    procData5 "e5-2"
+
+    procData6 { name : "f6", v : 6 }
+    procData7 { name : "g7" }
+
+
+    runFunc id "123"
+    runFunc id { name : "456" }
+
+    runFunc2 id { name : "789" }
