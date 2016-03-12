@@ -1,15 +1,16 @@
+"use strict";
 
-var mnist = require('./parse_mnist');
+const mnist = require('./parse_mnist');
 
-var printData = d => {
+const printData = d => {
 	console.log(`***** number = ${d.label} *****`);
 
-	var v = d.values;
+	const v = d.values;
 
-	for (var y = 0; y < v.sy; y++) {
-		var r = Array(v.sx);
+	for (let y = 0; y < v.sy; y++) {
+		const r = Array(v.sx);
 
-		for (var x = 0; x < v.sx; x++) {
+		for (let x = 0; x < v.sx; x++) {
 			r[x] = v.get(x, y, 0) > 0 ? '#' : ' ';
 		}
 
