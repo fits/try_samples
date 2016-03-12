@@ -1,56 +1,57 @@
+"use strict";
 
-var Promise = require('bluebird');
-var fs = require('fs');
-var shuffle = require('shuffle-array');
-var convnetjs = require('convnetjs');
+const Promise = require('bluebird');
+const fs = require('fs');
+const shuffle = require('shuffle-array');
+const convnetjs = require('convnetjs');
 
-var mnist = require('./parse_mnist');
+const mnist = require('./parse_mnist');
 
-var epoch = 5;
-var batchSize = 20;
-var learningRate = 0.001;
-var trainMethod = 'adam';
+const readFile = Promise.promisify(fs.readFile);
+const writeFile = Promise.promisify(fs.writeFile);
 
-var jsonFile = process.argv[2];
-var jsonDestFile = process.argv[3];
+const epoch = 5;
+const batchSize = 20;
+const learningRate = 0.001;
+const trainMethod = 'adadelta';
 
-var readFile = Promise.promisify(fs.readFile);
-var writeFile = Promise.promisify(fs.writeFile);
+const jsonFile = process.argv[2];
+const jsonDestFile = process.argv[3];
 
-var range = n => {
-	var res = Array(n);
+const range = n => {
+	const res = Array(n);
 
-	for (var i = 0; i < n; i++) {
+	for (let i = 0; i < n; i++) {
 		res[i] = i;
 	}
 
 	return res;
 };
 
-var shuffleRange = n => shuffle(range(n));
+const shuffleRange = n => shuffle(range(n));
 
 Promise.all([
 	readFile(jsonFile),
 	mnist.parse('train-images.idx3-ubyte', 'train-labels.idx1-ubyte')
 ]).spread( (json, data) => {
 
-	var net = new convnetjs.Net();
+	const net = new convnetjs.Net();
 
 	net.fromJSON(JSON.parse(json));
 
-	var trainer = new convnetjs.Trainer(net, {
+	const trainer = new convnetjs.Trainer(net, {
 		method: trainMethod, 
 		batch_size: batchSize, 
 		learning_rate: learningRate
 	});
 
-	for (var i = 0; i < epoch; i++) {
+	for (let i = 0; i < epoch; i++) {
 
 		shuffleRange(data.length).forEach(i => {
-			var d = data[i];
-			var stats = trainer.train(d.values.clone(), d.label);
+			const d = data[i];
+			const stats = trainer.train(d.values.clone(), d.label);
 
-			//	console.log(stats.loss);
+			console.log(stats.loss);
 		});
 	}
 
