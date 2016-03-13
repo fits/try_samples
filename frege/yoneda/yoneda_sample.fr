@@ -1,0 +1,19 @@
+module YonedaSample where
+
+data Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
+
+-- compile error
+-- newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
+
+instance Functor (Yoneda f) where
+	fmap f m = Yoneda (\k -> Yoneda.runYoneda m (k . f))
+
+data D a = A a | B
+derive Show (D a)
+
+showYoneda :: (Show a) => Yoneda D a -> String
+showYoneda m = show $ Yoneda.runYoneda m id
+
+main args = do
+	println $ showYoneda $ Yoneda (\k -> A(k 5))
+	println $ showYoneda $ fmap show $ Yoneda (\k -> A (k 5))
