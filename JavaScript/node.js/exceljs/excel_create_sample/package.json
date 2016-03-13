@@ -1,0 +1,8 @@
+{
+  "name": "excel_create_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "exceljs": "^0.2.4"
+  }
+}
