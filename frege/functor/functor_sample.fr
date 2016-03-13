@@ -1,0 +1,15 @@
+module FunctorSample where
+
+data D a = A a | B
+derive Show (D a)
+
+instance Functor D where
+	fmap f (A a) = A (f a)
+	fmap f B = B
+
+main args = do
+	println $ A 1
+	println (B :: D Int)
+
+	println $ fmap (+ 2) $ A 1
+	println $ fmap (+ 2) (B :: D Int)
