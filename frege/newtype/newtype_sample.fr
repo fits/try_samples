@@ -1,0 +1,8 @@
+module NewTypeSample where
+
+newtype Sample a = Sample { runSample :: a }
+
+main args = do
+	println $ Sample.runSample $ Sample "abc"
+	println $ Sample.runSample $ Sample 101
+
