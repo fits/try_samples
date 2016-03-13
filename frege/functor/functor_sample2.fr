@@ -1,0 +1,11 @@
+module FunctorSample2 where
+
+data D a = D { unD :: a }
+derive Show (D a)
+
+instance Functor D where
+	fmap f (D a) = D (f a)
+
+main args = do
+	println $ D 1
+	println $ fmap (+ 3) $ D 8
