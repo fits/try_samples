@@ -1,0 +1,8 @@
+{
+  "name": "select_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "mysql": "^2.10.2"
+  }
+}
