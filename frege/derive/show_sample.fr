@@ -1,0 +1,8 @@
+module ShowSample where
+
+data D a = A a | B a
+derive Show (D a)
+
+main args = do
+	println $ A "aaa"
+	println $ B 123
