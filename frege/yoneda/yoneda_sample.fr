@@ -1,9 +1,8 @@
 module YonedaSample where
 
-data Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
-
--- compile error
+-- compile error (frege3.24.6.jar)
 -- newtype Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
+data Yoneda f a = Yoneda { runYoneda :: forall b. (a -> b) -> f b }
 
 instance Functor (Yoneda f) where
 	fmap f m = Yoneda (\k -> Yoneda.runYoneda m (k . f))
@@ -11,6 +10,8 @@ instance Functor (Yoneda f) where
 data D a = A a | B
 derive Show (D a)
 
+-- compile error (frege3.24.6.jar)
+-- showYoneda :: (Show a, Show (f a)) => Yoneda f a -> String
 showYoneda :: (Show a) => Yoneda D a -> String
 showYoneda m = show $ Yoneda.runYoneda m id
 
