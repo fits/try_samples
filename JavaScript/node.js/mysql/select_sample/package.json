@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "exceljs": "^0.2.4",
     "mysql": "^2.10.2"
   }
 }
