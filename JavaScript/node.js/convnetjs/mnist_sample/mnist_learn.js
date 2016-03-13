@@ -47,8 +47,8 @@ Promise.all([
 
 	for (let i = 0; i < epoch; i++) {
 
-		shuffleRange(data.length).forEach(i => {
-			const d = data[i];
+		shuffleRange(data.length).forEach(index => {
+			const d = data[index];
 			const stats = trainer.train(d.values.clone(), d.label);
 
 			console.log(stats.loss);
