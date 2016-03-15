@@ -62,7 +62,6 @@ Promise.all([
 	readFile(jsonFile),
 	mnist.parse('train-images.idx3-ubyte', 'train-labels.idx1-ubyte')
 ]).spread( (json, data) => {
-
 	const net = new convnetjs.Net();
 	net.fromJSON(JSON.parse(json));
 
@@ -73,7 +72,6 @@ Promise.all([
 	});
 
 	range(epoch).forEach(ep => {
-
 		const reporter = createReporter(
 			batchSize, 
 			(loss, acc) => console.log( [ep, loss, acc].join(',') )
@@ -88,8 +86,11 @@ Promise.all([
 				(net.getPrediction() == d.label)? 1: 0
 			);
 		});
-
-		writeFile(jsonDestFile, JSON.stringify(net.toJSON()))
-			.error( e => console.error(e) );
 	});
-});
+
+	return net;
+}).then( net => 
+	writeFile(jsonDestFile, JSON.stringify(net.toJSON()))
+).catch( e => 
+	console.error(e)
+);
