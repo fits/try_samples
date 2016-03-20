@@ -19,7 +19,7 @@ readFile(modelJsonFile).then( json => {
 	return net.layers;
 }).then( layers =>
 	layers.reduce( (acc, v) => {
-		if (v.filters) {
+		if (v.layer_type == 'conv' && v.filters) {
 			acc.push( v.filters );
 		}
 
