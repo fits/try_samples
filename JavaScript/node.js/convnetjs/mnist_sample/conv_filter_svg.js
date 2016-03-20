@@ -7,8 +7,10 @@ const jsdom = require('jsdom').jsdom;
 
 const readFile = Promise.promisify(require('fs').readFile);
 
+const size = 100;
+const margin = 5;
+
 const modelJsonFile = process.argv[2];
-const layerIndex = parseInt(process.argv[3]);
 
 readFile(modelJsonFile).then( json => {
 	const net = new convnetjs.Net();
@@ -16,45 +18,55 @@ readFile(modelJsonFile).then( json => {
 
 	return net.layers;
 }).then( layers =>
-	layers[layerIndex].filters
-).then( filters => {
+	layers.reduce( (acc, v) => {
+		if (v.filters) {
+			acc.push( v.filters );
+		}
 
-	const size = 100;
-	const margin = 5;
-
+		return acc;
+	}, [])
+).then( filtersList => {
 	const document = jsdom();
 
 	const svg = d3.select(document.body)
-		.append('svg')
-		.attr('xmlns', 'http://www.w3.org/2000/svg');
+					.append('svg')
+					.attr('xmlns', 'http://www.w3.org/2000/svg');
 
-	filters.forEach( (f, i) => {
-		const g = svg.append('g')
-			.attr('transform', `translate(${i * (size + margin)}, 0)`);
+	filtersList.forEach( (fs, j) => {
+		const yPos = (size + margin) * j;
 
-		const xScale = d3.scale.linear().range([0, size]).domain([0, f.sx]);
-		const yScale = d3.scale.linear().range([0, size]).domain([0, f.sy]);
+		fs.forEach( (f, i) => {
+			const xPos = (size + margin) * i;
 
-		const maxValue = Math.max.apply(null, f.w);
-		const minValue = Math.min.apply(null, f.w);
+			const g = svg.append('g')
+						.attr('transform', `translate(${xPos}, ${yPos})`);
 
-		const pixel = d3.scale.linear()
-			.range([0, 255])
-			.domain([minValue, maxValue]);
+			const xScale = d3.scale.linear()
+							.range([0, size]).domain([0, f.sx]);
 
-		for (let y = 0; y < f.sy; y++) {
-			for (let x = 0; x < f.sx; x++) {
+			const yScale = d3.scale.linear()
+							.range([0, size]).domain([0, f.sy]);
 
-				const p = pixel( f.get(x, y, 0) );
+			const maxW = Math.max.apply(null, f.w);
+			const minW = Math.min.apply(null, f.w);
 
-				g.append('rect')
-					.attr('x', xScale(x))
-					.attr('y', yScale(y))
-					.attr('width', xScale(1))
-					.attr('height', yScale(1))
-					.attr('fill', d3.rgb(p, p, p));
+			const pixel = d3.scale.linear()
+							.range([0, 255]).domain([minW, maxW]);
+
+			for (let y = 0; y < f.sy; y++) {
+				for (let x = 0; x < f.sx; x++) {
+
+					const p = pixel( f.get(x, y, 0) );
+
+					g.append('rect')
+						.attr('x', xScale(x))
+						.attr('y', yScale(y))
+						.attr('width', xScale(1))
+						.attr('height', yScale(1))
+						.attr('fill', d3.rgb(p, p, p));
+				}
 			}
-		}
+		});
 	});
 
 	return document.body.innerHTML;
