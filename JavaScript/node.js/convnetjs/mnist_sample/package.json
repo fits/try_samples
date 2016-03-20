@@ -5,6 +5,8 @@
   "dependencies": {
     "bluebird": "^3.1.5",
     "convnetjs": "^0.3.0",
+    "d3": "^3.5.16",
+    "jsdom": "^8.1.0",
     "shuffle-array": "^0.1.2"
   }
 }
