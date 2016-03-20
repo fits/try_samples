@@ -1,5 +1,7 @@
 
-@Grab('org.springframework.boot:spring-boot-starter-batch:1.1.9.RELEASE')
+@GrabConfig(systemClassLoader = true)
+@Grab('org.springframework.boot:spring-boot-starter-batch:1.3.3.RELEASE')
+@Grab('org.codehaus.jettison:jettison:1.3.7')
 import org.springframework.batch.core.*
 import org.springframework.batch.core.configuration.annotation.*
 import org.springframework.beans.factory.annotation.*
@@ -18,40 +20,41 @@ class SampleBatch {
     @Autowired
     private StepBuilderFactory stepBuilderFactory
 
-    @Bean
+    @Bean(name = 'step1')
     Step step1() {
         stepBuilderFactory.get("step1").tasklet { cont, ctx -> 
             println "*** step1 cont: ${cont}, context: ${ctx}"
         }.build()
     }
 
-	// @Bean ‚ğg‚¤‚Æ job ‚ÖŠ„‚è“–‚Ä‚é Step ‚ª“Á’è‚Å‚«‚¸‚ÉƒGƒ‰[‚Æ‚È‚é
-    //@Bean
+    @Bean(name = 'step2')
     Step step2() {
-    	def value = 'sample'
+        def value = 'sample'
 
         stepBuilderFactory.get("step2").chunk(1)
-        	.reader {
-        		// ’l‚ª–³‚­‚È‚ê‚Î null ‚ğ•Ô‚·•K—v‚ ‚è
-        		// ’l‚ğ•Ô‚·‚Æ–³ŒÀ‚ÉÀ{‚³‚ê‚é
-        		def res = value
-				if (value) {
-					value = null
-				}
-        		res
-        	}.processor {
-        		"${it}!!!"
-        	}.writer {
-        		println "### result : $it"
-        	}.build()
+            .reader {
+                def res = value
+                if (value) {
+                    // å‡¦ç†ã‚’çµ‚äº†ã™ã‚‹éš›ã« null ã‚’è¿”ã™ï¼ˆã“ã®å‡¦ç†ãŒä½•åº¦ã‚‚å®Ÿè¡Œã•ã‚Œã‚‹ï¼‰
+                    value = null
+                }
+                res
+            }.processor {
+                "${it}!!!"
+            }.writer {
+                println "### result : $it"
+            }.build()
     }
 
     @Bean
-    Job job(Step step1) throws Exception {
+    Job job(
+        @Qualifier('step1') Step step1, 
+        @Qualifier('step2') Step step2
+    ) throws Exception {
         jobBuilderFactory.get("job1")
             .incrementer(new RunIdIncrementer())
             .start(step1)
-            .next(step2())
+            .next(step2)
             .build()
     }
 }
