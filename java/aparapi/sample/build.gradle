@@ -1,0 +1,16 @@
+apply plugin: 'application'
+
+dependencies {
+	compile files('lib/aparapi.jar')
+}
+
+mainClassName = 'SampleApp'
+
+run {
+	jvmArgs = [
+		'-Djava.library.path=lib',
+		'-Dcom.amd.aparapi.enableExecutionModeReporting=true',
+		'-Dcom.amd.aparapi.enableShowGeneratedOpenCL=true',
+		'-Dcom.amd.aparapi.enableVerboseJNI=true'
+	]
+}
