@@ -19,7 +19,7 @@ def loadModel = { f ->
 
 def normalize = { w ->
 	w = w.sub(w.minNumber())
-	w.div(w.maxNumber())
+	w.div(w.maxNumber() - w.minNumber())
 }
 
 def model = loadModel(modelFile)
