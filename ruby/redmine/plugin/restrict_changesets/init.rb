@@ -6,7 +6,7 @@ Redmine::Plugin.register :restrict_changesets do
   url ''
   author_url ''
 
-  require 'restricted_changeset'
+  require 'custom_issues_show'
 
-  Changeset.include RestrictedChangeset
+  IssuesController.include CustomIssuesShow
 end
