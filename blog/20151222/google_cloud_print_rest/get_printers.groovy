@@ -1,10 +1,14 @@
-@Grab('com.mashape.unirest:unirest-java:1.4.7')
+@Grab('com.mashape.unirest:unirest-java:1.4.9')
 import com.mashape.unirest.http.Unirest
 
 import groovy.json.JsonSlurper
 import groovy.transform.BaseScript
 
 @BaseScript TokenScript baseScript
+
+addShutdownHook {
+	Unirest.shutdown()
+}
 
 def json = new JsonSlurper()
 
