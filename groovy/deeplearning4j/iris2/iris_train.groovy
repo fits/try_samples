@@ -19,7 +19,7 @@ def modelFile = args[1]
 def evaluate = { model, d ->
 	def ev = new Evaluation(irisTypesNum)
 
-	ev.eval(d.labels, model.output(d.featureMatrix))
+	ev.eval(d.labels, model.output(d.featureMatrix, false))
 
 	[
 		loss: model.score(d),
