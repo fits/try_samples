@@ -1,6 +1,10 @@
-@Grab('com.mashape.unirest:unirest-java:1.3.26')
+@Grab('com.mashape.unirest:unirest-java:1.4.9')
 import com.mashape.unirest.http.Unirest
 import groovy.json.JsonBuilder
+
+addShutdownHook {
+	Unirest.shutdown()
+}
 
 def index = args[0]
 def type = args[1]
