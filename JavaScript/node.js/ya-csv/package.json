@@ -1,0 +1,9 @@
+{
+  "name": "ya-csv_sample",
+  "version": "0.0.1",
+  "description": "",
+  "main": "sample.js",
+  "dependencies": {
+    "ya-csv": "^0.9.4"
+  }
+}
