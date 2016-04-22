@@ -44,7 +44,7 @@ import groovy.transform.Canonical
 			return -1
 		}
 
-		(cpuTime.diff() as double) / processTime.diff()
+		cpuTime.diff() / processTime.diff()
 	}
 }
 
@@ -66,7 +66,7 @@ def dumpThread = { tbean, cpuUsageFunc ->
 	def cpuMap = cpuUsageFunc(tbean)
 
 	tbean.dumpAllThreads(false, false).each {
-		def cpuUsage = cpuMap[it.threadId]?.cpuUsage?.trunc(3)
+		def cpuUsage = cpuMap[it.threadId]?.cpuUsage?.setScale(3, BigDecimal.ROUND_UP)
 
 		println "\"${it.threadName}\" id=${it.threadId} cpu=${cpuUsage} ${it.threadState}"
 
@@ -80,7 +80,9 @@ def dumpThread = { tbean, cpuUsageFunc ->
 	}
 }
 
-def vm = VirtualMachine.attach(args[0])
+def pid = args[0]
+
+def vm = VirtualMachine.attach(pid)
 
 try {
 	def jmxuri = vm.startLocalManagementAgent()
@@ -88,7 +90,7 @@ try {
 	JMXConnectorFactory.connect(new JMXServiceURL(jmxuri)).withCloseable {
 		def server = it.getMBeanServerConnection()
 
-		def bean = ManagementFactory.newPlatformMXBeanProxy(server, 'java.lang:type=Threading', ThreadMXBean)
+		def bean = ManagementFactory.newPlatformMXBeanProxy(server, ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean)
 
 		dumpThread(bean, calcCpuUsage.curry(1000))
 	}
