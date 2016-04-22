@@ -7,7 +7,9 @@ import java.lang.management.ManagementFactory
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
 
-def vm = VirtualMachine.attach(args[0])
+def pid = args[0]
+
+def vm = VirtualMachine.attach(pid)
 
 try {
 	def jmxuri = vm.startLocalManagementAgent()
@@ -15,7 +17,7 @@ try {
 	JMXConnectorFactory.connect(new JMXServiceURL(jmxuri)).withCloseable {
 		def server = it.getMBeanServerConnection()
 
-		def bean = ManagementFactory.newPlatformMXBeanProxy(server, 'java.lang:type=Threading', ThreadMXBean)
+		def bean = ManagementFactory.newPlatformMXBeanProxy(server, ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean)
 
 		bean.dumpAllThreads(false, false).each {
 			println it
