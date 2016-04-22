@@ -15,8 +15,6 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 
 public class ThreadStat {
-
-    private static final String JMX_NAME_THREADING = "java.lang:type=Threading";
     private static final long DEFAULT_INTERVAL = 1000;
 
     public static void main(String... args) throws Exception {
@@ -40,7 +38,7 @@ public class ThreadStat {
                 MBeanServerConnection server = con.getMBeanServerConnection();
 
                 ThreadMXBean bean = ManagementFactory.newPlatformMXBeanProxy(server,
-                        JMX_NAME_THREADING, ThreadMXBean.class);
+                        ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
 
                 func.accept(bean);
             }
