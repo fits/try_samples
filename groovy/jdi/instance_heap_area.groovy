@@ -21,13 +21,23 @@ def mark = {
 }
 */
 
+generation = { heap ->
+	def hasYoungGen = heap.metaClass.getMetaMethod('youngGen') != null
+
+	[
+		young: hasYoungGen? heap.youngGen(): heap.getGen(0),
+		old: hasYoungGen? heap.oldGen(): heap.getGen(1)
+	]
+}
+
 try {
 	if (vm.canGetInstanceInfo()) {
 
 		def uv = vm.saVM.universe
+		def gen = generation(uv.heap())
 
-		def oldGen = uv.heap().oldGen()
-		def youngGen = uv.heap().youngGen()
+		def oldGen = gen.old
+		def youngGen = gen.young
 
 		vm.allClasses().findAll { it.name().startsWith(prefix) }.each { cls ->
 			println cls.name()
