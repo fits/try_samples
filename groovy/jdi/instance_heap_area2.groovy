@@ -13,11 +13,22 @@ params.get('pid').setValue(pid)
 
 def vm = connector.attach(params)
 
+generation = { heap ->
+	def hasYoungGen = heap.metaClass.getMetaMethod('youngGen') != null
+
+	[
+		young: hasYoungGen? heap.youngGen(): heap.getGen(0),
+		old: hasYoungGen? heap.oldGen(): heap.getGen(1)
+	]
+}
+
 try {
 	def universe = vm.saVM().universe
 
-	def oldGen = universe.heap().oldGen()
-	def youngGen = universe.heap().youngGen()
+	def gen = generation(universe.heap())
+
+	def oldGen = gen.old
+	def youngGen = gen.young
 
 	def objHeap = vm.saVM().objectHeap
 	//def objHeap = vm.saObjectHeap()
