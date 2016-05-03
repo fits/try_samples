@@ -1,3 +1,6 @@
+
+require_dependency 'sample/hooks'
+
 Redmine::Plugin.register :restrict_changesets do
   name 'Restrict Changesets Plugin'
   author 'fits'

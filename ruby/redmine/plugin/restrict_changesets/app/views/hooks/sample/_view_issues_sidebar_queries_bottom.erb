@@ -1,0 +1,8 @@
+
+<% if @issue %>
+<div>
+  <a href="<%= @issue.id %>/changesets">
+    <%= l(:label_associated_revisions) %>
+  </a>
+</div>
+<% end %>
