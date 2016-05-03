@@ -6,26 +6,29 @@ module CustomIssuesShow
 
   module ShowMethod
     def show
-      @issue.changesets.define_singleton_method(:visible) {
-        q = super().limit(5).reverse_order
-        
-        q.define_singleton_method(:to_a) { super().reverse }
-        
-        q
-      }
+      if request.format.html?
 
-      # 以下でも可
-      #class << @issue.changesets
-      #  def visible
-      #    q = super().limit(5).reverse_order
-      #
-      #    def q.to_a
-      #      super.reverse
-      #    end
-      #
-      #    q
-      #  end
-      #end
+        @issue.changesets.define_singleton_method(:visible) {
+          q = super().limit(5).reverse_order
+
+          q.define_singleton_method(:to_a) { super().reverse }
+
+          q
+        }
+
+        # 以下でも可
+        #class << @issue.changesets
+        #  def visible
+        #    q = super().limit(5).reverse_order
+        #
+        #    def q.to_a
+        #      super.reverse
+        #    end
+        #
+        #    q
+        #  end
+        #end
+      end
 
       super
     end
