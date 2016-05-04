@@ -7,7 +7,7 @@ def pid = args[0]
 def duration = args[1]
 def fileName = args[2]
 
-def vm = VirtualMachine.attach(args[0])
+def vm = VirtualMachine.attach(pid)
 
 try {
 	def jmxuri = vm.startLocalManagementAgent()
