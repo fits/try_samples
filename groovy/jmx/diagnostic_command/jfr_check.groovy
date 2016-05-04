@@ -4,9 +4,9 @@ import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
 
 def pid = args[0]
-String[] params = args.length > 1 ? ["recording=${args[1]}"] : null
+String[] params = (args.length > 1)? ["recording=${args[1]}"]: null
 
-def vm = VirtualMachine.attach(args[0])
+def vm = VirtualMachine.attach(pid)
 
 try {
 	def jmxuri = vm.startLocalManagementAgent()
