@@ -1,0 +1,9 @@
+{
+  "name": "pngjs-sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "pngjs": "^2.3.1"
+  }
+}
