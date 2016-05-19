@@ -1,0 +1,9 @@
+{
+  "name": "monetjs-sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "monet": "^0.8.10"
+  }
+}
