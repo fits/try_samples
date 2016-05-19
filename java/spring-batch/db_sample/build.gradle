@@ -1,0 +1,14 @@
+
+apply plugin: 'application'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter-batch:1.3.5.RELEASE'
+
+	runtime 'mysql:mysql-connector-java:5.1.39'
+}
+
+mainClassName = 'sample.Main'
