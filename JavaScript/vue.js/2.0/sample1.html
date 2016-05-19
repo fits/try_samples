@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="vue.min.js"></script>
+</head>
+<body>
+	<div id="sample">
+		<div>{{ title }}</div>
+		<button @click="add">add</button>
+	</div>
+
+	<script>
+		
+		new Vue({
+			el: '#sample',
+			data: {
+				title: 'sample'
+			},
+			methods: {
+				add: function(e) {
+					console.log(e);
+
+					this.title += '!';
+				}
+			}
+		});
+		
+	</script>
+</body>
+</html>

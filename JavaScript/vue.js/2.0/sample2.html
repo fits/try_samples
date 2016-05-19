@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="vue.min.js"></script>
+</head>
+<body>
+	<script type="text/x-template" id="item-template">
+		<div>
+			<div v-if="data">
+				<h1>{{data.name}}</h1>
+				<div>{{data.note}}</div>
+			</div>
+		</div>
+	</script>
+
+	<div id="sample">
+		<select @change="selectItem">
+			<option value=""></option>
+			<option v-for="item in items" :value="item.id">{{item.name}}</option>
+		</select>
+
+		<item :data="currentItem" />
+	</div>
+
+	<script>
+		Vue.component('item', {
+			props: [ 'data' ],
+			template: '#item-template'
+		});
+	
+		var model = new Vue({
+			el: '#sample',
+			data: {
+				items: [],
+				currentItem: ''
+			},
+			methods: {
+				initData: function(list) {
+					this.currentItem = '';
+					this.items = list ? list : [];
+				},
+				selectItem: function(ev) {
+					var newItem = this.items.find( it => it.id == ev.target.value );
+					this.currentItem = newItem ? newItem : '';
+				}
+			}
+		});
+
+		var d = [
+			{id: 1, name: 'sample1', note: ''},
+			{id: 2, name: 'sample2', note: 'sample2 note'},
+			{id: 3, name: 'sample3', note: ''},
+			{id: 4, name: 'sample4', note: ''},
+			{id: 5, name: 'sample5', note: 'sample5 note'}
+		];
+
+		model.initData(d);
+
+	</script>
+</body>
+</html>
