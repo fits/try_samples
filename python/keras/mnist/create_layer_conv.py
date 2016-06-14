@@ -1,15 +1,13 @@
 
 import sys
-import json
+from model_helper import save_model
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 
-def save_str(file, data):
-	f = open(file, 'w')
-	f.write(data)
-	f.close()
+model_file = sys.argv[1]
+weights_file = sys.argv[2]
 
 model = Sequential()
 
@@ -27,7 +25,4 @@ model.add(Flatten())
 model.add(Dense(10))
 model.add(Activation('softmax'))
 
-wg = [x.tolist() for x in model.get_weights()]
-
-save_str(sys.argv[1], model.to_json())
-save_str(sys.argv[2], json.dumps(wg))
+save_model(model, model_file, weights_file)
