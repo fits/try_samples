@@ -11,7 +11,7 @@ const uintPtrPtr = ref.refType(uintPtr);
 
 const openCl = ffi.Library('OpenCL', {
 	'clGetPlatformIDs': ['int', ['uint', uintPtrPtr, uintPtr]],
-	'clGetDeviceIDs': ['int', ['uint', 'int', 'uint', uintPtrPtr, uintPtr]]
+	'clGetDeviceIDs': ['int', ['uint', 'uint', 'uint', uintPtrPtr, uintPtr]]
 });
 
 let platformIdsPtr = ref.alloc(uintPtrPtr);
