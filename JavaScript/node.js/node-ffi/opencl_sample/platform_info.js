@@ -17,7 +17,7 @@ const sizeTPtr = ref.refType('size_t');
 
 const openCl = ffi.Library('OpenCL', {
 	'clGetPlatformIDs': ['int', ['uint', uintPtrPtr, uintPtr]],
-	'clGetPlatformInfo': ['int', ['uint', 'int', 'size_t', 'pointer', sizeTPtr]]
+	'clGetPlatformInfo': ['int', ['uint', 'uint', 'size_t', 'pointer', sizeTPtr]]
 });
 
 const printPlatformInfo = (platformId, paramName) => {
