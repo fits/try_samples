@@ -13,19 +13,20 @@ const CL_PLATFORM_HOST_TIMER_RESOLUTION = 0x0905;
 
 const uintPtr = ref.refType(ref.types.uint32);
 const uintPtrPtr = ref.refType(uintPtr);
+const sizeTPtr = ref.refType('size_t');
 
 const openCl = ffi.Library('OpenCL', {
 	'clGetPlatformIDs': ['int', ['uint', uintPtrPtr, uintPtr]],
-	'clGetPlatformInfo': ['int', ['uint', 'int', 'uint', 'pointer', uintPtr]]
+	'clGetPlatformInfo': ['int', ['uint', 'int', 'size_t', 'pointer', sizeTPtr]]
 });
 
 const printPlatformInfo = (platformId, paramName) => {
-	let sizePtr = ref.alloc(uintPtr);
+	let sPtr = ref.alloc(sizeTPtr);
 
-	let res = openCl.clGetPlatformInfo(pid, paramName, 0, null, sizePtr);
+	let res = openCl.clGetPlatformInfo(pid, paramName, 0, null, sPtr);
 
 	if (res == 0) {
-		let size = uintPtr.get(sizePtr);
+		let size = sizeTPtr.get(sPtr);
 		let buf = Buffer.alloc(size);
 
 		openCl.clGetPlatformInfo(pid, paramName, size, buf, null);
