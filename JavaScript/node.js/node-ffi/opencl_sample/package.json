@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "ffi": "^2.0.0"
+    "ffi": "^2.0.0",
+    "ref-array": "^1.1.2"
   }
 }
