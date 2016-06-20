@@ -1,8 +1,8 @@
 
 'use strict';
 
-const ref = require('ref');
 const ffi = require('ffi');
+const ref = require('ref');
 
 const CL_PLATFORM_PROFILE = 0x0900;
 const CL_PLATFORM_VERSION = 0x0901;
@@ -16,34 +16,40 @@ const uintPtrPtr = ref.refType(uintPtr);
 const sizeTPtr = ref.refType('size_t');
 
 const openCl = ffi.Library('OpenCL', {
-	'clGetPlatformIDs': ['int', ['uint', uintPtrPtr, uintPtr]],
-	'clGetPlatformInfo': ['int', ['uint', 'uint', 'size_t', 'pointer', sizeTPtr]]
+	'clGetPlatformIDs': ['int', ['uint', sizeTPtr, uintPtr]],
+	'clGetPlatformInfo': ['int', ['size_t', 'uint', 'size_t', 'pointer', sizeTPtr]]
 });
 
-const printPlatformInfo = (platformId, paramName) => {
+const checkError = (errCode, title = '') => {
+	if (errCode != 0) {
+		throw new Error(`${title} Error: ${errCode}`);
+	}
+};
+
+const printPlatformInfo = (pid, paramName) => {
 	let sPtr = ref.alloc(sizeTPtr);
 
 	let res = openCl.clGetPlatformInfo(pid, paramName, 0, null, sPtr);
 
-	if (res == 0) {
-		let size = sizeTPtr.get(sPtr);
-		let buf = Buffer.alloc(size);
+	checkError(res, 'clGetPlatformInfo1');
 
-		openCl.clGetPlatformInfo(pid, paramName, size, buf, null);
+	let size = sizeTPtr.get(sPtr);
+	let buf = Buffer.alloc(size);
 
-		console.log(buf.toString());
-	}
+	res = openCl.clGetPlatformInfo(pid, paramName, size, buf, null);
+
+	checkError(res, 'clGetPlatformInfo2');
+
+	console.log(buf.toString());
 };
 
-let platformIdsPtr = ref.alloc(uintPtrPtr);
+let platformIdsPtr = ref.alloc(sizeTPtr);
 
 let res = openCl.clGetPlatformIDs(1, platformIdsPtr, null);
 
-if (res != 0) {
-	throw 'ERROR: ' + res;
-}
+checkError(res, 'clGetPlatformIDs');
 
-let pid = uintPtrPtr.get(platformIdsPtr);
+let platformId = sizeTPtr.get(platformIdsPtr);
 
 [
 	CL_PLATFORM_PROFILE,
@@ -52,5 +58,5 @@ let pid = uintPtrPtr.get(platformIdsPtr);
 	CL_PLATFORM_VENDOR,
 	CL_PLATFORM_EXTENSIONS
 ].forEach( p => 
-	printPlatformInfo(pid, p)
+	printPlatformInfo(platformId, p)
 );
