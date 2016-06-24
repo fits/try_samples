@@ -57,37 +57,37 @@ const code = fs.readFileSync(process.argv[2]);
 const releaseList = [];
 
 try {
-	let platformIdsPtr = ref.alloc(sizeTPtr);
+	const platformIdsPtr = ref.alloc(sizeTPtr);
 
 	let res = openCl.clGetPlatformIDs(1, platformIdsPtr, null);
 
 	checkError(res, 'clGetPlatformIDs');
 
-	let platformId = sizeTPtr.get(platformIdsPtr);
+	const platformId = sizeTPtr.get(platformIdsPtr);
 
-	let deviceIdsPtr = ref.alloc(sizeTPtr);
+	const deviceIdsPtr = ref.alloc(sizeTPtr);
 
 	res = openCl.clGetDeviceIDs(platformId, CL_DEVICE_TYPE_DEFAULT, 1, deviceIdsPtr, null);
 
 	checkError(res, 'clGetDeviceIDs');
 
-	let deviceId = sizeTPtr.get(deviceIdsPtr);
+	const deviceId = sizeTPtr.get(deviceIdsPtr);
 
-	let errPtr = ref.alloc(intPtr);
+	const errPtr = ref.alloc(intPtr);
 
-	let ctx = openCl.clCreateContext(null, 1, deviceIdsPtr, null, null, errPtr)
+	const ctx = openCl.clCreateContext(null, 1, deviceIdsPtr, null, null, errPtr);
 
 	checkError(errPtr, 'clCreateContext');
 	releaseList.push( () => openCl.clReleaseContext(ctx) );
 
-	let queue = openCl.clCreateCommandQueue(ctx, deviceId, 0, errPtr);
+	const queue = openCl.clCreateCommandQueue(ctx, deviceId, 0, errPtr);
 
 	checkError(errPtr, 'clCreateCommandQueue');
 	releaseList.push( () => openCl.clReleaseCommandQueue(queue) );
 
-	let codeArray = new StringArray([code.toString()]);
+	const codeArray = new StringArray([code.toString()]);
 
-	let program = openCl.clCreateProgramWithSource(ctx, 1, codeArray, null, errPtr);
+	const program = openCl.clCreateProgramWithSource(ctx, 1, codeArray, null, errPtr);
 
 	checkError(errPtr, 'clCreateProgramWithSource');
 	releaseList.push( () => openCl.clReleaseProgram(program) );
@@ -96,22 +96,22 @@ try {
 
 	checkError(res, 'clBuildProgram');
 
-	let kernel = openCl.clCreateKernel(program, 'square', errPtr);
+	const kernel = openCl.clCreateKernel(program, 'square', errPtr);
 
 	checkError(errPtr, 'clCreateKernel');
 	releaseList.push( () => openCl.clReleaseKernel(kernel) );
 
-	let bufSize = dataTypeSize * data.length;
+	const bufSize = dataTypeSize * data.length;
 
-	let inBuf = Buffer.alloc(bufSize);
+	const inBuf = Buffer.alloc(bufSize);
 	data.forEach((v, i) => inBuf.writeFloatLE(v, dataTypeSize * i));
 
-	let inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, inBuf.length, inBuf, errPtr);
+	const inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, inBuf.length, inBuf, errPtr);
 
 	checkError(errPtr, 'clCreateBuffer In');
 	releaseList.push( () => openCl.clReleaseMemObject(inClBuf) );
 
-	let outClBuf = openCl.clCreateBuffer(ctx, CL_MEM_WRITE_ONLY, bufSize, null, errPtr);
+	const outClBuf = openCl.clCreateBuffer(ctx, CL_MEM_WRITE_ONLY, bufSize, null, errPtr);
 
 	checkError(errPtr, 'clCreateBuffer Out');
 	releaseList.push( () => openCl.clReleaseMemObject(outClBuf) );
@@ -124,21 +124,21 @@ try {
 
 	checkError(res, 'clSetKernelArg 1');
 
-	let ct = new Buffer(4);
+	const ct = new Buffer(4);
 	ct.writeUInt32LE(data.length);
 
 	res = openCl.clSetKernelArg(kernel, 2, ct.length, ct);
 
 	checkError(res, 'clSetKernelArg 2');
 
-	let globalPtr = ref.alloc(sizeTPtr);
+	const globalPtr = ref.alloc(sizeTPtr);
 	sizeTPtr.set(globalPtr, 0, data.length);
 
 	res = openCl.clEnqueueNDRangeKernel(queue, kernel, 1, null, globalPtr, null, 0, null, null);
 
 	checkError(res, 'clEnqueueNDRangeKernel');
 
-	let resBuf = Buffer.alloc(bufSize);
+	const resBuf = Buffer.alloc(bufSize);
 
 	res = openCl.clEnqueueReadBuffer(queue, outClBuf, true, 0, bufSize, resBuf, 0, null, null);
 
