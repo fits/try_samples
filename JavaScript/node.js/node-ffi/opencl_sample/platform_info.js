@@ -12,7 +12,6 @@ const CL_PLATFORM_EXTENSIONS = 0x0904;
 const CL_PLATFORM_HOST_TIMER_RESOLUTION = 0x0905;
 
 const uintPtr = ref.refType(ref.types.uint32);
-const uintPtrPtr = ref.refType(uintPtr);
 const sizeTPtr = ref.refType('size_t');
 
 const openCl = ffi.Library('OpenCL', {
