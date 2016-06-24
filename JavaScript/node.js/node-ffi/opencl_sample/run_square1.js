@@ -17,24 +17,23 @@ const CL_MEM_COPY_HOST_PTR = (1 << 5);
 
 const intPtr = ref.refType(ref.types.int32);
 const uintPtr = ref.refType(ref.types.uint32);
-const uintPtrPtr = ref.refType(uintPtr);
 const sizeTPtr = ref.refType('size_t');
 const StringArray = ArrayType('string');
 
 const openCl = ffi.Library('OpenCL', {
-	'clGetPlatformIDs': ['int', ['uint', uintPtrPtr, uintPtr]],
-	'clGetDeviceIDs': ['int', ['uint', 'uint', 'uint', uintPtrPtr, uintPtr]],
-	'clCreateContext': ['pointer', ['pointer', 'uint', uintPtrPtr, 'pointer', 'pointer', intPtr]],
+	'clGetPlatformIDs': ['int', ['uint', sizeTPtr, uintPtr]],
+	'clGetDeviceIDs': ['int', ['size_t', 'ulong', 'uint', sizeTPtr, uintPtr]],
+	'clCreateContext': ['pointer', ['pointer', 'uint', sizeTPtr, 'pointer', 'pointer', intPtr]],
 	'clReleaseContext': ['int', ['pointer']],
 	'clCreateProgramWithSource': ['pointer', ['pointer', 'uint', StringArray, sizeTPtr, intPtr]],
-	'clBuildProgram': ['int', ['pointer', 'uint', 'pointer', 'string', 'pointer', 'pointer']],
+	'clBuildProgram': ['int', ['pointer', 'uint', sizeTPtr, 'string', 'pointer', 'pointer']],
 	'clReleaseProgram': ['int', ['pointer']],
 	'clCreateKernel': ['pointer', ['pointer', 'string', intPtr]],
 	'clReleaseKernel': ['int', ['pointer']],
-	'clCreateBuffer': ['pointer', ['pointer', 'uint', 'size_t', 'pointer', intPtr]],
+	'clCreateBuffer': ['pointer', ['pointer', 'ulong', 'size_t', 'pointer', intPtr]],
 	'clReleaseMemObject': ['int', ['pointer']],
 	'clSetKernelArg': ['int', ['pointer', 'uint', 'size_t', 'pointer']],
-	'clCreateCommandQueue': ['pointer', ['pointer', 'uint', 'ulong', intPtr]],
+	'clCreateCommandQueue': ['pointer', ['pointer', 'size_t', 'ulong', intPtr]],
 	'clReleaseCommandQueue': ['int', ['pointer']],
 	'clEnqueueTask': ['int', ['pointer', 'pointer', 'uint', 'pointer', 'pointer']],
 	'clEnqueueReadBuffer': ['int', ['pointer', 'pointer', 'bool', 'size_t', 'size_t', 'pointer', 'uint', 'pointer', 'pointer']]
@@ -45,7 +44,7 @@ const data = [1.1, 2.2, 3.3];
 
 const code = fs.readFileSync(process.argv[2]);
 
-let platformIdsPtr = ref.alloc(uintPtrPtr);
+const platformIdsPtr = ref.alloc(sizeTPtr);
 
 let res = openCl.clGetPlatformIDs(1, platformIdsPtr, null);
 
@@ -53,9 +52,9 @@ if (res != 0) {
 	throw new Error(`clGetPlatformIDs Error: ${res}`);
 }
 
-let platformId = uintPtrPtr.get(platformIdsPtr);
+const platformId = sizeTPtr.get(platformIdsPtr);
 
-let deviceIdsPtr = ref.alloc(uintPtrPtr);
+const deviceIdsPtr = ref.alloc(sizeTPtr);
 
 res = openCl.clGetDeviceIDs(platformId, CL_DEVICE_TYPE_DEFAULT, 1, deviceIdsPtr, null);
 
@@ -63,9 +62,9 @@ if (res != 0) {
 	throw new Error(`clGetDeviceIDs Error: ${res}`);
 }
 
-let errPtr = ref.alloc(intPtr);
+const errPtr = ref.alloc(intPtr);
 
-let ctx = openCl.clCreateContext(null, 1, deviceIdsPtr, null, null, errPtr)
+const ctx = openCl.clCreateContext(null, 1, deviceIdsPtr, null, null, errPtr);
 
 let errCode = intPtr.get(errPtr);
 
@@ -73,22 +72,22 @@ if (errCode != 0) {
 	throw new Error(`clCreateContext Error: ${errCode}`);
 }
 
-let codeArray = new StringArray([code.toString()]);
+const codeArray = new StringArray([code.toString()]);
 
-let program = openCl.clCreateProgramWithSource(ctx, 1, codeArray, null, errPtr);
+const program = openCl.clCreateProgramWithSource(ctx, 1, codeArray, null, errPtr);
 errCode = intPtr.get(errPtr);
 
 if (errCode != 0) {
 	throw new Error(`clCreateProgramWithSource Error: ${errCode}`);
 }
 
-errCode = openCl.clBuildProgram(program, 1, deviceIdsPtr, null, null, null)
+errCode = openCl.clBuildProgram(program, 1, deviceIdsPtr, null, null, null);
 
 if (errCode != 0) {
 	throw new Error(`clBuildProgram Error: ${errCode}`);
 }
 
-let kernel = openCl.clCreateKernel(program, 'square', errPtr);
+const kernel = openCl.clCreateKernel(program, 'square', errPtr);
 
 errCode = intPtr.get(errPtr);
 
@@ -96,12 +95,12 @@ if (errCode != 0) {
 	throw new Error(`clCreateKernel Error: ${errCode}`);
 }
 
-let bufSize = dataTypeSize * data.length;
+const bufSize = dataTypeSize * data.length;
 
-let inBuf = Buffer.alloc(bufSize);
+const inBuf = Buffer.alloc(bufSize);
 data.forEach((v, i) => inBuf.writeFloatLE(v, dataTypeSize * i));
 
-let inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, inBuf.length, inBuf, errPtr);
+const inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, inBuf.length, inBuf, errPtr);
 
 errCode = intPtr.get(errPtr);
 
@@ -109,7 +108,7 @@ if (errCode != 0) {
 	throw new Error(`clCreateBuffer In Error: ${errCode}`);
 }
 
-let outClBuf = openCl.clCreateBuffer(ctx, CL_MEM_WRITE_ONLY, bufSize, null, errPtr);
+const outClBuf = openCl.clCreateBuffer(ctx, CL_MEM_WRITE_ONLY, bufSize, null, errPtr);
 
 errCode = intPtr.get(errPtr);
 
@@ -129,7 +128,7 @@ if (errCode != 0) {
 	throw new Error(`clSetKernelArg 1 Error: ${errCode}`);
 }
 
-let ct = new Buffer(4);
+const ct = new Buffer(4);
 ct.writeUInt32LE(data.length);
 
 errCode = openCl.clSetKernelArg(kernel, 2, ct.length, ct);
@@ -138,9 +137,9 @@ if (errCode != 0) {
 	throw new Error(`clSetKernelArg 2 Error: ${errCode}`);
 }
 
-let deviceId = uintPtrPtr.get(deviceIdsPtr);
+const deviceId = sizeTPtr.get(deviceIdsPtr);
 
-let queue = openCl.clCreateCommandQueue(ctx, deviceId, 0, errPtr);
+const queue = openCl.clCreateCommandQueue(ctx, deviceId, 0, errPtr);
 
 errCode = intPtr.get(errPtr);
 
@@ -154,7 +153,7 @@ if (errCode != 0) {
 	throw new Error(`clEnqueueTask Error: ${errCode}`);
 }
 
-let resBuf = Buffer.alloc(bufSize);
+const resBuf = Buffer.alloc(bufSize);
 
 errCode = openCl.clEnqueueReadBuffer(queue, outClBuf, true, 0, bufSize, resBuf, 0, null, null);
 

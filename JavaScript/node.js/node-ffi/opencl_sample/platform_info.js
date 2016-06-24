@@ -27,14 +27,14 @@ const checkError = (errCode, title = '') => {
 };
 
 const printPlatformInfo = (pid, paramName) => {
-	let sPtr = ref.alloc(sizeTPtr);
+	const sPtr = ref.alloc(sizeTPtr);
 
 	let res = openCl.clGetPlatformInfo(pid, paramName, 0, null, sPtr);
 
 	checkError(res, 'clGetPlatformInfo1');
 
-	let size = sizeTPtr.get(sPtr);
-	let buf = Buffer.alloc(size);
+	const size = sizeTPtr.get(sPtr);
+	const buf = Buffer.alloc(size);
 
 	res = openCl.clGetPlatformInfo(pid, paramName, size, buf, null);
 
@@ -43,13 +43,13 @@ const printPlatformInfo = (pid, paramName) => {
 	console.log(buf.toString());
 };
 
-let platformIdsPtr = ref.alloc(sizeTPtr);
+const platformIdsPtr = ref.alloc(sizeTPtr);
 
-let res = openCl.clGetPlatformIDs(1, platformIdsPtr, null);
+const res = openCl.clGetPlatformIDs(1, platformIdsPtr, null);
 
 checkError(res, 'clGetPlatformIDs');
 
-let platformId = sizeTPtr.get(platformIdsPtr);
+const platformId = sizeTPtr.get(platformIdsPtr);
 
 [
 	CL_PLATFORM_PROFILE,

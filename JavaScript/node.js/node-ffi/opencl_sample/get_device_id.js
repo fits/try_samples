@@ -20,22 +20,22 @@ const checkError = (errCode, title = '') => {
 	}
 };
 
-let platformIdsPtr = ref.alloc(sizeTPtr);
+const platformIdsPtr = ref.alloc(sizeTPtr);
 
 let res = openCl.clGetPlatformIDs(1, platformIdsPtr, null);
 
 checkError(res, 'clGetPlatformIDs');
 
-let platformId =sizeTPtr.get(platformIdsPtr);
+const platformId = sizeTPtr.get(platformIdsPtr);
 
 console.log(`platformId: ${platformId}`);
 
-let deviceIdsPtr = ref.alloc(sizeTPtr);
+const deviceIdsPtr = ref.alloc(sizeTPtr);
 
 res = openCl.clGetDeviceIDs(platformId, CL_DEVICE_TYPE_DEFAULT, 1, deviceIdsPtr, null);
 
 checkError(res, 'clGetDeviceIDs');
 
-let deviceId = sizeTPtr.get(deviceIdsPtr);
+const deviceId = sizeTPtr.get(deviceIdsPtr);
 
 console.log(`deviceId: ${deviceId}`);
