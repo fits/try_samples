@@ -126,7 +126,7 @@ try {
 
 	const ct = ref.alloc(ref.types.uint32, data.length);
 
-	res = openCl.clSetKernelArg(kernel, 2, ct.length, ct.ref());
+	res = openCl.clSetKernelArg(kernel, 2, ct.length, ct);
 
 	checkError(res, 'clSetKernelArg 2');
 
