@@ -19,7 +19,6 @@ const intPtr = ref.refType(ref.types.int32);
 const uintPtr = ref.refType(ref.types.uint32);
 const sizeTPtr = ref.refType('size_t');
 const StringArray = ArrayType('string');
-const FloatArray = ArrayType('float');
 
 const openCl = ffi.Library('OpenCL', {
 	'clGetPlatformIDs': ['int', ['uint', sizeTPtr, uintPtr]],
@@ -101,10 +100,13 @@ try {
 	checkError(errPtr, 'clCreateKernel');
 	releaseList.push( () => openCl.clReleaseKernel(kernel) );
 
-	const dataArray = new FloatArray(data);
-	const bufSize = dataArray.buffer.length;
+	const FixedFloatArray = ArrayType('float', data.length);
 
-	const inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, bufSize, dataArray.buffer, errPtr);
+	const inputData = new FixedFloatArray(data);
+
+	const bufSize = inputData.buffer.length;
+
+	const inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, bufSize, inputData.buffer, errPtr);
 
 	checkError(errPtr, 'clCreateBuffer In');
 	releaseList.push( () => openCl.clReleaseMemObject(inClBuf) );
@@ -135,14 +137,14 @@ try {
 
 	checkError(res, 'clEnqueueNDRangeKernel');
 
-	const resBuf = Buffer.alloc(bufSize);
+	const resData = new FixedFloatArray();
 
-	res = openCl.clEnqueueReadBuffer(queue, outClBuf, true, 0, bufSize, resBuf, 0, null, null);
+	res = openCl.clEnqueueReadBuffer(queue, outClBuf, true, 0, resData.buffer.length, resData.buffer, 0, null, null);
 
 	checkError(res, 'clEnqueueReadBuffer');
 
-	for (let i = 0; i < data.length; i++) {
-		console.log(ref.types.float.get(resBuf, i * ref.types.float.size));
+	for (let i = 0; i < resData.length; i++) {
+		console.log(resData[i]);
 	}
 
 } finally {
