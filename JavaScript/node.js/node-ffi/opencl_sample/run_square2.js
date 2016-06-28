@@ -19,6 +19,7 @@ const intPtr = ref.refType(ref.types.int32);
 const uintPtr = ref.refType(ref.types.uint32);
 const sizeTPtr = ref.refType('size_t');
 const StringArray = ArrayType('string');
+const FloatArray = ArrayType('float');
 
 const openCl = ffi.Library('OpenCL', {
 	'clGetPlatformIDs': ['int', ['uint', sizeTPtr, uintPtr]],
@@ -49,8 +50,7 @@ const checkError = (err, title = '') => {
 	}
 };
 
-const dataTypeSize = 4;
-const data = [1.1, 2.2, 3.3];
+const data = [1.1, 2.2, 3.3, 4.4, 5.5];
 
 const code = fs.readFileSync(process.argv[2]);
 
@@ -101,12 +101,10 @@ try {
 	checkError(errPtr, 'clCreateKernel');
 	releaseList.push( () => openCl.clReleaseKernel(kernel) );
 
-	const bufSize = dataTypeSize * data.length;
+	const dataArray = new FloatArray(data);
+	const bufSize = dataArray.buffer.length;
 
-	const inBuf = Buffer.alloc(bufSize);
-	data.forEach((v, i) => inBuf.writeFloatLE(v, dataTypeSize * i));
-
-	const inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, inBuf.length, inBuf, errPtr);
+	const inClBuf = openCl.clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, bufSize, dataArray.buffer, errPtr);
 
 	checkError(errPtr, 'clCreateBuffer In');
 	releaseList.push( () => openCl.clReleaseMemObject(inClBuf) );
@@ -116,7 +114,7 @@ try {
 	checkError(errPtr, 'clCreateBuffer Out');
 	releaseList.push( () => openCl.clReleaseMemObject(outClBuf) );
 
-	res = openCl.clSetKernelArg(kernel, 0, inBuf.length, inClBuf.ref());
+	res = openCl.clSetKernelArg(kernel, 0, bufSize, inClBuf.ref());
 
 	checkError(res, 'clSetKernelArg 0');
 
@@ -124,10 +122,9 @@ try {
 
 	checkError(res, 'clSetKernelArg 1');
 
-	const ct = new Buffer(4);
-	ct.writeUInt32LE(data.length);
+	const ct = ref.alloc(ref.types.uint32, data.length);
 
-	res = openCl.clSetKernelArg(kernel, 2, ct.length, ct);
+	res = openCl.clSetKernelArg(kernel, 2, ct.length, ct.ref());
 
 	checkError(res, 'clSetKernelArg 2');
 
@@ -144,9 +141,9 @@ try {
 
 	checkError(res, 'clEnqueueReadBuffer');
 
-	console.log(resBuf.readFloatLE());
-	console.log(resBuf.readFloatLE(4));
-	console.log(resBuf.readFloatLE(8));
+	for (let i = 0; i < data.length; i++) {
+		console.log(ref.types.float.get(resBuf, i * ref.types.float.size));
+	}
 
 } finally {
 	releaseList.reverse().forEach( f => f() );
