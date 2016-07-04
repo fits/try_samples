@@ -20,7 +20,9 @@ const uintPtr = ref.refType(ref.types.uint32);
 const sizeTPtr = ref.refType('size_t');
 const StringArray = ArrayType('string');
 
-const openCl = ffi.Library('OpenCL', {
+const clLib = (process.platform == 'win32') ? 'OpenCL' : 'libOpenCL';
+
+const openCl = ffi.Library(clLib, {
 	'clGetPlatformIDs': ['int', ['uint', sizeTPtr, uintPtr]],
 	'clGetDeviceIDs': ['int', ['size_t', 'ulong', 'uint', sizeTPtr, uintPtr]],
 	'clCreateContext': ['pointer', ['pointer', 'uint', sizeTPtr, 'pointer', 'pointer', intPtr]],
@@ -116,11 +118,15 @@ try {
 	checkError(errPtr, 'clCreateBuffer Out');
 	releaseList.push( () => openCl.clReleaseMemObject(outClBuf) );
 
-	res = openCl.clSetKernelArg(kernel, 0, bufSize, inClBuf.ref());
+	const inClBufRef = inClBuf.ref();
+
+	res = openCl.clSetKernelArg(kernel, 0, inClBufRef.length, inClBufRef);
 
 	checkError(res, 'clSetKernelArg 0');
 
-	res = openCl.clSetKernelArg(kernel, 1, bufSize, outClBuf.ref());
+	const outClBufRef = outClBuf.ref();
+
+	res = openCl.clSetKernelArg(kernel, 1, outClBufRef.length, outClBufRef);
 
 	checkError(res, 'clSetKernelArg 1');
 
