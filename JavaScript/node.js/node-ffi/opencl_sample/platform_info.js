@@ -14,7 +14,9 @@ const CL_PLATFORM_HOST_TIMER_RESOLUTION = 0x0905;
 const uintPtr = ref.refType(ref.types.uint32);
 const sizeTPtr = ref.refType('size_t');
 
-const openCl = ffi.Library('OpenCL', {
+const clLib = (process.platform == 'win32') ? 'OpenCL' : 'libOpenCL';
+
+const openCl = ffi.Library(clLib, {
 	'clGetPlatformIDs': ['int', ['uint', sizeTPtr, uintPtr]],
 	'clGetPlatformInfo': ['int', ['size_t', 'uint', 'size_t', 'pointer', sizeTPtr]]
 });

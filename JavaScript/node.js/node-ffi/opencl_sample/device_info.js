@@ -17,7 +17,9 @@ const CL_DEVICE_PROFILE = 0x102E;
 const uintPtr = ref.refType(ref.types.uint32);
 const sizeTPtr = ref.refType('size_t');
 
-const openCl = ffi.Library('OpenCL', {
+const clLib = (process.platform == 'win32') ? 'OpenCL' : 'libOpenCL';
+
+const openCl = ffi.Library(clLib, {
 	'clGetPlatformIDs': ['int', ['uint', sizeTPtr, uintPtr]],
 	'clGetDeviceIDs': ['int', ['size_t', 'ulong', 'uint', sizeTPtr, uintPtr]],
 	'clGetDeviceInfo': ['int', ['size_t', 'uint', 'size_t', 'pointer', sizeTPtr]]
