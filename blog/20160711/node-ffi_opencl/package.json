@@ -1,0 +1,8 @@
+{
+  "name": "opencl_sample",
+  "version": "1.0.1",
+  "description": "",
+  "dependencies": {
+    "ffi": "^2.0.0"
+  }
+}
