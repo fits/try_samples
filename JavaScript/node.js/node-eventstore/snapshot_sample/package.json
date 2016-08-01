@@ -1,0 +1,10 @@
+{
+  "name": "eventstore-snapshot-sample",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "eventstore": "^1.7.11",
+    "redis": "^2.6.2"
+  }
+}
