@@ -1,0 +1,14 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.sparkjava:spark-core:2.5'
+	compile 'org.codehaus.groovy:groovy:2.4.7'
+	runtime 'org.slf4j:slf4j-simple:1.7.21'
+}
+
+mainClassName = 'now'
