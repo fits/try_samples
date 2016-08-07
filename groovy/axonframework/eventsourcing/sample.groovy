@@ -77,16 +77,13 @@ class Data {
 	}
 }
 
+def cmdBus = new SimpleCommandBus()
+def gateway = new DefaultCommandGateway(cmdBus)
+
 def es = new EmbeddedEventStore(new InMemoryEventStorageEngine())
 def repo = new EventSourcingRepository(Data, es)
 
-def cmdHandler = new AggregateAnnotationCommandHandler(Data, repo)
-
-def cmdBus = new SimpleCommandBus()
-
-cmdHandler.subscribe(cmdBus)
-
-def gateway = new DefaultCommandGateway(cmdBus)
+new AggregateAnnotationCommandHandler(Data, repo).subscribe(cmdBus)
 
 def callback = [
 	onSuccess: {m, r -> println "success: ${r}" },
