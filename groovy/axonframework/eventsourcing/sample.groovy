@@ -56,7 +56,7 @@ class Data {
 	}
 
 	@CommandHandler
-	private void updateValue(UpdateDataCommand cmd) {
+	private def updateValue(UpdateDataCommand cmd) {
 		println '*** update value'
 		AggregateLifecycle.apply(new DataUpdatedEvent(cmd.valueDiff))
 	}
@@ -86,8 +86,11 @@ def repo = new EventSourcingRepository(Data, es)
 new AggregateAnnotationCommandHandler(Data, repo).subscribe(cmdBus)
 
 def callback = [
-	onSuccess: {m, r -> println "success: ${r}" },
-	onFailure: {m, e -> println "failure: ${e}" }
+	onSuccess: {m, r -> 
+		println "- success: ${m.dump()}, ${r?.dump()}" 
+		println "- current: ${r.aggregateRoot.dump()}"
+	},
+	onFailure: {m, e -> println "- failure: ${m.dump()}, ${e}" }
 ] as CommandCallback
 
 gateway.send(new CreateDataCommand('d1', 10), callback)
@@ -99,3 +102,6 @@ gateway.send(new UpdateDataCommand('d1', 5), callback)
 println '----------'
 
 gateway.send(new UpdateDataCommand('d1', 3), callback)
+
+println '----------'
+
