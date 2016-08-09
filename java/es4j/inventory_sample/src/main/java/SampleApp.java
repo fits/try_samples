@@ -11,19 +11,20 @@ import com.eventsourcing.index.MemoryIndexEngine;
 import com.eventsourcing.inmem.MemoryJournal;
 import com.eventsourcing.repository.CommandConsumer;
 import com.eventsourcing.repository.StandardRepository;
+
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.Service;
 
 import lombok.val;
-
-import sample.commands.CreateInventoryItem;
-import sample.events.InventoryItemCreated;
 
 import java.net.UnknownHostException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
+import sample.commands.CreateInventoryItem;
+import sample.commands.CheckInItemsToInventory;
+import sample.events.InventoryItemCreated;
 
 public class SampleApp {
     public static void main(String... args) throws TimeoutException, UnknownHostException {
@@ -46,12 +47,24 @@ public class SampleApp {
             repository.addCommandSetProvider(createCommandSetProvider());
             repository.addEventSetProvider(createEventSetProvider());
 
-            val cmd = new CreateInventoryItem("sample1");
+            val cmd1 = new CreateInventoryItem("sample1");
 
-            val res = repository.publish(cmd).get();
+            val res = repository.publish(cmd1).get();
 
             System.out.println("id: " + res.getId());
             System.out.println("name: " + res.name());
+
+            System.out.println("count1: " + res.count());
+
+            val cmd2 = new CheckInItemsToInventory(res.getId(), 5);
+            repository.publish(cmd2).get();
+
+            System.out.println("count2: " + res.count());
+
+            val cmd3 = new CheckInItemsToInventory(res.getId(), 3);
+            repository.publish(cmd3).get();
+
+            System.out.println("count3: " + res.count());
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
