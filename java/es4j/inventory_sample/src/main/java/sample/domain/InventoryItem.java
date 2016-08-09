@@ -8,11 +8,14 @@ import lombok.Getter;
 
 import sample.events.InventoryItemCreated;
 import sample.protocols.InventoryItemNameProtocol;
+import sample.protocols.InventoryItemCountProtocol;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class InventoryItem implements Model, InventoryItemNameProtocol {
+public class InventoryItem implements Model, 
+        InventoryItemNameProtocol, InventoryItemCountProtocol {
+
     @Getter
     private final Repository repository;
     @Getter

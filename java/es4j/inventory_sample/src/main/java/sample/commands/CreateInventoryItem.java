@@ -16,7 +16,7 @@ import sample.events.InventoryItemRenamed;
 @EqualsAndHashCode(callSuper = false)
 public class CreateInventoryItem extends StandardCommand<InventoryItemCreated, InventoryItem> {
     @Getter
-    private String name;
+    private final String name;
 
     public CreateInventoryItem(@PropertyName("name") String name) {
         this.name = name;
