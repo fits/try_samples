@@ -4,7 +4,6 @@ import static com.eventsourcing.index.EntityQueryFactory.*;
 
 import com.eventsourcing.EntityHandle;
 import com.eventsourcing.Protocol;
-import com.eventsourcing.queries.ModelQueries;
 import com.googlecode.cqengine.query.Query;
 
 import lombok.val;
@@ -13,7 +12,7 @@ import java.util.stream.StreamSupport;
 
 import sample.events.ItemsCheckedInToInventory;
 
-public interface InventoryItemCountProtocol extends Protocol, ModelQueries {
+public interface InventoryItemCountProtocol extends Protocol {
 
     default int count() {
         val queryOpt = equal(ItemsCheckedInToInventory.REFERENCE_ID, getId());
