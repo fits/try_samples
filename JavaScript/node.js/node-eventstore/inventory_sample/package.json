@@ -1,0 +1,9 @@
+{
+  "name": "inventory-sample",
+  "version": "0.0.1",
+  "description": "",
+  "dependencies": {
+    "eventstore": "^1.7.11",
+    "redis": "^2.6.2"
+  }
+}
