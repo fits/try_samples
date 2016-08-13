@@ -96,7 +96,7 @@ using (var eventStore = Wireup.Init().Build())
 	using (var eventStream = eventStore.OpenStream(aggregateId))
 	{
 		var entity = ApplyEvents(new InventoryItem(), eventStream.CommittedEvents);
-		var snapshot = new Snapshot(aggregateId, eventStream.CommittedEvents.Count, entity);
+		var snapshot = new Snapshot(aggregateId, eventStream.StreamRevision, entity);
 
 		eventStore.Advanced.AddSnapshot(snapshot);
 	}
