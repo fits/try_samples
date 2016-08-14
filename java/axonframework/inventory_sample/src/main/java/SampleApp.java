@@ -8,6 +8,13 @@ import org.axonframework.eventsourcing.EventSourcingRepository;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
 
+// for SnapshotterTrigger
+import org.axonframework.commandhandling.model.Aggregate;
+import org.axonframework.eventsourcing.DomainEventMessage;
+import org.axonframework.eventsourcing.SnapshotterTrigger;
+import org.axonframework.eventsourcing.eventstore.DomainEventStream;
+import java.util.List;
+
 import lombok.val;
 
 import sample.commands.CreateInventoryItem;
@@ -23,6 +30,7 @@ public class SampleApp {
         val es = new EmbeddedEventStore(new InMemoryEventStorageEngine());
 
         val repository = new EventSourcingRepository<>(InventoryItem.class, es);
+        repository.setSnapshotterTrigger(new SampleSnapshotterTrigger());
 
         new AggregateAnnotationCommandHandler<>(InventoryItem.class, 
                                                 repository).subscribe(cmdBus);
@@ -52,5 +60,24 @@ public class SampleApp {
 
     private static void printAggregate(EventSourcedAggregate<InventoryItem> esa) {
         System.out.println(esa.getAggregateRoot());
+    }
+
+
+    static class SampleSnapshotterTrigger implements SnapshotterTrigger {
+        @Override
+        public DomainEventStream decorateForRead(String aggregateIdentifier, DomainEventStream eventStream) {
+
+            System.out.println("*** call decorateForRead : " + aggregateIdentifier);
+
+            return eventStream;
+        }
+
+        @Override
+        public List<DomainEventMessage<?>> decorateForAppend(Aggregate<?> aggregate, List<DomainEventMessage<?>> events) {
+
+            System.out.println("*** call decorateForAppend");
+
+            return events;
+        }
     }
 }
