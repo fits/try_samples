@@ -39,6 +39,11 @@ public class SampleApp {
 
         System.out.println("----------");
 
+        gateway.sendAndWait(new CreateInventoryItem("s1", "sample3"));
+
+        System.out.println("----------");
+
+
         EventSourcedAggregate<InventoryItem> r3 = 
             gateway.sendAndWait(new CheckInItemsToInventory("s1", 3));
 
