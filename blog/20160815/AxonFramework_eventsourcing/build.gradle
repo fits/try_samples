@@ -1,0 +1,15 @@
+apply plugin: 'application'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.16.10'
+
+    compile 'org.axonframework:axon-core:3.0-M3'
+
+    runtime 'org.slf4j:slf4j-simple:1.7.21'
+}
+
+mainClassName = 'SampleApp'
