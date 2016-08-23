@@ -1,0 +1,8 @@
+{
+  "name": "leveldb_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "level": "^1.4.0"
+  }
+}
