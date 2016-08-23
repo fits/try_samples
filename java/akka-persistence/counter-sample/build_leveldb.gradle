@@ -1,0 +1,18 @@
+apply plugin: 'application'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.16.10'
+
+    compile 'com.typesafe.akka:akka-persistence_2.11:2.4.9'
+
+    runtime 'org.iq80.leveldb:leveldb:0.9'
+    runtime 'org.fusesource.leveldbjni:leveldbjni-all:1.8'
+}
+
+sourceSets.main.resources.srcDirs = ['src/main/resources_leveldb']
+
+mainClassName = 'SampleApp'
