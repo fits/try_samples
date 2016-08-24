@@ -1,0 +1,43 @@
+
+apply plugin: 'scala'
+apply plugin: 'application'
+
+def protoDestDir = 'src/main/protoc-generated'
+def protoFile = 'proto/person.proto'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	scalapbc
+}
+
+dependencies {
+	scalapbc 'com.trueaccord.scalapb:scalapbc_2.11:0.5.38'
+
+	compile 'org.scala-lang:scala-library:2.11.8'
+	compile 'com.trueaccord.scalapb:scalapb-runtime_2.11:0.5.38'
+	compile 'com.jsuereth:scala-arm_2.11:2.0-RC1'
+}
+
+task scalapbc << {
+	mkdir(protoDestDir)
+
+	javaexec {
+		main = 'com.trueaccord.scalapb.ScalaPBC'
+		classpath = configurations.scalapbc
+		args = [ protoFile, "--scala_out=${protoDestDir}" ]
+	}
+}
+
+compileScala {
+	dependsOn scalapbc
+	source protoDestDir
+}
+
+clean {
+	delete protoDestDir
+}
