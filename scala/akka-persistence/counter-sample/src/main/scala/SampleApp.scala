@@ -1,11 +1,9 @@
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.{ActorSystem, Props}
 import sample.{CounterAdd, SampleActor}
 
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
 object SampleApp extends App {
   val system = ActorSystem("sample1")
@@ -25,5 +23,9 @@ object SampleApp extends App {
 
   actor ! "end"
 
-  Await.result(system.whenTerminated, Duration(5, TimeUnit.SECONDS))
+  implicit val exeContext = system.dispatcher
+
+  system.scheduler.scheduleOnce(10 seconds) {
+    system.terminate
+  }
 }
