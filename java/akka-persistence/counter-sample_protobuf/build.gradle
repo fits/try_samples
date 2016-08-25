@@ -1,0 +1,51 @@
+apply plugin: 'application'
+
+def protoDestDir = 'src/main/protoc-generated'
+def protoFile = 'proto/count.proto'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	protoc
+}
+
+dependencies {
+	protoc 'com.github.os72:protoc-jar:3.0.0'
+
+	compileOnly 'org.projectlombok:lombok:1.16.10'
+
+	compile 'com.typesafe.akka:akka-persistence_2.11:2.4.9'
+	compile 'com.google.protobuf:protobuf-java:3.0.0'
+
+	runtime 'org.iq80.leveldb:leveldb:0.9'
+	runtime 'org.fusesource.leveldbjni:leveldbjni-all:1.8'
+
+	runtime 'com.typesafe.akka:akka-remote_2.11:2.4.9'
+}
+
+task protoc << {
+	mkdir(protoDestDir)
+
+	javaexec {
+		main = 'com.github.os72.protocjar.Protoc'
+		classpath = configurations.protoc
+		args = [ protoFile, "--java_out=${protoDestDir}" ]
+	}
+}
+
+compileJava {
+	dependsOn protoc
+	source protoDestDir
+}
+
+run {
+	classpath 'conf'
+}
+
+clean {
+	delete protoDestDir
+}
