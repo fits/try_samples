@@ -1,0 +1,41 @@
+
+apply plugin: 'application'
+
+def protoDestDir = 'src/main/protoc-generated'
+def protoFile = 'proto/sample.proto'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+configurations {
+	protoc
+}
+
+dependencies {
+	protoc 'com.github.os72:protoc-jar:3.0.0'
+
+	compileOnly 'org.projectlombok:lombok:1.16.10'
+	compile 'com.google.protobuf:protobuf-java:3.0.0'
+}
+
+task protoc << {
+	mkdir(protoDestDir)
+
+	javaexec {
+		main = 'com.github.os72.protocjar.Protoc'
+		classpath = configurations.protoc
+		args = [ protoFile, "--java_out=${protoDestDir}" ]
+	}
+}
+
+compileJava {
+	dependsOn protoc
+	source protoDestDir
+}
+
+clean {
+	delete protoDestDir
+}
