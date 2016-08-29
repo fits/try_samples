@@ -1,6 +1,8 @@
 apply plugin: 'scala'
 apply plugin: 'application'
 
+mainClassName = 'SampleApp'
+
 repositories {
     jcenter()
 }
@@ -15,6 +17,6 @@ dependencies {
     runtime 'com.github.romix.akka:akka-kryo-serialization_2.11:0.4.1'
 }
 
-sourceSets.main.resources.srcDirs = ['src/main/resources_leveldb_kryo']
-
-mainClassName = 'SampleApp'
+run {
+    classpath 'conf/leveldb-kryo'
+}
