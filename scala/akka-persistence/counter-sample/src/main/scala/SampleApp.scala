@@ -1,5 +1,7 @@
 
 import akka.actor.{ActorSystem, Props}
+import akka.pattern._
+
 import sample.{CounterAdd, SampleActor}
 
 import scala.concurrent.Await
@@ -21,11 +23,7 @@ object SampleApp extends App {
 
   actor ! "dump"
 
-  actor ! "end"
-
   implicit val exeContext = system.dispatcher
 
-  system.scheduler.scheduleOnce(10 seconds) {
-    system.terminate
-  }
+  gracefulStop(actor, 5 seconds, "end").onComplete(_ => system.terminate)
 }
