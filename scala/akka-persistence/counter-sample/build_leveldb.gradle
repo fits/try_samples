@@ -1,6 +1,8 @@
 apply plugin: 'scala'
 apply plugin: 'application'
 
+mainClassName = 'SampleApp'
+
 repositories {
     jcenter()
 }
@@ -13,6 +15,6 @@ dependencies {
     runtime 'org.fusesource.leveldbjni:leveldbjni-all:1.8'
 }
 
-sourceSets.main.resources.srcDirs = ['src/main/resources_leveldb']
-
-mainClassName = 'SampleApp'
+run {
+    classpath 'conf/leveldb'
+}
