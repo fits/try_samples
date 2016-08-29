@@ -36,6 +36,6 @@ class SampleActor extends PersistentActor {
     }
     case "snapshot" => saveSnapshot(state)
     case "dump" => println(s"counter: ${state}")
-    case "end" => context.system.terminate()
+    case "end" => context.stop(self)
   }
 }
