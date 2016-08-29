@@ -38,7 +38,7 @@ public class SampleActor extends AbstractPersistentActor {
                 )
                 .matchEquals("snapshot", cmd -> saveSnapshot(state))
                 .matchEquals("dump", cmd -> System.out.println("counter: " + state))
-                .matchEquals("end", cmd -> context().system().terminate())
+                .matchEquals("end", cmd -> context().stop(self()))
                 .build();
     }
 
