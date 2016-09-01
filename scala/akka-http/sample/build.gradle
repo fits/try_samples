@@ -1,0 +1,17 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.11.8'
+	compile 'com.typesafe.akka:akka-http-experimental_2.11:2.4.9'
+}
+
+run {
+	standardInput = System.in
+}
