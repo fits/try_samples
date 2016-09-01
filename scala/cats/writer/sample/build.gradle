@@ -1,0 +1,17 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.8'
+    compile 'org.typelevel:cats-core_2.11:0.7.0'
+}
+
+compileScala {
+    scalaCompileOptions.additionalParameters = ['-feature']
+}
