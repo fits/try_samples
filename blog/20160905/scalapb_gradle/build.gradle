@@ -16,10 +16,10 @@ configurations {
 }
 
 dependencies {
-	scalapbc 'com.trueaccord.scalapb:scalapbc_2.11:0.5.38'
+	scalapbc 'com.trueaccord.scalapb:scalapbc_2.11:0.5.40'
 
 	compile 'org.scala-lang:scala-library:2.11.8'
-	compile 'com.trueaccord.scalapb:scalapb-runtime_2.11:0.5.38'
+	compile 'com.trueaccord.scalapb:scalapb-runtime_2.11:0.5.40'
 }
 
 task scalapbc << {
