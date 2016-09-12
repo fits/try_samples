@@ -43,7 +43,7 @@ class InventoryActor(val id: String) extends PersistentActor {
     }
     case "snapshot" => state.foreach(saveSnapshot)
     case "dump" => println(s"state: ${state}")
-    case "end" => context.system.terminate()
+    case "stop" => context.stop(self)
   }
 
   private def updateState(event: InventoryItemCreated): Unit = {

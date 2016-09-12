@@ -32,5 +32,5 @@ object SampleApp extends App {
 
   actor ! "dump"
 
-  gracefulStop(actor, 5 seconds, "end").onComplete(_ => system.terminate)
+  gracefulStop(actor, 5 seconds, "stop").onComplete(_ => system.terminate)
 }
