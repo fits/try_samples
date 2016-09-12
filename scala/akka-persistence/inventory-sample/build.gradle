@@ -1,0 +1,17 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.12.0-M4'
+	compile 'com.typesafe.akka:akka-persistence_2.12.0-M4:2.4.9'
+}
+
+run {
+	classpath 'conf'
+}
