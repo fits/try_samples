@@ -1,0 +1,29 @@
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = 'SampleAppKt'
+
+buildscript {
+	ext.kotlin_version = '1.0.3'
+
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+	compile 'com.typesafe.akka:akka-persistence_2.12.0-RC1:2.4.10'
+}
+
+run {
+	classpath 'conf'
+}
