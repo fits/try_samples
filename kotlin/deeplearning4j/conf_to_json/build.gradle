@@ -19,12 +19,6 @@ repositories {
 	jcenter()
 }
 
-/*
-configurations {
-	all*.exclude group: 'org.bytedeco', module: 'javacpp-presets'
-}
-*/
-
 dependencies {
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
