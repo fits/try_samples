@@ -1,0 +1,59 @@
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.3'
+	}
+}
+
+subprojects {
+	apply plugin: 'kotlin'
+	apply plugin: 'application'
+
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.3'
+
+		compile('org.deeplearning4j:deeplearning4j-core:0.6.0') {
+			exclude group: 'org.bytedeco', module: 'javacpp-presets'
+		}
+
+		runtime 'org.nd4j:nd4j-native-platform:0.6.0'
+	}
+
+	run {
+		if (project.hasProperty('args')) {
+			args project.args.split(' ')
+		}
+	}
+}
+
+project(':conf_to_json') {
+	mainClassName = 'ConfToJsonKt'
+
+	dependencies {
+		runtime 'org.slf4j:slf4j-nop:1.7.21'
+	}
+}
+
+project(':learn_mnist') {
+	mainClassName = 'LearnMnistKt'
+
+	dependencies {
+		runtime 'org.slf4j:slf4j-simple:1.7.21'
+	}
+}
+
+project(':eval_mnist') {
+	mainClassName = 'EvalMnistKt'
+
+	dependencies {
+		runtime 'org.slf4j:slf4j-nop:1.7.21'
+	}
+}

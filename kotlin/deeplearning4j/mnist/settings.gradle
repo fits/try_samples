@@ -1,0 +1,2 @@
+
+include 'conf_to_json', 'learn_mnist', 'eval_mnist'
