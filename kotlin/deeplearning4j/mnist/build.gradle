@@ -1,11 +1,13 @@
 
+def slf4jVer = '1.7.21'
+
 buildscript {
 	repositories {
 		jcenter()
 	}
 
 	dependencies {
-		classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.3'
+		classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.4'
 	}
 }
 
@@ -18,7 +20,7 @@ subprojects {
 	}
 
 	dependencies {
-		compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.3'
+		compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.4'
 
 		compile('org.deeplearning4j:deeplearning4j-core:0.6.0') {
 			exclude group: 'org.bytedeco', module: 'javacpp-presets'
@@ -38,7 +40,15 @@ project(':conf_to_json') {
 	mainClassName = 'ConfToJsonKt'
 
 	dependencies {
-		runtime 'org.slf4j:slf4j-nop:1.7.21'
+		runtime "org.slf4j:slf4j-nop:${slf4jVer}"
+	}
+}
+
+project(':conf_to_json2') {
+	mainClassName = 'ConfToJson2Kt'
+
+	dependencies {
+		runtime "org.slf4j:slf4j-nop:${slf4jVer}"
 	}
 }
 
@@ -46,7 +56,7 @@ project(':learn_mnist') {
 	mainClassName = 'LearnMnistKt'
 
 	dependencies {
-		runtime 'org.slf4j:slf4j-simple:1.7.21'
+		runtime "org.slf4j:slf4j-simple:${slf4jVer}"
 	}
 }
 
@@ -54,6 +64,6 @@ project(':eval_mnist') {
 	mainClassName = 'EvalMnistKt'
 
 	dependencies {
-		runtime 'org.slf4j:slf4j-nop:1.7.21'
+		runtime "org.slf4j:slf4j-nop:${slf4jVer}"
 	}
 }
