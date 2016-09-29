@@ -1,2 +1,2 @@
 
-include 'conf_to_json', 'learn_mnist', 'eval_mnist'
+include 'conf_to_json', 'conf_to_json2', 'learn_mnist', 'eval_mnist'
