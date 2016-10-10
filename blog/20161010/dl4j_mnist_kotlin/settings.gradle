@@ -1,0 +1,2 @@
+
+include 'conv_model', 'learn_mnist', 'eval_mnist'
