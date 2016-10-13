@@ -1,4 +1,4 @@
-@Grab('org.apache.lucene:lucene-core:5.4.1')
+@Grab('org.apache.lucene:lucene-core:6.2.1')
 import org.apache.lucene.index.DirectoryReader
 import org.apache.lucene.store.FSDirectory
 
@@ -9,13 +9,14 @@ def dataDir = args[0]
 def dir = FSDirectory.open(Paths.get(dataDir))
 
 DirectoryReader.open(dir).withCloseable { reader ->
+	println '[Document]'
 	println "numDocs = ${reader.numDocs()}"
 
 	// Document
 	(0..<reader.numDocs()).each {
 		def doc = reader.document(it)
 
-		println "----- doc: ${it} -----"
+		println "----- <doc> ${it} -----"
 
 		doc.fields.each { f -> 
 			def value = f.binaryValue()? f.binaryValue().utf8ToString(): f.stringValue()
@@ -26,6 +27,7 @@ DirectoryReader.open(dir).withCloseable { reader ->
 
 	println ''
 
+	println '[Term]'
 	// Term
 	reader.leaves().each { ctx ->
 		def leafReader = ctx.reader()
@@ -33,13 +35,14 @@ DirectoryReader.open(dir).withCloseable { reader ->
 		leafReader.fields().each { name ->
 			def termsEnum = leafReader.terms(name).iterator()
 
-			def buf = null
+			println "----- <term> name=${name}, freq=${termsEnum.docFreq()}, total=${termsEnum.totalTermFreq()} -----"
 
 			try {
-				while((buf = termsEnum.next()) != null) {
-					println "<term: ${name}> ${buf.utf8ToString()}, freq=${termsEnum.docFreq()}, total=${termsEnum.totalTermFreq()}"
+				while(termsEnum.next() != null) {
+					println termsEnum.term().utf8ToString()
 				}
-			} catch(e) {}
+			} catch(e) {
+			}
 		}
 	}
 }
