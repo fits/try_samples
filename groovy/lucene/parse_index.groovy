@@ -16,7 +16,7 @@ DirectoryReader.open(dir).withCloseable { reader ->
 	(0..<reader.numDocs()).each {
 		def doc = reader.document(it)
 
-		println "----- <doc> ${it} -----"
+		println "---------- doc: ${it} ----------"
 
 		doc.fields.each { f -> 
 			def value = f.binaryValue()? f.binaryValue().utf8ToString(): f.stringValue()
@@ -27,15 +27,22 @@ DirectoryReader.open(dir).withCloseable { reader ->
 
 	println ''
 
-	println '[Term]'
-	// Term
+	println '[Leaves]'
 	reader.leaves().each { ctx ->
 		def leafReader = ctx.reader()
+
+		println "---------- leaf: ${leafReader} ----------"
+
+		leafReader.getFieldInfos().each { fi ->
+			println "<fieldInfo> name: ${fi.name}, valueType: ${fi.docValuesType}, indexOptions: ${fi.indexOptions}"
+		}
+
+		println ''
 
 		leafReader.fields().each { name ->
 			def termsEnum = leafReader.terms(name).iterator()
 
-			println "----- <term> name=${name}, freq=${termsEnum.docFreq()}, total=${termsEnum.totalTermFreq()} -----"
+			println "===== <term> name=${name}, freq=${termsEnum.docFreq()}, total=${termsEnum.totalTermFreq()} ====="
 
 			try {
 				while(termsEnum.next() != null) {
