@@ -37,16 +37,15 @@ DirectoryReader.open(dir).withCloseable { reader ->
 			println "<fieldInfo> name: ${fi.name}, valueType: ${fi.docValuesType}, indexOptions: ${fi.indexOptions}"
 		}
 
-		println ''
-
 		leafReader.fields().each { name ->
 			def termsEnum = leafReader.terms(name).iterator()
 
-			println "===== <term> name=${name}, freq=${termsEnum.docFreq()}, total=${termsEnum.totalTermFreq()} ====="
+			println ''
+			println "===== <term> name=${name} ====="
 
 			try {
 				while(termsEnum.next() != null) {
-					println termsEnum.term().utf8ToString()
+					println "term=${termsEnum.term().utf8ToString()}, freq=${termsEnum.docFreq()}, total=${termsEnum.totalTermFreq()}"
 				}
 			} catch(e) {
 			}
