@@ -1,0 +1,14 @@
+{
+	"add-field": {
+		"name": "title",
+		"type": "string"
+	},
+	"add-field": {
+		"name": "num",
+		"type": "int"
+	},
+	"add-field": {
+		"name": "rdate",
+		"type": "date"
+	}
+}

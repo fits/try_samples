@@ -1,0 +1,14 @@
+{
+	"mappings": {
+		"data": {
+			"properties": {
+				"title": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"num": { "type": "integer" },
+				"rdate": { "type": "date" }
+			}
+		}
+	}
+}
