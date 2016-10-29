@@ -1,0 +1,23 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+def http4sVersion = '0.14.10a'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.11.8'
+	compile "org.http4s:http4s-dsl_2.11:${http4sVersion}"
+	compile "org.http4s:http4s-blaze-server_2.11:${http4sVersion}"
+	compile "org.http4s:http4s-json4s-jackson_2.11:${http4sVersion}"
+
+	runtime 'org.slf4j:slf4j-simple:1.7.21'
+}
+
+run {
+	standardInput = System.in
+}
