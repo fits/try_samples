@@ -65,7 +65,7 @@ public class DoExprVisitor extends TreeScanner {
 
 			changeNode.accept(node, ne);
 		});
-		
+
 		super.visitLambda(node);
 	}
 

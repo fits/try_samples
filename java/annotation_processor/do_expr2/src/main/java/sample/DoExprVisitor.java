@@ -53,8 +53,9 @@ public class DoExprVisitor extends TreeScanner<Void, Void> {
 	// pos の値を修正する
 	private void fixPos(JCExpression ne, final int basePos) {
 		ne.accept(new com.sun.tools.javac.tree.TreeScanner() {
+			@Override
 			public void scan(JCTree tree) {
-				if(tree!=null) {
+				if(tree != null) {
 					tree.pos += basePos;
 					super.scan(tree);
 				}
