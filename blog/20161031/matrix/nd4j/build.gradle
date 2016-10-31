@@ -1,0 +1,12 @@
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.nd4j:nd4j-native-platform:0.6.0'
+	runtime 'org.slf4j:slf4j-nop:1.7.21'
+}

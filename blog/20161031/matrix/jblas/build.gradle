@@ -1,0 +1,11 @@
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.jblas:jblas:1.2.4'
+}
