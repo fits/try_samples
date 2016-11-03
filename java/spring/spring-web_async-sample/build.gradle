@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE'
+	}
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.projectlombok:lombok:1.16.10'
+
+	compile 'org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE'
+}
