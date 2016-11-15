@@ -1,0 +1,16 @@
+
+apply plugin: 'application'
+
+mainClassName = 'App'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'io.projectreactor:reactor-core:3.0.3.RELEASE'
+}
+
+run {
+	standardInput = System.in
+}
