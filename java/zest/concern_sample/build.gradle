@@ -1,0 +1,12 @@
+
+apply plugin: 'application'
+
+mainClassName = 'App'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.qi4j.core:org.qi4j.core.runtime:2.1'
+}
