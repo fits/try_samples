@@ -1,0 +1,12 @@
+
+apply plugin: 'application'
+
+mainClassName = 'App'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'io.javaslang:javaslang:2.1.0-alpha'
+}
