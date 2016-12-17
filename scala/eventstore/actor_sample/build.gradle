@@ -1,0 +1,14 @@
+
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.11.8'
+	compile 'com.geteventstore:eventstore-client_2.11:3.0.4'
+}
