@@ -1,0 +1,12 @@
+
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.aol.simplereact:cyclops-react:1.0.3'
+}
