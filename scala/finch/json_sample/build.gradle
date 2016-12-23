@@ -1,0 +1,21 @@
+
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.11.8'
+
+    compile 'com.github.finagle:finch-core_2.11:0.11.1'
+	compile 'com.github.finagle:finch-circe_2.11:0.11.1'
+    compile 'io.circe:circe-generic_2.11:0.7.0-M1'
+}
+/*
+compileScala {
+    scalaCompileOptions.additionalParameters = ['-feature']
+}*/
