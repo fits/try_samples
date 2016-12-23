@@ -1,0 +1,17 @@
+
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.qi4j.core:org.qi4j.core.runtime:2.1'
+    compile 'org.qi4j.library:org.qi4j.library.eventsourcing:2.1'
+    compile 'org.qi4j.extension:org.qi4j.extension.entitystore-memory:2.1'
+    compile 'org.qi4j.extension:org.qi4j.extension.valueserialization-orgjson:2.1'
+
+    runtime 'org.slf4j:slf4j-simple:1.7.22'
+}
