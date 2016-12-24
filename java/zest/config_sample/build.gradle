@@ -1,0 +1,14 @@
+
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.qi4j.core:org.qi4j.core.runtime:2.1'
+	compile 'org.qi4j.extension:org.qi4j.extension.entitystore-memory:2.1'
+	compile 'org.qi4j.extension:org.qi4j.extension.valueserialization-jackson:2.1'
+}
