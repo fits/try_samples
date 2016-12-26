@@ -22,7 +22,7 @@ class InventoryActor(val id: String) extends PersistentActor {
   }
 
   override def receiveCommand: Receive = {
-    case cmd: CreateInventoryItem => if (id eq cmd.id) {
+    case cmd: CreateInventoryItem => if (id == cmd.id) {
       persist(
         InventoryItemCreated(cmd.id),
         InventoryItemRenamed(cmd.name)
@@ -34,7 +34,7 @@ class InventoryActor(val id: String) extends PersistentActor {
         context.system.eventStream.publish(events)
       }
     }
-    case cmd: CheckInItemsToInventory => if (id eq cmd.id) {
+    case cmd: CheckInItemsToInventory => if (id == cmd.id) {
       persist(ItemsCheckedInToInventory(cmd.count)) { event =>
         updateState(event)
 
