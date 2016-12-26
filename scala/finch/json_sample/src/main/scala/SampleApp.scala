@@ -10,7 +10,14 @@ case class Data(id: String, value: Int)
 
 object SampleApp extends App {
 
-  val api = get("sample" :: string) { id: String => Ok(Data(id, 1)) }
+  val dataGet = get("samples" :: string) { id: String => Ok(Data(id, 1)) }
+
+  val dataPost = post("samples" :: jsonBody[Data]) { d: Data => 
+    println(s"data = ${d}")
+    Ok(d)
+  }
+
+  val api = dataGet :+: dataPost
 
   val server = Http.server.serve(":8080", api.toServiceAs[Application.Json])
 
