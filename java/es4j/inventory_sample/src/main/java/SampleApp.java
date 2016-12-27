@@ -12,6 +12,7 @@ import lombok.val;
 
 import sample.commands.CheckInItemsToInventory;
 import sample.commands.CreateInventoryItem;
+import sample.domain.InventoryItem;
 import sample.events.InventoryItemCreated;
 
 public class SampleApp {
@@ -34,24 +35,40 @@ public class SampleApp {
         try {
             val d = repository.publish(new CreateInventoryItem("sample1")).get();
 
-            System.out.println("id: " + d.getId());
-            System.out.println("name: " + d.name());
-            System.out.println("count: " + d.count());
+            dumpInventoryItem(d);
 
             repository.publish(new CheckInItemsToInventory(d.getId(), 5)).get();
 
-            System.out.println("count: " + d.count());
+            dumpInventoryItem(d);
+
+            repository.publish(new CheckInItemsToInventory(d.getId(), 3)).get();
+
+            dumpInventoryItem(d);
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("stop...");
+            stopRepository(repository);
+        }
+    }
 
-            try {
-                repository.stopAsync().awaitTerminated(10, TimeUnit.SECONDS);
-            } catch (TimeoutException e) {
-                e.printStackTrace();
-            }
+    private static InventoryItem dumpInventoryItem(InventoryItem item) {
+        System.out.println("----- InventoryItem -----");
+
+        System.out.println("id: " + item.getId());
+        System.out.println("name: " + item.name());
+        System.out.println("count: " + item.count());
+
+        return item;
+    }
+
+    private static void stopRepository(Repository repository) {
+        System.out.println("stop...");
+
+        try {
+            repository.stopAsync().awaitTerminated(10, TimeUnit.SECONDS);
+        } catch (TimeoutException ex) {
+            ex.printStackTrace();
         }
     }
 
