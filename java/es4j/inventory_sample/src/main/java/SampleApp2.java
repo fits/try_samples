@@ -4,7 +4,6 @@ import com.eventsourcing.hlc.PhysicalTimeProvider;
 import com.eventsourcing.index.MemoryIndexEngine;
 import com.eventsourcing.inmem.MemoryJournal;
 import com.eventsourcing.repository.StandardRepository;
-
 import com.google.common.util.concurrent.AbstractService;
 
 import java.util.concurrent.*;
@@ -16,7 +15,7 @@ import sample.commands.CreateInventoryItem;
 import sample.domain.InventoryItem;
 import sample.events.InventoryItemCreated;
 
-public class SampleApp {
+public class SampleApp2 {
     public static void main(String... args) {
 
         val repository = StandardRepository.builder()
@@ -26,32 +25,31 @@ public class SampleApp {
                 .build();
 
         repository.addCommandSetProvider(
-            new PackageCommandSetProvider(
-                new Package[] {CreateInventoryItem.class.getPackage()}
-            )
-        );
+            new PackageCommandSetProvider(new Package[] {CreateInventoryItem.class.getPackage()}));
 
         repository.addEventSetProvider(
-            new PackageEventSetProvider(
-                new Package[]{InventoryItemCreated.class.getPackage()}
-            )
-        );
+            new PackageEventSetProvider(new Package[]{InventoryItemCreated.class.getPackage()}));
 
         repository.startAsync().awaitRunning();
 
-        repository.publish(new CreateInventoryItem("sample1"))
-            .thenApply(SampleApp::dumpInventoryItem)
-            .thenCompose(d ->
-                repository.publish(new CheckInItemsToInventory(d.getId(), 5))
-                    .thenApply(v -> d)
-            )
-            .thenApply(SampleApp::dumpInventoryItem)
-            .thenCompose(d ->
-                repository.publish(new CheckInItemsToInventory(d.getId(), 3))
-                    .thenApply(v -> d)
-            )
-            .thenApply(SampleApp::dumpInventoryItem)
-            .whenComplete((d, e) -> stopRepository(repository));
+        try {
+            val d = repository.publish(new CreateInventoryItem("sample1")).get();
+
+            dumpInventoryItem(d);
+
+            repository.publish(new CheckInItemsToInventory(d.getId(), 5)).get();
+
+            dumpInventoryItem(d);
+
+            repository.publish(new CheckInItemsToInventory(d.getId(), 3)).get();
+
+            dumpInventoryItem(d);
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } finally {
+            stopRepository(repository);
+        }
     }
 
     private static InventoryItem dumpInventoryItem(InventoryItem item) {
@@ -74,8 +72,7 @@ public class SampleApp {
         }
     }
 
-    static class SampleTimeProvider extends AbstractService
-            implements PhysicalTimeProvider {
+    static class SampleTimeProvider extends AbstractService implements PhysicalTimeProvider {
 
         @Override
         public long getPhysicalTime() {
