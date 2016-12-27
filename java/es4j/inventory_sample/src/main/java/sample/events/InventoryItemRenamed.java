@@ -7,17 +7,15 @@ import com.eventsourcing.hlc.HybridTimestamp;
 import com.eventsourcing.index.Index;
 import com.eventsourcing.index.SimpleIndex;
 import com.eventsourcing.layout.PropertyName;
-
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Value;
 
 import java.util.UUID;
 
+@Value
 @EqualsAndHashCode(callSuper = false)
 public class InventoryItemRenamed extends StandardEvent {
-    @Getter
     private UUID reference;
-    @Getter
     private String newName;
 
     public InventoryItemRenamed(@PropertyName("reference") UUID reference,
@@ -28,12 +26,12 @@ public class InventoryItemRenamed extends StandardEvent {
     }
 
     public static SimpleIndex<InventoryItemRenamed, UUID> ID =
-            (renamed, queryOptions) -> renamed.uuid();
+            SimpleIndex.as(InventoryItemRenamed::uuid);
 
     public static SimpleIndex<InventoryItemRenamed, UUID> REFERENCE_ID =
-            (renamed, queryOptions) -> renamed.getReference();
+            SimpleIndex.as(InventoryItemRenamed::getReference);
 
     @Index({EQ, LT, GT})
     public static SimpleIndex<InventoryItemRenamed, HybridTimestamp> TIMESTAMP =
-            (renamed, queryOptions) -> renamed.timestamp();
+            SimpleIndex.as(InventoryItemRenamed::timestamp);
 }
