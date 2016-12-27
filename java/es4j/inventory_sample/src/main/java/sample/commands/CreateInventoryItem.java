@@ -4,19 +4,17 @@ import com.eventsourcing.EventStream;
 import com.eventsourcing.Repository;
 import com.eventsourcing.StandardCommand;
 import com.eventsourcing.layout.PropertyName;
-
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Value;
 import lombok.val;
-
 import sample.domain.InventoryItem;
 import sample.events.InventoryItemCreated;
 import sample.events.InventoryItemRenamed;
 
-@EqualsAndHashCode(callSuper = false)
+@Value
+@EqualsAndHashCode(callSuper=false)
 public class CreateInventoryItem extends StandardCommand<InventoryItemCreated, InventoryItem> {
-    @Getter
-    private final String name;
+    private String name;
 
     public CreateInventoryItem(@PropertyName("name") String name) {
         this.name = name;
@@ -31,7 +29,7 @@ public class CreateInventoryItem extends StandardCommand<InventoryItemCreated, I
     }
 
     @Override
-    public InventoryItem result(InventoryItemCreated inventoryItemCreated, Repository repository) {
-        return InventoryItem.lookup(repository, inventoryItemCreated.uuid()).get();
+    public InventoryItem result(InventoryItemCreated state, Repository repository) {
+        return InventoryItem.lookup(repository, state.uuid()).get();
     }
 }
