@@ -29,10 +29,11 @@ public class SampleApp {
 
         val eventRepository = eventRepositoryFactory.getEventRepository(InventoryEvent.class);
 
-        val aggregateRepository = new DefaultAggregateRepository<>(eventRepository,
-                new InventoryProjection());
+        AggregateRepository<InventoryItem, InventoryEvent> aggregateRepository =
+                new DefaultAggregateRepository<>(eventRepository, new InventoryProjection());
 
-        val commandFactory = new DefaultCommandFactory<>(aggregateRepository);
+        CommandFactory<InventoryItem, InventoryEvent> commandFactory =
+                new DefaultCommandFactory<>(aggregateRepository);
 
         val createCommand = commandFactory.fromOperation(
                 Operations.constructorOf(InventoryOperations::create));
