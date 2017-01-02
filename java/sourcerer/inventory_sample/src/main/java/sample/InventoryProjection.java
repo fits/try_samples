@@ -24,12 +24,10 @@ public class InventoryProjection implements AggregateProjection<InventoryItem, I
                                @NotNull InventoryItem state, @NotNull InventoryEvent event) {
 
         return Match(event).of(
-            Case(instanceOf(InventoryItemCreated.class), ev ->
-                    new InventoryItem(ev.getId(), state.getName(), state.getCount())),
-            Case(instanceOf(InventoryItemRenamed.class), ev ->
-                    new InventoryItem(state.getId(), ev.getName(), state.getCount())),
+            Case(instanceOf(InventoryItemCreated.class), ev -> state.withId(ev.getId())),
+            Case(instanceOf(InventoryItemRenamed.class), ev -> state.withName(ev.getName())),
             Case(instanceOf(ItemsCheckedInToInventory.class), ev ->
-                    new InventoryItem(state.getId(), state.getName(), state.getCount() + ev.getCount())),
+                    state.withCount(state.getCount() + ev.getCount())),
             Case($(), state)
         );
     }
