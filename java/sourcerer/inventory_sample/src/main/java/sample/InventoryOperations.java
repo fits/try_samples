@@ -19,7 +19,7 @@ public class InventoryOperations {
         );
     }
 
-    public static ItemsCheckedInToInventory checkIn(CheckInItemsToInventory cmd) {
+    public static ItemsCheckedInToInventory checkIn(InventoryItem state, CheckInItemsToInventory cmd) {
         return new ItemsCheckedInToInventory(cmd.getCount());
     }
 }
