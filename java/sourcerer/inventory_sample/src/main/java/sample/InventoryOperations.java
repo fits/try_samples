@@ -1,5 +1,6 @@
 package sample;
 
+import com.google.common.collect.ImmutableList;
 import sample.commands.CheckInItemsToInventory;
 import sample.commands.CreateInventoryItem;
 import sample.events.InventoryEvent;
@@ -7,13 +8,12 @@ import sample.events.InventoryItemCreated;
 import sample.events.InventoryItemRenamed;
 import sample.events.ItemsCheckedInToInventory;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class InventoryOperations {
 
     public static List<InventoryEvent> create(CreateInventoryItem cmd) {
-        return Arrays.asList(
+        return ImmutableList.of(
             new InventoryItemCreated(cmd.getId()),
             new InventoryItemRenamed(cmd.getName())
         );
