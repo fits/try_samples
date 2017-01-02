@@ -1,10 +1,8 @@
 package sample.events;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
 
-@Data
-@AllArgsConstructor
+@Value
 public class InventoryItemCreated implements InventoryEvent {
 	private String id;
 }
