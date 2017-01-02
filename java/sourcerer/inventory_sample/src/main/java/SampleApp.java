@@ -43,7 +43,7 @@ public class SampleApp {
 
         System.out.println("**** id : " + id);
 
-        val r1 = createCommand.setAggregateId(id).setArguments(new CreateInventoryItem("sample")).run();
+        val r1 = createCommand.setAggregateId(id).setArguments(new CreateInventoryItem(id, "sample")).run();
 
         System.out.printf("%s, %s\n", r1.getEvents(), r1.getNewVersion());
 

@@ -13,7 +13,10 @@ import java.util.List;
 public class InventoryOperations {
 
     public static List<InventoryEvent> create(CreateInventoryItem cmd) {
-        return Arrays.asList(new InventoryItemCreated(), new InventoryItemRenamed(cmd.getName()));
+        return Arrays.asList(
+            new InventoryItemCreated(cmd.getId()),
+            new InventoryItemRenamed(cmd.getName())
+        );
     }
 
     public static ItemsCheckedInToInventory checkIn(CheckInItemsToInventory cmd) {
