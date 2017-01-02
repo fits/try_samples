@@ -9,8 +9,8 @@ import org.elder.sourcerer.EventType;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
     @Type(InventoryItemCreated.class),
-	@Type(InventoryItemRenamed.class),
-	@Type(ItemsCheckedInToInventory.class)
+    @Type(InventoryItemRenamed.class),
+    @Type(ItemsCheckedInToInventory.class)
 })
 public interface InventoryEvent {
 }
