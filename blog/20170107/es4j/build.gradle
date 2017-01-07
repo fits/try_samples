@@ -1,0 +1,14 @@
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:1.16.12"
+
+    compile 'com.eventsourcing:eventsourcing-inmem:0.4.5'
+}
+
