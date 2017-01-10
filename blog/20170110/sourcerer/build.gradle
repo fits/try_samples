@@ -1,0 +1,16 @@
+
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.16.12'
+
+    compile 'org.elder.sourcerer:sourcerer-esjc:v4.0.1'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
+    compile 'io.javaslang:javaslang:2.1.0-alpha'
+}
