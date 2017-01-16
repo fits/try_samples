@@ -9,6 +9,7 @@ import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import javax.inject.Inject;
 
 import sample.inventory.api.InventoryCreateParameter;
+import sample.inventory.api.InventoryCheckInParameter;
 import sample.inventory.api.InventoryItem;
 import sample.inventory.api.InventoryService;
 
@@ -31,8 +32,8 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public ServiceCall<NotUsed, Done> addStock(String id, int count) {
-        return req -> getEntityRef(id).ask(new CheckInItemsToInventory(count));
+    public ServiceCall<InventoryCheckInParameter, Done> checkIn(String id) {
+        return req -> getEntityRef(id).ask(new CheckInItemsToInventory(req.getCount()));
     }
 
     @Override
