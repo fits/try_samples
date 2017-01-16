@@ -13,16 +13,16 @@ public interface InventoryService extends Service {
 
     ServiceCall<InventoryCreateParameter, Done> create(String id);
 
-    ServiceCall<NotUsed, Done> addStock(String id, int count);
+    ServiceCall<InventoryCheckInParameter, Done> checkIn(String id);
 
     ServiceCall<NotUsed, InventoryItem> state(String id);
 
     @Override
     default Descriptor descriptor() {
         return named("inventory").withCalls(
-            pathCall("/api/inv/:id",  this::create),
-            pathCall("/api/inv/:id/add/:count", this::addStock),
-            pathCall("/api/inv/:id/state", this::state)
+            pathCall("/inventory/:id",  this::create),
+            pathCall("/inventory/:id/checkin", this::checkIn),
+            pathCall("/inventory/:id", this::state)
         ).withAutoAcl(true);
     }
 }
