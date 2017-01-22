@@ -20,10 +20,20 @@ public class CounterEntity extends PersistentEntity<CounterCommand, CounterEvent
 		builder.setCommandHandler(CounterCreate.class, (cmd, ctx) ->
 				ctx.thenPersist(toEvent(cmd), ev -> ctx.reply(state())));
 
-		builder.setCommandHandler(CounterAdd.class, (cmd, ctx) ->
-				ctx.thenPersist(toEvent(cmd), ev -> ctx.reply(state())));
+		builder.setCommandHandler(CounterAdd.class, (cmd, ctx) -> {
+			if (!state().isActive()) {
+				ctx.commandFailed(new CounterNotFoundException(entityId()));
+				return ctx.done();
+			}
+			return ctx.thenPersist(toEvent(cmd), ev -> ctx.reply(state()));
+		});
 
-		builder.setReadOnlyCommandHandler(CurrentState.class, (cmd, ctx) -> ctx.reply(state()));
+		builder.setReadOnlyCommandHandler(CurrentState.class, (cmd, ctx) -> {
+			if (!state().isActive()) {
+				ctx.commandFailed(new CounterNotFoundException(entityId()));
+			}
+			ctx.reply(state());
+		});
 
 		builder.setEventHandler(CreatedCounter.class, this::createState);
 		builder.setEventHandler(IncrementalUpdatedCounter.class, this::updateState);
