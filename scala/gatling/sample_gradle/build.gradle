@@ -9,21 +9,23 @@ repositories {
 }
 
 dependencies {
-	compile 'io.gatling.highcharts:gatling-charts-highcharts:2.1.4'
+	compile 'io.gatling.highcharts:gatling-charts-highcharts:2.2.3'
 }
 
-task gatling(dependsOn: 'build') << {
-	copy {
-		from sourceSets.main.output.classesDir
-		into gatlingClassDir
-	}
+task gatling(dependsOn: 'build') {
+	doLast {
+		copy {
+			from sourceSets.main.output.classesDir
+			into gatlingClassDir
+		}
 
-	javaexec {
-		main = 'io.gatling.app.Gatling'
-		classpath = sourceSets.main.runtimeClasspath
+		javaexec {
+			main = 'io.gatling.app.Gatling'
+			classpath = sourceSets.main.runtimeClasspath
 
-		args '-s'
-		args project.args
+			args '-s'
+			args project.args
+		}
 	}
 }
 
