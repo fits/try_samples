@@ -1,13 +1,16 @@
 package sample.counter.impl;
 
 import akka.NotUsed;
+import akka.japi.Pair;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.transport.ResponseHeader;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRef;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 
 import javax.inject.Inject;
 import java.util.UUID;
 
+import com.lightbend.lagom.javadsl.server.HeaderServiceCall;
 import sample.counter.api.CounterParameter;
 import sample.counter.api.CounterService;
 import sample.counter.api.CounterState;
@@ -32,12 +35,24 @@ public class CounterServiceImpl implements CounterService {
 
 	@Override
 	public ServiceCall<CounterParameter, CounterState> countUp(String id) {
-		return req -> getEntity(id).ask(toCommand(req));
+		return errorHandle(req -> getEntity(id).ask(toCommand(req)));
 	}
 
 	@Override
 	public ServiceCall<NotUsed, CounterState> findCounter(String id) {
-		return req -> getEntity(id).ask(new CurrentState());
+		return errorHandle(req -> getEntity(id).ask(new CurrentState()));
+	}
+
+	private <P, R> HeaderServiceCall<P, R> errorHandle(ServiceCall<P, R> proc) {
+		return (reqHeader, req) -> proc.invoke(req).handleAsync( (res, err) -> {
+			ResponseHeader resHeader = ResponseHeader.OK;
+
+			if (err != null) {
+				resHeader = resHeader.withStatus(404);
+			}
+
+			return Pair.create(resHeader, res);
+		});
 	}
 
 	private CounterCreate toCommand(CreateParameter param) {
