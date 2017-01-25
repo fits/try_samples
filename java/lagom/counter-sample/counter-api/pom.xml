@@ -1,0 +1,30 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sample</groupId>
+        <artifactId>counter-sample</artifactId>
+        <version>0.1</version>
+    </parent>
+
+    <artifactId>counter-api</artifactId>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.lightbend.lagom</groupId>
+            <artifactId>lagom-javadsl-api_2.11</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lightbend.lagom</groupId>
+            <artifactId>lagom-javadsl-jackson_2.11</artifactId>
+            <version>1.3.0-M1</version>
+        </dependency>
+
+    </dependencies>
+</project>
