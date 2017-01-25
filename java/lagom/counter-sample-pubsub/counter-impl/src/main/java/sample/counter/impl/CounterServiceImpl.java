@@ -1,7 +1,6 @@
 package sample.counter.impl;
 
 import akka.NotUsed;
-import akka.stream.Materializer;
 import akka.stream.javadsl.Source;
 
 import com.lightbend.lagom.javadsl.api.ServiceCall;
