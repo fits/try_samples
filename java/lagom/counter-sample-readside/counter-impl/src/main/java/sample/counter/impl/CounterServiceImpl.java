@@ -1,14 +1,11 @@
 package sample.counter.impl;
 
 import akka.NotUsed;
-import akka.stream.Materializer;
-import akka.stream.javadsl.Source;
 
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRef;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 
-import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 
 import com.lightbend.lagom.javadsl.persistence.ReadSide;
