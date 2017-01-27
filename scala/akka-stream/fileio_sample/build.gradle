@@ -1,0 +1,14 @@
+
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.12.1'
+	compile 'com.typesafe.akka:akka-stream_2.12:2.5-M1'
+}
