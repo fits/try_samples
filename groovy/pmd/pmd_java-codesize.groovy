@@ -1,4 +1,4 @@
-@Grab('net.sourceforge.pmd:pmd-java8:5.5.2')
+@Grab('net.sourceforge.pmd:pmd-java:5.5.3')
 import net.sourceforge.pmd.PMD
 
 def params = [
