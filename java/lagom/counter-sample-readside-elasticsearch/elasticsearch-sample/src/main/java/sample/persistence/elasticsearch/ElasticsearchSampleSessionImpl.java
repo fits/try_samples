@@ -1,6 +1,8 @@
 package sample.persistence.elasticsearch;
 
 import javax.inject.Singleton;
+
+import akka.actor.ActorSystem;
 import com.google.inject.Inject;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
@@ -9,17 +11,21 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import play.inject.ApplicationLifecycle;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 @Singleton
 public class ElasticsearchSampleSessionImpl implements ElasticsearchSampleSession {
+    private static final String CONF_ELASTICSEARCH = "sample.elasticsearch";
     private final Client elsClient;
 
     @Inject
-    public ElasticsearchSampleSessionImpl(ApplicationLifecycle lifecycle) {
-        elsClient = createClient();
+    public ElasticsearchSampleSessionImpl(ActorSystem system, ApplicationLifecycle lifecycle) {
+        String hostAndPort = system.settings().config().getString(CONF_ELASTICSEARCH);
+
+        elsClient = createClient(parseTransportAddress(hostAndPort));
 
         lifecycle.addStopHook(() -> {
             elsClient.close();
@@ -32,14 +38,19 @@ public class ElasticsearchSampleSessionImpl implements ElasticsearchSampleSessio
         return block.apply(elsClient);
     }
 
+    private InetSocketTransportAddress parseTransportAddress(String hostAndPort) {
+        String[] elms = hostAndPort.split(":");
 
-    private Client createClient() {
-        // TODO: 設定ファイルから接続先を取得
+        try {
+            return new InetSocketTransportAddress(
+					InetAddress.getByName(elms[0]), Integer.parseInt(elms[1]));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        InetSocketTransportAddress addr = new InetSocketTransportAddress(
-                InetAddress.getLoopbackAddress(), 9300);
-
+    private Client createClient(InetSocketTransportAddress address) {
         return new PreBuiltTransportClient(Settings.EMPTY)
-                .addTransportAddress(addr);
+                .addTransportAddress(address);
     }
 }
