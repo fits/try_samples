@@ -4,8 +4,6 @@ import akka.Done;
 import akka.actor.ActorSystem;
 import akka.japi.Pair;
 import akka.stream.javadsl.Flow;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.lightbend.lagom.javadsl.client.integration.LagomClientFactory;
 import com.lightbend.lagom.javadsl.persistence.*;
 import com.typesafe.config.Config;
@@ -20,6 +18,8 @@ import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import sample.counter.impl.CounterEvent.*;
 import sample.persistence.elasticsearch.ElasticsearchService;
