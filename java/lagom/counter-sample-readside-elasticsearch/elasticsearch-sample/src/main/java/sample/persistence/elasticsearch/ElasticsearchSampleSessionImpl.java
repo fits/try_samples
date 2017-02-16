@@ -1,9 +1,6 @@
 package sample.persistence.elasticsearch;
 
-import javax.inject.Singleton;
-
 import akka.actor.ActorSystem;
-import com.google.inject.Inject;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -15,6 +12,8 @@ import java.net.UnknownHostException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class ElasticsearchSampleSessionImpl implements ElasticsearchSampleSession {

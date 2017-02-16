@@ -3,7 +3,6 @@ package sample.counter.impl;
 import akka.Done;
 import akka.japi.Pair;
 import akka.stream.javadsl.Flow;
-import com.google.inject.Inject;
 import com.lightbend.lagom.javadsl.persistence.*;
 import lombok.val;
 import org.pcollections.ConsPStack;
@@ -11,6 +10,7 @@ import org.pcollections.PSequence;
 
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 
 import sample.persistence.elasticsearch.ElasticsearchSampleSession;
 import sample.counter.impl.CounterEvent.*;

@@ -1,7 +1,6 @@
 package sample.persistence.elasticsearch.impl;
 
 import akka.actor.ActorSystem;
-import com.google.inject.Inject;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
@@ -11,6 +10,7 @@ import play.inject.ApplicationLifecycle;
 
 import java.net.URI;
 import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import sample.persistence.elasticsearch.ElasticsearchMessage;

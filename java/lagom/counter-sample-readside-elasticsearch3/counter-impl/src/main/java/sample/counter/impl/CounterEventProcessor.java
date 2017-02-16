@@ -1,8 +1,6 @@
 package sample.counter.impl;
 
 import akka.actor.ActorSystem;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.lightbend.lagom.javadsl.persistence.*;
 import com.typesafe.config.Config;
 import org.pcollections.ConsPStack;
@@ -11,6 +9,8 @@ import org.pcollections.PSequence;
 import lombok.Value;
 
 import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import sample.persistence.elasticsearch.ElasticsearchReadSide;
 import sample.persistence.elasticsearch.ElasticsearchSession;
