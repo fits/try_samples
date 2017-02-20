@@ -1,0 +1,14 @@
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:1.16.14"
+
+    compile 'org.reveno:reveno-core:1.23'
+}
+
