@@ -1,0 +1,14 @@
+{
+  "name": "time_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@cycle/dom": "^15.0.0",
+    "@cycle/xstream-run": "^4.2.0",
+    "xstream": "^10.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}
