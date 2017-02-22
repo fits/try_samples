@@ -1,0 +1,13 @@
+{
+  "name": "counter_hyperscript",
+  "version": "1.0.0",
+  "description": "inferno counter sample",
+  "main": "index.js",
+  "dependencies": {
+    "inferno": "^1.2.2",
+    "inferno-hyperscript": "^1.2.2"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}
