@@ -1,0 +1,13 @@
+{
+  "name": "rxjs_elasticsearch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "hogan.js": "^3.0.2",
+    "rxjs": "^5.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}
