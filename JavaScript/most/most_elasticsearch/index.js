@@ -1,5 +1,5 @@
 
-import { fromEvent, fromPromise, of } from 'most';
+import { fromEvent, fromPromise, of, merge } from 'most';
 import Hogan from 'hogan.js';
 
 const wordNode = document.getElementById('word');
@@ -36,8 +36,11 @@ const toItem = rs => rs.map(r => {
 	return { id: r._id, source: JSON.stringify(r._source) };
 });
 
-fromEvent('click', document.getElementById('search'))
-	.map(ev => wordNode.value)
-	.flatMap(search)
-	.map(toItem)
-	.observe(renderItems);
+merge(
+	fromEvent('click', document.getElementById('search')),
+	fromEvent('keydown', wordNode).filter(ev => ev.which === 13)
+)
+.map(ev => wordNode.value)
+.flatMap(search)
+.map(toItem)
+.observe(renderItems);
