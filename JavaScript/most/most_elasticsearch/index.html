@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div id="app">
+		<input type="text" id="word" />
+		<button id="search">search</button>
+
+		<p>Result:</p>
+		<div id="result"></div>
+	</div>
+
+	<template id="tpl">
+		{{#items}}
+			<div>{{id}}, {{source}}</div>
+		{{/items}}
+	</template>
+
+	<script src="build/bundle.js"></script>
+</body>
+</html>
