@@ -1,0 +1,13 @@
+{
+  "name": "most_elasticsearch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "hogan.js": "^3.0.2",
+    "most": "^1.2.2"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}
