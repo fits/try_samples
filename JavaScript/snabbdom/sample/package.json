@@ -1,0 +1,12 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "snabbdom": "^0.6.4"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}
