@@ -1,0 +1,12 @@
+{
+  "name": "counter-sample2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "mithril": "^1.0.1"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}
