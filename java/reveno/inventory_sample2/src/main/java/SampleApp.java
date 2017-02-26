@@ -34,13 +34,13 @@ public class SampleApp {
         }).uniqueIdFor(InventoryItem.class).command();
 
         reveno.domain().transaction("checkInItemsToInventory", (t, ctx) -> {
-            long countId = t.longArg();
+            long id = t.longArg();
             int count = t.intArg("count");
 
-            ctx.repo().remap(countId, InventoryItem.class, (id, state) ->
+            ctx.repo().remap(id, InventoryItem.class, (rid, state) ->
                     new InventoryItem(state.getName(), state.getCount() + count));
 
-            ctx.eventBus().publishEvent(new ItemsCheckedInToInventory(countId, count));
+            ctx.eventBus().publishEvent(new ItemsCheckedInToInventory(id, count));
         }).command();
 
         reveno.startup();
