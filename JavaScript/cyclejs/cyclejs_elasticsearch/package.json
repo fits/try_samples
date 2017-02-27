@@ -1,0 +1,15 @@
+{
+  "name": "cyclejs_elasticsearch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@cycle/dom": "^14.3.0",
+    "@cycle/http": "^11.3.0",
+    "@cycle/xstream-run": "^4.2.0",
+    "xstream": "^10.2.0"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}
