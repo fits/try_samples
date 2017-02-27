@@ -47,7 +47,7 @@ const main = (sources) => {
 			input('.word', { attrs: { type: 'text' }}),
 			button('.search', 'search'),
 			p('Result:'),
-			div('', 
+			div(
 				xs.map(x => div(`${x._id}, ${JSON.stringify(x._source)}`))
 			)
 		])
