@@ -1,0 +1,26 @@
+{
+  "name": "sample",
+  "version": "0.0.1",
+  "private": true,
+  "description": "sample",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "connect": "^3.3.5",
+    "swagger-connect": "^0.1.0"
+  },
+  "devDependencies": {
+    "bootprint": "^1.0.0",
+    "bootprint-openapi": "^1.0.1",
+    "html-inline": "^1.2.0",
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "swagger project test",
+    "tohtml": "bootprint openapi api/swagger/swagger.yaml dest && html-inline -i dest/index.html -o doc.html"
+  }
+}
