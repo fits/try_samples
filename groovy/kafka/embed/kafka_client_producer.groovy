@@ -11,7 +11,7 @@ props.setProperty('value.serializer', 'org.apache.kafka.common.serialization.Str
 
 new KafkaProducer(props).withCloseable { producer ->
 
-	def res = producer.send(new ProducerRecord("sample", "msg", args[0]))
+	def res = producer.send(new ProducerRecord('sample', 'msg', args[0]))
 
 	println "***** result: ${res.get()}"
 }
