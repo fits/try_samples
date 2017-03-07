@@ -7,5 +7,6 @@ repositories {
 }
 
 dependencies {
-	compile 'org.apache.flink:flink-java8:0.10.1'
+	compile 'org.apache.flink:flink-java:1.2.0'
+	runtime 'org.apache.flink:flink-clients_2.11:1.2.0'
 }
