@@ -1,0 +1,35 @@
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+configurations {
+	ecj
+}
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.apache.flink:flink-java:1.2.0'
+	runtime 'org.apache.flink:flink-clients_2.11:1.2.0'
+
+	ecj 'org.eclipse.jdt.core.compiler:ecj:4.6.1'
+	//ecj 'org.eclipse.scout.sdk.deps:ecj:4.6.2'
+}
+
+compileJava {
+	options.fork = true
+	options.compilerArgs << '-genericsignature'
+
+	options.forkOptions.with {
+		executable = 'java'
+		jvmArgs = ['-jar', configurations.ecj.asPath]
+	}
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
