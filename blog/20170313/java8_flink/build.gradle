@@ -1,0 +1,18 @@
+apply plugin: 'application'
+
+mainClassName = 'MoneyCount'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.apache.flink:flink-java:1.2.0'
+	runtime 'org.apache.flink:flink-clients_2.11:1.2.0'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
