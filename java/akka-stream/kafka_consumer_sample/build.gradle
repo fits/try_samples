@@ -1,0 +1,19 @@
+
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'com.typesafe.akka:akka-stream-kafka_2.12:0.14'
+	runtime 'org.slf4j:slf4j-simple:1.7.24'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args.split('\\s')
+	}
+}
