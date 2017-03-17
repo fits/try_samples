@@ -1,0 +1,12 @@
+{
+  "name": "sample1",
+  "version": "1.0.0",
+  "description": "Seneca sample",
+  "main": "index.js",
+  "dependencies": {
+    "seneca": "^3.3.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
