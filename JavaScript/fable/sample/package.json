@@ -1,0 +1,13 @@
+{
+  "name": "sample",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "fable": "fable -m commonjs -o . src/index.fsx"
+  },
+  "dependencies": {
+    "fable-compiler": "^0.7.50",
+    "fable-core": "^0.7.29"
+  }
+}
