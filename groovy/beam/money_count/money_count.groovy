@@ -1,5 +1,5 @@
-@Grab('org.apache.beam:beam-runners-direct-java:0.5.0')
-@Grab('org.slf4j:slf4j-simple:1.7.24')
+@Grab('org.apache.beam:beam-runners-direct-java:0.6.0')
+@Grab('org.slf4j:slf4j-simple:1.7.25')
 import org.apache.beam.sdk.options.PipelineOptionsFactory
 import org.apache.beam.sdk.Pipeline
 import org.apache.beam.sdk.io.TextIO
