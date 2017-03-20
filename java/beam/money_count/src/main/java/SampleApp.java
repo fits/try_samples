@@ -14,7 +14,7 @@ public class SampleApp {
 
         p.apply(TextIO.Read.from(args[0]))
                 .apply(Count.perElement())
-                .apply(ToString.kv())
+                .apply(ToString.kvs())
                 .apply(ParDo.of(new DoFn<String, String>() {
                     @ProcessElement
                     public void process(ProcessContext ctx) {
