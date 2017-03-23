@@ -4,14 +4,15 @@ apply plugin: 'application'
 mainClassName = 'SampleAppKt'
 
 buildscript {
-	ext.kotlin_version = '1.0.3'
+	ext.kotlin_version = '1.1.1'
+	ext.akka_version = '2.5.0-RC1'
 
 	repositories {
 		jcenter()
 	}
 
 	dependencies {
-		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
 	}
 }
 
@@ -20,8 +21,8 @@ repositories {
 }
 
 dependencies {
-	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-	compile 'com.typesafe.akka:akka-persistence_2.12.0-RC1:2.4.10'
+	compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
+	compile "com.typesafe.akka:akka-persistence_2.12:${akka_version}"
 }
 
 run {
