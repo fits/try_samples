@@ -15,6 +15,7 @@ Thread.start {
 
 def kfProps = new Properties()
 kfProps.setProperty('zookeeper.connect', "localhost:${zkPort}")
+kfProps.setProperty('log.dir', './kafka-logs')
 
 def kf = KafkaServerStartable.fromProps(kfProps)
 
