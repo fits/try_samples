@@ -6,9 +6,9 @@ import sample.counter.api.CounterService;
 import sample.counter.monitor.impl.CounterMonitorServiceImpl;
 
 public class CounterMonitorModule extends AbstractModule implements ServiceGuiceSupport {
-	@Override
-	protected void configure() {
-		bindClient(CounterService.class);
-		bindServices(serviceBinding(CounterMonitorService.class, CounterMonitorServiceImpl.class));
-	}
+    @Override
+    protected void configure() {
+        bindClient(CounterService.class);
+        bindServices(serviceBinding(CounterMonitorService.class, CounterMonitorServiceImpl.class));
+    }
 }
