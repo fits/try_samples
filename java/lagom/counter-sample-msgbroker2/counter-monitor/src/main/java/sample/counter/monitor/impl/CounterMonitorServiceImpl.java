@@ -9,15 +9,15 @@ import sample.counter.monitor.CounterMonitorService;
 import javax.inject.Inject;
 
 public class CounterMonitorServiceImpl implements CounterMonitorService {
-	@Inject
-	public CounterMonitorServiceImpl(CounterService counterService) {
-		counterService.counterTopic()
-				.subscribe()
-				.atLeastOnce(Flow.fromFunction(this::handleMessage));
-	}
+    @Inject
+    public CounterMonitorServiceImpl(CounterService counterService) {
+        counterService.counterTopic()
+                .subscribe()
+                .atLeastOnce(Flow.fromFunction(this::handleMessage));
+    }
 
-	private Done handleMessage(CounterNotify msg) {
-		System.out.println("*** CounterMonitor handleMessage: " + msg);
-		return Done.getInstance();
-	}
+    private Done handleMessage(CounterNotify msg) {
+        System.out.println("*** CounterMonitor handleMessage: " + msg);
+        return Done.getInstance();
+    }
 }
