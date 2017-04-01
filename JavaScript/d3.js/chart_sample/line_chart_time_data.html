@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<script src="http://d3js.org/d3.v4.min.js"></script>
+
+	<script>
+		const srcData = [
+			{value: 6, timestamp: '2017-04-01T00:30:36.859+09:00'},
+			{value: 16, timestamp: '2017-04-01T13:10:36.034+09:00'},
+			{value: 8, timestamp: '2017-04-01T17:17:36.193+09:00'},
+			{value: 12, timestamp: '2017-04-02T03:05:24.751+09:00'},
+		];
+
+		const w = 500;
+		const h = 400;
+
+		const margin = { left: 50, top: 20, bottom: 50, right: 30 };
+
+		const svg = d3.select('body')
+			.append('svg')
+			.attr('width', w + margin.left + margin.right)
+			.attr('height', h + margin.top + margin.bottom)
+			.append('g')
+				.attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+		const data = srcData.map( d => {
+			return {
+				value: d.value,
+				timestamp: d3.isoParse(d.timestamp)
+			};
+		});
+
+		const x = d3.scaleTime()
+							.range([0, w])
+							.domain(d3.extent(data, d => d.timestamp));
+
+		const y = d3.scaleLinear()
+							.range([h, 0])
+							.domain([0, d3.max(data, d => d.value)]);
+
+		const xAxis = d3.axisBottom(x)
+										.tickFormat(d3.timeFormat('%d日%H時'));
+
+		const yAxis = d3.axisLeft(y);
+
+		svg.append('g').attr('transform', `translate(0, ${h})`).call(xAxis);
+		svg.append('g').call(yAxis);
+
+		const createLine = d3.line()
+			.x(d => x(d.timestamp))
+			.y(d => y(d.value));
+
+		svg.append('path')
+			.attr('d', createLine(data))
+			.attr('stroke', 'blue')
+			.attr('fill', 'none');
+
+	</script>
+
+</body>
+</html>
