@@ -1,0 +1,9 @@
+{
+  "name": "groupby_sample",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "ramda": "^0.23.0"
+  }
+}
