@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+
+	<div>
+		<div id="list"></div>
+		<div id="graph"></div>
+	</div>
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
+	<script src="http://d3js.org/d3.v4.min.js"></script>
+
+	<script>
+		const esUrl = 'http://localhost:9200/sample1/data/_search?size=1000';
+
+		const w = 500;
+		const h = 400;
+
+		const margin = { left: 50, top: 20, bottom: 50, right: 30 };
+
+		const parseDate = d3.isoParse;
+
+		const convertData = srcData => srcData.map( d => {
+			return {
+				id: d._source.id,
+				value: d._source.value,
+				timestamp: parseDate(d._source.timestamp)
+			};
+		});
+
+		const groupBy = R.pipe(
+			R.groupBy(R.prop('id')),
+			R.values,
+			R.sortBy(R.path([0, 'id']))
+		);
+
+		const createGraph = srcData => {
+			const svg = d3.select('#graph')
+				.append('svg')
+				.attr('width', w + margin.left + margin.right)
+				.attr('height', h + margin.top + margin.bottom)
+				.append('g')
+					.attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+			const data = convertData(srcData);
+
+			const x = d3.scaleTime()
+								.range([0, w])
+								.domain(d3.extent(data, d => d.timestamp));
+
+			const y = d3.scaleLinear()
+								.range([h, 0])
+								.domain([0, d3.max(data, d => d.value)]);
+
+			const xAxis = d3.axisBottom(x)
+											.tickFormat(d3.timeFormat('%d日%H時'));
+
+			const yAxis = d3.axisLeft(y);
+
+			svg.append('g').attr('transform', `translate(0, ${h})`).call(xAxis);
+			svg.append('g').call(yAxis);
+
+			const createLine = d3.line()
+				.x(d => x(d.timestamp))
+				.y(d => y(d.value));
+
+			const changeStyle = (color, size, id) => {
+				d3.select(`path#${id}`).attr('stroke-width', size);
+				d3.select(`span#${id}`).style('background-color', color);
+			};
+
+			const selectItem = R.partial(changeStyle, ['lightgray', 3]);
+			const unselectItem = R.partial(changeStyle, ['white', 1]);
+
+			groupBy(data).forEach((v, i) => {
+				const color = d3.schemeCategory20[i % 20];
+				const id = v[0].id;
+
+				svg.append('path')
+					.attr('id', id)
+					.attr('d', createLine(v))
+					.attr('stroke', color)
+					.attr('stroke-width', 1)
+					.attr('fill', 'none');
+
+				d3.select('#list')
+					.append('span')
+					.attr('id', id)
+					.style('color', color)
+					.style('margin-left', '10px')
+					.on('mouseover', () => selectItem(id))
+					.on('mouseout', () => unselectItem(id))
+					.text(id);
+			});
+		};
+
+		const param = JSON.stringify({
+			sort: {
+				timestamp: { order: 'desc' }
+			}
+		});
+
+		fetch(esUrl, {
+			body: param,
+			method: 'POST'
+		})
+		.then(r => r.json())
+		.then(d => createGraph(d.hits.hits));
+
+	</script>
+
+</body>
+</html>
