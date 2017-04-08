@@ -4,6 +4,7 @@ import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.restCall;
 
 import akka.NotUsed;
+import com.lightbend.lagom.javadsl.api.CircuitBreaker;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
@@ -19,6 +20,8 @@ public interface CounterService extends Service {
         return named("counter").withCalls(
                 restCall(Method.GET, "/counter/:id", this::find),
                 restCall(Method.POST, "/counter/:id", this::update)
-        ).withAutoAcl(true);
+        )
+        .withCircuitBreaker(CircuitBreaker.identifiedBy("counter"))
+        .withAutoAcl(true);
     }
 }
