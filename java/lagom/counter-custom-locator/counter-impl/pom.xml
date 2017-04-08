@@ -19,7 +19,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>static-locator</artifactId>
+            <artifactId>custom-config-locator</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
-            <artifactId>lagom-javadsl-persistence-jdbc_2.11</artifactId>
+            <artifactId>lagom-javadsl-persistence-cassandra_2.11</artifactId>
         </dependency>
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
@@ -48,12 +48,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>
