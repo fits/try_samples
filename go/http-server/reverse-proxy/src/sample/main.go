@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"os"
 )
 
 func reverseProxy(host string) http.HandlerFunc {
@@ -22,9 +23,10 @@ func reverseProxy(host string) http.HandlerFunc {
 }
 
 func main() {
+	fmt.Println(os.Args)
 
 	http.HandleFunc("/a/", reverseProxy(":8081"))
 	http.HandleFunc("/b/", reverseProxy(":8082"))
 
-	log.Fatal(http.ListenAndServe(":9000", nil))
+	log.Fatal(http.ListenAndServe(os.Args[1], nil))
 }
