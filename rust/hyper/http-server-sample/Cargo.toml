@@ -1,0 +1,6 @@
+[package]
+name = "http-server-sample"
+version = "0.1.0"
+
+[dependencies]
+hyper = "0.10.8"
