@@ -1,6 +1,7 @@
 
 extern crate hyper;
 
+use std::env;
 use hyper::server::{Server, Request, Response};
 
 #[allow(unused_variables)]
@@ -9,5 +10,7 @@ fn sample(req: Request, res: Response) {
 }
 
 fn main() {
-	let _ = Server::http("127.0.0.1:8080").map(|s| s.handle(sample)).unwrap();
+	let host = env::args().nth(1).unwrap_or(String::from("127.0.0.1:8080"));
+
+	let _ = Server::http(host).map(|s| s.handle(sample)).unwrap();
 }
