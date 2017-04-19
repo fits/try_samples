@@ -1,0 +1,10 @@
+
+platform: linux
+image_resource:
+  type: docker-image
+  source: {repository: ubuntu}
+inputs:
+  - name: data
+run:
+  path: cat
+  args: ["data/sample.txt"]
