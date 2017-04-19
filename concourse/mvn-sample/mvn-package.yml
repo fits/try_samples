@@ -1,0 +1,16 @@
+
+platform: linux
+image_resource:
+  type: docker-image
+  source: {repository: maven}
+inputs:
+  - name: app
+outputs:
+  - name: dest
+run:
+  path: sh
+  args:
+    - -exc
+    - |
+      mvn package -f app/pom.xml
+      cp app/target/*.jar dest/
