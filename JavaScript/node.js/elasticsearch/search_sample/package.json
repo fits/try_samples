@@ -1,0 +1,10 @@
+{
+  "name": "search_sample",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "elasticsearch": "^13.0.0-rc2",
+    "ramda": "^0.23.0"
+  }
+}
