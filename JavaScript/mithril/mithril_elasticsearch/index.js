@@ -24,7 +24,8 @@ const SearchResult = {
 
 const Search = {
 	view: (vnode) => m('div', [
-		m('input[type = text]', {
+		m('input', {
+			type: 'text',
 			oninput: m.withAttr('value', v => word = v),
 			onkeydown: (ev) => {
 				if (ev.which === 13) {
