@@ -81,7 +81,8 @@ process.stdin.on('end', () => {
 		.enter()
 			.append('circle');
 
-	point.attr('cx', d => x(d.time))
+	point.attr('class', d => d.subType)
+		.attr('cx', d => x(d.time))
 		.attr('cy', d => y(d.bodySize))
 		.attr('r', circleRadius)
 		.attr('fill', d => toColor(d.subType));
@@ -99,14 +100,18 @@ process.stdin.on('end', () => {
 				});
 
 	legend.append('circle')
-			.attr('r', circleRadius)
-			.attr('fill', d => d.value);
+		.attr('r', circleRadius)
+		.attr('fill', d => d.value);
 
 	legend.append('text')
-			.attr('x', circleRadius * 2)
-			.attr('y', 4)
-			.style('font-size', fontSize)
-			.text(d => d.key);
+		.attr('x', circleRadius * 2)
+		.attr('y', 4)
+		.style('font-size', fontSize)
+		.attr('onmouseover', d => 
+			`document.querySelectorAll('circle.${d.key}').forEach(d => d.setAttribute('r', ${circleRadius} * 2))`)
+		.attr('onmouseout', d => 
+			`document.querySelectorAll('circle.${d.key}').forEach(d => d.setAttribute('r', ${circleRadius}))`)
+		.text(d => d.key);
 
 	console.log(document.body.innerHTML);
 });
