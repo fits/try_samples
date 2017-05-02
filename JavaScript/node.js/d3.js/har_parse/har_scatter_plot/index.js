@@ -6,7 +6,7 @@ const { JSDOM } = jsdom;
 
 const w = 800;
 const h = 500;
-const margin = { left: 50, top: 20, bottom: 50, right: 150 };
+const margin = { left: 80, top: 20, bottom: 50, right: 150 };
 const legendMargin = { top: 30 };
 
 const fontSize = '12pt';
@@ -75,6 +75,13 @@ process.stdin.on('end', () => {
 		.attr('y', h + 40)
 		.style('font-size', fontSize)
 		.text('Time (ms)');
+
+	svg.append('text')
+		.attr('x', -h / 2)
+		.attr('y', -(margin.left) / 1.5)
+		.style('font-size', fontSize)
+		.attr('transform', 'rotate(-90)')
+		.text('Body Size');
 
 	const point = svg.selectAll('circle')
 		.data(df)
