@@ -1,4 +1,4 @@
-@Grab('com.typesafe.akka:akka-cluster_2.12:2.5.0-RC1')
+@Grab('com.typesafe.akka:akka-cluster_2.12:2.5.0')
 import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.actor.UntypedActor
