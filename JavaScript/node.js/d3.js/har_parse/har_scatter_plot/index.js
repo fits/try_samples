@@ -43,6 +43,7 @@ process.stdin.on('end', () => {
 
 	const df = data.log.entries.map( d => {
 		return {
+			'url': d.request.url,
 			'subType': toSubType(d.response.content.mimeType),
 			'bodySize': d.response.bodySize,
 			'time': d.time
@@ -92,7 +93,9 @@ process.stdin.on('end', () => {
 		.attr('cx', d => x(d.time))
 		.attr('cy', d => y(d.bodySize))
 		.attr('r', circleRadius)
-		.attr('fill', d => toColor(d.subType));
+		.attr('fill', d => toColor(d.subType))
+		.append('title')
+			.text(d => d.url);
 
 	const legend = svg.selectAll('.legend')
 		.data(d3.entries(colorMap))
