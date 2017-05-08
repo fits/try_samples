@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 data = json.load(codecs.open(sys.argv[1], 'r', 'utf-8'))
 
-to_type = lambda mtype: mtype.split(';')[0].split('/')[1]
+to_type = lambda mtype: mtype.split(';')[0].split('/')[-1]
 
 convert = lambda d: {
     'url': d['request']['url'],
