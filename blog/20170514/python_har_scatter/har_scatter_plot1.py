@@ -18,7 +18,7 @@ convert = lambda d: {
 
 df = pd.DataFrame(list(map(convert, data['log']['entries'])))
 
-g = sns.pairplot(df, hue = 'subType', x_vars = 'time', y_vars = 'bodySize', size = 10)
+sns.pairplot(df, hue = 'subType', x_vars = 'time', y_vars = 'bodySize', size = 10)
 
 imgfile = "%s_1.png" % sys.argv[1]
 
