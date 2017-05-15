@@ -1,0 +1,10 @@
+{
+  "name": "d3_har_scatter",
+  "version": "0.0.1",
+  "description": "HAR Scatter Plot Sample",
+  "main": "index.js",
+  "dependencies": {
+    "d3": "^4.8.0",
+    "jsdom": "^10.1.0"
+  }
+}
