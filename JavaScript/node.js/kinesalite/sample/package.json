@@ -1,0 +1,12 @@
+{
+  "name": "kinesalite_sample",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.53.0"
+  },
+  "devDependencies": {
+    "kinesalite": "^1.11.6"
+  }
+}
