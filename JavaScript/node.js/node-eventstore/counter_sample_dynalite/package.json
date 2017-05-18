@@ -1,0 +1,13 @@
+{
+  "name": "counter_sample_dynalite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.53.0",
+    "eventstore": "^1.12.2"
+  },
+  "devDependencies": {
+    "dynalite": "^1.2.0"
+  }
+}
