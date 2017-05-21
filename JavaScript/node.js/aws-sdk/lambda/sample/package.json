@@ -1,0 +1,8 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "AWS SDK Lambda Sample",
+  "dependencies": {
+    "aws-sdk": "^2.53.0"
+  }
+}
