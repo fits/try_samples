@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+
+  SimpleFuncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+            - sts:AssumeRole
+      Path: '/'
+
+  SimpleFunc:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: !GetAtt SimpleFuncRole.Arn
+      Code:
+        ZipFile: !Sub |
+          exports.handler = (event, context, callback) => {
+            const result = {
+              body: 'ok'
+            };
+            callback(null, result);
+          };
+      Runtime: nodejs6.10
+
+  SimpleApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SimpleApi
+
+  SimpleResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref SimpleApi
+      ParentId: !GetAtt SimpleApi.RootResourceId
+      PathPart: 'simple'
+
+  SimpleMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref SimpleApi
+      ResourceId: !Ref SimpleResource
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SimpleFunc.Arn}/invocations"
+
+  SimpleApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId: !Ref SimpleApi
+      StageName: prod
+
+  SimpleApiTestPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt SimpleFunc.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleApi}/*/*/simple"
+
+  SimpleApiProdPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt SimpleFunc.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${SimpleApi}/prod/ANY/simple"
