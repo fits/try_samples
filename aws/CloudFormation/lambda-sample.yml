@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+
+  SimpleFuncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+            - sts:AssumeRole
+      Path: '/'
+
+  SimpleFunc:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: !GetAtt SimpleFuncRole.Arn
+      Code:
+        ZipFile: !Sub |
+          exports.handler = (event, context, callback) => {
+            const result = {
+              body: 'ok'
+            };
+            callback(null, result);
+          };
+      Runtime: nodejs6.10
