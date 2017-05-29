@@ -1,0 +1,9 @@
+{
+  "name": "sign-in_sample",
+  "version": "0.0.1",
+  "description": "Cognito SignIn Sample",
+  "dependencies": {
+    "amazon-cognito-identity-js": "^1.18.0",
+    "node-fetch": "^1.7.0"
+  }
+}
