@@ -1,0 +1,12 @@
+{
+  "name": "sample2",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.53.0"
+  },
+  "devDependencies": {
+    "dynalite": "^1.2.0"
+  }
+}
