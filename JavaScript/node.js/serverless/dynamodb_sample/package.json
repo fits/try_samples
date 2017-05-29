@@ -1,0 +1,9 @@
+{
+  "name": "dynamodb_sample",
+  "version": "0.0.1",
+  "description": "serverless dynamodb sample",
+  "main": "handler.js",
+  "devDependencies": {
+    "aws-sdk": "^2.57.0"
+  }
+}
