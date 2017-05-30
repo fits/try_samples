@@ -14,6 +14,8 @@ provider:
       Resource:
         - Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SampleTable}"
 
+custom: ${{file(./settings.yml)}}
+
 package:
   exclude:
     - ./**
@@ -28,6 +30,9 @@ functions:
           path: values/{id}
           method: get
           cors: true
+          authorizer:
+            name: authorizer
+            arn: ${{self:custom.cognitoUserPoolArn}}
 
   updateValue:
     handler: handler.updateValue
@@ -36,6 +41,10 @@ functions:
           path: values
           method: post
           cors: true
+          authorizer:
+            name: authorizer
+            arn: ${{self:custom.cognitoUserPoolArn}}
+
 
 resources:
   Resources:
