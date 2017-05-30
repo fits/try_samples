@@ -1,6 +1,5 @@
 
 const AWS = require('aws-sdk');
-const uuidV1 = require('uuid/v1');
 
 AWS.config.loadFromPath('./config.json');
 
@@ -15,7 +14,7 @@ const data = {
 	TableName: table,
 	Item: {
 		aggregateId: { S: id },
-		rowKey: { S: uuidV1() },
+		rowKey: { S: new Date().toISOString() },
 		value: { N: value }
 	}
 };
