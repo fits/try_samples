@@ -1,13 +1,13 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const uuidV1 = require('uuid/v1');
 
 const dynamo = new AWS.DynamoDB();
 
 const table = 'SampleTable';
 
 module.exports.updateValue = (event, context, callback) => {
+
 	if (event.body) {
 		const data = JSON.parse(event.body);
 
@@ -15,19 +15,19 @@ module.exports.updateValue = (event, context, callback) => {
 			TableName: table,
 			Item: {
 				aggregateId: { S: data.id },
-				rowKey: { S: uuidV1() },
+				rowKey: { S: new Date().toISOString() },
 				value: { N: `${data.value}` }
 			}
 		};
 
 		dynamo.putItem(param).promise()
-			.then(r => callback(null, { body: JSON.stringify(r) }))
+			.then(r => done(callback, r))
 			.catch(callback);
 
 		return;
 	}
 
-	callback(null, { statusCode: 400 });
+	clientError(callback);
 };
 
 module.exports.getValue = (event, context, callback) => {
@@ -51,11 +51,18 @@ module.exports.getValue = (event, context, callback) => {
 				},
 				{ id: id, value: 0 }
 			))
-			.then(r => callback(null, { body: JSON.stringify(r) }))
+			.then(r => done(callback, r))
 			.catch(callback);
 
 		return;
 	}
 
-	callback(null, { statusCode: 400 });
+	clientError(callback);
 };
+
+const done = (callback, res) => callback(null, {
+	headers: {'Access-Control-Allow-Origin': '*'},
+	body: JSON.stringify(res)
+});
+
+const clientError = callback => callback(null, { statusCode: 400 });
