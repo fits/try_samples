@@ -1,0 +1,15 @@
+{
+  "name": "observer_sample",
+  "version": "0.0.1",
+  "description": "Riot.js sample",
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "riotjs-loader": "^4.0.0",
+    "webpack": "^2.6.1"
+  },
+  "dependencies": {
+    "riot": "^3.5.1"
+  }
+}
