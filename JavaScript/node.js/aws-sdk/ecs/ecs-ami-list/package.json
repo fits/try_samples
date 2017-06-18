@@ -1,0 +1,9 @@
+{
+  "name": "ecs-ami-list",
+  "version": "0.0.1",
+  "description": "",
+  "main": "latest_ecs_ami.js",
+  "dependencies": {
+    "aws-sdk": "^2.71.0"
+  }
+}
