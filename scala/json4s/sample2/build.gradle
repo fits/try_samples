@@ -1,0 +1,13 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'SampleApp'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'org.scala-lang:scala-library:2.12.2'
+	compile 'org.json4s:json4s-jackson_2.12:3.5.2'
+}
