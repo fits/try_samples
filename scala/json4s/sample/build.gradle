@@ -8,6 +8,6 @@ repositories {
 }
 
 dependencies {
-	compile 'org.scala-lang:scala-library:2.12.0-RC2'
-	compile 'org.json4s:json4s-jackson_2.12.0-RC2:3.4.2'
+	compile 'org.scala-lang:scala-library:2.12.2'
+	compile 'org.json4s:json4s-jackson_2.12:3.5.2'
 }
