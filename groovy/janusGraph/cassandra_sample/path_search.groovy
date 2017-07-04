@@ -24,7 +24,7 @@ def toStr = {
 
 graph.withAutoCloseable { g ->
 
-	def p = graph.traversal().V()
+	def p = g.traversal().V()
 		.has('oid', start)
 		.repeat(__.outE().as('e').inV())
 		.until(__.has('oid', end))
