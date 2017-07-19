@@ -4,8 +4,8 @@ import pymc as pm
 d = np.loadtxt('data3a.csv', delimiter = ',', skiprows = 1, 
 		dtype = {'names': ('y', 'x', 'f'), 'formats': ('i4', 'f4', 'S1')})
 
-beta1 = pm.Normal('beta_1', 0, 0.001, value = 0)
-beta2 = pm.Normal('beta_2', 0, 0.001, value = 0)
+beta1 = pm.Normal('beta_1', 0, 0.01, value = 0)
+beta2 = pm.Normal('beta_2', 0, 0.01, value = 0)
 
 @pm.deterministic
 def lambda_(d = d, beta1 = beta1, beta2 = beta2):
