@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    { "id": "d1", "name": "data1" },
+    { "id": "d2", "name": "data2" },
+    { "id": "d3", "name": "data3" },
+    { "id": "d4", "name": "data4" },
+    { "id": "d5", "name": "data5" }
+  ],
+  "links": [
+    { "source": "d1", "target": "d2" },
+    { "source": "d2", "target": "d3" },
+    { "source": "d2", "target": "d4" },
+    { "source": "d4", "target": "d5" }
+  ]
+}
