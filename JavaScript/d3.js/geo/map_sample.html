@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+
+const width = 800;
+const height = 800;
+
+const svg = d3.select('body')
+              .append('svg')
+              .attr('width', width)
+              .attr('height', height);
+
+const container = svg.append('g');
+
+svg.call(
+  d3.zoom().on('zoom', () => container.attr('transform', d3.event.transform))
+);
+
+
+d3.json('polbnda_jpn.geojson', (err, json) => {
+
+  const projection = d3.geoMercator()
+                       .center([139.767052, 35.681167])
+                       .scale(2000)
+                       .translate([width / 2, height / 2]);
+
+  const path = d3.geoPath(projection);
+
+  container.selectAll('path')
+    .data(json.features)
+    .enter()
+    .append('path')
+      .attr('d', path)
+      .attr('stroke-width', 0.1)
+      .attr('stroke', 'black')
+      .attr('fill', (d, i) => d3.schemeCategory20c[i % 20])
+      .append('title')
+        .text(d => d.properties.laa);
+
+});
+
+</script>
+</body>
+</html>
