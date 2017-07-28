@@ -1,4 +1,4 @@
-@Grab('org.apache.cassandra:cassandra-all:3.10')
+@Grab('org.apache.cassandra:cassandra-all:3.11.0')
 import org.apache.cassandra.service.CassandraDaemon
 
 def conf = 'embed_cassandra.yaml'
