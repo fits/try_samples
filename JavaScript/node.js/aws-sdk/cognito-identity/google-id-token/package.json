@@ -1,0 +1,10 @@
+{
+  "name": "google-id-token",
+  "version": "1.0.0",
+  "description": "Cognito Access Sample by Google ID Token",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.83.0",
+    "restify": "^5.0.0"
+  }
+}
