@@ -1,0 +1,9 @@
+{
+  "name": "jwt-decode-sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "jwt-decode": "^2.2.0"
+  }
+}
