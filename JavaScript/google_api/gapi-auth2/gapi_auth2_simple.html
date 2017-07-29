@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script>
+	const googleClientId = 'xxx.apps.googleusercontent.com';
+
+	function handleClientLoad() {
+		gapi.load('auth2', () => {
+			const params = {
+				client_id: googleClientId,
+				scope: 'email profile openid',
+				response_type: 'id_token permission'
+			};
+
+			gapi.auth2.authorize(params, res => {
+				if (res.error) {
+					console.error(res.error);
+					return;
+				}
+
+				console.log(res);
+
+			});
+		});
+	}
+
+</script>
+
+<script async defer src="https://apis.google.com/js/api.js" 
+        onload="handleClientLoad()" 
+        onreadystatechange="if (this.readyState === 'complete') this.onload()">
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+	<p>
+		<button id="signin">signin</button>
+	</p>
+	<p>
+		<button id="signout">signout</button>
+	</p>
+
+	<p>
+		<button id="revoke">revoke</button>
+	</p>
+
+<script>
+	const googleClientId = 'xxx.apps.googleusercontent.com';
+
+	function handleClientLoad() {
+		gapi.load('auth2', () => {
+			const auth = gapi.auth2.init({ client_id: googleClientId });
+
+			auth.then( () => {
+				const GoogleAuth = gapi.auth2.getAuthInstance();
+
+				GoogleAuth.isSignedIn.listen( isSignedIn => {
+					console.log(`**** isSignedIn : ${isSignedIn}`);
+				});
+
+				const user = GoogleAuth.currentUser.get();
+
+				console.log(user);
+
+				document.getElementById('signin').addEventListener('click', () => {
+					console.log('signin');
+
+					if (!GoogleAuth.isSignedIn.get()) {
+						GoogleAuth.signIn();
+					}
+				});
+
+				document.getElementById('signout').addEventListener('click', () => {
+					console.log('signout');
+
+					if (GoogleAuth.isSignedIn.get()) {
+						GoogleAuth.signOut();
+					}
+				});
+
+				document.getElementById('revoke').addEventListener('click', () => {
+					GoogleAuth.disconnect();
+				});
+			});
+		});
+	}
+
+</script>
+
+<script async defer src="https://apis.google.com/js/api.js" 
+        onload="this.onload=function(){}; handleClientLoad()" 
+        onreadystatechange="if (this.readyState === 'complete') this.onload()">
+</script>
+
+</body>
+</html>
