@@ -1,5 +1,5 @@
-@Grab('org.apache.kafka:kafka_2.12:0.10.2.0')
-@Grab('org.apache.zookeeper:zookeeper:3.5.2-alpha')
+@Grab('org.apache.kafka:kafka_2.12:0.11.0.0')
+@Grab('org.apache.zookeeper:zookeeper:3.5.3-beta')
 import kafka.server.KafkaServerStartable
 import org.apache.zookeeper.server.ZooKeeperServerMain
 
