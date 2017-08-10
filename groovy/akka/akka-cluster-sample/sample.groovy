@@ -1,4 +1,4 @@
-@Grab('com.typesafe.akka:akka-cluster_2.12:2.5-M1')
+@Grab('com.typesafe.akka:akka-cluster_2.12:2.5.4')
 import akka.actor.*
 import akka.cluster.*
 import akka.cluster.singleton.*
