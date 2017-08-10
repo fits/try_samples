@@ -1,4 +1,4 @@
-@Grab('com.typesafe.akka:akka-cluster-sharding_2.12:2.5.0')
+@Grab('com.typesafe.akka:akka-cluster-sharding_2.12:2.5.4')
 @Grab('com.github.jnr:jffi:1.2.15')
 import akka.actor.ActorSystem
 import akka.actor.Props

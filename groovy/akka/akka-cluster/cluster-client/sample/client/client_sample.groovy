@@ -1,4 +1,4 @@
-@Grab('com.typesafe.akka:akka-cluster-tools_2.12:2.5.0')
+@Grab('com.typesafe.akka:akka-cluster-tools_2.12:2.5.4')
 import akka.actor.ActorSystem
 import akka.actor.ActorPaths
 
