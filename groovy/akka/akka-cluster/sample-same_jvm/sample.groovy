@@ -1,7 +1,7 @@
 @Grab('com.typesafe.akka:akka-cluster_2.12:2.5.4')
 import akka.actor.ActorSystem
 import akka.actor.Props
-import akka.actor.UntypedActor
+import akka.actor.AbstractActor
 
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent
@@ -10,8 +10,16 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 
-class SampleListener extends UntypedActor {
+class SampleListener extends AbstractActor {
 	def cluster = Cluster.get(getContext().system())
+
+	AbstractActor.Receive createReceive() {
+		receiveBuilder()
+			.matchAny {
+				println "*** receive< ${cluster.selfAddress()} >: ${it}"
+			}
+			.build()
+	}
 
 	void preStart() {
 		println "*** preStart< ${cluster.selfAddress()} >:"
@@ -29,10 +37,6 @@ class SampleListener extends UntypedActor {
 
 		cluster.leave(cluster.selfAddress())
 		cluster.unsubscribe(getSelf())
-	}
-
-	void onReceive(msg) {
-		println "*** receive< ${cluster.selfAddress()} >: ${msg}"
 	}
 }
 
