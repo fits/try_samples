@@ -34,7 +34,7 @@ object SampleApp extends App {
         }
       }
     } ~
-    path("sample2" / Segment) { v: String =>
+    path("sample2" / Segment) { v =>
       implicit val timeout = Timeout(1 seconds)
 
       onSuccess(actor ? v) { r =>
