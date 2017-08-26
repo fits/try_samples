@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div>
+		<input id="name" type="text" />
+		<input id="connectBtn" type="button" value="connect" />
+		<input id="disconnectBtn" type="button" value="disconnect" />
+	</div>
+
+	<br />
+
+	<div>
+		<input id="message" type="text" />
+		<input id="sendBtn" type="button" value="send" />
+		<span id="state">closed</span>
+	</div>
+
+	<ul id="log"></ul>
+
+	<script>
+		document.getElementById('connectBtn').onclick = ev => 
+				connect(document.getElementById('name').value);
+
+		function stateChange(state) {
+			document.getElementById("state").innerHTML = state;
+		}
+
+		function sendMessage(ws) {
+			const msg = document.getElementById('message').value;
+			ws.send(msg);
+		}
+
+		function appendLog(msg) {
+			document.getElementById('log').innerHTML += `<li>${msg}</li>`;
+		}
+
+		function connect(name) {
+			const ws = new WebSocket(`ws://localhost:8080/sample?name=${name}`);
+
+			document.getElementById('disconnectBtn').onclick = ev => ws.close();
+			document.getElementById('sendBtn').onclick = ev => sendMessage(ws);
+
+			ws.onopen = event => {
+				console.log(event);
+				stateChange('opened');
+			};
+
+			ws.onclose = event => {
+				console.log(event);
+				stateChange('closed');
+			};
+
+			ws.onmessage = event => {
+				console.log(event);
+				appendLog(event.data);
+			}
+		}
+	</script>
+</body>
+</html>
