@@ -12,6 +12,10 @@ def res = src.runWith(Sink.fold(0) { acc, v -> acc + v }, mat)
 
 println res.toCompletableFuture().get()
 
+println '----------'
+
+src.filter { it % 2 == 0 }.to(Sink.foreach { println it }).run(mat)
+
 sleep 1000
 
 system.terminate()
