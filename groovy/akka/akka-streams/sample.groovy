@@ -16,6 +16,8 @@ println '----------'
 
 src.filter { it % 2 == 0 }.to(Sink.foreach { println it }).run(mat)
 
+src.via(Flow.create().grouped(3)).to(Sink.foreach { println it }).run(mat)
+
 sleep 1000
 
 system.terminate()
