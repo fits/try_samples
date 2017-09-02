@@ -1,0 +1,12 @@
+{
+  "name": "mqtt-sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "mqtt": "^2.12.0"
+  },
+  "devDependencies": {
+    "mosca": "^2.5.2",
+    "pino": "^4.7.1"
+  }
+}
