@@ -37,7 +37,10 @@
 		function connect(name) {
 			const ws = new WebSocket(`ws://${window.location.host}/sample?name=${name}`);
 
-			document.getElementById('disconnectBtn').onclick = ev => ws.close();
+			document.getElementById('disconnectBtn').onclick = ev => {
+				ws.close();
+				stateChange('closed');
+			};
 			document.getElementById('sendBtn').onclick = ev => sendMessage(ws);
 
 			ws.onopen = event => {
