@@ -71,7 +71,7 @@ class Util {
 
 		def source = Source.actorRef(5, OverflowStrategy.fail()).mapMaterializedValue {
 			actor.tell(new Ready(), it)
-			NotUsed
+			NotUsed.instance
 		}.map {
 			TextMessage.create(it)
 		}
