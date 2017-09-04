@@ -1,4 +1,4 @@
-@Grab('com.typesafe.akka:akka-http_2.12:10.0.9')
+@Grab('com.typesafe.akka:akka-http_2.12:10.0.10')
 @Grab('com.typesafe.akka:akka-stream_2.12:2.5.4')
 import static akka.http.javadsl.server.Directives.*
 import akka.NotUsed
