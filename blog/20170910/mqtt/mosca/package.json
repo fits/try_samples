@@ -1,0 +1,9 @@
+{
+  "name": "mosca-sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "mosca": "^2.5.2",
+    "mqtt": "^2.12.0"
+  }
+}
