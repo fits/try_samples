@@ -1,4 +1,4 @@
-@Grab('org.apache.kafka:kafka-clients:0.10.2.0')
+@Grab('org.apache.kafka:kafka-clients:0.11.0.1')
 @Grab('org.slf4j:slf4j-simple:1.7.24')
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.util.concurrent.CountDownLatch
