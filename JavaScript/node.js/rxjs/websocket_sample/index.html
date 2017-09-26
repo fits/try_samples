@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+	<div>
+		<input id="message"></input>
+		<button id="send">send</button>
+		<span id="state">closed</span>
+	</div>
+
+	<ul id="log"></ul>
+
+	<script>
+		const wsUrl = 'ws://localhost:9000/'
+
+		const changeState = state =>
+			document.getElementById('state').innerHTML = state
+
+		const appendLog = msg => 
+			document.getElementById('log').innerHTML += `<li>${msg}</li>`
+
+		const ws = new WebSocket(wsUrl)
+
+		document.getElementById('send').onclick = ev => {
+			const msg = document.getElementById('message')
+
+			ws.send(msg.value)
+
+			msg.value = ''
+		}
+
+		ws.onopen = ev => {
+			console.log(ev)
+			changeState('open')
+		}
+
+		ws.onclose = ev => {
+			console.log(ev)
+			changeState('close')
+		}
+
+		ws.onmessage = ev => {
+			console.log(ev)
+			appendLog(ev.data)
+		}
+	</script>
+</body>
+</html>

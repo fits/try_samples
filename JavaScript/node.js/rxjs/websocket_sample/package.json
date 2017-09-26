@@ -1,0 +1,10 @@
+{
+  "name": "websocket_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "rxjs": "^5.4.3",
+    "ws": "^3.2.0"
+  }
+}
