@@ -1,0 +1,9 @@
+{
+  "name": "subject_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "rxjs": "^5.4.3"
+  }
+}
