@@ -1,0 +1,11 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "sodiumjs": "^1.0.7"
+  },
+  "devDependencies": {
+    "typescript": "^2.5.3"
+  }
+}
