@@ -1,0 +1,8 @@
+{
+  "name": "combine_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "rxjs": "^5.5.0"
+  }
+}
