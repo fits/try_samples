@@ -1,0 +1,38 @@
+
+buildscript {
+	project.ext {
+		kotlinVersion = '1.1.51'
+		dl4jVersion = '0.9.1'
+	}
+
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
+	}
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = 'SampleAppKt'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+	compile "org.deeplearning4j:deeplearning4j-nlp-japanese:${dl4jVersion}"
+
+	runtime "org.nd4j:nd4j-native-platform:${dl4jVersion}"
+	runtime 'org.slf4j:slf4j-simple:1.7.25'
+}
+
+run {
+	if (project.hasProperty('args')) {
+		args project.args
+	}
+}
