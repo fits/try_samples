@@ -11,16 +11,16 @@ class SpeechLevel {
 }
 
 def target = [
-	new SpeechLevel('–¼Œ', 'ˆê”Ê'),
-	new SpeechLevel('–¼Œ', 'ŒÅ—L–¼Œ'),
-	new SpeechLevel('–¼Œ', '•›Œ‰Â”\'),
-	new SpeechLevel('–¼Œ', 'ƒT•ÏÚ‘±'),
-	new SpeechLevel('–¼Œ', 'Œ`—e“®ŒŒêŠ²'),
-	new SpeechLevel('“®Œ', '©—§'),
-	new SpeechLevel('Œ`—eŒ', '©—§')
+	new SpeechLevel('åè©', 'ä¸€èˆ¬'),
+	new SpeechLevel('åè©', 'å›ºæœ‰åè©'),
+	new SpeechLevel('åè©', 'å‰¯è©å¯èƒ½'),
+	new SpeechLevel('åè©', 'ã‚µå¤‰æ¥ç¶š'),
+	new SpeechLevel('åè©', 'å½¢å®¹å‹•è©èªå¹¹'),
+	new SpeechLevel('å‹•è©', 'è‡ªç«‹'),
+	new SpeechLevel('å½¢å®¹è©', 'è‡ªç«‹')
 ]
 
-def stopWords = '* ‚ ‚é ‚¢‚é ‚·‚é ‚È‚é ‚Å‚«‚é ‚±‚Æ ‚à‚Ì'.split(' ')
+def stopWords = '* ã‚ã‚‹ ã„ã‚‹ ã™ã‚‹ ãªã‚‹ ã§ãã‚‹ ã“ã¨ ã‚‚ã®'.split(' ')
 
 def tokenizer = new Tokenizer()
 
