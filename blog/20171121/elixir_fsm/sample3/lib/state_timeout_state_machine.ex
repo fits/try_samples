@@ -25,5 +25,6 @@ defmodule StateTimeoutStateMachine do
   def handle_event(event_type, event_content, state, data) do
     IO.puts "*** Unhandled: type=#{event_type}, content=#{event_content}, state=#{state}, data=#{data}"
     {:keep_state, data}
+    # {:keep_state_and_data, []}
   end
 end
