@@ -18,6 +18,6 @@ res = d_ar.fit(3)
 print(f"aic = {res.aic}")
 
 plt.plot(d)
-plt.plot(range(2, 250), res.predict(3, 250))
+plt.plot(range(3, 251), res.predict(3, 250))
 
 plt.savefig(dest_file)

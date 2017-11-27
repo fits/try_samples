@@ -18,6 +18,6 @@ res = d_arima.fit()
 print(res.summary())
 
 plt.plot(d)
-plt.plot(res.predict(1, 250, typ = 'levels'))
+plt.plot(range(1, 251), res.predict(1, 250, typ = 'levels'))
 
 plt.savefig(dest_file)
