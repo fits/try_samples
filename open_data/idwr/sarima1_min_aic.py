@@ -13,19 +13,19 @@ ds = df.groupby(['year', 'week']).sum().iloc[:, 1]
 d = ds.astype('float').values
 
 def sarima(param):
-	try:
-		sa = sm.tsa.SARIMAX(
-			d,
-			order = param[0],
-			seasonal_order = param[1],
-			trend = 'n'
-		).fit()
+    try:
+        sa = sm.tsa.SARIMAX(
+            d,
+            order = param[0],
+            seasonal_order = param[1],
+            trend = 'n'
+        ).fit()
 
-		res = (sa.aic, sa)
-	except:
-		res = None
+        res = (sa.aic, sa)
+    except:
+        res = None
 
-	return res
+    return res
 
 params = [((p, d, q), (sp, sd, sq, 52)) 
       for p in range(2)
@@ -36,11 +36,11 @@ params = [((p, d, q), (sp, sd, sq, 52))
       for sq in range(2)]
 
 r = reduce(
-	lambda a, b: a if a[0] <= b[0] else b,
-	filter(
-		lambda a: a is not None, 
-		map(sarima, params)
-	)
+    lambda a, b: a if a[0] <= b[0] else b,
+    filter(
+        lambda a: a is not None, 
+        map(sarima, params)
+    )
 )
 
 print(r[1].summary())
