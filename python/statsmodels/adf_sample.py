@@ -11,16 +11,14 @@ df = pd.read_csv(data_file, encoding = 'Shift_JIS')
 
 ds = df.groupby(['year', 'week'])[item_name].sum()
 
-params = ['ctt', 'ct', 'c', 'nc']
+for d in [('orig', ds.values), ('diff', ds.diff().dropna())]:
 
-for c in params:
-	r = stattools.adfuller(ds.values, maxlag = lag, regression = c)
-	print(f"{c}, p-value={r[1]}, {r}")
+    print(f"------ {d[0]} -----")
 
-print('----- diff -----')
+    for c in ['ctt', 'ct', 'c', 'nc']:
 
-dd = ds.diff().dropna()
+        r = stattools.adfuller(d[1], maxlag = lag, regression = c)
 
-for c in params:
-	r = stattools.adfuller(dd.values, maxlag = lag, regression = c)
-	print(f"{c}, p-value={r[1]}, {r}")
+        print(f"{c}, p-value={r[1]}, {r}")
+
+    print()
