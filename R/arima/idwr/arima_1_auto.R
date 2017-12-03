@@ -13,7 +13,7 @@ df.pred <- forecast(df.arima, h = 50)
 
 print(df.arima$arma)
 
-plot(df$ts, xlim = c(1, 6), ylim = c(0, max(df$Data)), type = 'l')
+plot(df.ts, xlim = c(1, 6), ylim = c(0, max(df$Data)), type = 'l')
 
 lines(df.arima$fitted, col = 'red')
 lines(df.pred$mean, col = 'green')
