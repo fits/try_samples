@@ -15,15 +15,15 @@ df = pd.read_csv(data_file, encoding = 'Shift_JIS')
 dv = df.groupby(['year', 'week'])[item_name].sum().astype('float').values
 
 def dlm_fit(type):
-	return sm.tsa.UnobservedComponents(dv, type, seasonal = season).fit()
+    return sm.tsa.UnobservedComponents(dv, type, seasonal = season).fit()
 
 types = [
-	'local level',
-	'local linear trend',
-	'local linear deterministic trend',
-	'random walk',
-	'smooth trend',
-	'random trend'
+    'local level',
+    'local linear trend',
+    'local linear deterministic trend',
+    'random walk',
+    'smooth trend',
+    'random trend'
 ]
 
 r = reduce(
