@@ -12,7 +12,16 @@ build <- function(x) {
     dlmModSeas(52, dV = 0, dW = rep(0, 51))
 }
 
-df.model <- build(c(1))
+df.param <- dlmMLE(
+  df$Data, 
+  dlmMLE(df$Data, c(1), build)$par, 
+  build,
+  method = 'BFGS'
+)
+
+print(df.param)
+
+df.model <- build(df.param$par)
 
 totalComp <- function(d) {
   Reduce(
