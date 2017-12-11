@@ -15,28 +15,29 @@ data_file = sys.argv[1]
 item_name = sys.argv[2]
 dest_file = sys.argv[3]
 
-window_size = 5
-epoch = 2500
+t = 4
+epoch = 2000
 batch_size = 52
-n_num = 80
-predict_size = 250
-input_num = window_size + 2 - 1
+n_num = 60
+predict_max = 250
+predict_size = predict_max - t
+input_num = t + 2
 
 df = pd.read_csv(data_file, encoding = 'Shift_JIS')
 
 ds = df.groupby(['year', 'week'])[item_name].sum().astype('float')
 
-def window_with_index(d, wsize):
+def window_with_index(d, size):
     return [
         np.r_[
-            d.index[i + wsize - 1][0], # year
-            d.index[i + wsize - 1][1], # week
-            d[i:(i + wsize)].values.flatten()
+            d.index[i + size][0], # year
+            d.index[i + size][1], # week
+            d[i:(i + size + 1)].values.flatten()
         ]
-        for i in range(len(d) - wsize + 1)
+        for i in range(len(d) - size)
     ]
 
-dw = window_with_index(ds, window_size)
+dw = window_with_index(ds, t)
 
 data = np.array([i[0:-1] for i in dw]).reshape(len(dw), input_num, 1)
 labels = np.array([i[-1] for i in dw]).reshape(len(dw), 1)
@@ -99,12 +100,12 @@ fig, axes = plt.subplots(2, 1)
 
 axes[0].plot(history.losses)
 
-axes[1].set_xlim(0, predict_size)
+axes[1].set_xlim(0, predict_max)
 
 axes[1].plot(ds.values, label = 'actual')
 
-axes[1].plot(range(window_size - 1, len(ds)), pred1, label = 'predict1')
-axes[1].plot(range(window_size - 1, predict_size + window_size - 1), pred2[0], label = 'predict2')
+axes[1].plot(range(t, len(ds)), pred1, label = 'predict1')
+axes[1].plot(range(t, predict_max), pred2[0], label = 'predict2')
 
 axes[1].legend()
 
