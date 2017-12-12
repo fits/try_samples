@@ -8,7 +8,6 @@ from keras.layers.core import Dense, Activation
 from keras.layers.normalization import BatchNormalization
 from keras.layers.recurrent import GRU
 from keras.optimizers import Nadam
-from keras.callbacks import Callback
 from keras import backend as K
 
 data_file = sys.argv[1]
@@ -16,9 +15,9 @@ item_name = sys.argv[2]
 dest_file = sys.argv[3]
 
 t = 4
-epoch = 2000
+epoch = 5000
 batch_size = 52
-n_num = 60
+n_num = 80
 predict_max = 250
 predict_size = predict_max - t
 input_num = t + 2
@@ -42,14 +41,6 @@ dw = window_with_index(ds, t)
 data = np.array([i[0:-1] for i in dw]).reshape(len(dw), input_num, 1)
 labels = np.array([i[-1] for i in dw]).reshape(len(dw), 1)
 
-# loss callback
-class LossHistory(Callback):
-    def on_train_begin(self, logs = {}):
-        self.losses = []
-
-    def on_batch_end(self, batch, logs = {}):
-        self.losses.append(logs.get('loss'))
-
 # RMSE
 def root_mean_squared_error(act, pred):
     return K.sqrt(K.mean(K.square(pred - act), axis = 1))
@@ -68,12 +59,10 @@ opt = Nadam()
 
 model.compile(loss = root_mean_squared_error, optimizer = opt)
 
-history = LossHistory()
-
-model.fit(data, labels, epochs = epoch, batch_size = batch_size, 
-          callbacks = [history])
+hist = model.fit(data, labels, epochs = epoch, batch_size = batch_size)
 
 pred1 = model.predict(data)
+
 
 max_week = max(ds.index.levels[1])
 
@@ -91,6 +80,7 @@ def predict(a, b):
 
     return (np.append(a[0], r), n)
 
+
 fst_data = np.array(dw[0][0:-1]).reshape(1, input_num, 1)
 
 pred2 = reduce(predict, range(predict_size), (np.array([]), fst_data))
@@ -98,7 +88,7 @@ pred2 = reduce(predict, range(predict_size), (np.array([]), fst_data))
 
 fig, axes = plt.subplots(2, 1)
 
-axes[0].plot(history.losses)
+axes[0].plot(hist.history['loss'])
 
 axes[1].set_xlim(0, predict_max)
 
