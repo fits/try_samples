@@ -90,7 +90,12 @@ fig, axes = plt.subplots(2, 1)
 
 axes[0].plot(hist.history['loss'])
 
-axes[1].set_xlim(0, predict_max)
+axes[1].set_xlim(-10, predict_max)
+axes[1].set_xticks(range(0, predict_max, max_week))
+
+min_year = min(ds.index.levels[0])
+
+axes[1].set_xticklabels(range(min_year, min_year + int(predict_max / max_week) + 1))
 
 axes[1].plot(ds.values, label = 'actual')
 
