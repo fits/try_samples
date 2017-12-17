@@ -9,7 +9,6 @@ from keras.layers.normalization import BatchNormalization
 from keras.layers.recurrent import GRU
 from keras.optimizers import Nadam
 from keras.callbacks import Callback
-from keras import backend as K
 
 data_file = sys.argv[1]
 item_name = sys.argv[2]
