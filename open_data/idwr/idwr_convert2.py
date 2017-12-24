@@ -11,7 +11,7 @@ import pandas as pd
 data_files = f"{sys.argv[1]}/*.csv"
 dest_file = sys.argv[2]
 
-r = re.compile('"([0-9]+)年([0-9]+)週\(.*〜([0-9]+)月([0-9]+)日\)')
+r = re.compile('"([0-9]+)年([0-9]+)週\(.*[^0-9]([0-9]+)月([0-9]+)日\)')
 
 cols = [i for i in range(38) if i == 0 or i % 2 == 1]
 
@@ -43,11 +43,11 @@ def read_csv(file):
     d['week'] = info[1]
     d['lastdate'] = info[2]
 
-    return d.rename(columns = {'Unnamed: 0': 'prefecture'})
+    return d.rename(columns = {'Unnamed: 0': 'pref'})
 
 
 dfs = [read_csv(f) for f in glob.glob(data_files)]
 
 df = functools.reduce(lambda a, b: a.append(b), dfs)
 
-df.to_csv(dest_file)
+df.to_csv(dest_file, encoding = 'UTF-8')
