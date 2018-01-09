@@ -13,12 +13,12 @@ itemsets = dict(frequent_itemsets(X, 5))
 
 rules = association_rules(itemsets, 0.7)
 
+def decode_onehot(d):
+    items = OneHot.decode(d, tbl, mapping)
+    return list(map(lambda v: v[1].name, items))
+
 for P, Q, support, confidence in rules:
-
-    pitems = OneHot.decode(P, tbl, mapping)
-    qitems = OneHot.decode(Q, tbl, mapping)
-
-    lhs = list(map(lambda v: v[1].name, pitems))
-    rhs = list(map(lambda v: v[1].name, qitems))
+    lhs = decode_onehot(P)
+    rhs = decode_onehot(Q)
 
     print(f"lhs = {lhs}, rhs = {rhs}, support = {support}, confidence = {confidence}")
