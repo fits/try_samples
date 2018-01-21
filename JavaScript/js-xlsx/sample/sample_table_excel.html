@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+
+	<a id="download" download="sample.xlsx" href="#">download</a>
+
+	<table id="data">
+		<tr>
+			<th>ID</th>
+			<th>タイトル</th>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>サンプルA</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>サンプルB</td>
+		</tr>
+	</table>
+
+	<script src="js/xlsx.full.min.js"></script>
+	<script>
+		const wb = XLSX.utils.table_to_book(document.getElementById('data'))
+
+		const b = XLSX.write(wb, {type: 'base64'})
+
+		document.getElementById('download').href = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + b
+
+	</script>
+</body>
+</html>

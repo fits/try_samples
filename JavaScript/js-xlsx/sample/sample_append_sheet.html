@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+	<a id="download" download="sample.xlsx" href="#">download</a>
+
+	<script src="js/xlsx.full.min.js"></script>
+	<script>
+		const wb = XLSX.utils.book_new()
+
+		const hd1 = ['Name', 'Value']
+		const hd2 = ['Name', 'Value', 'Calc']
+
+		const sh1 = XLSX.utils.json_to_sheet([
+			{Name: 'アイテム1', Value: 10},
+			{Name: 'アイテム2', Value: 20},
+			{Name: 'アイテム3', Value: 30}
+		], {header: hd1})
+
+		const sh2 = XLSX.utils.json_to_sheet([
+			{Name: 'サンプル1', Value: 10},
+			{Name: 'サンプル2', Value: 20},
+			{Name: 'サンプル3', Value: 30}
+		], {header: hd2})
+
+		sh2['C2'] = {t: 'n', f: 'B2 * 2'}
+
+		XLSX.utils.book_append_sheet(wb, sh1, 'sheet1')
+		XLSX.utils.book_append_sheet(wb, sh2, 'シート2')
+
+		const b = XLSX.write(wb, {type: 'base64'})
+
+		document.getElementById('download').href = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + b
+
+	</script>
+</body>
+</html>
