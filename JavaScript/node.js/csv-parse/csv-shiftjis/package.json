@@ -1,0 +1,9 @@
+{
+  "name": "csv-shiftjis",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "csv-parse": "^2.0.0",
+    "iconv-lite": "^0.4.19"
+  }
+}
