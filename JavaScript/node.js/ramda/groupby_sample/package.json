@@ -1,0 +1,8 @@
+{
+  "name": "groupby_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "ramda": "^0.25.0"
+  }
+}
