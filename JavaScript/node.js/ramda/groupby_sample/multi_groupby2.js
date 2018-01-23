@@ -12,16 +12,16 @@ const data = [
 	{category: 'B', item: 'B01', week: '2018-01', num: 1}
 ]
 
-const liftObjIndexedN = R.curry((n, fn) =>
+const liftObjIndexedN = R.curry((n, fn, data) =>
 	R.reduce(
 		(a, b) => R.mapObjIndexed(a), 
 		fn, 
 		R.range(0, n)
-	)
+	)(data)
 )
 
 const groupByMulti = R.curry((fs, data) => R.reduce(
-	(a, b) => liftObjIndexedN(b, R.groupBy(R.prop(fs[b])))(a),
+	(a, b) => liftObjIndexedN(b, R.groupBy(R.prop(fs[b])), a),
 	data, 
 	R.range(0, fs.length)
 ))
@@ -36,6 +36,6 @@ console.log(r)
 
 console.log('-----')
 
-const sum = liftObjIndexedN(3, R.reduce((a, b) => a + b.num, 0))
+const sumNum = liftObjIndexedN(3, R.reduce((a, b) => a + b.num, 0))
 
-console.log( sum(r) )
+console.log( sumNum(r) )
