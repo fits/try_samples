@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+
+	<a id="download" download="sample.xlsx" href="#">download</a>
+
+	<table id="data">
+		<tr>
+			<th>category</th>
+			<th>item</th>
+			<th>value</th>
+		</tr>
+		<tr>
+			<td rowspan="2">A</td>
+			<td>サンプル1</td>
+			<td>1</td>
+		</tr>
+		<tr>
+			<td>サンプル2</td>
+			<td>2</td>
+		</tr>
+		<tr>
+			<td rowspan="2">B</td>
+			<td>サンプル3</td>
+			<td>3</td>
+		</tr>
+		<tr>
+			<td>サンプル4</td>
+			<td>4</td>
+		</tr>
+	</table>
+
+	<script src="js/xlsx.full.min.js"></script>
+	<script>
+		const wb = XLSX.utils.book_new()
+
+		const sh = XLSX.utils.table_to_sheet(document.getElementById('data'))
+
+		// セル結合部分のオートフィルター対応
+		sh['!merges'].forEach(m => {
+			const cellObj = sh[XLSX.utils.encode_cell(m.s)]
+
+			for (let r = m.s.r; r <= m.e.r; r++) {
+				for (let c = m.s.c; c <= m.e.c; c++) {
+					if (r != m.s.r || c != m.s.c) {
+						sh[XLSX.utils.encode_cell({r: r, c: c})] = cellObj
+					}
+				}
+			}
+		})
+
+		XLSX.utils.book_append_sheet(wb, sh, 'sample1')
+
+		const buf = XLSX.write(wb, {type: 'array'})
+		const blob = new Blob([buf])
+
+		document.getElementById('download').href = URL.createObjectURL(blob)
+
+	</script>
+</body>
+</html>
