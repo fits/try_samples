@@ -1,0 +1,12 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "ejs": "^2.5.7",
+    "ramda": "^0.25.0"
+  },
+  "devDependencies": {
+    "webpack": "^3.10.0"
+  }
+}
