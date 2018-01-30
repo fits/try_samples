@@ -1,17 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <style type="text/css">
+    table, th, td {
+      border: 1px solid;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+  </style>
 </head>
 <body>
-	<div id="content">
-	</div>
+  <div id="content">
+  </div>
 
-	<script id="tpl" type="text/template">
-		<h3><%= title %></h3>
-	</script>
+  <script id="tpl" type="text/template">
+    <%
+      const each = (obj, fn) => Object.keys(obj).forEach(k => fn(obj[k], k))
+      const size = obj => Object.values(obj).length
+    %>
 
-	<script src="js/bundle.js"></script>
+    <table>
+      <tr>
+        <th>category</th>
+        <th>item</th>
+        <th>value</th>
+      </tr>
+
+    <% each(items, (v, k) => { %>
+      <% let first = true %>
+
+      <% each(v, (v2, k2) => { %>
+        <tr>
+        <% if (first) { %>
+          <td rowspan="<%= size(v) %>"><%= k %></td>
+        <% } %>
+          <td><%= k2 %></td>
+          <td><%= v2 %></td>
+        </tr>
+
+        <% first = false %>
+      <% }) %>
+    <% }) %>
+    </table>
+  </script>
+
+  <script src="js/bundle.js"></script>
 
 </body>
 </html>
