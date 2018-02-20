@@ -1,0 +1,9 @@
+{
+  "name": "ramda_multi_groupby_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sample.js",
+  "dependencies": {
+    "ramda": "^0.25.0"
+  }
+}
