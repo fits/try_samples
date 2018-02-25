@@ -1,6 +1,5 @@
 
 import sys
-import warnings
 
 from collections import Counter
 from statistics import mean
