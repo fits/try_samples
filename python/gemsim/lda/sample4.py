@@ -13,7 +13,7 @@ data_file = sys.argv[1]
 topic_num = int(sys.argv[2])
 alpha = float(sys.argv[3])
 
-sentences = [s for s in list(word2vec.LineSentence(data_file)) if len(s) >= 2]
+sentences = [s for s in word2vec.LineSentence(data_file) if len(s) >= 2]
 
 dic = Dictionary(sentences)
 
