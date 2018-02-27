@@ -24,7 +24,7 @@ coh_list = ['u_mass', 'c_v', 'c_w2v', 'c_uci', 'c_npmi']
 
 print(','.join(['topic_num'] + coh_list))
 
-for i in range(1, max_topic_num):
+for i in range(1, max_topic_num + 1):
 
     lda = LdaModel(
         corpus = corpus, 
