@@ -1,11 +1,6 @@
 
 import sys
-import itertools
-import functools
-import pandas as pd
-import numpy as np
 
-from statistics import mean
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel, CoherenceModel
 from gensim.models import word2vec
