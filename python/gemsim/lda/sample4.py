@@ -11,14 +11,15 @@ from gensim.models import word2vec
 
 data_file = sys.argv[1]
 topic_num = int(sys.argv[2])
+alpha = float(sys.argv[3])
 
-sentences = list(word2vec.LineSentence(data_file))
+sentences = [s for s in list(word2vec.LineSentence(data_file)) if len(s) >= 2]
 
 dic = Dictionary(sentences)
 
-corpus = [dic.doc2bow(s) for s in sentences if len(s) >= 2]
+corpus = [dic.doc2bow(s) for s in sentences]
 
-lda = LdaModel(corpus = corpus, id2word = dic, num_topics = topic_num, random_state = 1)
+lda = LdaModel(corpus = corpus, id2word = dic, num_topics = topic_num, alpha = alpha, random_state = 1)
 
 doc_topics = [lda[c] for c in corpus]
 
