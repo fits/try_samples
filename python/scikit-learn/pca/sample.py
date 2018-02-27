@@ -26,6 +26,8 @@ nx = pca.fit_transform(x)
 
 print(sum(pca.explained_variance_ratio_))
 
+print(nx)
+
 for i, pc in enumerate(pca.components_):
 
     ids = np.where((pc >= limit_value) | (pc <= -limit_value))
