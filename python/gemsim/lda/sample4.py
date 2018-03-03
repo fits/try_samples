@@ -1,9 +1,8 @@
 
 import sys
 
-from collections import Counter
 from statistics import mean
-from toolz import concat
+from toolz import concat, frequencies
 
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
@@ -27,7 +26,7 @@ avg_doc_topics = mean([len(t) for t in doc_topics])
 
 print(f"topics num of doc = {avg_doc_topics}")
 
-topic_freq = Counter(concat([[x[0] for x in t] for t in doc_topics]))
+topic_freq = frequencies(concat([[x[0] for x in t] for t in doc_topics]))
 
 print('----------')
 
