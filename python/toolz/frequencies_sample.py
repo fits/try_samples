@@ -19,5 +19,5 @@ cmb = toolz.frequencies(
     )
 )
 
-for (k1, k2), v in cmb.items():
+for (k1, k2), v in sorted(cmb.items(), key = lambda x: -x[1]):
     print(f"item1 = {k1}, item2 = {k2}, freq = {v}")
