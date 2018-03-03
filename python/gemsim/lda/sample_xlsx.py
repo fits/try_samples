@@ -1,9 +1,8 @@
 
 import sys
 
-from collections import Counter
 from statistics import mean
-from toolz import concat
+from toolz import concat, frequencies
 
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
@@ -12,7 +11,8 @@ from openpyxl import Workbook
 
 data_file = sys.argv[1]
 topic_num = int(sys.argv[2])
-dest_file = sys.argv[3]
+alpha = float(sys.argv[3])
+dest_file = sys.argv[4]
 
 sentences = list(word2vec.LineSentence(data_file))
 
@@ -20,7 +20,7 @@ dic = Dictionary(sentences)
 
 corpus = [dic.doc2bow(s) for s in sentences if len(s) >= 2]
 
-lda = LdaModel(corpus = corpus, id2word = dic, num_topics = topic_num, random_state = 1)
+lda = LdaModel(corpus = corpus, id2word = dic, num_topics = topic_num, alpha = alpha, random_state = 1)
 
 doc_topics = [lda[c] for c in corpus]
 
@@ -28,7 +28,7 @@ avg_doc_topics = mean([len(t) for t in doc_topics])
 
 print(f"topics num of doc = {avg_doc_topics}")
 
-topic_freq = Counter(concat([[x[0] for x in t] for t in doc_topics]))
+topic_freq = frequencies(concat([[x[0] for x in t] for t in doc_topics]))
 
 wb = Workbook()
 
