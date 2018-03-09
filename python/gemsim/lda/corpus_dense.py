@@ -7,7 +7,7 @@ from gensim.models import word2vec
 
 data_file = sys.argv[1]
 
-sentences = [s for s in word2vec.LineSentence(data_file)]
+sentences = word2vec.LineSentence(data_file)
 
 dic = Dictionary(sentences)
 
