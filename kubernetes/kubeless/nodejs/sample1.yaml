@@ -1,0 +1,17 @@
+apiVersion: kubeless.io/v1beta1
+kind: Function
+metadata:
+  name: sample1
+spec:
+  handler: sample1.handle
+  runtime: nodejs6
+  type: HTTP
+  function: |
+    module.exports = {
+      handle: function(req, res) {
+        const body = req.body
+
+        console.log(`body: ${JSON.stringify(body)}`)
+        res.end(`ok - ${JSON.stringify(body)}`)
+      }
+    }
