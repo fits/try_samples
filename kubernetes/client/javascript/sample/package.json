@@ -1,0 +1,8 @@
+{
+  "name": "kubernetes-client-sample",
+  "version": "1.0.0",
+  "description": "Javascript Kubernetes Client sample",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.2.1"
+  }
+}
