@@ -1,0 +1,14 @@
+{
+  "name": "sample",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-console": "^3.0.0",
+    "purescript-datetime": "^3.4.1"
+  },
+  "devDependencies": {}
+}
