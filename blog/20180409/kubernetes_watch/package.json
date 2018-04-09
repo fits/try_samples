@@ -1,0 +1,9 @@
+{
+  "name": "kubernetes_watch_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.2.1"
+  }
+}
