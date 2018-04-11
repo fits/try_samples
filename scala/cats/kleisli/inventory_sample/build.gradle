@@ -1,0 +1,13 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'sample.app.SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.12.5'
+    compile 'org.typelevel:cats-core_2.12:1.1.0'
+}
