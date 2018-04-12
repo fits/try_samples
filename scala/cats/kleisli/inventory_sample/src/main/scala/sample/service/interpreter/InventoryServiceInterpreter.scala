@@ -6,7 +6,7 @@ import cats.implicits._
 import sample.model.InventoryItem
 import sample.model.common.{Amount, ItemId}
 import sample.repository.InventoryRepository
-import sample.repository.common.RepoValid
+import sample.repository.RepoValid
 
 object InventoryService extends InventoryServiceInterpreter
 
