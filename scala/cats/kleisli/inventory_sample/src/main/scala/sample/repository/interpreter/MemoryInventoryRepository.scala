@@ -6,7 +6,7 @@ import scala.collection.mutable
 import sample.model.InventoryItem
 import sample.model.common.ItemId
 import sample.repository.InventoryRepository
-import sample.repository.common.RepoValid
+import sample.repository.RepoValid
 
 object MemoryInventoryRepository extends MemoryInventoryRepository
 
