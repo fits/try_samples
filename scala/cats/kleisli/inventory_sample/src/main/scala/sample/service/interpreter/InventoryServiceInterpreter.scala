@@ -31,14 +31,17 @@ class InventoryServiceInterpreter
 
   override def remove(id: ItemId, quantity: Amount): InventoryOp[InventoryItem] =
     for {
-      c <- current(id).andThen(checkQuantity(_, quantity))
+      c <- current(id)
+      _ <- invRepoOp(_ => validateQuantity(c, quantity))
+      // 以下でも可
+      // c <- current(id).andThen(validateQuantity(_, quantity))
       r <- save(c.copy(quantity = c.quantity - quantity))
     } yield r
 
   private def save(item: InventoryItem): InventoryOp[InventoryItem] =
     invRepoOp(_.store(item))
 
-  private def checkQuantity(item: InventoryItem, quantity: Amount): RepoValid[InventoryItem] =
+  private def validateQuantity(item: InventoryItem, quantity: Amount): RepoValid[InventoryItem] =
     if (item.quantity >= quantity) Right(item)
     else Left(NonEmptyList.one(s"quantity(= ${item.quantity}) is less than $quantity"))
 }
