@@ -1,0 +1,11 @@
+{
+  "name": "google_search_scraping_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "jsdom": "^11.8.0",
+    "request": "^2.85.0",
+    "request-promise-native": "^1.0.5"
+  }
+}
