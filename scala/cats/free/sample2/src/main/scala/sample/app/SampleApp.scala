@@ -1,5 +1,6 @@
 package sample.app
 
+import cats.data.Writer
 import cats.implicits._
 import cats.free.Free
 import cats.~>
@@ -45,6 +46,19 @@ case class DataRepoInterpreter() {
   def interpret[A](op: DataOp[A]): Future[A] = op.foldMap(step)
 }
 
+object DataLogger {
+  type WriterList[A] = Writer[List[String], A]
+
+  val step: DataOpF ~> WriterList = new (DataOpF ~> WriterList) {
+    override def apply[A](fa: DataOpF[A]): WriterList[A] = fa match {
+      case Store(d) => Writer(List(s"store:$d"), ())
+      case Find(id) => Writer(List(s"find:$id"), Data(id))
+    }
+  }
+
+  def interpret[A](op: DataOp[A]): WriterList[A] = op.foldMap(step)
+}
+
 object SampleApp extends App {
   val steps: DataOp[(Data, Data, Data)] = for {
     _ <- DataRepository.store("a", 5)
@@ -62,4 +76,8 @@ object SampleApp extends App {
   r.foreach(msg => println(s"*** $msg"))
 
   Await.ready(r, 1.seconds)
+
+  val r2 = DataLogger.interpret(steps)
+
+  println(r2)
 }
