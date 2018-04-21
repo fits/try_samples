@@ -51,8 +51,8 @@ object DataLogger {
 
   val step: DataOpF ~> WriterList = new (DataOpF ~> WriterList) {
     override def apply[A](fa: DataOpF[A]): WriterList[A] = fa match {
-      case Store(d) => Writer(List(s"store:$d"), ())
-      case Find(id) => Writer(List(s"find:$id"), Data(id))
+      case Store(d) => Writer(List(s"store:$d"), ().asInstanceOf[A])
+      case Find(id) => Writer(List(s"find:$id"), Data(id).asInstanceOf[A])
     }
   }
 
