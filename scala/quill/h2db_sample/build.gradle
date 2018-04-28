@@ -1,0 +1,18 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'sample.app.SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.12.6'
+    compile 'org.scala-lang:scala-reflect:2.12.6'
+
+    compile 'io.getquill:quill-jdbc_2.12:2.4.2'
+
+    runtime 'com.h2database:h2:1.4.192'
+    runtime 'org.slf4j:slf4j-simple:1.8.0-beta2'
+}
