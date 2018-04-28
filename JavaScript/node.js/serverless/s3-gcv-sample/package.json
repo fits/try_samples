@@ -1,0 +1,9 @@
+{
+  "name": "s3-gcv-sample",
+  "version": "0.1",
+  "description": "",
+  "main": "handler.js",
+  "dependencies": {
+    "node-fetch": "^2.1.2"
+  }
+}

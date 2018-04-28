@@ -1,0 +1,29 @@
+service: s3-gcv-sample
+custom:
+  bucket: sample
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: ap-northeast-1
+  timeout: 30
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+        - "s3:GetObject"
+        - "s3:PutObject"
+      Resource: "arn:aws:s3:::${self:custom.bucket}/*"
+
+functions:
+  detection:
+    handler: handler.detection
+    environment:
+      API_ENDPOINT: "https://vision.googleapis.com/v1/images:annotate?key=${env.GCP_API_KEY}"
+    events:
+      - s3:
+          bucket: ${self:custom.bucket}
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .jpg
