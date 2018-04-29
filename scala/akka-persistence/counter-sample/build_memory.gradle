@@ -8,10 +8,10 @@ repositories {
 }
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.12.0-M4'
-    compile 'com.typesafe.akka:akka-persistence_2.12.0-M4:2.4.9'
+    compile 'org.scala-lang:scala-library:2.12.6'
+    compile 'com.typesafe.akka:akka-persistence_2.12:2.5.12'
 
-    runtime 'com.github.dnvriend:akka-persistence-inmemory_2.12.0-M4:1.3.0'
+    runtime 'com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1'
 }
 
 run {

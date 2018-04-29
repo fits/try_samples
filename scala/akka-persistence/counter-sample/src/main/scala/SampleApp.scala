@@ -4,7 +4,6 @@ import akka.pattern._
 
 import sample.{CounterAdd, SampleActor}
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 
 object SampleApp extends App {
