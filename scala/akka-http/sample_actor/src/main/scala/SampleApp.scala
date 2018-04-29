@@ -7,6 +7,7 @@ import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.io.StdIn
 
@@ -14,15 +15,15 @@ case class RequestData(value: String, proc: String => Unit)
 
 class RequestHandler extends Actor {
   override def receive: Receive = {
-    case RequestData(v, p) => p(s"sample1: ${v}")
-    case v: String => sender ! s"sample2: ${v}"
+    case RequestData(v, p) => p(s"sample1: $v")
+    case v: String => sender ! s"sample2: $v"
   }
 }
 
 object SampleApp extends App {
-  implicit val system = ActorSystem("sample")
-  implicit val executionContext = system.dispatcher
-  implicit val materializer = ActorMaterializer()
+  implicit val system: ActorSystem = ActorSystem("sample")
+  implicit val executionContext: ExecutionContext = system.dispatcher
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val actor = system.actorOf(Props[RequestHandler])
 
@@ -35,10 +36,10 @@ object SampleApp extends App {
       }
     } ~
     path("sample2" / Segment) { v =>
-      implicit val timeout = Timeout(1 seconds)
+      implicit val timeout: Timeout = Timeout(1.seconds)
 
       onSuccess(actor ? v) { r =>
-        complete(s"result ${r}")
+        complete(s"result $r")
       }
     }
   }
