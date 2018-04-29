@@ -6,19 +6,19 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 
+import scala.concurrent.ExecutionContext
 import scala.io.StdIn
 
 object SampleApp extends App {
-  implicit val system = ActorSystem("sample")
-  implicit val executionContext = system.dispatcher
-  implicit val materializer = ActorMaterializer()
+  implicit val system: ActorSystem = ActorSystem("sample")
+  implicit val executionContext: ExecutionContext = system.dispatcher
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val websocketFlow = { name: String =>
     Flow[Message].collect {
-      case TextMessage.Strict(msg) => {
-        println(s"*** receive ${name}: ${msg}")
-        TextMessage.Strict(s"${name}: ${msg}")
-      }
+      case TextMessage.Strict(msg) =>
+        println(s"*** receive $name: $msg")
+        TextMessage.Strict(s"$name: $msg")
     }
   }
 
