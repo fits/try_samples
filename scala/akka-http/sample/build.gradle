@@ -8,8 +8,9 @@ repositories {
 }
 
 dependencies {
-	compile 'org.scala-lang:scala-library:2.11.8'
-	compile 'com.typesafe.akka:akka-http-experimental_2.11:2.4.9'
+	compile 'org.scala-lang:scala-library:2.12.6'
+	compile 'com.typesafe.akka:akka-http_2.12:10.1.1'
+	compile 'com.typesafe.akka:akka-stream_2.12:2.5.12'
 }
 
 run {
