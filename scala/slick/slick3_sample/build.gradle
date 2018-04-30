@@ -8,15 +8,14 @@ repositories {
 }
 
 dependencies {
-	compile 'org.scala-lang:scala-library:2.11.7'
-	compile 'com.typesafe.slick:slick_2.11:3.1.0-M2'
+	compile 'org.scala-lang:scala-library:2.12.6'
+	compile 'com.typesafe.slick:slick_2.12:3.2.3'
 
-	runtime 'com.typesafe.slick:slick-hikaricp_2.11:3.1.0-M2'
-	runtime 'mysql:mysql-connector-java:5.1.36'
-	runtime 'org.slf4j:slf4j-simple:1.7.12'
+	runtime 'com.typesafe.slick:slick-hikaricp_2.12:3.2.3'
+	runtime 'mysql:mysql-connector-java:8.0.11'
+	runtime 'org.slf4j:slf4j-simple:1.8.0-beta2'
 }
 
 compileScala {
 	scalaCompileOptions.additionalParameters = ['-Xprint:typer']
-	scalaCompileOptions.useAnt = false
 }
