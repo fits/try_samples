@@ -1,6 +1,6 @@
 package sample
 
-import slick.driver.MySQLDriver.api._
+import slick.jdbc.MySQLProfile.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
