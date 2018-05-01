@@ -10,7 +10,7 @@ object SampleApp extends App {
   import ctx._
 
   val p = for {
-    r1 <- IO.fromTry(probe("CREATE TABLE DATA(id VARCHAR(10), value int)"))
+    r1 <- IO.fromTry(probe("CREATE TABLE DATA(ID VARCHAR(10), VALUE INT)"))
     r2 <- runIO( quote(query[Data].insert(lift(Data("id1", 1)))) )
     r3 <- runIO( quote(query[Data].insert(lift(Data("id2", 2)))) )
     r4 <- runIO( quote(query[Data]) )
