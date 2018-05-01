@@ -12,14 +12,14 @@ object SampleApp extends App {
   val d1 = quote(query[Data].insert(lift(Data("id1", 1))))
   println( run(d1) )
 
-  println( run(quote(query[Data])) )
+  println( run(query[Data]) )
 
   val insertData = (d: Data) => quote(query[Data].insert(lift(d)))
 
   val p = for {
     _ <- runIO(insertData(Data("id2", 2)))
     _ <- runIO(insertData(Data("id3", 3)))
-    r <- runIO(quote(query[Data]))
+    r <- runIO(query[Data])
   } yield r
 
   println( performIO(p) )
