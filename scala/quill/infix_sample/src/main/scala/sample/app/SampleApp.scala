@@ -14,9 +14,9 @@ object SampleApp extends App {
   )
 
   val p = for {
-    _ <- runIO( quote(query[Data].insert(lift(Data("id1", 1)))) )
-    _ <- runIO( quote(query[Data].insert(lift(Data("id2", 2)))) )
-    _ <- runIO( quote(query[Data].insert(lift(Data("id3", 3)))) )
+    _ <- runIO( query[Data].insert(lift(Data("id1", 1))) )
+    _ <- runIO( query[Data].insert(lift(Data("id2", 2))) )
+    _ <- runIO( query[Data].insert(lift(Data("id3", 3))) )
     r <- runIO( selectData )
   } yield r
 

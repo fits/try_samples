@@ -14,9 +14,9 @@ object SampleApp extends App {
   println(s"create table: $r")
 
   val p = for {
-    _ <- runIO( quote(query[Data].insert(lift(Data("id1", 1)))) )
-    _ <- runIO( quote(query[Data].insert(lift(Data("id2", 2)))) )
-    r <- runIO( quote(query[Data]) )
+    _ <- runIO( query[Data].insert(lift(Data("id1", 1))) )
+    _ <- runIO( query[Data].insert(lift(Data("id2", 2))) )
+    r <- runIO( query[Data] )
   } yield r
 
   println( performIO(p) )

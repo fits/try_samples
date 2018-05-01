@@ -11,9 +11,9 @@ object SampleApp extends App {
 
   val p = for {
     r1 <- IO.fromTry(probe("CREATE TABLE DATA(ID VARCHAR(10), VALUE INT)"))
-    r2 <- runIO( quote(query[Data].insert(lift(Data("id1", 1)))) )
-    r3 <- runIO( quote(query[Data].insert(lift(Data("id2", 2)))) )
-    r4 <- runIO( quote(query[Data]) )
+    r2 <- runIO( query[Data].insert(lift(Data("id1", 1))) )
+    r3 <- runIO( query[Data].insert(lift(Data("id2", 2))) )
+    r4 <- runIO( query[Data] )
   } yield (r1, r2, r3, r4)
 
   println( performIO(p) )
