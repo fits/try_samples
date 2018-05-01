@@ -9,7 +9,7 @@ object SampleApp extends App {
 
   import ctx._
 
-  val r = probe("CREATE TABLE DATA(id VARCHAR(10), value int)")
+  val r = probe("CREATE TABLE DATA(ID VARCHAR(10), VALUE INT)")
 
   println(s"create table: $r")
 

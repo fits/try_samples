@@ -10,7 +10,7 @@ object SampleApp extends App {
   import ctx._
 
   val selectData = quote(
-    infix"""SELECT id AS "_1", value AS "_2" FROM DATA""".as[Query[(String, Int)]]
+    infix"""SELECT ID AS "_1", VALUE AS "_2" FROM DATA""".as[Query[(String, Int)]]
   )
 
   val p = for {

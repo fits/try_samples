@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS DATA (
-    id VARCHAR(255),
-    value int,
-    name VARCHAR(255)
+    ID VARCHAR(255),
+    VALUE int,
+    NAME VARCHAR(255)
 );
