@@ -71,7 +71,7 @@ T O
 B N M
 B W
 B M
-C M B
+C M B N
 B
 C Y S D
 S C
@@ -81,6 +81,20 @@ B P C S
 S M B
 B S
 B C D
-C S
+C S N
 D B L
 A B
+H C
+F T W S
+D 
+C S L D
+B R W D S
+P B H
+S
+C R N
+W B O
+R P S
+B 
+B S
+B F
+C F N
