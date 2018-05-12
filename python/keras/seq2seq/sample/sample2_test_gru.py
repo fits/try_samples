@@ -18,12 +18,12 @@ dic = Dictionary.load(dic_file)
 one_hot = lambda s: np.eye(len(dic))[dic.doc2idx(list(s))]
 input_data = lambda q: np.array([one_hot(q)])
 
-def answer(q):
-    st = encode_model.predict(input_data(q))
+def predict(q):
+    state = encode_model.predict(input_data(q))
     ch = BOS
 
     while True:
-        r, h = decode_model.predict([input_data(ch), st])
+        r, h = decode_model.predict([input_data(ch), state])
 
         ch = dic[np.argmax(r)]
 
@@ -31,8 +31,10 @@ def answer(q):
             break
 
         yield ch
-        st = h
+        state = h
+
+answer = lambda q: ''.join(predict(q))
 
 for q in questions:
-    a = ''.join(answer(q))
+    a = answer(q)
     print(f'{q} = {a}')
