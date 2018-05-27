@@ -53,7 +53,7 @@ decoder = GRU(n_hidden, return_sequences = True, return_state = True)
 dec_inputs = Input(shape = (None, wv_model.vector_size))
 dec_outputs, _ = decoder(dec_inputs, initial_state = enc_states)
 
-decoder_dense = Dense(wv_model.vector_size, activation = 'softmax')
+decoder_dense = Dense(wv_model.vector_size, activation = 'relu')
 dec_outputs = decoder_dense(dec_outputs)
 
 model = Model([enc_inputs, dec_inputs], dec_outputs)
