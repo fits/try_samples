@@ -26,7 +26,7 @@ a_maxlen = np.max([len(a) for a in sentences])
 print(f'question max size: {q_maxlen}, answer max size: {a_maxlen}')
 
 dic = Dictionary(keywords + sentences)
-dic.save(f'{data_file}.dic')
+dic.save(f'{dest_file_prefix}.dic')
 
 padding_one_hot = lambda d, size: np.vstack((
     np.eye(len(dic))[dic.doc2idx(d)],

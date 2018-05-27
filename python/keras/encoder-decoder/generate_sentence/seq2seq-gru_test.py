@@ -4,8 +4,7 @@ from gensim.corpora import Dictionary
 from keras.models import load_model
 
 model_file_prefix = sys.argv[1]
-dic_file = sys.argv[2]
-questions = [q.split(' ') for q in sys.argv[3].split(';')]
+questions = [q.split(' ') for q in sys.argv[2].split(';')]
 
 BOS = '\t'
 EOS = '\n'
@@ -13,7 +12,7 @@ EOS = '\n'
 encode_model = load_model(f'{model_file_prefix}_encode.h5')
 decode_model = load_model(f'{model_file_prefix}_decode.h5')
 
-dic = Dictionary.load(dic_file)
+dic = Dictionary.load(f'{model_file_prefix}.dic')
 
 one_hot = lambda d: np.eye(len(dic))[dic.doc2idx(d)]
 input_data = lambda d: np.array([one_hot(d)])
