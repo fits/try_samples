@@ -5,7 +5,7 @@ from keras.models import load_model
 
 model_file_prefix = sys.argv[1]
 dic_file = sys.argv[2]
-questions = [q.split(',') for q in sys.argv[3].split(';')]
+questions = [q.split(' ') for q in sys.argv[3].split(';')]
 
 BOS = '\t'
 EOS = '\n'
