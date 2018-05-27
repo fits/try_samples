@@ -4,11 +4,11 @@ from gensim.models import word2vec
 from keras.models import load_model
 
 model_file_prefix = sys.argv[1]
-wv_file = sys.argv[2]
-questions = [q.split(' ') for q in sys.argv[3].split(';')]
+questions = [q.split(' ') for q in sys.argv[2].split(';')]
 
 BOS = '\t'
 EOS = '\n'
+
 topn_similar = 10
 prob_weight = 20
 predict_max_size = 100
@@ -18,7 +18,7 @@ decode_model = load_model(f'{model_file_prefix}_decode.h5')
 
 q_maxlen = encode_model.input_shape[1]
 
-wv_model = word2vec.Word2Vec.load(wv_file)
+wv_model = word2vec.Word2Vec.load(f'{model_file_prefix}_w2v.wv')
 
 padding_wv_array = lambda d, size: np.array([np.vstack((
     wv_model.wv[d],

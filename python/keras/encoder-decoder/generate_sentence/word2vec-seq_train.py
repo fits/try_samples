@@ -24,7 +24,7 @@ keywords = [k.split(' ') for k in df['keyword'].values]
 sentences = [[BOS] + s.split(' ') + [EOS] for s in df['sentence'].values]
 
 wv_model = word2vec.Word2Vec(sentences, wv_size, min_count = 1, iter = wv_iter)
-wv_model.save(f'{data_file}.wv')
+wv_model.save(f'{dest_file_prefix}_w2v.wv')
 
 q_maxlen = np.max([len(q) for q in keywords])
 a_maxlen = np.max([len(a) for a in sentences])
