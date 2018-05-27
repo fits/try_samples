@@ -11,6 +11,7 @@ EOS = '\n'
 
 topn_similar = 10
 prob_weight = 20
+eos_judge_size = 2
 predict_max_size = 100
 
 encode_model = load_model(f'{model_file_prefix}_encode.h5')
@@ -23,7 +24,7 @@ def word_choice(v):
 
     words = [c for c, _ in cd]
 
-    if EOS in words:
+    if EOS in words[0:eos_judge_size]:
         return EOS
 
     probs = np.exp(np.array([p for _, p in cd]) * prob_weight)
