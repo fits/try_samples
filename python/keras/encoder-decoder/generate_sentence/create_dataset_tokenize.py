@@ -6,8 +6,9 @@ data_file = sys.argv[1]
 targets = sys.argv[2].split(';')
 
 tokenizer = Tokenizer()
+encode = 'utf-8'
 
-lines = [line.rstrip('\n') for line in open(data_file)]
+lines = [line.rstrip('\n') for line in open(data_file, encoding = encode)]
 
 is_target = lambda token: np.any([
     token.part_of_speech.startswith(trg) for trg in targets
@@ -28,5 +29,5 @@ join_by_blank = lambda ws: ' '.join(ws)
 for q, a in docs:
     if len(q) > 0:
         sys.stdout.buffer.write(
-            f'{join_by_blank(q)}\t{join_by_blank(a)}\n'.encode('utf-8')
+            f'{join_by_blank(q)}\t{join_by_blank(a)}\n'.encode(encode)
         )
