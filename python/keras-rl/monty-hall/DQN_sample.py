@@ -2,15 +2,13 @@
 import sys
 import numpy as np
 
-from numpy.random import randint
-
 from rl.core import Env
 from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
 
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Flatten
 from keras.optimizers import Adam
 
 steps = int(sys.argv[1])
@@ -19,10 +17,9 @@ n_hidden = int(sys.argv[2])
 memory_limit = 1000
 window_length = 1
 
-def select_answer():
-    return randint(3)
+select_answer = lambda: np.random.randint(3)
 
-rest_of = lambda a, b: [c for c in range(3) if c not in [a, b]][0]
+rest_of = lambda a, b: np.random.choice([c for c in range(3) if c not in [a, b]])
 
 class MontyHall(Env):
     def __init__(self):
@@ -32,16 +29,16 @@ class MontyHall(Env):
     def step(self, action):
         if self.stage:
             redraw = 1 if action == self.answer else -1
-            return -1, redraw, True, {}
+            return (-1, -1), redraw, True, {}
         else:
             self.stage = 1
-            return rest_of(action, self.answer), 0, False, {}
+            return (rest_of(action, self.answer), action), 0, False, {}
 
     def reset(self):
         self.answer = select_answer()
         self.stage = 0
 
-        return -1
+        return (-1, -1)
 
     def render(self, mode = 'human', close = False):
         print(f'*** render: answer = {self.answer}, close = {close}')
@@ -54,7 +51,8 @@ env = MontyHall()
 
 model = Sequential()
 
-model.add(Dense(n_hidden, activation = 'relu', input_shape = (window_length,)))
+model.add(Flatten(input_shape = (window_length, 2)))
+model.add(Dense(n_hidden, activation = 'relu'))
 model.add(Dense(3, activation = 'linear'))
 
 model.summary()
