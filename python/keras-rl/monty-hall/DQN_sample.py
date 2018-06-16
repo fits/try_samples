@@ -38,7 +38,7 @@ class MontyHall(Env):
         self.answer = select_answer()
         self.stage = 0
 
-        return (-1, -1)
+        return (np.random.randint(-3, -1), -1)
 
     def render(self, mode = 'human', close = False):
         print(f'*** render: answer = {self.answer}, close = {close}')
