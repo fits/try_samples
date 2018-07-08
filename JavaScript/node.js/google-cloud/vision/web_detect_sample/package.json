@@ -1,0 +1,8 @@
+{
+  "name": "web_detect_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@google-cloud/vision": "^0.20.0"
+  }
+}
