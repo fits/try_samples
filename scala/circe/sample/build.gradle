@@ -1,0 +1,14 @@
+apply plugin: 'scala'
+apply plugin: 'application'
+
+mainClassName = 'sample.SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.12.6'
+    compile 'io.circe:circe-generic_2.12:0.10.0-M1'
+    compile 'io.circe:circe-parser_2.12:0.10.0-M1'
+}
