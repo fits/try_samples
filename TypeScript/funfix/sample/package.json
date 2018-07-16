@@ -1,0 +1,11 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "funfix": "^7.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^2.9.2"
+  }
+}
