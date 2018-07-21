@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style>
+		.container {
+			display: grid;
+			grid-gap: 20px;
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		.item {
+			display: grid;
+			grid-gap: 10px;
+			grid-template-columns: 60px auto;
+			background: lightgreen;
+		}
+
+		.img {
+			grid-column: 1;
+		}
+
+		.infoA {
+			grid-column: 2;
+			display: grid;
+			grid-row-gap: 10px;
+		}
+
+		.infoB {
+			grid-column: 2;
+			display: grid;
+			grid-row-gap: 10px;
+			align-self: start;
+		}
+	</style>
+</head>
+<body>
+
+<div class="container">
+	<div class="item">
+		<div class="img"><img src=""></div>
+		<div class="infoA">
+			<div>サンプルA1</div>
+			<div>サンプルA2</div>
+			<div>サンプルA3</div>
+		</div>
+	</div>
+
+	<div class="item">
+		<div class="img"><img src=""></div>
+		<div class="infoA">
+			<div>サンプルA<br>4</div>
+			<div>サンプルA<br>5</div>
+			<div>サンプルA<br>6</div>
+		</div>
+	</div>
+
+	<div class="item">
+		<div class="img"><img src=""></div>
+		<div class="infoB">
+			<div>サンプルB1</div>
+			<div>サンプルB2</div>
+			<div>サンプルB3</div>
+		</div>
+	</div>
+
+	<div class="item">
+		<div class="img"><img src=""></div>
+		<div class="infoB">
+			<div>サンプルB<br>4</div>
+			<div>サンプルB<br>5</div>
+			<div>サンプルB<br>6</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
