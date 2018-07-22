@@ -6,6 +6,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@types/node": "^10.5.2",
     "funfix": "^7.0.1"
   },
   "devDependencies": {
