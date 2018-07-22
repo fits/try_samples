@@ -1,5 +1,5 @@
 
-import { Option, Some } from 'funfix-core'
+import { Option, Some } from 'funfix'
 
 const f = (o: Option<number>) => o.map(v => `value:${v}`)
 
