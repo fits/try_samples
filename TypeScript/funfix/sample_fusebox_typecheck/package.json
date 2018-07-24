@@ -1,0 +1,14 @@
+{
+  "name": "sample_fusebox_typecheck",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "fuse-box": "^3.4.0",
+    "fuse-box-typechecker": "^2.10.0",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "@types/node": "^10.5.2",
+    "funfix": "^7.0.1"
+  }
+}
