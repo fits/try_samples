@@ -1,0 +1,12 @@
+{
+  "name": "sample_fusebox",
+  "version": "1.0.0",
+  "main": "bundle.js",
+  "devDependencies": {
+    "fuse-box": "^3.4.0",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "funfix": "^7.0.1"
+  }
+}
