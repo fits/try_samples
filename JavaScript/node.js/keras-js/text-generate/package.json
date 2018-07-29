@@ -1,0 +1,7 @@
+{
+  "name": "text-generate",
+  "version": "1.0.0",
+  "dependencies": {
+    "keras-js": "^1.0.3"
+  }
+}
