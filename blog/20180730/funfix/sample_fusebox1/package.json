@@ -1,0 +1,13 @@
+{
+  "name": "sample_fusebox1",
+  "version": "1.0.0",
+  "main": "bundle.js",
+  "license": "MIT",
+  "devDependencies": {
+    "fuse-box": "^3.4.0",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "funfix": "^7.0.1"
+  }
+}
