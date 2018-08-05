@@ -1,0 +1,16 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "main": "sample.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "kotlinc-js -module-kind commonjs -output sample.js src"
+  },
+  "devDependencies": {
+    "@jetbrains/kotlinc-js-api": "^1.2.7"
+  },
+  "dependencies": {
+    "kotlin": "^1.2.60",
+    "funfix": "^7.0.1"
+  }
+}
