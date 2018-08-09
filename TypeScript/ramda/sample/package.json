@@ -1,0 +1,16 @@
+{
+  "name": "ts_ramda",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/ramda": "types/npm-ramda#dist",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "ramda": "^0.25.0"
+  }
+}
