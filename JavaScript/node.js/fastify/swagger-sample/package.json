@@ -1,0 +1,10 @@
+{
+  "name": "swagger-sample",
+  "version": "1.0.0",
+  "main": "sample.js",
+  "license": "MIT",
+  "dependencies": {
+    "fastify": "^1.9.0",
+    "fastify-swagger": "^0.14.0"
+  }
+}
