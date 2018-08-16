@@ -1,0 +1,12 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.294.0"
+  },
+  "devDependencies": {
+    "kinesalite": "^1.14.0"
+  }
+}
