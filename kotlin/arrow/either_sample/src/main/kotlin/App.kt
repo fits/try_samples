@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
 
     println(r2)
 
-    val r3 = ForEither<Int>() extensions {
+    val r3 = ForEither<String>() extensions {
         binding {
             val a = Either.right(10).bind()
             val b = Either.right(5).bind()
