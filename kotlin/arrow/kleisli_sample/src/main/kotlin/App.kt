@@ -17,4 +17,14 @@ fun main(args: Array<String>) {
     println( f3.run(4) )
     println( f4.run(4) )
     println( f5.run(4) )
+
+    val f6 = { a: Int ->
+        Option.monad().binding {
+            val b = f1.run(a).bind()
+            val c = f2.run(b).bind()
+            c
+        }
+    }
+
+    println( f6(4) )
 }
