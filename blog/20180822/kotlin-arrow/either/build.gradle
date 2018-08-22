@@ -1,0 +1,22 @@
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.51'
+    id 'application'
+}
+
+mainClassName = 'AppKt'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    compile 'io.arrow-kt:arrow-instances-core:0.7.3'
+}
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
