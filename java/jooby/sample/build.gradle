@@ -1,0 +1,14 @@
+plugins {
+    id 'application'
+}
+
+mainClassName = 'App'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.jooby:jooby-netty:1.5.1'
+    compile 'org.jooby:jooby-jackson:1.5.1'
+}
