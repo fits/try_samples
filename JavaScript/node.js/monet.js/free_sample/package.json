@@ -1,0 +1,9 @@
+{
+  "name": "free_sample",
+  "version": "1.0.0",
+  "main": "sample.js",
+  "license": "MIT",
+  "dependencies": {
+    "monet": "^0.8.10"
+  }
+}
