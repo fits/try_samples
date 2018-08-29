@@ -1,0 +1,13 @@
+{
+  "countryId": "JP",
+  "region": "東京都",
+  "city": "xxx区",
+  "street": [
+    "xxx番地"
+  ],
+  "postcode": "0001111",
+  "telephone": "01234567890",
+  "firstname": "サンプル",
+  "lastname": "ユーザー1",
+  "email": "sample1@xxxx.co.jp"
+}

@@ -1,0 +1,8 @@
+{
+  "user": "admin",
+  "password": "xxxxx",
+  "baseUrl": "http://localhost/magento2/rest/default/V1",
+  "shippingMethodCode": "freeshipping",
+  "shippingCarrierCode": "freeshipping",
+  "paymentMethod": "checkmo"
+}
