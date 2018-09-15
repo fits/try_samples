@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+    Function:
+        Timeout: 60
+
+Resources:
+
+    SampleFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: sample/
+            Handler: app.handler
+            Runtime: nodejs8.10
+            Environment:
+                Variables:
+                    PARAM1: VALUE123
+            Events:
+                ListItems:
+                    Type: Api
+                    Properties:
+                        Path: /samples
+                        Method: get
+                GetItem:
+                    Type: Api
+                    Properties:
+                        Path: /samples/{id}
+                        Method: get
+
+Outputs:
+
+    SampleFunction:
+      Value: !GetAtt SampleFunction.Arn
+
+    SampleFunctionIamRole:
+      Value: !GetAtt SampleFunctionRole.Arn
