@@ -15,3 +15,10 @@ use Illuminate\Http\Request;
 
 Route::post('/products', 'ProductController@create');
 Route::get('/products/{id}', 'ProductController@find');
+
+Route::post('/carts', 'CartController@create');
+Route::delete('/carts/{id}', 'CartController@delete');
+Route::get('/carts/{id}', 'CartController@find');
+
+Route::post('/carts/{id}', 'CartController@addItem');
+Route::delete('/carts/{id}/{itemId}', 'CartController@removeItem');
