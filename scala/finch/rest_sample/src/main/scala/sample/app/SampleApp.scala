@@ -26,7 +26,7 @@ object SampleApp extends App {
     toOutput(repo.get(id))
   }
 
-  val itemDelete: Endpoint[Item] = delete("items" :: path[ItemId]) { id: ItemId =>
+  val itemDelete = delete("items" :: path[ItemId]) { id: ItemId =>
     toOutput(repo.remove(id))
   }
 
