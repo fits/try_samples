@@ -2,12 +2,12 @@ package sample.repository
 
 import sample.model.{Item, ItemId}
 
-import scala.util.Try
+import scala.concurrent.Future
 
 trait ItemRepository {
-  def store(item: Item): Try[Item]
+  def store(item: Item): Future[Item]
 
-  def restore(id: ItemId): Try[Option[Item]]
+  def restore(id: ItemId): Future[Option[Item]]
 
-  def delete(id: ItemId): Try[Option[Item]]
+  def delete(id: ItemId): Future[Option[Item]]
 }
