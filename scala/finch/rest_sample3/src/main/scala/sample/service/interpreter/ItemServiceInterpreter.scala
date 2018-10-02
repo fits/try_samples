@@ -9,10 +9,8 @@ import sample.repository.ItemRepository
 import sample.service.ItemService
 
 import scala.concurrent.Future
-import scala.util.Try
 
 object ItemServiceInterpreter extends ItemService {
-  implicit def toFuture[A](t: Try[A]): Future[A] = Future.fromTry(t)
 
   private def itemOp[A](f: ItemRepository => Future[A]): ItemOp[A] = Kleisli(f)
 
