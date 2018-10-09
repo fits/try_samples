@@ -14,3 +14,6 @@ object Quantity {
 println(Quantity(1))
 println(Quantity(0))
 println(Quantity(-1))
+
+//  error: value copy is not a member of this.Quantity
+//println(Quantity(1).map(_.copy(-1)))
