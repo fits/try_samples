@@ -1,0 +1,14 @@
+
+plugins {
+    id 'scala'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.12.7'
+
+    testCompile 'org.specs2:specs2-junit_2.12:4.3.4'
+}
