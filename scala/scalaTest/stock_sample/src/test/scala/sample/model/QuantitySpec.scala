@@ -2,6 +2,7 @@ package sample.model
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.Inside.inside
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.{Failure, Success}
@@ -14,6 +15,10 @@ class QuantitySpec extends FlatSpec with Matchers {
 
     q0 shouldBe a [Success[_]]
     q1 shouldBe a [Success[_]]
+
+    inside(q1) {
+      case Success(Quantity(n)) => n should be (1)
+    }
   }
 
   it should "amount < 0 is failure" in {
