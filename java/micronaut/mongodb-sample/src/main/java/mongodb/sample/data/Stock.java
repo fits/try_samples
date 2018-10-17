@@ -15,7 +15,15 @@ public class Stock {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public int getQuantity() {
         return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }
