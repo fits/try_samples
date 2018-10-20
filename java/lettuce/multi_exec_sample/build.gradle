@@ -1,0 +1,14 @@
+
+plugins {
+    id 'application'
+}
+
+mainClassName = 'sample.SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'io.lettuce:lettuce-core:5.1.1.RELEASE'
+}
