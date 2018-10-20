@@ -1,0 +1,15 @@
+
+plugins {
+    id 'application'
+}
+
+mainClassName = 'sample.SampleApp'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.mongodb:mongodb-driver-reactivestreams:1.9.2'
+    compile 'io.projectreactor:reactor-core:3.2.1.RELEASE'
+}
