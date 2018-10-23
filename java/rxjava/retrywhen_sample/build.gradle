@@ -1,0 +1,14 @@
+
+plugins {
+    id 'application'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'io.reactivex.rxjava2:rxjava:2.2.2'
+}
+
+mainClassName = 'sample.SampleApp'
