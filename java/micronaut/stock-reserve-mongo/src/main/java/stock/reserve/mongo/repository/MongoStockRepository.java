@@ -13,9 +13,9 @@ import stock.reserve.model.Stock;
 import stock.reserve.repository.StockRepository;
 
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
@@ -84,27 +84,17 @@ public class MongoStockRepository implements StockRepository {
 
     @Override
     public Publisher<Reservation> releaseReservation(String id, String rsvId) {
-        return removeReservation(id, rsvId)
-                .flatMap(rsv ->
-                        updateDiff(id, -rsv.getQuantity())
-                                .map(st -> rsv)
-                );
+        return removeReservation(id, rsvId, true);
     }
 
     @Override
     public Publisher<Reservation> cancelReservation(String id, String rsvId) {
-        return removeReservation(id, rsvId);
+        return removeReservation(id, rsvId, false);
     }
 
-    private Flowable<Reservation> removeReservation(String id, String rsvId) {
+    private Flowable<Reservation> removeReservation(String id, String rsvId, boolean complete) {
         var query = and(eqId(id), eq(FIELD_RESERVATIONS + "." + FIELD_RSV_ID, rsvId));
         var projection = Projections.elemMatch(FIELD_RESERVATIONS, eq(FIELD_RSV_ID, rsvId));
-
-        Function<Integer, Bson> genCommand = qty ->
-                combine(
-                        inc(FIELD_RESERVED, -qty),
-                        pull(FIELD_RESERVATIONS, new Document(FIELD_RSV_ID, rsvId))
-                );
 
         var col = collection(Document.class);
 
@@ -113,16 +103,24 @@ public class MongoStockRepository implements StockRepository {
                 .map(this::toReservation)
                 .flatMap(rsv ->
                         Flowable.fromPublisher(
-                                col.findOneAndUpdate(query, genCommand.apply(rsv.getQuantity()))
+                                col.findOneAndUpdate(query,
+										commandOnRemoveReservation(rsvId, rsv.getQuantity(), complete))
                         ).map(s -> rsv)
                 );
     }
 
-    private Flowable<Stock> updateDiff(String id, int quantityDiff) {
-        return Flowable.fromPublisher(
-                stockCol().findOneAndUpdate(eqId(id), inc(FIELD_QUANTITY, quantityDiff))
-        );
-    }
+    private Bson commandOnRemoveReservation(String rsvId, int quantity, boolean complete) {
+    	var list = new ArrayList<Bson>();
+
+    	list.add( pull(FIELD_RESERVATIONS, new Document(FIELD_RSV_ID, rsvId)) );
+        list.add( inc(FIELD_RESERVED, -quantity) );
+
+    	if (complete) {
+    		list.add( inc(FIELD_QUANTITY, -quantity) );
+		}
+
+    	return combine(list);
+	}
 
     private Reservation toReservation(Document doc) {
         return new Reservation(
