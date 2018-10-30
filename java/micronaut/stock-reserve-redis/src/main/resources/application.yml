@@ -1,0 +1,8 @@
+---
+micronaut:
+    application:
+        name: stock-reserve-redis
+
+---
+redis:
+    uri: redis://localhost
