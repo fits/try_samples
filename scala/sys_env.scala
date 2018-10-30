@@ -1,0 +1,2 @@
+
+sys.env.foreach(println)
