@@ -50,12 +50,10 @@ class StockServiceInterpreter extends StockService[StockOp, Stock, StockId, Item
     val res = for {
       f <- from
       t <- to
-    } yield f.itemId == t.itemId
+      if f.itemId == t.itemId
+    } yield true
 
-    if (res.getOrElse(false))
-      Success(true)
-    else
-      Failure(new Error)
+    res.map(Success(_)).getOrElse(Failure(new Error))
   }
 
   private def in(s: Option[Stock], qty: Quantity): Try[Stock] = s match {
@@ -70,7 +68,7 @@ class StockServiceInterpreter extends StockService[StockOp, Stock, StockId, Item
     case Some(a) => a match {
       case m: ManagedStock if m.qty >= qty => Success(m.copy(out = m.out + qty))
       case u: UnmanagedStock => Success(u.copy(out = u.out + qty))
-      case _ => Failure(new Error(s"current qty <= $qty"))
+      case _ => Failure(new Error(s"current qty < $qty"))
     }
     case _ => Failure(new Error)
   }
