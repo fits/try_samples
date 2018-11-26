@@ -21,6 +21,6 @@ for f in glob.glob(img_files):
 
     file, ext = os.path.splitext(os.path.basename(f))
 
-    cv2.imwrite(f"{dest_dir}/{file}_edge.png", pred)
+    cv2.imwrite(f"{dest_dir}/{file}_contours.png", pred)
 
     print(f"done: {f}")
