@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  #tool img, svg {
+    position: absolute;
+    top: 150px;
+    left: 100px;
+  }
+
+</style>
+</head>
+<body>
+
+  <div>
+    image: <input id="imgname" size="80">
+    <button id="chg">change</button>
+  </div>
+
+  <br>
+
+  <div>
+    points: <input id="res" size="200">
+    
+    <br>
+    
+    point: <label id="pt"></label>
+  </div>
+
+
+  <div id="tool">
+    <img id="srcimg">
+  </div>
+
+
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+
+  <script>
+    const sep = '\t'
+    const basePath = ''
+    const w = 500
+    const h = 600
+
+    document.getElementById('chg')
+      .addEventListener('click', ev => {
+        const imgname = basePath + document.getElementById('imgname').value
+        const res = document.getElementById('res')
+        const pt = document.getElementById('pt')
+
+        res.value = ''
+        document.getElementById('srcimg').src = imgname
+
+        const appendPoint = p => {
+          if (res.value.trim() != '') {
+            res.value += sep
+          }
+
+          res.value += `${p.x}${sep}${p.y}`
+        }
+
+        d3.select('#tool svg').remove()
+
+        fetch(`${imgname.split('.')[0]}.json`)
+          .then(r => r.json())
+          .then(ds => {
+
+            const svg = d3.select('#tool').append('svg')
+                    .attr('width', w)
+                    .attr('height', h)
+
+            svg.selectAll('circle')
+              .data(ds)
+              .enter()
+              .append('circle')
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y)
+                .attr('r', 2)
+                .attr('fill', 'red')
+                .on('mouseover', function(d) {
+                  pt.innerText = `(${d.x}, ${d.y})`
+
+                  d3.select(this)
+                    .attr('r', 6)
+                })
+                .on('mouseout', function(d) {
+                  pt.innerText = ''
+
+                  d3.select(this)
+                    .attr('r', 2)
+                })
+                .on('click', appendPoint)
+          })
+      })
+  </script>
+</body>
+</html>
