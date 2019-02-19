@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        canvas {
+            border: 1px solid;
+        }
+
+        canvas.dragging {
+            border: 4px solid red;
+        }
+    </style>
+</head>
+<body>
+    <canvas width="320" height="280"></canvas>
+
+    <script>
+        const types = ['image/jpeg', 'image/png']
+
+        const canvas = document.getElementsByTagName('canvas')[0]
+        const ctx = canvas.getContext('2d')
+
+        const loadImage = url => {
+            const img = new Image()
+
+            img.addEventListener('load', () => {
+                console.log(`width: ${img.width}, height: ${img.height}`)
+
+                canvas.width = img.width
+                canvas.height = img.height
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+                ctx.drawImage(img, 0, 0)
+            })
+
+            img.src = url
+        }
+
+        canvas.addEventListener('dragover', ev => {
+            ev.preventDefault()
+            canvas.classList.add('dragging')
+        }, false)
+
+        canvas.addEventListener('dragleave', ev => {
+            canvas.classList.remove('dragging')
+        }, false)
+
+        canvas.addEventListener('drop', ev => {
+            ev.preventDefault()
+            canvas.classList.remove('dragging')
+
+            const file = ev.dataTransfer.files[0]
+
+            if (types.includes(file.type)) {
+
+                const reader = new FileReader()
+
+                reader.onload = ev => loadImage(reader.result)
+
+                reader.readAsDataURL(file)
+            }
+        }, false)
+    </script>
+</body>
+</html>
