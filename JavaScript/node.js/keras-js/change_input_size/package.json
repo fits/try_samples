@@ -1,0 +1,8 @@
+{
+  "name": "change_input_size",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "keras-js": "^1.0.3"
+  }
+}
