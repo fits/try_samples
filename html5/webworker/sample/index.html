@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+    <script>
+        const worker = new Worker('worker.js')
+
+        worker.onmessage = ev => {
+            console.log('receive-main')
+            console.log(ev)
+        }
+
+        worker.postMessage('sample')
+
+    </script>
+</body>
+</html>
