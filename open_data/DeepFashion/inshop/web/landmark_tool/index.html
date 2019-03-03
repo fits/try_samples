@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        canvas {
+            border: 1px solid;
+        }
+
+        canvas.dragging {
+            border: 3px solid red;
+        }
+
+        table {
+            text-align: center;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            border: 1px solid;
+            padding: 8px;
+        }
+
+        .landmark1 td:first-child {
+            background: rgb(255, 0, 0);
+        }
+
+        .landmark2 td:first-child {
+            background: rgb(0, 255, 0);
+        }
+
+        .landmark3 td:first-child {
+            background: rgb(0, 0, 255);
+        }
+
+        .landmark4 td:first-child {
+            background: rgb(255, 255, 0);
+        }
+
+        .landmark5 td:first-child {
+            background: rgb(0, 255, 255);
+        }
+
+        .landmark6 td:first-child {
+            background: rgb(255, 0, 255);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <label id="msg"></label>
+    </div>
+
+    <br>
+
+    <div>
+        <canvas width="256" height="256"></canvas>
+    </div>
+
+    <br>
+
+    <div>
+        <div id="result"></div>
+    </div>
+
+    <script src="./js/bundle.js"></script>
+
+</body>
+</html>
