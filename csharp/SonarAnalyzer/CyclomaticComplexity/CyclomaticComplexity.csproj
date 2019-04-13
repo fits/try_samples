@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.0.0" />
+    <Reference Include="SonarAnalyzer.CSharp">
+      <HintPath>./pkg/sonaranalyzer.csharp/7.12.0.8217/analyzers/SonarAnalyzer.CSharp.dll</HintPath>
+    </Reference>
+
+    <!--
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="7.12.0.8217">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    -->
+  </ItemGroup>
+
+</Project>
