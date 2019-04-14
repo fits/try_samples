@@ -1,0 +1,9 @@
+{
+  "name": "shopify_appstore_scraping",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "jsdom": "^14.0.0"
+  }
+}
