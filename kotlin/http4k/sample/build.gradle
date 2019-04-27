@@ -1,0 +1,21 @@
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.31'
+    id 'application'
+}
+
+mainClassName = 'SampleAppKt'
+
+repositories {
+    jcenter()
+}
+
+def http4kVer = '3.139.0'
+
+dependencies {
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+    compile "org.http4k:http4k-core:${http4kVer}"
+    compile "org.http4k:http4k-server-jetty:${http4kVer}"
+}
+
