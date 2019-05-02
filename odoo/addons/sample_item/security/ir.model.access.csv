@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+full_sample_item,sample.item,model_sample_item,,1,1,1,1
