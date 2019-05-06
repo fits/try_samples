@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        canvas {
+            border: 1px solid;
+        }
+
+        canvas.dragging {
+            border: 3px solid red;
+        }
+
+        table {
+            text-align: center;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            border: 1px solid;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <dialog id="load-dialog">loading model ...</dialog>
+    <dialog id="detect-dialog">detecting landmarks ...</dialog>
+    <dialog id="error-dialog">ERROR</dialog>
+
+    <div>
+        <canvas width="256" height="256"></canvas>
+    </div>
+
+    <br>
+
+    <div>
+        <div id="landmarks"></div>
+    </div>
+
+    <script src="./js/bundle_app.js"></script>
+</body>
+</html>
