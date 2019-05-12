@@ -1,0 +1,9 @@
+{
+  "name": "stock_json-rpc",
+  "version": "1.0.0",
+  "description": "Stock Control JSON-RPC Sample",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "uuid": "^3.3.2"
+  }
+}
