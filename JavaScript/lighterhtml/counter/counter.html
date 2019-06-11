@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div id="app"></div>
+
+    <script src="https://unpkg.com/lighterhtml"></script>
+    <script>
+        const { render, html } = lighterhtml
+
+        const counter = (node, num = 0) => {
+            const down = () => counter(node, num - 1)
+            const up = () => counter(node, num + 1)
+
+            render(node, () => html`
+                <div>
+                    <button onclick=${down}>down</button>
+                    ${num}
+                    <button onclick=${up}>up</button>
+                </div>
+            `)
+        }
+
+        counter(document.getElementById('app'))
+
+    </script>
+</body>
+</html>
