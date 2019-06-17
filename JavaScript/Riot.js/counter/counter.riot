@@ -1,0 +1,24 @@
+<counter>
+  <h1>{ props.title }</h1>
+  <div>
+    <button onclick= { down }>down</button>
+    counter: { state.count }
+    <button onclick= { up }>up</button>
+  </div>
+
+  <script>
+    export default {
+      onBeforeMount(props, state) {
+        this.state = {
+          count: 0
+        }
+      },
+      up(ev) {
+        this.update({count: this.state.count + 1})
+      },
+      down(ev) {
+        this.update({count: this.state.count - 1})
+      }
+    }
+  </script>
+</counter>
