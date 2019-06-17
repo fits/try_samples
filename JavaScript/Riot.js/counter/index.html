@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="UTF-8">
+<body>
+  <counter />
+
+  <script src="https://unpkg.com/riot@4.1.1/riot+compiler.min.js"></script>
+  <script src="counter.riot" type="riot"></script>
+
+  <script>
+    riot.compile()
+        .then(() => riot.mount('counter', {title: 'counter sample'}))
+        .catch(err => console.error(err))
+  </script>
+</body>
+</html>
