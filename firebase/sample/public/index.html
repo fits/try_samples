@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>sample</title>
+
+    <script defer src="/__/firebase/6.2.0/firebase-app.js"></script>
+    <script defer src="/__/firebase/init.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  </head>
+  <body>
+    <div id="app">
+      <ul>
+        <li v-for="it in items">{{ it.name }}, {{ it.qty }}</li>
+      </ul>
+    </div>
+
+    <script>
+      new Vue({
+        el: '#app',
+        data: {
+          items: []
+        },
+        created() {
+          fetch('/items')
+            .then(r => r.json())
+            .then(v => this.items = v)
+            .catch(err => console.error(err))
+        }
+      })
+    </script>
+  </body>
+</html>
