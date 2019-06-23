@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h1>Auth0 sample</h1>
+
+  <button id="login">login</button>
+
+  <div>
+    <div>sub : <span id="sub"></span></div>
+    <div>mail : <span id="mail"></span></div>
+    <div>user info : <span id="userinfo"></span></div>
+  </div>
+
+  <script src="https://cdn.auth0.com/js/auth0/9.10/auth0.min.js"></script>
+
+  <script>
+    const webAuth = new auth0.WebAuth({
+      domain: '<DOMAIN>',
+      clientID: '<CLIENT_ID>',
+      responseType: 'token id_token',
+      scope: 'openid email',
+      redirectUri: window.location.href
+    })
+
+    const decodeJwt = token => JSON.parse(
+      atob(token.split('.')[1]).replace(/-/g, '+').replace(/_/g, '/')
+    )
+
+    const loginBtn = document.getElementById('login')
+
+    window.addEventListener('load', () => {
+
+      webAuth.parseHash((err, res) => {
+        if (err) {
+          console.error(err)
+        }
+        else {
+          try {
+            const jwt = decodeJwt(res.idToken)
+
+            console.log(jwt)
+
+            document.getElementById('sub').textContent = jwt.sub
+            document.getElementById('mail').textContent = jwt.email
+
+          } catch(e) {
+            console.log(`failed decode jwt: ${res.idToken}`)
+          }
+
+          webAuth.client.userInfo(res.accessToken, (err, u) => {
+            console.log(u)
+
+            document.getElementById('userinfo').textContent = JSON.stringify(u)
+          })
+        }
+      })
+
+      loginBtn.addEventListener('click', ev => {
+        webAuth.authorize()
+      })
+    })
+  </script>
+</body>
+</html>
