@@ -1,0 +1,18 @@
+
+rules_version = '2';
+
+function isSampleReq(data) {
+  return data.keys().hasAll(['action', 'value'])
+}
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sample/{userId} {
+      allow read: if request.auth.uid == userId
+
+      match /requests/{doc} {
+        allow create: if request.auth.uid == userId && isSampleReq(request.resource.data)
+      }
+    }
+  }
+}

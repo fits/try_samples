@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>counter sample</title>
+  </head>
+  <body>
+    <h1>counter sample</h1>
+
+    <button id="login">login</button>
+
+    <div>
+      <div>uid : <span id="uid"></span></div>
+      <div>email : <span id="mail"></span></div>
+    </div>
+
+    <div>
+      <button id="downBtn">down</button>
+      counter : <span id="counter"></span>
+      <button id="upBtn">up</button>
+    </div>
+
+    <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+    <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
+    <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+
+    <script src="/__/firebase/init.js"></script>
+
+    <script>
+      const loginBtn = document.getElementById('login')
+
+      const db = firebase.firestore()
+      const provider = new firebase.auth.GoogleAuthProvider()
+
+      const auth = () => {
+        firebase.auth().signInWithRedirect(provider)
+
+        firebase.auth().getRedirectResult()
+          .then(r => console.log(r))
+          .catch(err => console.error(err))
+      }
+
+      const createEventHandler = (docRef, act) => ev => {
+        docRef.collection('requests').add({action: act, value: 1})
+          .then(r => console.log(r))
+          .catch(err => console.error(err))
+      }
+
+      const onLogin = u => {
+          loginBtn.disabled = true
+          document.getElementById('uid').textContent = u.uid
+          document.getElementById('mail').textContent = u.email
+
+          const docRef = db.collection('sample').doc(u.uid)
+
+          docRef.onSnapshot(doc => {
+            if (doc.exists) {
+              document.getElementById('counter').textContent = doc.data().value
+            }
+          })
+
+          const actList = ['up', 'down']
+
+          actList.forEach(act => {
+            document.getElementById(`${act}Btn`)
+                  .addEventListener('click', createEventHandler(docRef, act))
+          })
+      }
+
+      firebase.auth().onAuthStateChanged(u => {
+        if (u) {
+          console.log('login')
+          onLogin(u)
+        }
+        else {
+          console.log('logout')
+          loginBtn.disabled = false
+        }
+      })
+
+      loginBtn.addEventListener('click', ev => auth())
+    </script>
+  </body>
+</html>
