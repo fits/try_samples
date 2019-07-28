@@ -1,0 +1,11 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: date1-
+spec:
+  entrypoint: d1
+  templates:
+  - name: d1
+    container:
+      image: busybox
+      command: [date]
