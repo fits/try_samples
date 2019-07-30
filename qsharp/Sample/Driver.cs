@@ -11,7 +11,9 @@ namespace Sample
         {
             using (var qsim = new QuantumSimulator())
             {
-                sampleQ.Run(qsim).Wait();
+                sampleQ1.Run(qsim).Wait();
+                sampleQ2.Run(qsim).Wait();
+                sampleQ3.Run(qsim).Wait();
             }
         }
     }
