@@ -1,0 +1,7 @@
+apiVersion: "example.com/v1alpha1"
+kind: Item
+metadata:
+  name: item1
+spec:
+  value: 100
+  note: sample item
