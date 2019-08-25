@@ -1,0 +1,3 @@
+name: sample
+runtime: nodejs
+description: Pulumi Kubernetes CRD sample 
