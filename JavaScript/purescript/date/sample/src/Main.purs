@@ -22,7 +22,7 @@ event :: EventId -> Date -> Event
 event id dt = Event { id: id, date: dt }
 
 createEvent :: EventId -> Maybe Date -> Maybe Event
-createEvent id mdt = event id <$> mdt
+createEvent id = map (event id)
 
 main :: Effect Unit
 main = do
