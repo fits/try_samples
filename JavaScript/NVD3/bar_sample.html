@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.css" />
+</head>
+<body>
+  <div id="res" style="width: 400px; height: 400px">
+    <svg></svg>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.js"></script>
+
+  <script>
+    nv.addGraph(() => {
+      const d = [
+        { key: 'item1', values: [[1, 8]] },
+        { key: 'item2', values: [[1, 3]] },
+        { key: 'item3', values: [[1, 5]] }
+      ]
+
+      const chart = nv.models.multiBarChart()
+        .x( v => v[0] )
+        .y( v => v[1] )
+
+      d3.select('#res svg').datum(d).call(chart)
+
+      nv.utils.windowResize(chart.update)
+
+      return chart
+    })
+
+  </script>
+</body>
+</html>
