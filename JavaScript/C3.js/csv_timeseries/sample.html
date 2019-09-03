@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.8/c3.min.css" />
+  <style>
+    .container {
+      display: flex;
+    }
+
+    .item {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <fieldset class="item">
+      <legend>type</legend>
+      <p>
+        <label>
+          <input type="radio" name="graph-type" value="line" checked>line
+        </label>
+        <label>
+          <input type="radio" name="graph-type" value="bar">bar
+        </label>
+      </p>
+    </fieldset>
+    <fieldset class="item">
+        <legend>summary</legend>
+        <p>
+          <label>
+            <input type="radio" name="date-format" value="d" checked>daily
+          </label>
+          <label>
+            <input type="radio" name="date-format" value="w">weekly
+          </label>
+        </p>
+      </fieldset>
+  </div>
+
+  <div id="res" style="width: 600px; height: 600px"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.8/c3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
+  <script>
+    const dataUrl = './data.csv'
+
+    const dateColumn = 'date'
+    const itemColumn = 'item'
+    const valueColumn = 'value'
+
+    const uniqMap = f => R.pipe(R.map(f), R.uniq)
+    const uniqProp = p => uniqMap(R.prop(p))
+
+    const sumProp = p => R.reduce(
+      (acc, r) => acc + parseInt(R.prop(p, r)), 
+      0
+    )
+
+    const groupByItem = R.groupBy(R.prop(itemColumn))
+
+    const dateFormats = {
+      d: d => moment(d).format('YYYY-MM-DD'),
+      w: d => moment(moment(d).isoWeek(), 'W').format('YYYY-MM-DD')
+    }
+
+    const eventHandling = (name, handler) =>{
+      document.getElementsByName(name).forEach(n => {
+        n.addEventListener('change', () => handler(n))
+
+        if (n.checked) {
+          handler(n)
+        }
+      })
+    }
+
+    const init = async () => {
+      const ds = await d3.csv(dataUrl)
+
+      const ts = uniqProp('item')(ds)
+
+      const columns = df => {
+        const dateFormat = R.pipe(R.prop(dateColumn), dateFormats[df])
+
+        const xs = uniqMap(dateFormat)(ds)
+
+        const sumPropByDate = p => vs => R.map(
+          x => sumProp(p)( R.filter(v => dateFormat(v) == x, vs) ), 
+          xs
+        )
+
+        return R.pipe(
+          groupByItem,
+          R.mapObjIndexed(sumPropByDate(valueColumn)),
+          R.toPairs, 
+          R.map(R.flatten),
+          R.prepend(R.prepend('x', xs))
+        )(ds)
+      }
+
+      const chart = c3.generate({
+        bindto: '#res',
+        padding: {
+          right: 30
+        },
+        data: {
+          x: 'x',
+          columns: []
+        },
+        axis: {
+          x: {
+            type: 'timeseries',
+            tick: { format: '%Y-%m-%d' }
+          }
+        }
+      })
+
+      eventHandling('graph-type', n => chart.transform(n.value))
+
+      eventHandling('date-format', n => 
+        chart.load({columns: columns(n.value)})
+      )
+    }
+
+    init()
+  </script>
+</body>
+</html>
+
