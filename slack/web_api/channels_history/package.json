@@ -1,0 +1,10 @@
+{
+  "name": "channels-history-sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@slack/events-api": "^2.3.0",
+    "@slack/web-api": "^5.1.0"
+  }
+}
