@@ -1,0 +1,9 @@
+{
+  "name": "juxt_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sample.js",
+  "dependencies": {
+    "ramda": "^0.26.1"
+  }
+}
