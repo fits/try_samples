@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.css" />
+</head>
+<body>
+  <div id="res"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
+  <script>
+    const url = './data/data.json'
+
+    $.getJSON(url, ds => {
+      ds.forEach(d => {
+        d['week'] = moment(moment(d['date']).isoWeek(), 'W').format('YYYY-MM-DD')
+      })
+
+      $('#res').pivotUI(ds, {
+        rows: ['item'], 
+        cols: ['week', 'date'], 
+        vals: ['value'], 
+        aggregatorName: 'Integer Sum'
+      })
+    })
+  </script>
+</body>
+</html>
+
