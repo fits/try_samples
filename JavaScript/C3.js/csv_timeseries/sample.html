@@ -15,7 +15,7 @@
 <body>
   <div class="container">
     <fieldset class="item">
-      <legend>type</legend>
+      <legend>Graph</legend>
       <p>
         <label>
           <input type="radio" name="graph-type" value="line" checked>line
@@ -26,7 +26,7 @@
       </p>
     </fieldset>
     <fieldset class="item">
-        <legend>summary</legend>
+        <legend>Aggregate</legend>
         <p>
           <label>
             <input type="radio" name="date-format" value="d" checked>daily
@@ -67,7 +67,7 @@
       w: d => moment(moment(d).isoWeek(), 'W').format('YYYY-MM-DD')
     }
 
-    const eventHandling = (name, handler) =>{
+    const handleChange = (name, handler) =>{
       document.getElementsByName(name).forEach(n => {
         n.addEventListener('change', () => handler(n))
 
@@ -79,8 +79,6 @@
 
     const init = async () => {
       const ds = await d3.csv(dataUrl)
-
-      const ts = uniqProp('item')(ds)
 
       const columns = df => {
         const dateFormat = R.pipe(R.prop(dateColumn), dateFormats[df])
@@ -118,9 +116,9 @@
         }
       })
 
-      eventHandling('graph-type', n => chart.transform(n.value))
+      handleChange('graph-type', n => chart.transform(n.value))
 
-      eventHandling('date-format', n => 
+      handleChange('date-format', n => 
         chart.load({columns: columns(n.value)})
       )
     }
