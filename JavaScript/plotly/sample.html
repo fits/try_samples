@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+  <div id="res" style="width: 600px; height: 600px"></div>
+
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    const data1 = {
+      x: [1, 2, 3, 4, 5],
+      y: [10, 8, 13, 7, 4],
+      name: 'item1'
+    }
+
+    const data2 = {
+      x: [1, 2, 3, 4, 5],
+      y: [2, 6, 4, 9, 7],
+      name: 'item2'
+    }
+
+    Plotly.plot('res', {data: [data1, data2]})
+  </script>
+</body>
+</html>
+
