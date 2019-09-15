@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .result {
+      display: inline-block;
+      width: 50px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { h, app } from "https://unpkg.com/hyperapp"
+
+    app({
+      init: 0,
+      view: state =>
+        h('div', {}, [
+          h('button', { onClick: state => state - 1 }, 'down'),
+          h('span', { class: 'result' }, state),
+          h('button', { onClick: state => state + 1 }, 'up')
+        ]),
+      node: document.getElementById('app')
+    })
+  </script>
+
+</body>
+</html>
