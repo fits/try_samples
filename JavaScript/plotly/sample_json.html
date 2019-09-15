@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .container {
+      display: flex;
+    }
+
+    .item {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <fieldset class="item">
+      <legend>Graph</legend>
+      <p>
+        <label><input type="radio" name="graph-type" value="line" checked>line</label>
+        <label><input type="radio" name="graph-type" value="bar">bar</label>
+      </p>
+    </fieldset>
+    <fieldset class="item">
+        <legend>Aggregate</legend>
+        <p>
+          <input type="radio" name="date-format" value="d" checked>daily
+          <input type="radio" name="date-format" value="w">weekly
+        </p>
+      </fieldset>
+  </div>
+  <div id="res" style="width: 1400px; height: 600px"></div>
+
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
+  <script>
+    const url = './data/data.json'
+
+    const dateCol = 'date'
+    const nameCol = 'item'
+    const valueCol = 'value'
+
+    const dateFormats = {
+      d: d => moment(d).format('YYYY-MM-DD'),
+      w: d => moment(moment(d).isoWeek(), 'W').format('YYYY-MM-DD')
+    }
+
+    const uniqMap = f => R.pipe(R.map(f), R.uniq)
+    const uniqProp = p => uniqMap(R.prop(p))
+
+    const sumProp = p => R.reduce(
+      (acc, r) => acc + parseInt(R.prop(p, r)), 
+      0
+    )
+
+    const groupByTarget = R.groupBy(R.prop(nameCol))
+
+    const init = async () => {
+      const ds = await d3.json(url)
+
+      const columns = (df, gf) => {
+        const dateFormat = R.pipe(R.prop(dateCol), dateFormats[df])
+
+        const xs = uniqMap(dateFormat)(ds)
+
+        const sumPropByDate = p => vs => R.map(
+          x => sumProp(p)( R.filter(v => dateFormat(v) == x, vs) ), 
+          xs
+        )
+
+        return R.pipe(
+          groupByTarget,
+          R.mapObjIndexed(sumPropByDate(valueCol)),
+          R.mapObjIndexed(
+            R.applySpec({
+              x: R.always(xs),
+              y: R.nthArg(0),
+              name: R.nthArg(1),
+              type: R.always(gf)
+            })
+          ),
+          R.values
+        )(ds)
+      }
+
+      const handler = () => {
+        Plotly.newPlot('res', {
+          data: columns(
+            document.querySelector('[name=date-format]:checked').value,
+            document.querySelector('[name=graph-type]:checked').value
+          )
+        })
+      }
+
+      ['date-format', 'graph-type'].forEach(name => {
+        document.getElementsByName(name).forEach(el => 
+          el.addEventListener('change', handler)
+        )
+      })
+
+      handler()
+    }
+
+    init()
+  </script>
+</body>
+</html>
