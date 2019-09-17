@@ -1,0 +1,9 @@
+{
+  "name": "sample_cart",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@grpc/proto-loader": "^0.5.2",
+    "grpc": "^1.23.3"
+  }
+}

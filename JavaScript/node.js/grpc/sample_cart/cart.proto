@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package sample.cart;
+
+message AddItemRequest {
+    string cart_id = 1;
+    string item_id = 2;
+    int32 qty = 3;
+}
+
+message RemoveItemRequest {
+    string cart_id = 1;
+    string item_id = 2;
+}
+
+message GetCartRequest {
+    string cart_id = 1;
+}
+
+message Item {
+    string item_id = 1;
+    int32 price = 2;
+}
+
+message CartItem {
+    Item item = 1;
+    int32 qty = 2;
+}
+
+message Cart {
+    repeated CartItem items = 1;
+}
+
+service CartService {
+    rpc AddItem(AddItemRequest) returns (google.protobuf.Empty);
+    rpc RemoveItem(RemoveItemRequest) returns (google.protobuf.Empty);
+    rpc GetCart(GetCartRequest) returns (Cart);
+}
