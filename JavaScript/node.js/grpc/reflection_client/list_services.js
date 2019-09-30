@@ -1,7 +1,6 @@
 
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
-const descriptor = require('protobufjs/ext/descriptor')
 
 const pd = protoLoader.loadSync('reflection.proto', {
     keepCase: true,
