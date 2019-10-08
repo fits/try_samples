@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "sample/proto/item";
+
+package item;
+
+message ItemRequest {
+    string item_id = 1;
+}
+
+message AddItemRequest {
+    string item_id = 1;
+    uint64 price = 2;
+}
+
+message Item {
+    string item_id = 1;
+    uint64 price = 2;
+}
+
+service ItemService {
+    rpc GetItem(ItemRequest) returns (Item);
+    rpc AddItem(AddItemRequest) returns (google.protobuf.Empty);
+}
