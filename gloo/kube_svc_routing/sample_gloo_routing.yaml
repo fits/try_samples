@@ -1,0 +1,22 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: sample-prefix
+  namespace: gloo-system
+spec:
+  virtualHost:
+    domains:
+      - '*'
+    routes:
+      - matcher:
+          prefix: /sample
+        routeAction:
+          single:
+            kube:
+              ref:
+                name: sample
+                namespace: default
+              port: 8080
+        routePlugins:
+          prefixRewrite:
+            prefixRewrite: /
