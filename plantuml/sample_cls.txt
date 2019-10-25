@@ -1,0 +1,6 @@
+@startuml
+
+Order *-- OrderLine
+OrderLine -- Item
+
+@enduml
