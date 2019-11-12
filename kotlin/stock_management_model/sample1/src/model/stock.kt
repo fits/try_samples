@@ -16,15 +16,19 @@ interface Stock<L : Location> {
 }
 
 interface StockOp<L : Location, S : StockOp<L, S>> {
-    fun stock(q: Quantity): S?
+    fun inStore(q: Quantity): S?
+    fun outStore(q: Quantity): S?
+}
 
+interface AssignOp<L : Location, S : AssignOp<L, S>> {
     fun assign(q: Quantity): Pair<S, Assign<L>>?
     fun completeAssign(a: Assign<L>): S?
 }
 
 typealias RealStockOp<S> = StockOp<RealLocation, S>
+typealias RealAssignOp<S> = AssignOp<RealLocation, S>
 
-interface RealStock : Stock<RealLocation>, RealStockOp<RealStock> {
+interface RealStock : Stock<RealLocation>, RealStockOp<RealStock>, RealAssignOp<RealStock> {
     val realQty: Quantity
     val assignedQty: Quantity
 
@@ -43,8 +47,15 @@ private data class RealStockData(
     override val assignedQty: Quantity = 0,
     override val qty: Quantity = realQty - assignedQty
 ) : RealStock {
-    override fun stock(q: Quantity): RealStock? =
-        if (this.realQty + q >= 0) copy(qty = this.qty + q, realQty = this.realQty + q) else null
+    override fun inStore(q: Quantity): RealStock? =
+        if (q > 0 && this.realQty + q >= 0)
+            copy(qty = this.qty + q, realQty = this.realQty + q)
+        else null
+
+    override fun outStore(q: Quantity): RealStock? =
+        if (q > 0 && this.realQty - q >= 0)
+            copy(qty = this.qty - q, realQty = this.realQty - q)
+        else null
 
     override fun assign(q: Quantity): Pair<RealStock, Assign<RealLocation>>? =
         if (q > 0 && this.qty - q >= 0)

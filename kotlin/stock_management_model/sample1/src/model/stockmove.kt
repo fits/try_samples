@@ -50,7 +50,7 @@ object StockMoveOp {
     val complete: CompleteStockMove = { sfinder, mv ->
         sfinder(stockId(mv.itemId, mv.assign.location))?.let { stockFrom ->
             sfinder(stockId(mv.itemId, mv.to))?.let { stockTo ->
-                stockTo.stock(mv.assign.qty)?.let { newStockTo ->
+                stockTo.inStore(mv.assign.qty)?.let { newStockTo ->
                     stockFrom.completeAssign(mv.assign)?.let { newStockFrom ->
                         Triple(
                             CompletedStockMove(mv.itemId, mv.qty, mv.from, mv.to),
