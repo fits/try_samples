@@ -1,6 +1,8 @@
 
 import model.*
 
+fun stockId(stock: Stock<*>): StockId = stockId(stock.itemId, stock.location)
+
 fun main() {
     val item1 = "item1"
     val inv1 = InventoryLocation("inv1", "warehouse-1")
@@ -12,11 +14,11 @@ fun main() {
     val locationMap = listOf(inv1, inv2).map { Pair(it.id, it) }.toMap()
 
     var stockMap = listOf(st1, st2).map {
-        Pair(stockId(it.itemId, it.location), it)
+        Pair(stockId(it), it)
     }.toMap()
 
     val updateStock = { st: RealStock ->
-        stockMap = stockMap.plus(Pair(stockId(st.itemId, st.location), st))
+        stockMap = stockMap.plus(Pair(stockId(st), st))
     }
 
     StockMoveOp.create(item1, 2, inv1.id, inv2.id)?.let { mv1 ->
