@@ -18,11 +18,12 @@ interface Stock<L : Location> {
 interface StockOp<L : Location, S : StockOp<L, S>> {
     fun inStore(q: Quantity): S?
     fun outStore(q: Quantity): S?
+    fun outStoreBy(a: Assign<L>): S?
 }
 
 interface AssignOp<L : Location, S : AssignOp<L, S>> {
     fun assign(q: Quantity): Pair<S, Assign<L>>?
-    fun completeAssign(a: Assign<L>): S?
+    fun cancelAssign(a: Assign<L>): S?
 }
 
 typealias RealStockOp<S> = StockOp<RealLocation, S>
@@ -57,14 +58,19 @@ private data class RealStockData(
             copy(qty = this.qty - q, realQty = this.realQty - q)
         else null
 
+    override fun outStoreBy(a: Assign<RealLocation>): RealStock? =
+        if (validateAssign((a)))
+            copy(realQty = this.realQty - a.qty, assignedQty =  this.assignedQty - a.qty)
+        else null
+
     override fun assign(q: Quantity): Pair<RealStock, Assign<RealLocation>>? =
         if (q > 0 && this.qty - q >= 0)
             Pair(copy(qty = this.qty - q, assignedQty = this.assignedQty + q), createAssign(q))
         else null
 
-    override fun completeAssign(a: Assign<RealLocation>): RealStock? =
-        if (validateAssign((a)))
-            copy(realQty = this.realQty - a.qty, assignedQty =  this.assignedQty - a.qty)
+    override fun cancelAssign(a: Assign<RealLocation>): RealStock? =
+        if (validateAssign(a))
+            copy(qty = this.qty + a.qty, assignedQty = this.assignedQty - a.qty)
         else null
 
     private fun createAssign(q: Quantity) = Assign(itemId, location, q)

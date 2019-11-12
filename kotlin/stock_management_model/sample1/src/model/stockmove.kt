@@ -51,7 +51,7 @@ object StockMoveOp {
         sfinder(stockId(mv.itemId, mv.assign.location))?.let { stockFrom ->
             sfinder(stockId(mv.itemId, mv.to))?.let { stockTo ->
                 stockTo.inStore(mv.assign.qty)?.let { newStockTo ->
-                    stockFrom.completeAssign(mv.assign)?.let { newStockFrom ->
+                    stockFrom.outStoreBy(mv.assign)?.let { newStockFrom ->
                         Triple(
                             CompletedStockMove(mv.itemId, mv.qty, mv.from, mv.to),
                             newStockFrom,
