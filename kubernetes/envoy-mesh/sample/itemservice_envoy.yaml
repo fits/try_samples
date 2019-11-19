@@ -1,0 +1,60 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: itemservice
+  name: itemservice
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: itemservice
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: itemservice
+    spec:
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: itemservice-configmap
+
+      containers:
+      - image: itemservice
+        name: itemservice
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 50051
+          protocol: TCP
+
+      - image: envoyproxy/envoy:latest
+        name: envoy
+        command:
+        - "/usr/local/bin/envoy"
+        args:
+        - "-c /etc/envoy/envoy.yaml"
+        ports:
+        - containerPort: 10000
+          name: app
+        - containerPort: 9901
+          name: admin
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: itemservice
+  namespace: default
+  labels:
+    service: itemservice
+spec:
+  clusterIP: None
+  ports:
+  - port: 10000
+    targetPort: 10000
+    protocol: TCP
+  selector:
+    app: itemservice
