@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: cartservice
+  name: cartservice
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: cartservice
+    spec:
+      volumes:
+      - name: envoy-config
+        configMap:
+          name: cartservice-configmap
+
+      containers:
+      - image: cartservice
+        name: cartservice
+        imagePullPolicy: Never
+        env:
+        - name: ITEM_SERVICE_ADDR
+          value: 127.0.0.1:10000
+        - name: ITEM_SERVICE_HOST
+          value: itemservice
+        ports:
+        - containerPort: 50051
+          protocol: TCP
+
+      - image: envoyproxy/envoy:latest
+        name: envoy
+        command:
+        - "/usr/local/bin/envoy"
+        args:
+        - "-c /etc/envoy/envoy.yaml"
+        ports:
+        - containerPort: 10000
+          name: app
+        - containerPort: 9901
+          name: admin
+        volumeMounts:
+        - name: envoy-config
+          mountPath: /etc/envoy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartservice
+  namespace: default
+  labels:
+    service: cartservice
+spec:
+  clusterIP: None
+  ports:
+  - port: 10000
+    targetPort: 10000
+    protocol: TCP
+  selector:
+    app: cartservice
