@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+ </head>
+<body>
+  <div id="counter"></div>
+
+  <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+
+  <script>
+    const e = React.createElement
+
+    const Counter = () => {
+      const [count, setCount] = React.useState(0)
+
+      return e(
+        'div',
+        { onClick: () => setCount(count + 1) },
+        count
+      )
+    }
+
+    const node = document.querySelector('#counter')
+    ReactDOM.render(e(Counter), node)
+  </script>
+
+</body>
+</html>
