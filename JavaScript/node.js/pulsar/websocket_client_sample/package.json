@@ -1,0 +1,8 @@
+{
+  "name": "pulsar_websocket_client_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "ws": "^7.2.0"
+  }
+}
