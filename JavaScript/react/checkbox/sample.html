@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.2.3/dist/css/uikit.min.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.3/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.2.3/dist/js/uikit-icons.min.js"></script>
+ </head>
+<body>
+  <div id="item" class="uk-container">
+  </div>
+
+  <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+
+  <script>
+    const e = React.createElement
+
+		const items = [{name: 'item1'}, {name: 'item2'}, {name: 'item3'}]
+
+    const CheckItems = (props) => {
+      const [state, setState] = React.useState({})
+
+      const checkChange = (e) => {
+        console.log('****** check change')
+
+        state[e.target.value] = e.target.checked
+
+        console.log(state)
+
+        setState(state)
+      }
+
+      const itemElements = items.map(i => 
+        e('label', {class: 'uk-margin-right'}, [
+          e('input', {class: 'uk-checkbox', type: 'checkbox', value: i.name, checked: state[i.name], onClick: checkChange}),
+          i.name
+        ])
+      )
+
+      return e('fieldset', {'data-uk-margin': ''}, [
+        e('div', {class: 'uk-margin uk-grid-small uk-child-width-auto uk-grid'}, itemElements
+        )
+      ])
+    }
+
+    ReactDOM.render(e(CheckItems), document.querySelector('#item'))
+
+  </script>
+</body>
+</html>
