@@ -1,5 +1,5 @@
-@Grab('org.apache.kafka:kafka_2.12:0.11.0.1')
-@Grab('org.apache.zookeeper:zookeeper:3.5.3-beta')
+@Grab('org.apache.kafka:kafka_2.13:2.4.0')
+@Grab('org.apache.zookeeper:zookeeper:3.5.6')
 import kafka.server.KafkaServerStartable
 import org.apache.zookeeper.server.ZooKeeperServerMain
 
@@ -13,6 +13,10 @@ Thread.start {
 	zk.initializeAndRun(zkArgs)
 }
 
+while (zk.containerManager == null) {
+	Thread.sleep(1000)
+}
+
 def kfProps = new Properties()
 kfProps.setProperty('zookeeper.connect', "localhost:${zkPort}")
 kfProps.setProperty('log.dir', './kafka-logs')
@@ -24,6 +28,8 @@ kf.startup()
 println 'startup ...'
 
 System.in.read()
+
+println 'close ...'
 
 kf.shutdown()
 zk.shutdown()
