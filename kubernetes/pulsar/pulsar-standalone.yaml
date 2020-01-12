@@ -1,0 +1,42 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  labels:
+    app: pulsar
+  name: pulsar
+  namespace: default
+spec:
+  serviceName: pulsar
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pulsar
+    spec:
+      containers:
+      - image: apachepulsar/pulsar
+        name: pulsar
+        command: ["bin/pulsar", "standalone"]
+        ports:
+        - containerPort: 6650
+          name: client
+        - containerPort: 8080
+          name: websocket
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pulsar
+  namespace: default
+  labels:
+    service: pulsar
+spec:
+  ports:
+  - port: 6650
+    name: client
+  - port: 8080
+    name: websocket
+  clusterIP: None
+  selector:
+    app: pulsar
