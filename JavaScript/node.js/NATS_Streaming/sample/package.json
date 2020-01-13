@@ -1,0 +1,8 @@
+{
+  "name": "nats-streaming-sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "node-nats-streaming": "^0.2.6"
+  }
+}
