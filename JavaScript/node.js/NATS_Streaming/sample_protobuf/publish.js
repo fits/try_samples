@@ -5,8 +5,6 @@ const clusterId = 'test-cluster'
 const clientId = 'p1'
 const subject = 'sample-protobuf'
 
-const type = 'binary'
-
 const eventId = process.argv[2]
 const dataId = process.argv[3]
 
@@ -32,7 +30,7 @@ console.log(data.toObject())
 const stan = require('node-nats-streaming').connect(clusterId, clientId)
 
 stan.on('connect', () => {
-    const msg = Buffer.from(data.serializeBinary()).toString(type)
+    const msg = data.serializeBinary()
 
     stan.publish(subject, msg, (err, guid) => {
         if (err) {
