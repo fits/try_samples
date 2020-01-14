@@ -5,8 +5,6 @@ const clusterId = 'test-cluster'
 const clientId = 'c1'
 const subject = 'sample-protobuf'
 
-const type = 'binary'
-
 const durableName = process.argv[2]
 
 const stan = require('node-nats-streaming').connect(clusterId, clientId)
@@ -19,10 +17,7 @@ stan.on('connect', () => {
     const subsc = stan.subscribe(subject, opts)
 
     subsc.on('message', msg => {
-        const dataStr = msg.getData()
-        const buf = Buffer.from(dataStr, type)
-
-        const data = sample.DataEvent.deserializeBinary(buf)
+        const data = sample.DataEvent.deserializeBinary(msg.getRawData())
 
         console.log(`${msg.getSequence()}, ${JSON.stringify(data.toObject())}`)
     })
