@@ -1,0 +1,21 @@
+@startuml
+
+[*] -> Opened
+Opened -> Assigned
+Assigned -> Shipped
+Shipped -> Arrived
+Arrived -> [*]
+
+Opened -> Shipped
+Opened -> Arrived
+Opened --> Cancelled
+
+Cancelled --> [*]
+
+Opened --> AssignFailed
+AssignFailed --> [*]
+
+Assigned --> ShipFailed
+ShipFailed --> [*]
+
+@enduml
