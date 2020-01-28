@@ -379,12 +379,14 @@ class SimpleStockMoveService(
     }
 
     private fun toEvent(rep: StockMoveReport.Ship, state: StockMove): StockMoveEvent? =
-        if (state is Assigning)
-            StockMoveEvent.AssignShipped(state.moveId, state.order.item,
-                state.order.from, state.assignedQty, rep.shippedQty)
-        else
-            StockMoveEvent.Shipped(state.moveId, state.order.item,
-                state.order.from, rep.shippedQty)
+        if (rep.shippedQty > 0)
+            if (state is Assigning)
+                StockMoveEvent.AssignShipped(state.moveId, state.order.item,
+                    state.order.from, state.assignedQty, rep.shippedQty)
+            else
+                StockMoveEvent.Shipped(state.moveId, state.order.item,
+                    state.order.from, rep.shippedQty)
+        else null
 
     private fun toEvent(rep: StockMoveReport.ShipFail, state: StockMove): StockMoveEvent? =
         if (state is Assigning)
@@ -395,7 +397,9 @@ class SimpleStockMoveService(
                 state.order.from)
 
     private fun toEvent(rep: StockMoveReport.Arrive, state: StockMove): StockMoveEvent? =
-        StockMoveEvent.Arrived(rep.moveId, state.order.item, state.order.to, rep.arrivedQty)
+        if (rep.arrivedQty >= 0)
+            StockMoveEvent.Arrived(rep.moveId, state.order.item, state.order.to, rep.arrivedQty)
+        else null
 
     private fun updateState(moveId: StockMoveId, toEvent: (StockMove) -> StockMoveEvent?): StockMove? =
         restoreState(moveId).let { state ->
@@ -491,6 +495,28 @@ fun main() {
         println( service.stock(item1, loc3) )
 
         println( service.report(StockMoveReport.ShipFail(it.moveId)) )
+
+        println( service.stock(item1, loc2) )
+        println( service.stock(item1, loc3) )
+    }
+
+    println("----------------")
+
+    service.command(StockMoveCommand.Open("mv6", StockMoveOrder(item1, 1, loc2, loc3)))?.let {
+        assertNull( service.report(StockMoveReport.Ship(it.moveId, 0)) )
+    }
+
+    println("----------------")
+
+    service.command(StockMoveCommand.Open("mv7", StockMoveOrder(item1, 1, loc2, loc3)))?.let {
+        println(it)
+
+        assertNull( service.report(StockMoveReport.Arrive(it.moveId, -1)) )
+
+        println( service.stock(item1, loc2) )
+        println( service.stock(item1, loc3) )
+
+        println( service.report(StockMoveReport.Arrive(it.moveId, 0)) )
 
         println( service.stock(item1, loc2) )
         println( service.stock(item1, loc3) )
