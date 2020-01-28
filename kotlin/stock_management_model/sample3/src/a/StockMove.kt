@@ -1,4 +1,4 @@
-package sample.stockmove.model
+package sample.stockmove.model.a
 
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -325,9 +325,7 @@ class SimpleStockMoveService(
     private fun restoreState(moveId: StockMoveId): StockMove =
         eventStore.events(moveId).map {
             it.second
-        }.fold(StockMove.EmptyStockMove as StockMove) { acc, event ->
-            StockMove.applyEvent(acc, event)
-        }
+        }.fold(StockMove.EmptyStockMove, StockMove.Companion::applyEvent)
 
     private fun createMoveId(): StockMoveId = "stock-move:${UUID.randomUUID()}"
 
