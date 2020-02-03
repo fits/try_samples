@@ -22,22 +22,21 @@ const obj2 = {
 
 
 const valuesToObjOf = 
-    R.mapObjIndexed(
-        R.ifElse(
-            R.is(Object),
-            R.pipe(
+    R.pipe(
+        R.mapObjIndexed(
+            R.ifElse(
+                R.is(Object),
                 v => valuesToObjOf(v), 
-                R.values
-            ),
-            R.flip(R.objOf)
-        )
+                R.flip(R.objOf)
+            )
+        ),
+        R.values,
+        R.flatten
     )
 
 const flatObj = 
     R.pipe(
         valuesToObjOf,
-        R.values,
-        R.flatten,
         R.mergeAll
     )
 
