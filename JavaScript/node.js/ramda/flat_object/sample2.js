@@ -20,12 +20,13 @@ const obj2 = {
     num: 5
 }
 
+const isObject = R.pipe(R.type, R.equals('Object'))
 
 const valuesToObjOf = (value, prefix = '') =>
     R.pipe(
         R.mapObjIndexed(
             R.ifElse(
-                R.is(Object),
+                isObject,
                 (v, k) => valuesToObjOf(v, `${prefix}${k}_`), 
                 (v, k) => R.objOf(`${prefix}${k}`, v)
             )
