@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "event.proto";
+
+package sample;
+
+message SubscribeRequest {
+    string client_id = 1;
+    string durable_name = 2;
+}
+
+service EventNotifyService {
+    rpc subscribe(SubscribeRequest) returns (stream DataEvent);
+}

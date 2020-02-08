@@ -1,0 +1,13 @@
+{
+  "name": "sample-streaming",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {
+    "google-protobuf": "^3.11.3",
+    "grpc-web": "^1.0.7"
+  }
+}
