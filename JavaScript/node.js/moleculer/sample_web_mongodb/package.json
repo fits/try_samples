@@ -1,0 +1,11 @@
+{
+  "name": "sample_web_mongodb",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "moleculer": "^0.13.12",
+    "moleculer-db": "^0.8.4",
+    "moleculer-db-adapter-mongo": "^0.4.7",
+    "moleculer-web": "^0.8.5"
+  }
+}
