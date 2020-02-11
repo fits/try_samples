@@ -1,0 +1,9 @@
+{
+  "name": "sample_transport_stan",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "moleculer": "^0.13.12",
+    "node-nats-streaming": "^0.2.6"
+  }
+}
