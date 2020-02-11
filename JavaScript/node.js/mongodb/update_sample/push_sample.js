@@ -1,0 +1,52 @@
+
+const url = 'mongodb://localhost:27017'
+const dbName = 'sample'
+const colName = 'tasks'
+
+const MongoClient = require('mongodb').MongoClient(url, {
+    useUnifiedTopology: true
+})
+
+const run = async () => {
+    const client = await MongoClient.connect()
+
+    const db = client.db(dbName)
+    const col = db.collection(colName)
+
+    const res1 = await col.insertOne({
+        name: 'task1',
+        details: [
+        ]
+    })
+
+    const id = res1.insertedId
+
+    console.log(id)
+
+    await col.updateOne(
+        { _id: id },
+        {
+            '$push': {
+                details: {process_id: 'p01', status: 'ready'} 
+            }
+        }
+    )
+
+    await col.updateOne(
+        { _id: id },
+        {
+            '$push': {
+                details: {
+                    '$each': [
+                        {process_id: 'p02', status: 'ready'},
+                        {process_id: 'p03', status: 'ready'}
+                    ]
+                }
+            }
+        }
+    )
+
+    client.close()
+}
+
+run().catch(err => console.error(err))
