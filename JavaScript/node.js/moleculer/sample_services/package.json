@@ -1,0 +1,8 @@
+{
+  "name": "sample-servieces",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "moleculer": "^0.13.12"
+  }
+}
