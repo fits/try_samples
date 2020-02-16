@@ -1,0 +1,9 @@
+{
+  "name": "sample_bool_query",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.6.0",
+    "ramda": "^0.27.0"
+  }
+}
