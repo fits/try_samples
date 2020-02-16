@@ -9,7 +9,8 @@ const broker = new ServiceBroker({
 broker.createService({
     name: 'handler',
     events: {
-        'item.created'(event) {
+        'item.created'(ctx) {
+            const event = ctx.params
             console.log(event)
         }
     }
