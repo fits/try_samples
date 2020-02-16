@@ -1,0 +1,8 @@
+{
+  "name": "ramda_flat_object",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "ramda": "^0.27.0"
+  }
+}
