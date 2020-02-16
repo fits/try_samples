@@ -54,6 +54,10 @@ broker.createService({
             ctx.emit('item.created', doc)
 
             return id
+        },
+        get(ctx) {
+            const id = parseInt(ctx.params.id)
+            return this.adapter.collection.findOne({ _id: id })
         }
     }
 })
