@@ -1,0 +1,10 @@
+{
+  "name": "sample_web_httpstatus",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "moleculer": "^0.14.1",
+    "moleculer-web": "^0.9.0",
+    "ramda": "^0.27.0"
+  }
+}
