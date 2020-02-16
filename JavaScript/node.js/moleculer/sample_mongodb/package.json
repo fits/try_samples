@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "moleculer": "^0.13.12",
+    "moleculer": "^0.14.1",
     "moleculer-db": "^0.8.4",
     "moleculer-db-adapter-mongo": "^0.4.7"
   }

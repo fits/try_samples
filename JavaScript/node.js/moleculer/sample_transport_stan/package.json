@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "moleculer": "^0.13.12",
+    "moleculer": "^0.14.1",
     "node-nats-streaming": "^0.2.6"
   }
 }
