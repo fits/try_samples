@@ -1,0 +1,11 @@
+{
+  "name": "sample_ramda",
+  "version": "1.0.0",
+  "dependencies": {
+    "kotlin": "^1.3.61",
+    "ramda": "^0.27.0"
+  },
+  "scripts": {
+    "build": "kotlinc-js -output bundle.js -module-kind commonjs *.kt"
+  }
+}
