@@ -20,7 +20,8 @@ broker.createService({
 broker.createService({
     name: 'sample2',
     events: {
-        'sample.created'(event) {
+        'sample.created'(ctx) {
+            const event = ctx.params
             console.log(`sample2: ${JSON.stringify(event)}`)
         }
     }
@@ -29,7 +30,8 @@ broker.createService({
 broker.createService({
     name: 'sample3',
     events: {
-        'sample.*'(event) {
+        'sample.*'(ctx) {
+            const event = ctx.params
             console.log(`sample3: ${JSON.stringify(event)}`)
         }
     }
