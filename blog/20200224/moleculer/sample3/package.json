@@ -1,0 +1,12 @@
+{
+  "name": "moleculer_sample3",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "moleculer": "^0.14.2",
+    "moleculer-db": "^0.8.5",
+    "moleculer-db-adapter-mongo": "^0.4.7",
+    "moleculer-web": "^0.9.0",
+    "node-nats-streaming": "^0.2.6"
+  }
+}
