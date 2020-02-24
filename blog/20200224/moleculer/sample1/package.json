@@ -1,0 +1,8 @@
+{
+  "name": "moleculer_sample1",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "moleculer": "^0.14.2"
+  }
+}
