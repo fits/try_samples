@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+ </head>
+<body>
+    <div id="res" style="width: 800px; height: 600px"></div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+        const d1 = {
+            x: [5],
+            y: [2],
+            mode: 'markers',
+            name: 'data1',
+            marker: {
+                size: [30]
+            }
+        }
+
+        const d2 = {
+            x: [1],
+            y: [3],
+            mode: 'markers',
+            name: 'data2',
+            marker: {
+                size: [10]
+            }
+        }
+
+        const d3 = {
+            x: [2],
+            y: [4],
+            mode: 'markers',
+            name: 'data3',
+            marker: {
+                size: [20]
+            }
+        }
+
+        Plotly.newPlot('res', [d1, d2, d3], {
+            xaxis: {title: 'X'},
+            yaxis: {title: 'Y'}
+        })
+    </script>
+</body>
+</html>
+
