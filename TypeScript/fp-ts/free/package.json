@@ -1,0 +1,13 @@
+{
+  "name": "free-sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "fp-ts": "^2.5.3",
+    "fp-ts-contrib": "^0.1.14",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "ts-node": "^8.6.2"
+  }
+}
