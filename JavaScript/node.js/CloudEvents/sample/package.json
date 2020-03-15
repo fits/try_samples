@@ -1,0 +1,8 @@
+{
+  "name": "cloudevents_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "cloudevents-sdk": "^1.0.0"
+  }
+}
