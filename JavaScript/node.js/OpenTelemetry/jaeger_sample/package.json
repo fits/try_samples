@@ -1,0 +1,10 @@
+{
+  "name": "jaeger_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@opentelemetry/api": "^0.5.0",
+    "@opentelemetry/exporter-jaeger": "^0.5.0",
+    "@opentelemetry/tracing": "^0.5.0"
+  }
+}
