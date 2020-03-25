@@ -1,0 +1,19 @@
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'idea'
+    id 'application'
+}
+
+mainClassName = 'AppKt'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "com.typesafe.akka:akka-actor-typed_2.13:$akka_version"
+
+    runtimeOnly "org.slf4j:slf4j-nop:$slf4j_version"
+}
