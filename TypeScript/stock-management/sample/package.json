@@ -1,0 +1,13 @@
+{
+  "name": "stock-management-sample",
+  "version": "0.1.0",
+  "description": "",
+  "dependencies": {
+    "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/uuid": "^7.0.0",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.3"
+  }
+}
