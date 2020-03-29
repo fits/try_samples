@@ -1,0 +1,19 @@
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'idea'
+    id 'application'
+}
+
+mainClassName = 'AppKt'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "com.typesafe.akka:akka-cluster-sharding-typed_2.13:$akka_version"
+
+    runtimeOnly "org.slf4j:slf4j-simple:$slf4j_version"
+}
