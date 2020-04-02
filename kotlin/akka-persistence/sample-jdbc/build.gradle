@@ -1,0 +1,29 @@
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'idea'
+    id 'application'
+}
+
+application {
+    mainClassName = 'AppKt'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    implementation "com.typesafe.akka:akka-persistence-typed_2.13:$akka_version"
+    implementation "com.typesafe.akka:akka-persistence-query_2.13:$akka_version"
+    implementation "com.github.dnvriend:akka-persistence-jdbc_2.13:3.5.3"
+
+    implementation "com.typesafe.akka:akka-serialization-jackson_2.13:$akka_version"
+
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.10.3"
+
+    runtimeOnly "org.slf4j:slf4j-simple:$slf4j_version"
+    runtimeOnly "com.h2database:h2:1.4.200"
+}
