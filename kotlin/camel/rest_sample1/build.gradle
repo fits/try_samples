@@ -1,0 +1,23 @@
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'idea'
+    id 'application'
+}
+
+application {
+    mainClassName = 'AppKt'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.apache.camel:camel-core:$camel_version"
+
+    runtimeOnly "org.apache.camel:camel-jackson:$camel_version"
+    runtimeOnly "org.apache.camel:camel-undertow:$camel_version"
+    runtimeOnly "org.slf4j:slf4j-simple:$slf4j_version"
+}
