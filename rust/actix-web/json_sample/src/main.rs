@@ -24,7 +24,7 @@ struct Stock {
 #[get("/stocks")]
 async fn find_all_stocks(data: StockMapData) -> HttpResponse {
     let store = data.lock().unwrap();
-    let res: Vec<Stock> = store.values().cloned().collect();
+    let res: Vec<_> = store.values().collect();
 
     HttpResponse::Ok().json(res)
 }
@@ -48,7 +48,7 @@ async fn create_stock(counter: web::Data<AtomicU32>,
 
     let res = Stock { id: id, name: params.0.name, qty: params.0.qty };
 
-    println!("new stock : {:?}", &res);
+    println!("new stock : {:?}", res);
 
     let mut store = data.lock().unwrap();
     store.insert(id, res.clone());
