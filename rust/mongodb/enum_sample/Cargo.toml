@@ -1,0 +1,11 @@
+[package]
+name = "enum_sample"
+version = "0.1.0"
+authors = [""]
+edition = "2018"
+
+[dependencies]
+mongodb = "0.9.2"
+bson = "0.14.0"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
