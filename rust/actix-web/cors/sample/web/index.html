@@ -1,0 +1,27 @@
+<html>
+<body>
+  <h1>CORS Sample</h1>
+  <p id="res"></p>
+
+  <script>
+    const run = async () => {
+      const res = await fetch('http://localhost:8080/samples', {
+        headers: { 'sample-header': 'a1' }
+      })
+
+      document.getElementById('res').innerHTML = await res.text()
+
+      await fetch('http://localhost:8080/samples/data1', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'sample-header': 'a1'
+        },
+        body: JSON.stringify({value: 123})
+      })
+    }
+
+    run().catch(err => console.error(err))
+  </script>
+</body>
+</html>
