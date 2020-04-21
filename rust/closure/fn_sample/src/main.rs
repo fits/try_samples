@@ -19,6 +19,14 @@ fn sample4() -> Box<fn(i32) -> i32> {
     Box::new(double)
 }
 
+fn sample5() -> fn(i32) -> i32 {
+    |x| x * 3
+}
+
+fn sample6(v: i32) -> impl Fn(i32) -> i32 {
+    move |x| x * v
+}
+
 fn main() {
     let r1 = sample1(1, |x| x + 10);
     println!("{}", r1);
@@ -37,4 +45,7 @@ fn main() {
 
     let f2 = sample4();
     println!("{}", f2(40));
+
+    println!("{}", sample5()(5));
+    println!("{}", sample6(2)(3));
 }
