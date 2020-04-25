@@ -1,0 +1,8 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@wasmer/wasi": "^0.10.2"
+  }
+}
