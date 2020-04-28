@@ -1,0 +1,10 @@
+[package]
+name = "run_sample"
+version = "0.1.0"
+authors = [""]
+edition = "2018"
+
+[dependencies]
+wasmtime = "0.15"
+wasmtime-wasi = "0.15"
+anyhow = "1.0"
