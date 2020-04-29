@@ -1,0 +1,9 @@
+{
+  "name": "run_wasmer_js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@wasmer/wasi": "^0.10.2"
+  }
+}
