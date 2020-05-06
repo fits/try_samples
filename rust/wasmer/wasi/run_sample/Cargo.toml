@@ -1,0 +1,9 @@
+[package]
+name = "run_sample"
+version = "0.1.0"
+authors = [""]
+edition = "2018"
+
+[dependencies]
+wasmer-runtime = "0.16"
+wasmer-wasi = "0.16"
