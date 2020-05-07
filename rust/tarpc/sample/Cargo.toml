@@ -1,0 +1,11 @@
+[package]
+name = "sample"
+version = "0.1.0"
+authors = [""]
+edition = "2018"
+
+[dependencies]
+tarpc = { version = "0.20", features = ["full"] }
+serde = "1.0"
+futures = "0.3"
+tokio = { version = "0.2", features = ["full"] }
