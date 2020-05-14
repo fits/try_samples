@@ -1,0 +1,9 @@
+[package]
+name = "sample_main"
+version = "0.1.0"
+authors = [""]
+edition = "2018"
+
+[dependencies]
+sample_core = { path = "../sample_core" }
+sample_macro = { path = "../sample_macro" }
