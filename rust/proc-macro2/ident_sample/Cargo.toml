@@ -1,0 +1,9 @@
+[package]
+name = "ident_sample"
+version = "0.1.0"
+authors = [""]
+edition = "2018"
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
