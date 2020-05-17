@@ -1,0 +1,9 @@
+[package]
+name = "sample_main"
+version = "0.1.0"
+authors = [""]
+edition = "2018"
+
+[dependencies]
+func_macro = { path = "../func_macro" }
+func_macro2 = { path = "../func_macro2" }
