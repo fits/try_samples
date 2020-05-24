@@ -1,0 +1,25 @@
+[package]
+name = "stream_sample"
+version = "0.1.0"
+edition = "2018"
+default-run = "server"
+
+[dependencies]
+tonic = "0.2"
+prost = "0.6"
+tokio = { version = "0.2", features = ["macros"] }
+
+[build-dependencies]
+tonic-build = "0.2"
+
+[[bin]]
+name = "server"
+path = "src/server.rs"
+
+[[bin]]
+name = "pub-client"
+path = "src/pub-client.rs"
+
+[[bin]]
+name = "sub-client"
+path = "src/sub-client.rs"

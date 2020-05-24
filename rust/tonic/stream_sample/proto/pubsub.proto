@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package pubsub;
+
+message Message {
+    string subject = 1;
+    string body = 2;
+}
+
+message SubscribeRequest {
+    string client_id = 1;
+}
+
+service MessageService {
+    rpc Publish(Message) returns (google.protobuf.Empty);
+    rpc Subscribe(SubscribeRequest) returns (stream Message);
+}
