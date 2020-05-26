@@ -28,8 +28,8 @@ const run = async () => {
                     const memory = instance.exports.memory.buffer
 
                     const buf = new Uint8Array(memory, ptr, len)
-                    const msg = String.fromCharCode(...buf)
-                    
+                    const msg = new TextDecoder('utf-8').decode(buf)
+
                     console.log(msg)
                 }
             }
