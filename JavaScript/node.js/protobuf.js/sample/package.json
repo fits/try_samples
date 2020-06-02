@@ -1,0 +1,9 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "protobufjs": "^6.9.0"
+  }
+}
