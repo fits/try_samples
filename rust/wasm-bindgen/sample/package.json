@@ -1,0 +1,10 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.3"
+  }
+}
