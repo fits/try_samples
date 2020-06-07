@@ -28,6 +28,8 @@ const processMessage = (wasmInstance, type, params, func) => {
     new Uint8Array(memory).set(buf, ptr)
 
     func(ptr, buf.length)
+
+    wasmInstance.exports._free(ptr)
 }
 
 const run = async () => {
