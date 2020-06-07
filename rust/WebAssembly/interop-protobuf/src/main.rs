@@ -27,6 +27,13 @@ extern fn _malloc(size: usize) -> *mut u8 {
 }
 
 #[no_mangle]
+extern fn _free(ptr: *mut u8) {
+    unsafe {
+        drop(Box::from_raw(ptr));
+    }
+}
+
+#[no_mangle]
 extern fn send_item(ptr: *const u8, size: usize) {
     unsafe {
         let slice = std::slice::from_raw_parts(ptr, size);
