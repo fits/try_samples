@@ -23,6 +23,13 @@ extern fn _return_string(ptr: *const u8, len: usize) {
     }
 }
 
+#[no_mangle]
+extern fn _drop_string(ptr: *mut u8) {
+    unsafe {
+        drop(Box::from_raw(ptr));
+    }
+}
+
 fn main() {
     unsafe {
         message();

@@ -43,6 +43,8 @@ const run = async () => {
                     new Uint8Array(memory).set(buf, ptr)
 
                     instance.exports._return_string(ptr, buf.length)
+
+                    instance.exports._drop_string(ptr)
                 }
             }
         }
