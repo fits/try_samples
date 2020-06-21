@@ -48,7 +48,7 @@ impl Stock {
         }
     }
 
-    pub(super) fn update(&self, qty: Quantity, assigned: Quantity) -> Self {
+    fn update(&self, qty: Quantity, assigned: Quantity) -> Self {
         match self {
             Self::Managed { id, .. } => {
                 Self::Managed {
@@ -68,7 +68,7 @@ impl Stock {
         }
     }
 
-    pub(super) fn update_assigned(&self, assigned: Quantity) -> Self {
+    fn update_assigned(&self, assigned: Quantity) -> Self {
         match self {
             Self::Managed { qty, .. } => self.update(qty.clone(), assigned),
             Self::Unmanaged { .. } => self.clone(),
