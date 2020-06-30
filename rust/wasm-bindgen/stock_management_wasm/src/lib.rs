@@ -3,16 +3,20 @@ use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 
 mod models;
-use models::{Stock, StockMove, StockMoveAction, StockMoveEvent, Action, Restore, Event, StockMoveId, ItemCode, LocationCode, Quantity};
+use models::{Stock, StockMove, StockMoveAction, StockMoveEvent, 
+    Action, Restore, Event, StockMoveId, ItemCode, LocationCode, Quantity};
+
+type Revision = usize;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct Response<T> {
     state: T, 
     event: StockMoveEvent,
+    revision: Revision,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct FindResponse<T> {
+struct StoredResponse<T> {
     snapshot: T,
     events: Vec<StockMoveEvent>,
 }
@@ -23,54 +27,50 @@ extern {
     fn log(s: String);
 
     #[wasm_bindgen(js_namespace = sample)]
-    fn find_events_for_move(id: StockMoveId) -> JsValue;
+    fn events_for_move(id: StockMoveId) -> JsValue;
 
     #[wasm_bindgen(js_namespace = sample)]
-    fn find_events_for_stock(item: ItemCode, location: LocationCode) -> JsValue;
+    fn events_for_stock(item: ItemCode, location: LocationCode) -> JsValue;
 }
 
 #[wasm_bindgen]
-pub fn start(id: StockMoveId, item: ItemCode, qty: Quantity, from: LocationCode, to: LocationCode) -> JsValue {
+pub fn start(id: StockMoveId, item: ItemCode, qty: Quantity, 
+    from: LocationCode, to: LocationCode) -> JsValue {
 
-    let res = if restore_move(id.clone()).is_none() {
-        StockMoveAction::start(id, item, qty, from, to)
-            .and_then(|c|
-                Action::action(&(StockMove::Nothing, restore_stock), &c)
-            )
-            .and_then(|e| {
-                e.apply(StockMove::Nothing).map(|s| Response { state: s, event: e })
-            })
-            .and_then(|r| JsValue::from_serde(&r).ok())
-    } else {
-        None
-    };
+    let cmd = StockMoveAction::start(id.clone(), item, qty, from, to);
 
-    res.unwrap_or(JsValue::null())
+    action(id, cmd)
 }
 
 #[wasm_bindgen]
 pub fn assign(id: StockMoveId) -> JsValue {
-    action(StockMoveAction::assign(id))
+    action(id.clone(), StockMoveAction::assign(id))
 }
 
 #[wasm_bindgen]
 pub fn cancel(id: StockMoveId) -> JsValue {
-    action(StockMoveAction::cancel(id))
+    action(id.clone(), StockMoveAction::cancel(id))
 }
 
 #[wasm_bindgen]
 pub fn shipment(id: StockMoveId, qty: Quantity) -> JsValue {
-    action(StockMoveAction::shipment(id, qty))
-}
+    let cmd = if qty > 0 {
+        StockMoveAction::shipment(id.clone(), qty)
+    } else {
+        StockMoveAction::shipment_failure(id.clone())
+    };
 
-#[wasm_bindgen]
-pub fn shipment_failure(id: StockMoveId) -> JsValue {
-    action(StockMoveAction::shipment_failure(id))
+    action(id, cmd)
 }
 
 #[wasm_bindgen]
 pub fn arrival(id: StockMoveId, qty: Quantity) -> JsValue {
-    action(StockMoveAction::arrival(id, qty))
+    action(id.clone(), StockMoveAction::arrival(id, qty))
+}
+
+#[wasm_bindgen]
+pub fn status(id: StockMoveId) -> JsValue {
+    to_jsvalue(&restore_move(id))
 }
 
 #[wasm_bindgen]
@@ -80,36 +80,53 @@ pub fn new_stock(item: ItemCode, location: LocationCode, managed: bool) -> JsVal
         false => Stock::unmanaged_new(item, location),
     };
 
-    JsValue::from_serde(&r).unwrap_or(JsValue::null())
+    to_jsvalue(&r)
 }
 
-type MoveFind = FindResponse<StockMove>;
-type StockFind = FindResponse<Stock>;
+#[wasm_bindgen]
+pub fn stock_status(item: ItemCode, location: LocationCode) -> JsValue {
+    to_jsvalue(&restore_stock(item, location))
+}
 
-fn action(cmd: Option<StockMoveAction>) -> JsValue {
-    cmd.and_then(|c| 
-        restore_move(c.move_id())
-            .and_then(|s|
-                Action::action(&(s.clone(), restore_stock), &c)
-                    .and_then(|e|
-                        e.apply(s).map(|s| Response { state: s, event: e})
+
+fn action(id: StockMoveId, cmd: Option<StockMoveAction>) -> JsValue {
+    let (state, rev) = restore_move(id)
+        .unwrap_or( (StockMove::Nothing, 0) );
+
+    let r = cmd
+        .map(|c| (state, c))
+        .and_then(|(s, c)|
+            Action::action(&(s.clone(), restore_stock), &c)
+                .and_then(|e|
+                    e.apply(s).map(|s| 
+                        Response { state: s, event: e, revision: rev + 1 }
                     )
-            )
-    )
-    .and_then(|r| JsValue::from_serde(&r).ok())
-    .unwrap_or(JsValue::null())
+                )
+        );
+
+    to_jsvalue(&r)
 }
 
-fn restore_move(id: StockMoveId) -> Option<StockMove> {
-    find_events_for_move(id)
-    .into_serde::<MoveFind>()
-    .ok()
-    .map(|r| r.snapshot.restore(r.events.iter()))
+fn restore_move(id: StockMoveId) -> Option<(StockMove, Revision)> {
+    events_for_move(id)
+        .into_serde::<StoredResponse<StockMove>>()
+        .ok()
+        .map(|r| {
+            let rev = r.events.len();
+            (r.snapshot.restore(r.events.iter()), rev)
+        })
 }
 
 fn restore_stock(item: ItemCode, location: LocationCode) -> Option<Stock> {
-    find_events_for_stock(item, location)
-    .into_serde::<StockFind>()
-    .ok()
-    .map(|r| r.snapshot.restore(r.events.iter()))
+    events_for_stock(item, location)
+        .into_serde::<StoredResponse<Stock>>()
+        .ok()
+        .map(|r| r.snapshot.restore(r.events.iter()))
+}
+
+fn to_jsvalue<T>(v: &T) -> JsValue
+where
+    T: serde::ser::Serialize,
+{
+    JsValue::from_serde(v).unwrap_or(JsValue::null())
 }
