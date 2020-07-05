@@ -1,0 +1,20 @@
+[package]
+name = "rusty_v8_sample"
+version = "0.1.0"
+edition = "2018"
+default-run = "sample1"
+
+[dependencies]
+rusty_v8 = "0.6"
+
+[[bin]]
+name = "sample1"
+path = "src/sample1.rs"
+
+[[bin]]
+name = "sample2"
+path = "src/sample2.rs"
+
+[[bin]]
+name = "sample3"
+path = "src/sample3.rs"
