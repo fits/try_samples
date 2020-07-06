@@ -1,7 +1,6 @@
 
 use futures::executor::block_on;
-use futures::future::FutureExt;
-use futures::stream::{self, StreamExt};
+use futures::{stream, FutureExt, StreamExt};
 
 fn stream_select() {
     let f1 = async { Some(1) };
