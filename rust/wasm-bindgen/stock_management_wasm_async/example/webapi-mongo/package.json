@@ -1,0 +1,12 @@
+{
+  "name": "webapi-mongo",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "moleculer": "^0.14.7",
+    "moleculer-web": "^0.9.1",
+    "mongodb": "^3.5.9",
+    "uuid": "^8.2.0"
+  }
+}
