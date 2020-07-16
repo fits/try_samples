@@ -68,7 +68,7 @@ const store = {}
 const box = new MessageBox()
 
 const root = {
-    create: ({ input: { category, value } }) =>{
+    create: ({ input: { category, value } }) => {
         console.log(`*** call create: category = ${category}, value = ${value}`)
 
         const id = `item-${v4.generate()}`
