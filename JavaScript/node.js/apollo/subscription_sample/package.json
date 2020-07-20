@@ -1,0 +1,12 @@
+{
+  "name": "subscription_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "apollo-server": "^2.15.1",
+    "graphql": "^15.3.0",
+    "graphql-subscriptions": "^1.1.0",
+    "uuid": "^8.2.0"
+  }
+}
