@@ -3,12 +3,12 @@ class MessageBox {
     #messages = []
     #resolves = []
 
-    publish(msg) {
+    publish(value) {
         if (this.#resolves.length > 0) {
-            this.#resolves.shift()(msg)
+            this.#resolves.shift()({ value })
         }
         else {
-            this.#messages.push(msg)
+            this.#messages.push(value)
         }
     }
 
@@ -22,7 +22,7 @@ class MessageBox {
 
                         const value = this.#messages.shift()
 
-                        resolve({ value, done: false })
+                        resolve({ value })
                     }
                     else {
                         this.#resolves.push(resolve)
