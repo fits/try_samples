@@ -1,5 +1,5 @@
 
-import { serve } from 'https://deno.land/std@0.64.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.65.0/http/server.ts'
 
 const server = serve({ port: 8080 })
 
