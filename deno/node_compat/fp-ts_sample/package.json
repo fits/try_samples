@@ -1,0 +1,11 @@
+{
+  "name": "fp-ts_sample",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "sample": "deno run --unstable --allow-read --allow-env sample.ts"
+  },
+  "dependencies": {
+    "fp-ts": "^2.8.1"
+  }
+}
