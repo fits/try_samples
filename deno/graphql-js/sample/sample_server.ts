@@ -1,7 +1,7 @@
 
 import {
     graphql, buildSchema, subscribe, parse
-} from 'https://cdn.pika.dev/graphql'
+} from 'https://cdn.skypack.dev/graphql'
 
 import { v4 } from 'https://deno.land/std/uuid/mod.ts'
 import { serve } from 'https://deno.land/std@0.64.0/http/server.ts'
