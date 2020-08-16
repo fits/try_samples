@@ -1,5 +1,5 @@
 
-import {graphql, buildSchema} from 'https://cdn.pika.dev/graphql'
+import {graphql, buildSchema} from 'https://cdn.skypack.dev/graphql'
 
 const schema = buildSchema(`
     type Item {

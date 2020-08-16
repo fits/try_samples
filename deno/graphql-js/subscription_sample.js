@@ -1,5 +1,8 @@
 
-import {graphql, buildSchema, subscribe, parse} from 'https://cdn.pika.dev/graphql'
+import {
+    graphql, buildSchema, subscribe, parse
+} from 'https://cdn.skypack.dev/graphql'
+
 import { v4 } from 'https://deno.land/std/uuid/mod.ts'
 
 const schema = buildSchema(`
