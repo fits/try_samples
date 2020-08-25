@@ -1,0 +1,12 @@
+{
+  "name": "node_fp-ts_sample",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "fp-ts": "^2.8.2"
+  }
+}
