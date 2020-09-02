@@ -1,10 +1,18 @@
 
+use std::slice;
+
 pub type ItemCode = String;
 pub type LocationCode = String;
 pub type Quantity = u32;
 
 pub trait Event<S> {
-    fn apply_to(&self, state: S) -> S;
+    type Output;
+
+    fn apply_to(&self, state: S) -> Self::Output;
+}
+
+pub trait Restore<E> {
+    fn restore(self, events: slice::Iter<E>) -> Self;
 }
 
 #[allow(dead_code)]
@@ -131,11 +139,14 @@ pub enum StockMove {
 }
 
 type StockMoveResult = Option<(StockMove, StockMoveEvent)>;
-type FindStock = fn(&ItemCode, &LocationCode) -> Option<Stock>;
 
 #[allow(dead_code)]
 impl StockMove {
-    pub fn start(&self, item: ItemCode, qty: Quantity, 
+    pub fn initial() -> Self {
+        Self::Nothing
+    }
+
+    pub fn start(item: ItemCode, qty: Quantity, 
         from: LocationCode, to: LocationCode) -> StockMoveResult {
 
         if qty < 1 {
@@ -149,7 +160,7 @@ impl StockMove {
             to: to.clone()
         };
 
-        self.apply_event(event)
+        Self::initial().apply_event(event)
     }
 
     pub fn complete(&self) -> StockMoveResult {
@@ -160,7 +171,10 @@ impl StockMove {
         self.apply_event(StockMoveEvent::Cancelled)
     }
 
-    pub fn assign(&self, find_stock: FindStock) -> StockMoveResult {
+    pub fn assign<F>(&self, find_stock: F) -> StockMoveResult
+    where
+        F: Fn(&ItemCode, &LocationCode) -> Option<Stock>,
+    {
         let info = self.info();
 
         if let Some(info) = info {
@@ -187,14 +201,15 @@ impl StockMove {
 
     pub fn ship(&self, outgoing: Quantity) -> StockMoveResult {
         let ev = match self {
-            Self::Assigned { info, assigned } => 
+            Self::Assigned { info, assigned } => {
                 Some(StockMoveEvent::AssignShipped {
                     item: info.item.clone(),
                     from: info.from.clone(),
                     outgoing,
                     assigned: assigned.clone(),
-                }),
-            _ =>
+                })
+            },
+            _ => {
                 self.info()
                     .map(|i|
                         StockMoveEvent::Shipped {
@@ -202,7 +217,8 @@ impl StockMove {
                             from: i.from.clone(),
                             outgoing,
                         }
-                    ),
+                    )
+            },
         };
 
         ev.and_then(|e| self.apply_event(e))
@@ -228,8 +244,9 @@ impl StockMove {
             Self::AssignFailed { info, .. } |
             Self::Shipped { info, .. } |
             Self::ShipmentFailed { info } |
-            Self::Arrived { info, .. } =>
-                Some(info.clone()),
+            Self::Arrived { info, .. } => {
+                Some(info.clone())
+            },
             Self::Nothing => None,
         }
     }
@@ -243,9 +260,11 @@ impl StockMove {
 }
 
 impl Event<StockMove> for StockMoveEvent {
-    fn apply_to(&self, state: StockMove) -> StockMove {
+    type Output = StockMove;
+
+    fn apply_to(&self, state: StockMove) -> Self::Output {
         match self {
-            Self::Started { item, qty, from, to } => 
+            Self::Started { item, qty, from, to } => {
                 if state == StockMove::Nothing {
                     StockMove::Draft {
                         info: StockMoveInfo { 
@@ -257,23 +276,27 @@ impl Event<StockMove> for StockMoveEvent {
                     }
                 } else {
                     state
-                },
-            Self::Completed => 
+                }
+            },
+            Self::Completed => {
                 if let StockMove::Arrived { info, .. } = state {
                     StockMove::Completed { info: info.clone() }
                 } else {
                     state
-                },
-            Self::Cancelled => 
+                }
+            },
+            Self::Cancelled => {
                 if let StockMove::Draft { info } = state {
                     StockMove::Cancelled { info: info.clone() }
                 } else {
                     state
-                },
-            Self::Assigned { item, from, assigned } => 
+                }
+            },
+            Self::Assigned { item, from, assigned } => {
                 match state {
                     StockMove::Draft { info } 
-                    if info.item == *item && info.from == *from => 
+                    if info.item == *item && info.from == *from => {
+
                         if *assigned > 0 {
                             StockMove::Assigned { 
                                 info: info.clone(), 
@@ -281,13 +304,16 @@ impl Event<StockMove> for StockMoveEvent {
                             }
                         } else {
                             StockMove::AssignFailed { info: info.clone() }
-                        },
+                        }
+                    },
                     _ => state,
-                },
-            Self::Shipped { item, from, outgoing } => 
+                }
+            },
+            Self::Shipped { item, from, outgoing } => {
                 match state {
                     StockMove::Draft { info }
-                    if info.item == *item && info.from == *from => 
+                    if info.item == *item && info.from == *from => {
+
                         if *outgoing > 0 {
                             StockMove::Shipped { 
                                 info: info.clone(), 
@@ -296,12 +322,15 @@ impl Event<StockMove> for StockMoveEvent {
                         } else {
                             StockMove::ShipmentFailed { info: info.clone() }
                         }
+                    },
                     _ => state,
-                },
-            Self::AssignShipped { item, from, outgoing, .. } => 
+                }
+            },
+            Self::AssignShipped { item, from, outgoing, .. } => {
                 match state {
                     StockMove::Assigned { info, .. }
-                    if info.item == *item && info.from == *from => 
+                    if info.item == *item && info.from == *from => {
+
                         if *outgoing > 0 {
                             StockMove::Shipped { 
                                 info: info.clone(), 
@@ -310,19 +339,80 @@ impl Event<StockMove> for StockMoveEvent {
                         } else {
                             StockMove::ShipmentFailed { info: info.clone() }
                         }
+                    },
                     _ => state,
-                },
-            Self::Arrived { item, to, incoming } => 
+                }
+            },
+            Self::Arrived { item, to, incoming } => {
                 match state {
                     StockMove::Draft { info } | StockMove::Shipped { info, .. }
-                    if info.item == *item && info.to == *to => 
+                    if info.item == *item && info.to == *to => {
+
                         StockMove::Arrived {
                             info: info.clone(),
                             incoming: incoming.clone(),
-                        },
+                        }
+                    },
                     _ => state,
-                },
+                }
+            },
         }
+    }
+}
+
+impl Event<Stock> for StockMoveEvent {
+    type Output = Stock;
+
+    fn apply_to(&self, state: Stock) -> Self::Output {
+        match &state {
+            Stock::Unmanaged { .. } => state,
+            Stock::Managed { item: s_item, location: s_loc, 
+                qty: s_qty, assigned: s_assigned } => {
+
+                match self {
+                    Self::Assigned { item, from, assigned } 
+                    if s_item == item && s_loc == from => {
+
+                        state.update_assigned(
+                            s_assigned + assigned
+                        )
+                    },
+                    Self::Shipped { item, from, outgoing }
+                    if s_item == item && s_loc == from => {
+
+                        state.update_qty(
+                            s_qty.checked_sub(*outgoing).unwrap_or(0)
+                        )
+                    },
+                    Self::AssignShipped { item, from, outgoing, assigned }
+                    if s_item == item && s_loc == from => {
+
+                        state.update(
+                            s_qty.checked_sub(*outgoing).unwrap_or(0),
+                            s_assigned.checked_sub(*assigned).unwrap_or(0),
+                        )
+                    },
+                    Self::Arrived { item, to, incoming }
+                    if s_item == item && s_loc == to => {
+
+                        state.update_qty(
+                            s_qty + incoming
+                        )
+                    },
+                    _ => state,
+                }
+            },
+        }
+    }
+}
+
+impl<S, E> Restore<&E> for S
+where
+    Self: Clone,
+    E: Event<Self, Output = Self>,
+{
+    fn restore(self, events: slice::Iter<&E>) -> Self {
+        events.fold(self, |acc, ev| ev.apply_to(acc.clone()))
     }
 }
 
@@ -416,14 +506,198 @@ fn is_sufficient_managed() {
 }
 
 #[test]
-fn start_nothing() {
-    let state = StockMove::Nothing;
+fn assigned_to_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 1);
 
+    let event = StockMoveEvent::Assigned {
+        item: "item-1".to_string(),
+        from: "loc-1".to_string(),
+        assigned: 3,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 5);
+        assert_eq!(assigned, 4);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn assigned_to_diff_locatoin_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 1);
+
+    let event = StockMoveEvent::Assigned {
+        item: "item-1".to_string(),
+        from: "loc-2".to_string(),
+        assigned: 3,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 5);
+        assert_eq!(assigned, 1);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn assigned_to_diff_item_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 1);
+
+    let event = StockMoveEvent::Assigned {
+        item: "item-2".to_string(),
+        from: "loc-1".to_string(),
+        assigned: 3,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 5);
+        assert_eq!(assigned, 1);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn shipped_to_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 1);
+
+    let event = StockMoveEvent::Shipped {
+        item: "item-1".to_string(),
+        from: "loc-1".to_string(),
+        outgoing: 3,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 2);
+        assert_eq!(assigned, 1);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn shipped_over_qty_to_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 1);
+
+    let event = StockMoveEvent::Shipped {
+        item: "item-1".to_string(),
+        from: "loc-1".to_string(),
+        outgoing: 6,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 0);
+        assert_eq!(assigned, 1);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn assign_shipped_to_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 2);
+
+    let event = StockMoveEvent::AssignShipped {
+        item: "item-1".to_string(),
+        from: "loc-1".to_string(),
+        outgoing: 1,
+        assigned: 2,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 4);
+        assert_eq!(assigned, 0);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn assign_shipped_over_to_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 2);
+
+    let event = StockMoveEvent::AssignShipped {
+        item: "item-1".to_string(),
+        from: "loc-1".to_string(),
+        outgoing: 6,
+        assigned: 3,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 0);
+        assert_eq!(assigned, 0);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn arrived_to_managed_stock() {
+    let state = Stock::managed_new("item-1".to_string(), "loc-1".to_string());
+    let state = state.update(5, 1);
+
+    let event = StockMoveEvent::Arrived {
+        item: "item-1".to_string(),
+        to: "loc-1".to_string(),
+        incoming: 3,
+    };
+
+    let r = event.apply_to(state);
+
+    if let Stock::Managed { item, location, qty, assigned } = r {
+        assert_eq!(item, "item-1");
+        assert_eq!(location, "loc-1");
+        assert_eq!(qty, 8);
+        assert_eq!(assigned, 1);
+    } else {
+        assert!(false);
+    }
+}
+
+#[test]
+fn start() {
     let item1 = "item-1".to_string();
     let from1 = "from-1".to_string();
     let to1 = "to-1".to_string();
 
-    let r = state.start(item1.clone(), 1, from1.clone(), to1.clone());
+    let r = StockMove::start(item1.clone(), 1, from1.clone(), to1.clone());
 
     if let Some((s, e)) = r {
         if let StockMove::Draft { info } = s {
@@ -450,33 +724,12 @@ fn start_nothing() {
 }
 
 #[test]
-fn start_nothing_with_zero_qty() {
-    let state = StockMove::Nothing;
-
+fn start_with_zero_qty() {
     let item1 = "item-1".to_string();
     let from1 = "from-1".to_string();
     let to1 = "to-1".to_string();
 
-    let r = state.start(item1.clone(), 0, from1.clone(), to1.clone());
-    assert!(r == None);
-}
-
-#[test]
-fn start_not_nothing() {
-    let item1 = "item-1".to_string();
-    let from1 = "from-1".to_string();
-    let to1 = "to-1".to_string();
-
-    let state = StockMove::Draft {
-        info: StockMoveInfo {
-            item: item1.clone(),
-            qty: 1,
-            from: from1.clone(),
-            to: to1.clone(),
-        },
-    };
-
-    let r = state.start(item1.clone(), 1, from1.clone(), to1.clone());
+    let r = StockMove::start(item1.clone(), 0, from1.clone(), to1.clone());
     assert!(r == None);
 }
 
