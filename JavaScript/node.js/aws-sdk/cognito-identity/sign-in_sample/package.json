@@ -4,6 +4,6 @@
   "description": "Cognito SignIn Sample",
   "dependencies": {
     "amazon-cognito-identity-js": "^1.18.0",
-    "node-fetch": "^1.7.0"
+    "node-fetch": "^2.6.1"
   }
 }
