@@ -1,7 +1,7 @@
 
-type ItemCode = string
-type LocationCode = string
-type Quantity = number
+export type ItemCode = string
+export type LocationCode = string
+export type Quantity = number
 
 interface StockMoveEventStarted {
     tag: 'stock-move-event.started'
@@ -94,7 +94,7 @@ export class StockAction {
             case 'stock.unmanaged':
                 return true
             case 'stock.managed':
-                return qty + stock.assigned <= stock.qty
+                return qty + Math.max(0, stock.assigned) <= Math.max(0, stock.qty)
         }
     }
 }
@@ -146,9 +146,6 @@ export class StockRestore {
     }
 
     private static updateStock(stock: Stock, qty: Quantity, assigned: Quantity): Stock {
-        qty = Math.max(0, qty)
-        assigned = Math.max(0, assigned)
-
         switch (stock.tag) {
             case 'stock.unmanaged':
                 return stock
@@ -193,6 +190,8 @@ interface StockMoveDraft {
 interface StockMoveCompleted {
     tag: 'stock-move.completed'
     info: StockMoveInfo
+    outgoing: Quantity
+    incoming: Quantity
 }
 
 interface StockMoveCancelled {
@@ -215,6 +214,7 @@ interface StockMoveShipped {
 interface StockMoveArrived {
     tag: 'stock-move.arrived'
     info: StockMoveInfo
+    outgoing: Quantity
     incoming: Quantity
 }
 
@@ -401,6 +401,7 @@ export class StockMoveRestore {
                     return {
                         tag: 'stock-move.arrived',
                         info: state.info,
+                        outgoing: state.outgoing,
                         incoming: event.incoming
                     }
                 }
@@ -409,7 +410,9 @@ export class StockMoveRestore {
                 if (event.tag == 'stock-move-event.completed') {
                     return {
                         tag: 'stock-move.completed',
-                        info: state.info
+                        info: state.info,
+                        outgoing: state.outgoing,
+                        incoming: state.incoming
                     }
                 }
                 break
@@ -476,6 +479,7 @@ export class StockMoveRestore {
                     return {
                         tag: 'stock-move.arrived',
                         info: state.info,
+                        outgoing: 0,
                         incoming: Math.max(event.incoming, 0)
                     }
                 }
