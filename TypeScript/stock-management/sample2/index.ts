@@ -1,60 +1,113 @@
 
 import { ApolloServer, gql } from 'apollo-server'
 import { v4 as uuidv4 } from 'uuid'
+import { MongoClient, Collection } from 'mongodb'
 
 import {
+    ItemCode, LocationCode,
     StockMoveAction, StockMoveRestore, StockMove, StockMoveEvent, 
+    StockMoveResult,
     StockAction, StockRestore, Stock
 } from './models'
 
+const mongoUrl = 'mongodb://localhost'
+const dbName = 'stockmoves'
+const colName = 'events'
+const stocksColName = 'stocks'
+
+type MoveId = string
+type Revision = number
+
 interface StoredEvent {
-    id: string
+    move_id: MoveId
+    revision: Revision
+    item: ItemCode
+    from: LocationCode
+    to: LocationCode
     event: StockMoveEvent
 }
 
+interface RestoredStockMove {
+    state: StockMove
+    revision: Revision
+}
+
 class Store {
-    private data = { 
-        stocks: {}, 
-        events: [] as StoredEvent[]
+    private eventsCol: Collection
+    private stocksCol: Collection
+
+    constructor(eventsCol: Collection, stocksCol: Collection) {
+        this.eventsCol = eventsCol
+        this.stocksCol = stocksCol
     }
 
-    async existStock(item: string, location: string): Promise<boolean> {
+    async loadStock(item: ItemCode, location: LocationCode): Promise<Stock | undefined> {
         const id = this.stockId(item, location)
+        const stock = await this.stocksCol.findOne({ _id: id })
 
-        return id in this.data.stocks
-    }
-
-    async loadStock(item: string, location: string): Promise<Stock | undefined> {
-        const id = this.stockId(item, location)
-        const stock = this.data.stocks[id]
-
-        if (stock) {
-            const events = this.data.events.map(e => e.event)
-            return StockRestore.restore(stock, events)
+        if (!stock) {
+            return undefined
         }
 
-        return undefined
+        const query = {
+            '$and': [
+                { item },
+                { '$or': [
+                    { from: location },
+                    { to: location }
+                ]}
+            ]
+        }
+
+        const events = await this.eventsCol
+            .find(query)
+            .map(r => r.event)
+            .toArray()
+
+        return StockRestore.restore(stock, events)
     }
 
     async saveStock(stock: Stock): Promise<void> {
         const id = this.stockId(stock.item, stock.location)
-        this.data.stocks[id] = stock
+
+        const res = await this.stocksCol.updateOne(
+            { _id: id },
+            { '$setOnInsert': stock },
+            { upsert: true }
+        )
+
+        if (res.upsertedCount == 0) {
+            return Promise.reject('conflict stock')
+        }
     }
 
-    async loadMove(id: string): Promise<StockMove | undefined> {
-        const events = this.data.events.filter(e => e.id == id).map(e => e.event)
+    async loadMove(moveId: MoveId): Promise<RestoredStockMove | undefined> {
+        const events: StoredEvent[] = await this.eventsCol
+            .find({ move_id: moveId })
+            .sort({ revision: 1 })
+            .toArray()
+
         const state = StockMoveAction.initial()
+        const revision = events.reduce((acc, e) => Math.max(acc, e.revision), 0)
 
-        const res = StockMoveRestore.restore(state, events)
+        const res = StockMoveRestore.restore(state, events.map(e => e.event))
 
-        return (res == state) ? undefined : res
+        return (res == state) ? undefined : { state: res, revision }
     }
 
     async saveEvent(event: StoredEvent): Promise<void> {
-        this.data.events.push(event)
+        const res = await this.eventsCol.updateOne(
+            { move_id: event.move_id, revision: event.revision },
+            { '$setOnInsert': event },
+            { upsert: true }
+        )
+
+        if (res.upsertedCount == 0) {
+            return Promise.reject(`conflict event revision=${event.revision}`)
+        }
     }
 
-    private stockId(item: string, location: string): string {
+    private stockId(item: ItemCode, location: LocationCode): string {
         return `${item}/${location}`
     }
 }
@@ -80,6 +133,8 @@ const typeDefs = gql(`
     type CompletedStockMove implements StockMove {
         id: ID!
         info: StockMoveInfo!
+        outgoing: Int!
+        incoming: Int!
     }
 
     type CancelledStockMove implements StockMove {
@@ -102,6 +157,7 @@ const typeDefs = gql(`
     type ArrivedStockMove implements StockMove {
         id: ID!
         info: StockMoveInfo!
+        outgoing: Int!
         incoming: Int!
     }
 
@@ -162,22 +218,39 @@ const typeDefs = gql(`
     }
 `)
 
-const toStockMoveForGql = (id, state) => {
+const toStockMoveForGql = (id: MoveId, state: StockMove | undefined) => {
     if (state) {
         return { id, ...state }
     }
     return undefined
 }
 
-const doMoveAction = async (store, state, id, action) => {
-    if (state) {
-        const res = action(state)
+type MoveAction = (state: StockMove) => StockMoveResult
+
+const doMoveAction = async (store: Store, rs: RestoredStockMove | undefined, 
+    id: MoveId, action: MoveAction) => {
+
+    if (rs) {
+        const res = action(rs.state)
 
         if (res) {
-            const event = { id, event: res[1] }
-            await store.saveEvent(event)
+            const [mv, ev] = res
+            const info = StockMoveAction.info(mv)
 
-            return toStockMoveForGql(id, res[0])
+            if (info) {
+                const event = { 
+                    move_id: id, 
+                    revision: rs.revision + 1,
+                    item: info.item,
+                    from: info.from,
+                    to: info.to,
+                    event: ev
+                }
+
+                await store.saveEvent(event)
+    
+                return toStockMoveForGql(id, mv)
+            }
         }
     }
     return undefined
@@ -220,16 +293,12 @@ const resolvers = {
             return store.loadStock(item, location)
         },
         findMove: async (parent, { id }, { store }, info) => {
-            const state = await store.loadMove(id)
-            return toStockMoveForGql(id, state)
+            const res = await store.loadMove(id)
+            return toStockMoveForGql(id, res?.state)
         }
     },
     Mutation: {
         createManaged: async (parent, { input: { item, location } }, { store }, info) => {
-            if (await store.existStock(item, location)) {
-                return undefined
-            }
-
             const s = StockAction.newManaged(item, location)
 
             await store.saveStock(s)
@@ -237,10 +306,6 @@ const resolvers = {
             return s
         },
         createUnmanaged: async (parent, { input: { item, location } }, { store }, info) => {
-            if (await store.existStock(item, location)) {
-                return undefined
-            }
-
             const s = StockAction.newUnmanaged(item, location)
 
             await store.saveStock(s)
@@ -248,59 +313,66 @@ const resolvers = {
             return s
         },
         start: async (parent, { input: { item, qty, from, to } }, { store }, info) => {
-            const state = StockMoveAction.initial()
+            const rs = { state: StockMoveAction.initial(), revision: 0 }
             const id = `move-${uuidv4()}`
 
             return doMoveAction(
-                store, state, id, 
+                store, rs, id, 
                 s => StockMoveAction.start(s, item, qty, from, to)
             )
         },
         assign: async(parent, { id }, { store }, info) => {
-            const state = await store.loadMove(id)
-            const moveInfo = StockMoveAction.info(state)
+            const rs = await store.loadMove(id)
 
-            if (moveInfo) {
-                const stock = await store.loadStock(moveInfo.item, moveInfo.from)
+            if (rs) {
+                const info = StockMoveAction.info(rs.state)
 
-                return doMoveAction(
-                    store, state, id, 
-                    s => StockMoveAction.assign(s, (item, loc) => stock)
-                )
+                if (info) {
+                    const stock = await store.loadStock(info.item, info.from)
+
+                    return doMoveAction(
+                        store, rs, id, 
+                        s => StockMoveAction.assign(s, (item, loc) => stock)
+                    )
+                }
             }
             return undefined
         },
         ship: async(parent, { id, outgoing }, { store }, info) => {
-            const state = await store.loadMove(id)
+            const rs = await store.loadMove(id)
 
             return doMoveAction(
-                store, state, id, 
+                store, rs, id, 
                 s => StockMoveAction.ship(s, outgoing)
             )
         },
         arrive: async(parent, { id, incoming }, { store }, info) => {
-            const state = await store.loadMove(id)
+            const rs = await store.loadMove(id)
 
             return doMoveAction(
-                store, state, id, 
+                store, rs, id, 
                 s => StockMoveAction.arrive(s, incoming)
             )
         },
         complete: async(parent, { id }, { store }, info) => {
-            const state = await store.loadMove(id)
+            const rs = await store.loadMove(id)
 
-            return doMoveAction(store, state, id, StockMoveAction.complete)
+            return doMoveAction(store, rs, id, StockMoveAction.complete)
         },
         cancel: async(parent, { id }, { store }, info) => {
-            const state = await store.loadMove(id)
+            const rs = await store.loadMove(id)
 
-            return doMoveAction(store, state, id, StockMoveAction.cancel)
+            return doMoveAction(store, rs, id, StockMoveAction.cancel)
         }
     }
 }
 
 const run = async () => {
-    const store = new Store()
+    const mongo = await MongoClient.connect(mongoUrl, { useUnifiedTopology: true })
+    const eventsCol = mongo.db(dbName).collection(colName)
+    const stocksCol = mongo.db(dbName).collection(stocksColName)
+
+    const store = new Store(eventsCol, stocksCol)
 
     const server = new ApolloServer({
         typeDefs, 
