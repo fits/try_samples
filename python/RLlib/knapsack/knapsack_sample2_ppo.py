@@ -11,7 +11,7 @@ from ray.rllib.agents.ppo import PPOTrainer
 import collections
 
 N = int(sys.argv[1])
-MAX_STEPS = int(sys.argv[2])
+EPISODE_STEPS = int(sys.argv[2])
 STATE_TYPE = sys.argv[3]
 BONUS_TYPE = sys.argv[4]
 
@@ -33,13 +33,15 @@ state_types = {
 bonus_types = {
     "0": [],
     "1": [(750, 100), (760, 100), (765, 100)],
-    "2": [(750, 100), (760, 200), (765, 400)]
+    "2": [(750, 100), (760, 200), (765, 400)],
+    "3": [(750, 200), (760, 400), (765, 800)]
 }
 
 vf_clip_params = {
     "0": 800,
     "1": 1100,
-    "2": 1500
+    "2": 1500,
+    "3": 2200
 }
 
 def next_state(items, state, action, state_range):
@@ -66,7 +68,7 @@ class Knapsack(gym.Env):
     def __init__(self, config):
         self.items = config["items"]
         self.max_weight = config["max_weight"]
-        self.max_steps = config["max_steps"]
+        self.episode_steps = config["episode_steps"]
         self.burst_reward = config["burst_reward"]
         self.state_range = config["state_range"]
         self.special_bonus = config["special_bonus"]
@@ -98,7 +100,7 @@ class Knapsack(gym.Env):
                 reward += b
         
         self.n_steps += 1
-        done = self.n_steps >= self.max_steps
+        done = self.n_steps >= self.episode_steps
         
         return self.state, reward, done, {}
 
@@ -107,7 +109,7 @@ config = {
     "vf_clip_param": vf_clip_params[BONUS_TYPE],
     "env_config": {
         "items": items, "max_weight": 65, "burst_reward": -100, 
-        "max_steps": MAX_STEPS, 
+        "episode_steps": EPISODE_STEPS, 
         "state_range": state_types[STATE_TYPE], 
         "special_bonus": bonus_types[BONUS_TYPE]
     }
@@ -121,7 +123,7 @@ for _ in range(N):
     r = trainer.train()
     print(f'iter = {r["training_iteration"]}')
 
-print(f'N = {N}, MAX_STEPS = {MAX_STEPS}, state_type = {STATE_TYPE}, bonus_type = {BONUS_TYPE}')
+print(f'N = {N}, EPISODE_STEPS = {EPISODE_STEPS}, state_type = {STATE_TYPE}, bonus_type = {BONUS_TYPE}')
 
 rs = []
 
@@ -129,7 +131,7 @@ for _ in range(1000):
     s = [0 for _ in range(len(items))]
     r_tmp = config["env_config"]["burst_reward"]
 
-    for _ in range(config["env_config"]["max_steps"]):
+    for _ in range(config["env_config"]["episode_steps"]):
         a = trainer.compute_action(s)
         s = next_state(items, s, a, config["env_config"]["state_range"])
 
