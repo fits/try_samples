@@ -1,0 +1,15 @@
+{
+  "name": "item_static_codegen",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "gen-grpc": "grpc_tools_node_protoc --grpc_out=grpc_js:generated --js_out=import_style=commonjs:generated proto/*.proto"
+  },
+  "devDependencies": {
+    "grpc-tools": "^1.9.1"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.1.8",
+    "google-protobuf": "^3.13.0"
+  }
+}
