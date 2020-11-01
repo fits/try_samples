@@ -332,7 +332,7 @@ const resolvers = {
 
                     return doMoveAction(
                         store, rs, id, 
-                        s => StockMoveAction.assign(s, (item, loc) => stock)
+                        s => StockMoveAction.assign(s, stock)
                     )
                 }
             }

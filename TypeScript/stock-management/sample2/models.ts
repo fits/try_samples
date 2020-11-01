@@ -260,11 +260,10 @@ export class StockMoveAction {
         return StockMoveAction.applyTo(state, event)
     }
 
-    static assign(state: StockMove, finder: StockFinder): StockMoveResult {
+    static assign(state: StockMove, stock: Stock): StockMoveResult {
         const info = StockMoveAction.info(state)
 
-        if (info) {
-            const stock = finder(info.item, info.from)
+        if (info && info.item == stock.item && info.from == stock.location) {
             const assigned = 
                 (stock && StockAction.isSufficient(stock, info.qty)) ? info.qty : 0
             
