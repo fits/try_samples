@@ -4,6 +4,8 @@ const { ItemManageClient } = require('./generated/proto/item_grpc_pb')
 
 const grpc = require('@grpc/grpc-js')
 
+const id = process.argv[2]
+
 const client = new ItemManageClient(
     '127.0.0.1:50051',
     grpc.credentials.createInsecure()
@@ -30,30 +32,30 @@ const printItem = item => {
 }
 
 const run = async () => {
-    await addItem(new AddItemRequest(['item-1', 100]))
+    await addItem(new AddItemRequest([`${id}_item-1`, 100]))
         .catch(err => console.error(err.message))
 
-    const item1 = await getItem(new ItemRequest(['item-1']))
+    const item1 = await getItem(new ItemRequest([`${id}_item-1`]))
     printItem(item1)
 
-    await addItem(new AddItemRequest(['item-2', 20]))
+    await addItem(new AddItemRequest([`${id}_item-2`, 20]))
         .catch(err => console.error(err.message))
 
-    const item2 = await getItem(new ItemRequest(['item-2']))
+    const item2 = await getItem(new ItemRequest([`${id}_item-2`]))
     printItem(item2)
 
-    await getItem(new ItemRequest(['item-2']))
+    await getItem(new ItemRequest([`${id}_item-2`]))
         .catch(err => console.error(err.message))
 
-    await addItem(new AddItemRequest(['item-1', 50]))
+    await addItem(new AddItemRequest([`${id}_item-1`, 50]))
         .catch(err => console.error(err.message))
 
-    await removeItem(new ItemRequest(['item-1']))
+    await removeItem(new ItemRequest([`${id}_item-1`]))
 
-    await getItem(new ItemRequest(['item-1']))
+    await getItem(new ItemRequest([`${id}_item-1`]))
         .catch(err => console.error(err.message))
 
-    await removeItem(new ItemRequest(['item-2']))
+    await removeItem(new ItemRequest([`${id}_item-2`]))
 }
 
 run().catch(err => console.error(err))
