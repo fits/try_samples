@@ -1,0 +1,10 @@
+{
+  "name": "item_dynamic_codegen",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.1.8",
+    "@grpc/proto-loader": "^0.5.5",
+    "google-protobuf": "^3.13.0"
+  }
+}
