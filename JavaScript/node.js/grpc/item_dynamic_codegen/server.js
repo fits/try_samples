@@ -1,7 +1,6 @@
 
 const protoLoader = require('@grpc/proto-loader')
 const grpc = require('@grpc/grpc-js')
-const EventEmitter = require('events')
 
 const protoFile = './proto/item.proto'
 const opts = {}
@@ -12,56 +11,63 @@ const proto = grpc.loadPackageDefinition(pd)
 let store = []
 let subscribeList = []
 
-const emitter = new EventEmitter()
+const findItem = itemId => store.find(i => i.itemId == itemId)
+
+const addItem = (itemId, price) => {
+    if (findItem(itemId)) {
+        return undefined
+    }
+
+    const item = { itemId, price }
+
+    store.push(item)
+
+    return item
+}
+
+const removeItem = itemId => {
+    const item = findItem(itemId)
+
+    if (item) {
+        store = store.filter(i => i.itemId != item.itemId)
+    }
+
+    return item
+}
+
+const publishEvent = event => {
+    console.log(`*** publish event: ${JSON.stringify(event)}`)
+    subscribeList.forEach(s => s.write(event))
+}
+
 const server = new grpc.Server()
-
-const findItem = id => store.find(i => i.itemId == id)
-
-const publishEvent = event => subscribeList.forEach(s => s.write(event))
-
-emitter.on('added-item', event => {
-    console.log(`*** added-item: ${JSON.stringify(event)}`)
-
-    publishEvent({ added: event })
-})
-
-emitter.on('removed-item', event => {
-    console.log(`*** removed-item: ${JSON.stringify(event)}`)
-
-    publishEvent({ removed: event })
-})
 
 server.addService(proto.item.ItemManage.service, {
     AddItem(call, callback) {
         const itemId = call.request.itemId
         const price = call.request.price
 
-        if (!findItem(itemId)) {
-            const item = { itemId, price }
+        const item = addItem(itemId, price)
 
-            store.push(item)
-
+        if (item) {
             callback()
-
-            emitter.emit('added-item', { itemId, price })
+            publishEvent({ added: { itemId, price }})
         }
         else {
-            callback({ code: grpc.status.ALREADY_EXISTS, details: 'exists item' })
+            const err = { code: grpc.status.ALREADY_EXISTS, details: 'exists item' }
+            callback(err)
         }
     },
     RemoveItem(call, callback) {
         const itemId = call.request.itemId
-        const item = findItem(itemId)
 
-        if (item) {
-            store = store.filter(i => i.itemId != itemId)
-
+        if (removeItem(itemId)) {
             callback()
-
-            emitter.emit('removed-item', { itemId })
+            publishEvent({ removed: { itemId }})
         }
         else {
-            callback({ code: grpc.status.NOT_FOUND, details: 'item not found' })
+            const err = { code: grpc.status.NOT_FOUND, details: 'item not found' }
+            callback(err)
         }
     },
     GetItem(call, callback) {
@@ -72,12 +78,12 @@ server.addService(proto.item.ItemManage.service, {
             callback(null, item)
         }
         else {
-            callback({ code: grpc.status.NOT_FOUND, details: 'item not found' })
+            const err = { code: grpc.status.NOT_FOUND, details: 'item not found' }
+            callback(err)
         }
     },
     Subscribe(call) {
         console.log('*** subscribed')
-
         subscribeList.push(call)
 
         call.on('cancelled', () => {

@@ -37,27 +37,22 @@ const printItem = item => {
 
 const run = async () => {
     await addItem({ itemId: `${id}_item-1`, price: 100 })
-        .catch(err => console.error(err.message))
 
     const item1 = await getItem({ itemId: `${id}_item-1` })
     printItem(item1)
 
     await addItem({ itemId: `${id}_item-2`, price: 20 })
-        .catch(err => console.error(err.message))
 
     const item2 = await getItem({ itemId: `${id}_item-2` })
     printItem(item2)
 
-    await getItem({ itemId: `${id}_item-2` })
-        .catch(err => console.error(err.message))
-
     await addItem({ itemId: `${id}_item-1`, price: 50 })
-        .catch(err => console.error(err.message))
+        .catch(err => console.error(`*** ERROR = ${err.message}`))
 
     await removeItem({ itemId: `${id}_item-1` })
 
     await getItem({ itemId: `${id}_item-1` })
-        .catch(err => console.error(err.message))
+        .catch(err => console.error(`*** ERROR = ${err.message}`))
 
     await removeItem({ itemId: `${id}_item-2` })
 }
