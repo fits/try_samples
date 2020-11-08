@@ -16,7 +16,7 @@ const client = new proto.item.ItemManage(
 const stream = client.Subscribe({})
 
 stream.on('data', event => {
-    console.log(`*** received event: added = ${JSON.stringify(event.added)}, removed = ${JSON.stringify(event.removed)}`)
+    console.log(`*** received event = ${JSON.stringify(event)}`)
 })
 
 stream.on('end', () => console.log('*** stream end'))
