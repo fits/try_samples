@@ -4,9 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { MongoClient, Collection } from 'mongodb'
 
 import {
-    ItemCode, LocationCode,
-    StockMoveAction, StockMoveRestore, StockMove, StockMoveEvent, 
-    StockMoveResult,
+    ItemCode, LocationCode, MoveEvent,
+    StockMoveAction, StockMoveRestore, StockMove, StockMoveResult,
     StockAction, StockRestore, Stock
 } from './models'
 
@@ -24,7 +23,7 @@ interface StoredEvent {
     item: ItemCode
     from: LocationCode
     to: LocationCode
-    event: StockMoveEvent
+    event: MoveEvent
 }
 
 interface RestoredStockMove {
