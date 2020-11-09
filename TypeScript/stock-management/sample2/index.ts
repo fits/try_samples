@@ -87,7 +87,7 @@ class Store {
             .sort({ revision: 1 })
             .toArray()
 
-        const state = StockMoveAction.initial()
+        const state = StockMoveAction.initialState()
         const revision = events.reduce((acc, e) => Math.max(acc, e.revision), 0)
 
         const res = StockMoveRestore.restore(state, events.map(e => e.event))
@@ -313,7 +313,7 @@ const resolvers = {
             return s
         },
         start: async (parent, { input: { item, qty, from, to } }, { store }, info) => {
-            const rs = { state: StockMoveAction.initial(), revision: 0 }
+            const rs = { state: StockMoveAction.initialState(), revision: 0 }
             const id = `move-${uuidv4()}`
 
             return doMoveAction(
