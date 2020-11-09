@@ -1,58 +1,8 @@
 
-export type ItemCode = string
-export type LocationCode = string
-export type Quantity = number
-
-interface StockMoveEventStarted {
-    tag: 'stock-move-event.started'
-    item: ItemCode
-    qty: Quantity
-    from: LocationCode
-    to: LocationCode
-}
-
-interface StockMoveEventCompleted {
-    tag: 'stock-move-event.completed'
-}
-
-interface StockMoveEventCancelled {
-    tag: 'stock-move-event.cancelled'
-}
-
-interface StockMoveEventAssigned {
-    tag: 'stock-move-event.assigned'
-    item: ItemCode
-    from: LocationCode
-    assigned: Quantity
-}
-
-interface StockMoveEventShipped {
-    tag: 'stock-move-event.shipped'
-    item: ItemCode
-    from: LocationCode
-    outgoing: Quantity
-}
-
-interface StockMoveEventAssignShipped {
-    tag: 'stock-move-event.assign-shipped'
-    item: ItemCode
-    from: LocationCode
-    outgoing: Quantity
-    assigned: Quantity
-}
-
-interface StockMoveEventArrived {
-    tag: 'stock-move-event.arrived'
-    item: ItemCode
-    to: LocationCode
-    incoming: Quantity
-}
-
-export type StockMoveEvent = 
-    StockMoveEventStarted | StockMoveEventCompleted | StockMoveEventCancelled | 
-    StockMoveEventAssigned | StockMoveEventShipped | StockMoveEventAssignShipped | 
-    StockMoveEventArrived
-
+import { 
+    ItemCode, LocationCode, Quantity, 
+    StockMoveEvent, StockMoveEventShipped, StockMoveEventAssignShipped 
+} from './events'
 
 interface StockUnmanaged {
     tag: 'stock.unmanaged'
@@ -235,7 +185,6 @@ export type StockMove =
 
 
 export type StockMoveResult = [StockMove, StockMoveEvent] | undefined
-export type StockFinder = (item: ItemCode, location: LocationCode) => Stock | undefined
 
 export class StockMoveAction {
     static initial(): StockMove {
