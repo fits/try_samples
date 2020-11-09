@@ -1,8 +1,16 @@
 
 import { 
-    ItemCode, LocationCode, Quantity, 
     StockMoveEvent, StockMoveEventShipped, StockMoveEventAssignShipped 
 } from './events'
+
+export type ItemCode = string
+export type LocationCode = string
+export type Quantity = number
+
+export type MoveEvent = StockMoveEvent<ItemCode, LocationCode, Quantity>
+
+type ShippedMoveEvent = StockMoveEventShipped<ItemCode, LocationCode, Quantity>
+type AssignShippedMoveEvent = StockMoveEventAssignShipped<ItemCode, LocationCode, Quantity>
 
 interface StockUnmanaged {
     tag: 'stock.unmanaged'
@@ -50,11 +58,11 @@ export class StockAction {
 }
 
 export class StockRestore {
-    static restore(state: Stock, events: StockMoveEvent[]): Stock {
+    static restore(state: Stock, events: MoveEvent[]): Stock {
         return events.reduce(StockRestore.applyTo, state)
     }
 
-    private static applyTo(state: Stock, event: StockMoveEvent): Stock {
+    private static applyTo(state: Stock, event: MoveEvent): Stock {
         if (state.tag == 'stock.managed') {
             switch (event.tag) {
                 case 'stock-move-event.assigned':
@@ -184,7 +192,7 @@ export type StockMove =
     StockMoveArrived | StockMoveAssignFailed | StockMoveShipmentFailed
 
 
-export type StockMoveResult = [StockMove, StockMoveEvent] | undefined
+export type StockMoveResult = [StockMove, MoveEvent] | undefined
 
 export class StockMoveAction {
     static initialState(): StockMove {
@@ -198,7 +206,7 @@ export class StockMoveAction {
             return undefined
         }
 
-        const event: StockMoveEvent = {
+        const event: MoveEvent = {
             tag: 'stock-move-event.started',
             item,
             qty,
@@ -216,7 +224,7 @@ export class StockMoveAction {
             const assigned = 
                 (stock && StockAction.isSufficient(stock, info.qty)) ? info.qty : 0
             
-            const event: StockMoveEvent = {
+            const event: MoveEvent = {
                 tag: 'stock-move-event.assigned',
                 item: info.item,
                 from: info.from,
@@ -247,7 +255,7 @@ export class StockMoveAction {
         const info = StockMoveAction.info(state)
 
         if (info) {
-            const event: StockMoveEvent = {
+            const event: MoveEvent = {
                 tag: 'stock-move-event.arrived',
                 item: info.item,
                 to: info.to,
@@ -260,14 +268,14 @@ export class StockMoveAction {
     }
 
     static complete(state: StockMove): StockMoveResult {
-        const event: StockMoveEvent = {
+        const event: MoveEvent = {
             tag: 'stock-move-event.completed'
         }
         return StockMoveAction.applyTo(state, event)
     }
 
     static cancel(state: StockMove): StockMoveResult {
-        const event: StockMoveEvent = {
+        const event: MoveEvent = {
             tag: 'stock-move-event.cancelled'
         }
         return StockMoveAction.applyTo(state, event)
@@ -281,13 +289,13 @@ export class StockMoveAction {
         return undefined
     }
 
-    private static applyTo(state: StockMove, event: StockMoveEvent): StockMoveResult {
+    private static applyTo(state: StockMove, event: MoveEvent): StockMoveResult {
         const nextState = StockMoveRestore.restore(state, [event])
 
         return (nextState != state) ? [nextState, event] : undefined
     }
 
-    private static toShippedEvent(state: StockMove, outgoing: number): StockMoveEvent | undefined {
+    private static toShippedEvent(state: StockMove, outgoing: number): MoveEvent | undefined {
 
         const info = StockMoveAction.info(state)
 
@@ -315,11 +323,11 @@ export class StockMoveAction {
 }
 
 export class StockMoveRestore {
-    static restore(state: StockMove, events: StockMoveEvent[]): StockMove {
+    static restore(state: StockMove, events: MoveEvent[]): StockMove {
         return events.reduce(StockMoveRestore.applyTo, state)
     }
 
-    private static applyTo(state: StockMove, event: StockMoveEvent): StockMove {
+    private static applyTo(state: StockMove, event: MoveEvent): StockMove {
         switch (state.tag) {
             case 'stock-move.nothing':
                 if (event.tag == 'stock-move-event.started') {
@@ -374,7 +382,7 @@ export class StockMoveRestore {
     }
 
     private static applyShipped(state: StockMoveDraft | StockMoveAssigned, 
-        event: StockMoveEventShipped | StockMoveEventAssignShipped): StockMove {
+        event: ShippedMoveEvent | AssignShippedMoveEvent): StockMove {
 
         if (state.info.item == event.item && state.info.from == event.from) {
             if (event.outgoing > 0) {
@@ -394,8 +402,7 @@ export class StockMoveRestore {
         return state
     }
 
-    private static applyEventToDraft(state: StockMoveDraft, 
-        event: StockMoveEvent): StockMove {
+    private static applyEventToDraft(state: StockMoveDraft, event: MoveEvent): StockMove {
 
         switch (event.tag) {
             case 'stock-move-event.cancelled':
