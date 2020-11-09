@@ -187,7 +187,7 @@ export type StockMove =
 export type StockMoveResult = [StockMove, StockMoveEvent] | undefined
 
 export class StockMoveAction {
-    static initial(): StockMove {
+    static initialState(): StockMove {
         return { tag: 'stock-move.nothing' }
     }
 
