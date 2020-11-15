@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package item;
+
+message AddItemRequest {
+    string item_id = 1;
+    uint64 price = 2;
+}
+
+message ItemRequest {
+    string item_id = 1;
+}
+
+message Item {
+    string item_id = 1;
+    uint64 price = 2;
+}
+
+message ItemSubscribeRequest {
+}
+
+message AddedItem {
+    string item_id = 1;
+    uint64 price = 2;
+}
+
+message RemovedItem {
+    string item_id = 1;
+}
+
+message ItemEvent {
+    oneof event {
+        AddedItem added = 1;
+        RemovedItem removed = 2;
+    }
+}
+
+service ItemManage {
+    rpc AddItem(AddItemRequest) returns (google.protobuf.Empty);
+    rpc RemoveItem(ItemRequest) returns (google.protobuf.Empty);
+    rpc GetItem(ItemRequest) returns (Item);
+
+    rpc Subscribe(ItemSubscribeRequest) returns (stream ItemEvent);
+}
