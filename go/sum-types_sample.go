@@ -37,15 +37,15 @@ func (Canceled) IsDone() bool {
 }
 
 func showStatus(s Status) string {
-	switch s.(type) {
+	switch t := s.(type) {
 		case Ready:
-			return "ready(" + s.(Ready).note + ")"
+			return "ready(" + t.note + ")"
 		case InProgress:
 			return "inprogress"
 		case Completed:
 			return "completed"
 		case Canceled:
-			return "canceled(" + s.(Canceled).reason + ")"
+			return "canceled(" + t.reason + ")"
 		default:
 			return "invalid status"
 	}
