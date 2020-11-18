@@ -10,7 +10,7 @@ import (
 	"github.com/graph-gophers/graphql-go/relay"
 )
 
-var store = []Item{}
+var store []Item
 var mu sync.Mutex
 
 func pushItem(item Item) {
@@ -34,6 +34,7 @@ func findItem(id graphql.ID) *Item {
 
 type Item struct {
 	id graphql.ID
+	category string
 	value int32
 }
 
@@ -41,11 +42,16 @@ func (r *Item) ID() graphql.ID {
 	return r.id
 }
 
+func (r *Item) Category() string {
+	return r.category
+}
+
 func (r *Item) Value() int32 {
 	return r.value
 }
 
 type CreateItem struct {
+	Category string
 	Value int32
 }
 
@@ -60,7 +66,7 @@ func (_ *resolver) Create(args struct { Input CreateItem }) (*Item, error) {
 		return nil, err
 	}
 
-	item := Item{graphql.ID(id.String()), args.Input.Value}
+	item := Item{graphql.ID(id.String()), args.Input.Category, args.Input.Value}
 
 	go pushItem(item)
 
@@ -74,12 +80,19 @@ func (_ *resolver) Find(args struct { ID graphql.ID }) *Item {
 
 func main() {
 	s := `
+		enum Category {
+			Standard
+			Extra
+		}
+
 		input CreateItem {
+			category: Category!
 			value: Int!
 		}
 
 		type Item {
 			id: ID!
+			category: Category!
 			value: Int!
 		}
 
