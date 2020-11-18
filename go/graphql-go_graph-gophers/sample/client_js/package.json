@@ -1,0 +1,10 @@
+{
+  "name": "client_js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "graphql": "^15.4.0",
+    "graphql-request": "^3.3.0"
+  }
+}
