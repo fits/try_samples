@@ -1,0 +1,10 @@
+{
+  "name": "dynamic_string_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.1.8",
+    "@grpc/proto-loader": "^0.5.5",
+    "graphql": "^15.4.0"
+  }
+}

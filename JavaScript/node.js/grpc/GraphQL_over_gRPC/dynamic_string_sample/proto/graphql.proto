@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package gql;
+
+message QueryRequest {
+    string query = 1;
+    string variables = 2;
+}
+
+message QueryResponse {
+    string result = 1;
+}
+
+service GraphQL {
+    rpc Query(QueryRequest) returns (QueryResponse);
+}
