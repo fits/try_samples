@@ -1,0 +1,9 @@
+{
+  "name": "struct_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "google-protobuf": "^3.14.0"
+  }
+}
