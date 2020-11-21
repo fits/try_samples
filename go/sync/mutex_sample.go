@@ -51,10 +51,49 @@ func useMutex() {
 	fmt.Println("useMutex length =", len(ds))
 }
 
+func useRWMutex() {
+	var wg sync.WaitGroup
+	var mu sync.RWMutex
+
+	var ds []Data
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+
+		go func() {
+			mu.Lock()
+			ds = append(ds, Data{i})
+			mu.Unlock()
+
+			wg.Done()
+		}()
+	}
+
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+
+		go func() {
+			mu.RLock()
+			fmt.Println("progress length =", len(ds))
+			mu.RUnlock()
+
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	fmt.Println("useRWMutex length =", len(ds))
+}
+
 func main() {
 	noLock()
 
 	println("-----")
 
 	useMutex()
+
+	println("-----")
+
+	useRWMutex()
 }
