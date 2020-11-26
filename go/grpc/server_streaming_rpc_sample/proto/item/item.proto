@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "proto/item";
+
+package item;
+
+message CreateItemRequest {
+    int32 value = 1;
+}
+
+message WatchItemRequest {
+}
+
+message Item {
+    string id = 1;
+    int32 value = 2;
+}
+
+service ItemManage {
+    rpc create(CreateItemRequest) returns (Item);
+    rpc watch(WatchItemRequest) returns (stream Item);
+}
