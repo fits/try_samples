@@ -63,7 +63,7 @@ type CreateItem struct {
 type resolver struct {}
 
 func (_ *resolver) Create(args struct { Input CreateItem }) (*Item, error) {
-	log.Printf("call create: %#v\n", args)
+	log.Printf("call create: %v\n", args)
 
 	id, err := uuid.NewRandom()
 
@@ -79,16 +79,17 @@ func (_ *resolver) Create(args struct { Input CreateItem }) (*Item, error) {
 }
 
 func (_ *resolver) Find(args struct { ID graphql.ID }) *Item {
-	log.Printf("call find: %#v\n", args)
+	log.Printf("call find: %v\n", args)
 	return findItem(args.ID)
 }
 
-type Server struct {
+type server struct {
+	pb.UnimplementedGraphQLServer
     schema *graphql.Schema
 }
 
-func (s *Server) Query(ctx context.Context, req *pb.QueryRequest) (*structpb.Struct, error) {
-	log.Printf("call Query: %#v\n", req)
+func (s *server) Query(ctx context.Context, req *pb.QueryRequest) (*structpb.Struct, error) {
+	log.Printf("call Query: %v\n", req)
 
 	var vs map[string]interface{}
 
@@ -157,7 +158,7 @@ func main() {
 	`
 	schema := graphql.MustParseSchema(gqlSchema, &resolver{})
 
-	pb.RegisterGraphQLServer(s, &Server{schema})
+	pb.RegisterGraphQLServer(s, &server{schema: schema})
 
 	log.Println("server start:", address)
 
