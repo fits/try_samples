@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+
+option go_package = "proto/gql";
+
+package gql;
+
+message QueryRequest {
+    string query = 1;
+    google.protobuf.Value variables = 2;
+}
+
+service GraphQL {
+    rpc Query(QueryRequest) returns (google.protobuf.Struct);
+    rpc Subscription(QueryRequest) returns (stream google.protobuf.Struct);
+}
