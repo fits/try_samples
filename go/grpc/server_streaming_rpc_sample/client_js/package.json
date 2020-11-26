@@ -1,0 +1,9 @@
+{
+  "name": "client_js",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.2.1",
+    "@grpc/proto-loader": "^0.5.5"
+  }
+}
