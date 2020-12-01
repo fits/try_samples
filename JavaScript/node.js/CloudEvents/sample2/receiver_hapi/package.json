@@ -1,0 +1,10 @@
+{
+  "name": "receiver_hapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@hapi/hapi": "^20.0.3",
+    "cloudevents": "^3.2.0"
+  }
+}
