@@ -1,0 +1,10 @@
+[package]
+name = "sender-reqwest"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+cloudevents-sdk = "0.3"
+cloudevents-sdk-reqwest = "0.3"
+reqwest = "0.10"
+tokio = { version = "0.2", features = ["full"] }
