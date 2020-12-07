@@ -5,7 +5,7 @@ const { HTTP, CloudEvent } = require('cloudevents')
 const url = 'http://localhost:3000/'
 
 const type = 'sample.created'
-const source = 'sample'
+const source = 'example:sender-binary-js'
 const data = {value: 'abc123'}
 
 const event = new CloudEvent({ type, source, data })
