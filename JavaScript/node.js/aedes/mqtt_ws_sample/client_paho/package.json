@@ -1,0 +1,9 @@
+{
+  "name": "client_paho",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "paho-mqtt": "^1.1.0",
+    "ws": "^7.4.1"
+  }
+}
