@@ -1,0 +1,7 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+paho-mqtt = { version = "0.8", default-features = false, features = ["bundled"]}
