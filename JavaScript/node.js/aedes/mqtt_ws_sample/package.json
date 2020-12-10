@@ -1,0 +1,10 @@
+{
+  "name": "sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aedes": "^0.44.1",
+    "websocket-stream": "^5.5.2"
+  }
+}
