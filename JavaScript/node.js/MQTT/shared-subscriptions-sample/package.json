@@ -1,0 +1,8 @@
+{
+  "name": "shared-subscriptions-sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "mqtt": "^4.2.6"
+  }
+}
