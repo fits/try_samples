@@ -8,9 +8,17 @@ const subscribeTopic = process.argv[2]
 
 const client = mqtt.connect(uri, { protocolVersion: 5 })
 
+const end = () => {
+    client.unsubscribe(subscribeTopic)
+    client.end()
+}
+
+process.on('SIGINT', signal => end())
+process.on('SIGTERM', signal => end())
+
 client.on('error', err => {
     console.error(err)
-    client.end()
+    end()
 })
 
 client.on('connect', connack => {
