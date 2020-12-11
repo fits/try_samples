@@ -1,0 +1,36 @@
+
+const mqtt = require('mqtt')
+
+const uri = 'mqtt://localhost'
+
+const qos = 1
+const subscribeTopic = process.argv[2]
+
+const client = mqtt.connect(uri, { protocolVersion: 5 })
+
+client.on('error', err => {
+    console.error(err)
+    client.end()
+})
+
+client.on('connect', connack => {
+    console.log(`*** connected: connack=${JSON.stringify(connack)}`)
+
+    client.subscribe(subscribeTopic, { qos })
+})
+
+client.on('message', (topic, message, packet) => {
+    console.log(`*** received: topic=${topic}, message=${message}, packet=${JSON.stringify(packet)}`)
+
+    const responseTopic = packet.properties?.responseTopic
+
+    if (responseTopic) {
+        const msg = `result-${message}-${client.options.clientId}`
+
+        client.publish(responseTopic, msg)
+    }
+})
+
+client.on('close', () => {
+    console.log('*** closed')
+})
