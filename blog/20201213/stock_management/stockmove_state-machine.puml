@@ -1,0 +1,25 @@
+@startuml
+
+[*] -> Nothing
+Nothing -> Draft : started
+
+Draft -> Assigned : assigned
+Draft -> Shipped : shipped
+Draft -> Arrived : arrived
+
+Draft --> Cancelled : cancelled
+Draft --> AssignFailed
+Draft --> ShipmentFailed
+
+Assigned -> Shipped : assign-shipped
+Assigned --> ShipmentFailed
+
+Shipped -> Arrived : arrived
+Arrived -> Completed : completed
+
+Completed --> [*]
+AssignFailed --> [*]
+ShipmentFailed --> [*]
+Cancelled --> [*]
+
+@enduml

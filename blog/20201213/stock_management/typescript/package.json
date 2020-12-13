@@ -1,0 +1,17 @@
+{
+  "name": "stock_management",
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+    "server": "ts-node index.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "apollo-server": "^2.19.0",
+    "graphql": "^15.4.0",
+    "mongodb": "^3.6.3"
+  }
+}
