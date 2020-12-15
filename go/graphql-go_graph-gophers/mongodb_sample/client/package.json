@@ -1,0 +1,9 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "graphql": "^15.4.0",
+    "graphql-request": "^3.3.0"
+  }
+}
