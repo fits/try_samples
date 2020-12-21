@@ -54,9 +54,14 @@ type ShipmentFailedStockMove struct {
 	Info StockMoveInfo
 }
 
+type StockMoveResult struct {
+	State StockMove
+	Event m.StockMoveEvent
+}
+
 func (s NothingStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
-	case m.Started:
+	case *m.Started:
 		info := StockMoveInfo{Item: e.Item, Qty: e.Qty, From: e.From, To: e.To}
 		return DraftStockMove{info}
 	}
@@ -66,21 +71,21 @@ func (s NothingStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 
 func (s DraftStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
-	case m.Cancelled:
+	case *m.Cancelled:
 		return CancelledStockMove{s.Info}
-	case m.Assigned:
+	case *m.Assigned:
 		if e.Assigned > 0 {
 			return AssignedStockMove{s.Info, e.Assigned}
 		} else {
 			return AssignFailedStockMove{s.Info}
 		}
-	case m.Shipped:
+	case *m.Shipped:
 		if e.Outgoing > 0 {
 			return ShippedStockMove{s.Info, e.Outgoing}
 		} else {
 			return ShipmentFailedStockMove{s.Info}
 		}
-	case m.Arrived:
+	case *m.Arrived:
 		var outgoing m.Quantity = 0
 		return ArrivedStockMove{s.Info, outgoing, e.Incoming}
 	}
@@ -98,7 +103,7 @@ func (s CancelledStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 
 func (s AssignedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
-	case m.AssignShipped:
+	case *m.AssignShipped:
 		if e.Outgoing > 0 {
 			return ShippedStockMove{s.Info, e.Outgoing}
 
@@ -112,7 +117,7 @@ func (s AssignedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 
 func (s ShippedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
-	case m.Arrived:
+	case *m.Arrived:
 		return ArrivedStockMove{s.Info, s.Outgoing, e.Incoming}
 	}
 
@@ -121,7 +126,7 @@ func (s ShippedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 
 func (s ArrivedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch event.(type) {
-	case m.Completed:
+	case *m.Completed:
 		return CompletedStockMove{s.Info, s.Outgoing, s.Incoming}
 	}
 
@@ -136,7 +141,7 @@ func (s ShipmentFailedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	return s
 }
 
-func info(state StockMove) (StockMoveInfo, bool) {
+func Info(state StockMove) (StockMoveInfo, bool) {
 	switch s := state.(type) {
 	case DraftStockMove:
 		return s.Info, true
@@ -164,27 +169,27 @@ func InitialState() StockMove {
 }
 
 func Start(state StockMove, item m.Item, qty m.Quantity, 
-	from m.Location, to m.Location) (StockMove, m.StockMoveEvent) {
+	from m.Location, to m.Location) *StockMoveResult {
 
-	event := m.Started{item, qty, from, to}
+	event := &m.Started{item, qty, from, to}
 	return apply(state, event)
 }
 
-func Complete(state StockMove) (StockMove, m.StockMoveEvent) {
-	event := m.Completed{}
+func Complete(state StockMove) *StockMoveResult {
+	event := &m.Completed{}
 	return apply(state, event)
 }
 
-func Cancel(state StockMove) (StockMove, m.StockMoveEvent) {
-	event := m.Cancelled{}
+func Cancel(state StockMove) *StockMoveResult {
+	event := &m.Cancelled{}
 	return apply(state, event)
 }
 
-func Assign(state StockMove, stock s.Stock) (StockMove, m.StockMoveEvent) {
-	info, ok := info(state)
+func Assign(state StockMove, stock s.Stock) *StockMoveResult {
+	info, ok := Info(state)
 
 	if !ok {
-		return state, emptyEvent()
+		return nil
 	}
 
 	var assigned m.Quantity = 0
@@ -194,15 +199,15 @@ func Assign(state StockMove, stock s.Stock) (StockMove, m.StockMoveEvent) {
 		assigned = info.Qty
 	}
 
-	event := m.Assigned{info.Item, info.From, assigned}
+	event := &m.Assigned{info.Item, info.From, assigned}
 	return apply(state, event)
 }
 
-func Ship(state StockMove, outgoing m.Quantity) (StockMove, m.StockMoveEvent) {
-	info, ok := info(state)
+func Ship(state StockMove, outgoing m.Quantity) *StockMoveResult {
+	info, ok := Info(state)
 
 	if !ok {
-		return state, emptyEvent()
+		return nil
 	}
 
 	s, ok := state.(AssignedStockMove)
@@ -210,42 +215,34 @@ func Ship(state StockMove, outgoing m.Quantity) (StockMove, m.StockMoveEvent) {
 	var event m.StockMoveEvent
 
 	if ok {
-		event = m.AssignShipped{info.Item, info.From, outgoing, s.Assigned}
+		event = &m.AssignShipped{info.Item, info.From, outgoing, s.Assigned}
 	} else {
-		event = m.Shipped{info.Item, info.From, outgoing}
+		event = &m.Shipped{info.Item, info.From, outgoing}
 	}
 
 	return apply(state, event)
 }
 
-func Arrive(state StockMove, incoming m.Quantity) (StockMove, m.StockMoveEvent) {
-	info, ok := info(state)
+func Arrive(state StockMove, incoming m.Quantity) *StockMoveResult {
+	info, ok := Info(state)
 
 	if !ok {
-		return state, emptyEvent()
+		return nil
 	}
 
-	event := m.Arrived{info.Item, info.To, incoming}
+	event := &m.Arrived{info.Item, info.To, incoming}
 	return apply(state, event)
 }
 
-func apply(state StockMove, event m.StockMoveEvent) (StockMove, m.StockMoveEvent) {
+func apply(state StockMove, event m.StockMoveEvent) *StockMoveResult {
 	current := state
 	state = state.applyEvent(event)
 
 	if state == current {
-		return state, emptyEvent()
+		return nil
 	}
 
-	return state, event
-}
-
-func emptyEvent() m.StockMoveEvent {
-	return m.Nothing{}
-}
-
-func IsNothing(event m.StockMoveEvent) bool {
-	return event == emptyEvent()
+	return &StockMoveResult{state, event}
 }
 
 func Restore(state StockMove, events []m.StockMoveEvent) StockMove {

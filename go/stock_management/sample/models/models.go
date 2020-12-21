@@ -1,14 +1,12 @@
 package models
 
-type Item string
-type Location string
-type Quantity uint32
+type Item = string
+type Location = string
+type Quantity = uint32
 
 type StockMoveEvent interface {
 	stockMoveEvent()
 }
-
-type Nothing struct {}
 
 type Started struct {
 	Item Item
@@ -45,11 +43,10 @@ type Arrived struct {
 	Incoming Quantity
 }
 
-func (_ Nothing) stockMoveEvent() {}
-func (_ Started) stockMoveEvent() {}
-func (_ Completed) stockMoveEvent() {}
-func (_ Cancelled) stockMoveEvent() {}
-func (_ Assigned) stockMoveEvent() {}
-func (_ Shipped) stockMoveEvent() {}
-func (_ AssignShipped) stockMoveEvent() {}
-func (_ Arrived) stockMoveEvent() {}
+func (_ *Started) stockMoveEvent() {}
+func (_ *Completed) stockMoveEvent() {}
+func (_ *Cancelled) stockMoveEvent() {}
+func (_ *Assigned) stockMoveEvent() {}
+func (_ *Shipped) stockMoveEvent() {}
+func (_ *AssignShipped) stockMoveEvent() {}
+func (_ *Arrived) stockMoveEvent() {}

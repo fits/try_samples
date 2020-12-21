@@ -7,113 +7,111 @@ import (
 	s "sample/models/stocks"
 )
 
-func printResult(state v.StockMove, event m.StockMoveEvent) {
-	fmt.Println("state = ", state, ", event = ", event)
+func printResult(res *v.StockMoveResult) {
+	fmt.Printf("state = %#v, event = %#v\n", res.State, res.Event)
 }
 
 func sample1() {
 	s0 := v.InitialState()
-	fmt.Println(s0)
+	fmt.Printf("initial state = %#v\n", s0)
 
-	s1, e1 := v.Start(s0, "item-1", 2, "loc-A", "loc-B")
+	r1 := v.Start(s0, "item-1", 2, "loc-A", "loc-B")
 
-	printResult(s1, e1)
-
-	if v.IsNothing(e1) {
+	if r1 == nil {
 		panic("start error")
 	}
 
-	s2, e2 := v.Ship(s1, 2)
+	printResult(r1)
 
-	printResult(s2, e2)
+	r2 := v.Ship(r1.State, 2)
 
-	if v.IsNothing(e2) {
+	if r2 == nil {
 		panic("ship error")
 	}
 
-	s3, e3 := v.Arrive(s2, 2)
+	printResult(r2)
 
-	printResult(s3, e3)
+	r3 := v.Arrive(r2.State, 2)
 
-	if v.IsNothing(e3) {
+	if r3 == nil {
 		panic("arrive error")
 	}
 
-	s4, e4 := v.Complete(s3)
+	printResult(r3)
 
-	printResult(s4, e4)
+	r4 := v.Complete(r3.State)
 
-	if v.IsNothing(e4) {
+	if r4 == nil {
 		panic("complete error")
 	}
 
-	_, e3b := v.Cancel(s2)
+	printResult(r4)
 
-	if v.IsNothing(e3b) {
-		println("failed cancel")
+	r3b := v.Cancel(r2.State)
+
+	if r3b == nil {
+		println("*** failed cancel")
 	}
 
-	rs := v.Restore(s0, []m.StockMoveEvent{e1, e2})
-	fmt.Println(rs)
+	rs := v.Restore(s0, []m.StockMoveEvent{r1.Event, r2.Event})
+	fmt.Printf("%#v\n", rs)
 }
 
 func sample2() {
 	s0 := v.InitialState()
-	fmt.Println(s0)
 
-	s1, e1 := v.Start(s0, "item-2", 2, "loc-A", "loc-B")
+	r1 := v.Start(s0, "item-2", 2, "loc-A", "loc-B")
 
-	printResult(s1, e1)
-
-	if v.IsNothing(e1) {
+	if r1 == nil {
 		panic("start error")
 	}
 
+	printResult(r1)
+
 	stock := s.InitialUnmanaged("item-2", "loc-A")
 
-	s2, e2 := v.Assign(s1, stock)
+	r2 := v.Assign(r1.State, stock)
 
-	printResult(s2, e2)
-
-	if v.IsNothing(e2) {
+	if r2 == nil {
 		panic("assign error")
 	}
 
-	s3, e3 := v.Ship(s2, 2)
+	printResult(r2)
 
-	printResult(s3, e3)
+	r3 := v.Ship(r2.State, 2)
 
-	if v.IsNothing(e3) {
+	if r3 == nil {
 		panic("ship error")
 	}
+
+	printResult(r3)
 }
 
 func sample3() {
 	s0 := v.InitialState()
-	fmt.Println(s0)
 
-	s1, e1 := v.Start(s0, "item-3", 2, "loc-A", "loc-B")
+	r1 := v.Start(s0, "item-3", 2, "loc-A", "loc-B")
 
-	printResult(s1, e1)
-
-	if v.IsNothing(e1) {
+	if r1 == nil {
 		panic("start error")
 	}
 
+	printResult(r1)
+
 	stock := s.InitialManaged("item-3", "loc-A")
 
-	s2, e2 := v.Assign(s1, stock)
+	r2 := v.Assign(r1.State, stock)
 
-	printResult(s2, e2)
-
-	if v.IsNothing(e2) {
+	if r2 == nil {
 		panic("assign error")
 	}
 
-	_, ok := s2.(v.AssignFailedStockMove)
+	printResult(r2)
+
+	_, ok := r2.State.(v.AssignFailedStockMove)
 
 	if ok {
-		println("assign failed")
+		println("*** assign failed")
 	} else {
 		panic("invalid state")
 	}
