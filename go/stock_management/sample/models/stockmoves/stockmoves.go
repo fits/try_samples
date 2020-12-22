@@ -1,7 +1,9 @@
 package stockmoves
 
-import m "sample/models"
-import s "sample/models/stocks"
+import (
+	m "sample/models"
+	s "sample/models/stocks"
+)
 
 type StockMove interface {
 	applyEvent(event m.StockMoveEvent) StockMove
@@ -9,19 +11,19 @@ type StockMove interface {
 
 type StockMoveInfo struct {
 	Item m.Item
-	Qty m.Quantity
+	Qty  m.Quantity
 	From m.Location
-	To m.Location
+	To   m.Location
 }
 
-type NothingStockMove struct {}
+type NothingStockMove struct{}
 
 type DraftStockMove struct {
 	Info StockMoveInfo
 }
 
 type CompletedStockMove struct {
-	Info StockMoveInfo
+	Info     StockMoveInfo
 	Outgoing m.Quantity
 	Incoming m.Quantity
 }
@@ -31,17 +33,17 @@ type CancelledStockMove struct {
 }
 
 type AssignedStockMove struct {
-	Info StockMoveInfo
+	Info     StockMoveInfo
 	Assigned m.Quantity
 }
 
 type ShippedStockMove struct {
-	Info StockMoveInfo
+	Info     StockMoveInfo
 	Outgoing m.Quantity
 }
 
 type ArrivedStockMove struct {
-	Info StockMoveInfo
+	Info     StockMoveInfo
 	Outgoing m.Quantity
 	Incoming m.Quantity
 }
@@ -59,105 +61,105 @@ type StockMoveResult struct {
 	Event m.StockMoveEvent
 }
 
-func (s NothingStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *NothingStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
 	case *m.Started:
 		info := StockMoveInfo{Item: e.Item, Qty: e.Qty, From: e.From, To: e.To}
-		return DraftStockMove{info}
+		return &DraftStockMove{info}
 	}
 
 	return s
 }
 
-func (s DraftStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *DraftStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
 	case *m.Cancelled:
-		return CancelledStockMove{s.Info}
+		return &CancelledStockMove{s.Info}
 	case *m.Assigned:
 		if e.Assigned > 0 {
-			return AssignedStockMove{s.Info, e.Assigned}
+			return &AssignedStockMove{s.Info, e.Assigned}
 		} else {
-			return AssignFailedStockMove{s.Info}
+			return &AssignFailedStockMove{s.Info}
 		}
 	case *m.Shipped:
 		if e.Outgoing > 0 {
-			return ShippedStockMove{s.Info, e.Outgoing}
+			return &ShippedStockMove{s.Info, e.Outgoing}
 		} else {
-			return ShipmentFailedStockMove{s.Info}
+			return &ShipmentFailedStockMove{s.Info}
 		}
 	case *m.Arrived:
 		var outgoing m.Quantity = 0
-		return ArrivedStockMove{s.Info, outgoing, e.Incoming}
+		return &ArrivedStockMove{s.Info, outgoing, e.Incoming}
 	}
 
 	return s
 }
 
-func (s CompletedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *CompletedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	return s
 }
 
-func (s CancelledStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *CancelledStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	return s
 }
 
-func (s AssignedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *AssignedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
 	case *m.AssignShipped:
 		if e.Outgoing > 0 {
-			return ShippedStockMove{s.Info, e.Outgoing}
+			return &ShippedStockMove{s.Info, e.Outgoing}
 
 		} else {
-			return ShipmentFailedStockMove{s.Info}
+			return &ShipmentFailedStockMove{s.Info}
 		}
 	}
 
 	return s
 }
 
-func (s ShippedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *ShippedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch e := event.(type) {
 	case *m.Arrived:
-		return ArrivedStockMove{s.Info, s.Outgoing, e.Incoming}
+		return &ArrivedStockMove{s.Info, s.Outgoing, e.Incoming}
 	}
 
 	return s
 }
 
-func (s ArrivedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *ArrivedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	switch event.(type) {
 	case *m.Completed:
-		return CompletedStockMove{s.Info, s.Outgoing, s.Incoming}
+		return &CompletedStockMove{s.Info, s.Outgoing, s.Incoming}
 	}
 
 	return s
 }
 
-func (s AssignFailedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *AssignFailedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	return s
 }
 
-func (s ShipmentFailedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
+func (s *ShipmentFailedStockMove) applyEvent(event m.StockMoveEvent) StockMove {
 	return s
 }
 
 func Info(state StockMove) (StockMoveInfo, bool) {
 	switch s := state.(type) {
-	case DraftStockMove:
+	case *DraftStockMove:
 		return s.Info, true
-	case CompletedStockMove:
+	case *CompletedStockMove:
 		return s.Info, true
-	case CancelledStockMove:
+	case *CancelledStockMove:
 		return s.Info, true
-	case AssignedStockMove:
+	case *AssignedStockMove:
 		return s.Info, true
-	case ShippedStockMove:
+	case *ShippedStockMove:
 		return s.Info, true
-	case ArrivedStockMove:
+	case *ArrivedStockMove:
 		return s.Info, true
-	case AssignFailedStockMove:
+	case *AssignFailedStockMove:
 		return s.Info, true
-	case ShipmentFailedStockMove:
+	case *ShipmentFailedStockMove:
 		return s.Info, true
 	}
 
@@ -165,10 +167,10 @@ func Info(state StockMove) (StockMoveInfo, bool) {
 }
 
 func InitialState() StockMove {
-	return NothingStockMove{}
+	return &NothingStockMove{}
 }
 
-func Start(state StockMove, item m.Item, qty m.Quantity, 
+func Start(state StockMove, item m.Item, qty m.Quantity,
 	from m.Location, to m.Location) *StockMoveResult {
 
 	event := &m.Started{item, qty, from, to}
@@ -210,7 +212,7 @@ func Ship(state StockMove, outgoing m.Quantity) *StockMoveResult {
 		return nil
 	}
 
-	s, ok := state.(AssignedStockMove)
+	s, ok := state.(*AssignedStockMove)
 
 	var event m.StockMoveEvent
 
