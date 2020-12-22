@@ -9,14 +9,14 @@ type Stock interface {
 }
 
 type UnmanagedStock struct {
-	Item m.Item
+	Item     m.Item
 	Location m.Location
 }
 
 type ManagedStock struct {
-	Item m.Item
+	Item     m.Item
 	Location m.Location
-	Qty m.Quantity
+	Qty      m.Quantity
 	Assigned m.Quantity
 }
 
@@ -37,7 +37,7 @@ func (s *ManagedStock) IsTarget(item m.Item, location m.Location) bool {
 }
 
 func (s *ManagedStock) IsSufficient(qty m.Quantity) bool {
-	return s.Qty >= s.Assigned + qty
+	return s.Qty >= s.Assigned+qty
 }
 
 func (s *ManagedStock) applyEvent(event m.StockMoveEvent) Stock {
