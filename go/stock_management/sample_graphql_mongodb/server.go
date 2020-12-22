@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 
 	"github.com/google/uuid"
 	graphql "github.com/graph-gophers/graphql-go"
@@ -15,16 +17,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"sample/models"
-	"sample/models/stocks"
 	"sample/models/stockmoves"
+	"sample/models/stocks"
 )
 
 const (
 	address = ":4000"
 
-	mongoUri = "mongodb://localhost"
-	dbName = "stockmoves"
-	colName = "events"
+	mongoURI      = "mongodb://localhost"
+	dbName        = "stockmoves"
+	colName       = "events"
 	stocksColName = "stocks"
 
 	gqlSchema = `
@@ -141,40 +143,40 @@ type storedEvent struct {
 	MoveID `bson:"move_id"`
 	Revision
 	Item models.Item
-	Qty models.Quantity
+	Qty  models.Quantity
 	From models.Location
-	To models.Location
+	To   models.Location
 
-	Started *models.Started `bson:",omitempty"`
-	Completed *models.Completed `bson:",omitempty"`
-	Cancelled *models.Cancelled `bson:",omitempty"`
-	Assigned *models.Assigned `bson:",omitempty"`
+	Started       *models.Started       `bson:",omitempty"`
+	Completed     *models.Completed     `bson:",omitempty"`
+	Cancelled     *models.Cancelled     `bson:",omitempty"`
+	Assigned      *models.Assigned      `bson:",omitempty"`
 	AssignShipped *models.AssignShipped `bson:",omitempty"`
-	Shipped *models.Shipped `bson:",omitempty"`
-	Arrived *models.Arrived `bson:",omitempty"`
+	Shipped       *models.Shipped       `bson:",omitempty"`
+	Arrived       *models.Arrived       `bson:",omitempty"`
 }
 
-func newStoredEvent(id MoveID, rev Revision, result *stockmoves.StockMoveResult) (*storedEvent, error) {
-	if result == nil {
+func newStoredEvent(id MoveID, rev Revision, move *stockmoves.StockMoveResult) (*storedEvent, error) {
+	if move == nil {
 		return nil, errors.New("failed action")
 	}
-	
-	info, ok := stockmoves.Info(result.State)
+
+	info, ok := stockmoves.Info(move.State)
 
 	if !ok {
 		return nil, errors.New("invalid state")
 	}
 
 	se := storedEvent{
-		MoveID: id, 
-		Revision: rev, 
-		Item: info.Item, 
-		Qty: info.Qty, 
-		From: info.From, 
-		To: info.To,
+		MoveID:   id,
+		Revision: rev,
+		Item:     info.Item,
+		Qty:      info.Qty,
+		From:     info.From,
+		To:       info.To,
 	}
 
-	switch ev := result.Event.(type) {
+	switch ev := move.Event.(type) {
 	case *models.Started:
 		se.Started = ev
 	case *models.Completed:
@@ -215,7 +217,7 @@ func (e *storedEvent) Event() models.StockMoveEvent {
 }
 
 type store struct {
-	context context.Context
+	context   context.Context
 	eventsCol *mongo.Collection
 	stocksCol *mongo.Collection
 }
@@ -259,10 +261,14 @@ func (s *store) loadStock(itemID graphql.ID, locationID graphql.ID) (*stockResol
 				bson.M{"from": location},
 				bson.M{"to": location},
 			},
-		}},
+			}},
 	}
 
 	cur, err := s.eventsCol.Find(s.context, filter)
+
+	defer func() {
+		cur.Close(s.context)
+	}()
 
 	if err != nil {
 		return nil, err
@@ -358,7 +364,7 @@ func latestRevision(events []storedEvent) Revision {
 }
 
 type CreateStockInput struct {
-	Item graphql.ID
+	Item     graphql.ID
 	Location graphql.ID
 }
 
@@ -376,9 +382,9 @@ type GqlManagedStock interface {
 
 type StartMoveInput struct {
 	Item graphql.ID
-	Qty int32
+	Qty  int32
 	From graphql.ID
-	To graphql.ID
+	To   graphql.ID
 }
 
 type GqlStockMoveInfo interface {
@@ -480,9 +486,9 @@ func (r *stockResolver) ToManagedStock() (GqlManagedStock, bool) {
 }
 
 type stockMoveResolver struct {
-	id string
+	id       string
 	revision Revision
-	state stockmoves.StockMove
+	state    stockmoves.StockMove
 }
 
 func (r *stockMoveResolver) ID() graphql.ID {
@@ -495,7 +501,7 @@ func (r *stockMoveResolver) Info() GqlStockMoveInfo {
 
 func (r *stockMoveResolver) Assigned() int32 {
 	switch s := r.state.(type) {
-	case stockmoves.AssignedStockMove:
+	case *stockmoves.AssignedStockMove:
 		return int32(s.Assigned)
 	}
 
@@ -504,11 +510,11 @@ func (r *stockMoveResolver) Assigned() int32 {
 
 func (r *stockMoveResolver) Outgoing() int32 {
 	switch s := r.state.(type) {
-	case stockmoves.CompletedStockMove:
+	case *stockmoves.CompletedStockMove:
 		return int32(s.Outgoing)
-	case stockmoves.ShippedStockMove:
+	case *stockmoves.ShippedStockMove:
 		return int32(s.Outgoing)
-	case stockmoves.ArrivedStockMove:
+	case *stockmoves.ArrivedStockMove:
 		return int32(s.Outgoing)
 	}
 
@@ -517,9 +523,9 @@ func (r *stockMoveResolver) Outgoing() int32 {
 
 func (r *stockMoveResolver) Incoming() int32 {
 	switch s := r.state.(type) {
-	case stockmoves.CompletedStockMove:
+	case *stockmoves.CompletedStockMove:
 		return int32(s.Incoming)
-	case stockmoves.ArrivedStockMove:
+	case *stockmoves.ArrivedStockMove:
 		return int32(s.Incoming)
 	}
 
@@ -548,7 +554,7 @@ func (r *stockMoveResolver) To() graphql.ID {
 
 func (r *stockMoveResolver) ToDraftStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.DraftStockMove:
+	case *stockmoves.DraftStockMove:
 		return r, true
 	}
 	return nil, false
@@ -556,7 +562,7 @@ func (r *stockMoveResolver) ToDraftStockMove() (GqlStockMove, bool) {
 
 func (r *stockMoveResolver) ToCompletedStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.CompletedStockMove:
+	case *stockmoves.CompletedStockMove:
 		return r, true
 	}
 	return nil, false
@@ -564,7 +570,7 @@ func (r *stockMoveResolver) ToCompletedStockMove() (GqlStockMove, bool) {
 
 func (r *stockMoveResolver) ToCancelledStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.CancelledStockMove:
+	case *stockmoves.CancelledStockMove:
 		return r, true
 	}
 	return nil, false
@@ -572,7 +578,7 @@ func (r *stockMoveResolver) ToCancelledStockMove() (GqlStockMove, bool) {
 
 func (r *stockMoveResolver) ToAssignedStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.AssignedStockMove:
+	case *stockmoves.AssignedStockMove:
 		return r, true
 	}
 	return nil, false
@@ -580,7 +586,7 @@ func (r *stockMoveResolver) ToAssignedStockMove() (GqlStockMove, bool) {
 
 func (r *stockMoveResolver) ToShippedStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.ShippedStockMove:
+	case *stockmoves.ShippedStockMove:
 		return r, true
 	}
 	return nil, false
@@ -588,7 +594,7 @@ func (r *stockMoveResolver) ToShippedStockMove() (GqlStockMove, bool) {
 
 func (r *stockMoveResolver) ToArrivedStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.ArrivedStockMove:
+	case *stockmoves.ArrivedStockMove:
 		return r, true
 	}
 	return nil, false
@@ -596,7 +602,7 @@ func (r *stockMoveResolver) ToArrivedStockMove() (GqlStockMove, bool) {
 
 func (r *stockMoveResolver) ToAssignFailedStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.AssignFailedStockMove:
+	case *stockmoves.AssignFailedStockMove:
 		return r, true
 	}
 	return nil, false
@@ -604,7 +610,7 @@ func (r *stockMoveResolver) ToAssignFailedStockMove() (GqlStockMove, bool) {
 
 func (r *stockMoveResolver) ToShipmentFailedStockMove() (GqlStockMove, bool) {
 	switch r.state.(type) {
-	case stockmoves.ShipmentFailedStockMove:
+	case *stockmoves.ShipmentFailedStockMove:
 		return r, true
 	}
 	return nil, false
@@ -614,7 +620,7 @@ type resolver struct {
 	store
 }
 
-func (r *resolver) CreateUnmanaged(args struct { Input CreateStockInput }) (*stockResolver, error) {
+func (r *resolver) CreateUnmanaged(args struct{ Input CreateStockInput }) (*stockResolver, error) {
 
 	s := stocks.InitialUnmanaged(string(args.Input.Item), string(args.Input.Location))
 
@@ -629,7 +635,7 @@ func (r *resolver) CreateUnmanaged(args struct { Input CreateStockInput }) (*sto
 	return sr, nil
 }
 
-func (r *resolver) CreateManaged(args struct { Input CreateStockInput }) (*stockResolver, error) {
+func (r *resolver) CreateManaged(args struct{ Input CreateStockInput }) (*stockResolver, error) {
 
 	s := stocks.InitialManaged(string(args.Input.Item), string(args.Input.Location))
 
@@ -644,16 +650,19 @@ func (r *resolver) CreateManaged(args struct { Input CreateStockInput }) (*stock
 	return sr, nil
 }
 
-func (r *resolver) FindStock(args struct { Item graphql.ID; Location graphql.ID }) (*stockResolver, error) {
+func (r *resolver) FindStock(args struct {
+	Item     graphql.ID
+	Location graphql.ID
+}) (*stockResolver, error) {
 
 	return r.store.loadStock(args.Item, args.Location)
 }
 
-func (r *resolver) FindMove(args struct { ID graphql.ID }) (*stockMoveResolver, error) {
+func (r *resolver) FindMove(args struct{ ID graphql.ID }) (*stockMoveResolver, error) {
 	return r.store.loadMove(string(args.ID))
 }
 
-type moveAction = func(state stockmoves.StockMove) *stockmoves.StockMoveResult 
+type moveAction = func(state stockmoves.StockMove) *stockmoves.StockMoveResult
 
 func (r *resolver) doAction(cur *stockMoveResolver, action moveAction) (*stockMoveResolver, error) {
 	if cur == nil {
@@ -679,7 +688,7 @@ func (r *resolver) doAction(cur *stockMoveResolver, action moveAction) (*stockMo
 	return &stockMoveResolver{cur.id, revision, res.State}, nil
 }
 
-func (r *resolver) Start(args struct { Input StartMoveInput }) (*stockMoveResolver, error) {
+func (r *resolver) Start(args struct{ Input StartMoveInput }) (*stockMoveResolver, error) {
 	id, err := uuid.NewRandom()
 
 	if err != nil {
@@ -690,8 +699,8 @@ func (r *resolver) Start(args struct { Input StartMoveInput }) (*stockMoveResolv
 
 	act := func(state stockmoves.StockMove) *stockmoves.StockMoveResult {
 		return stockmoves.Start(
-			state, 
-			string(args.Input.Item), uint32(args.Input.Qty), 
+			state,
+			string(args.Input.Item), uint32(args.Input.Qty),
 			string(args.Input.From), string(args.Input.To),
 		)
 	}
@@ -699,7 +708,7 @@ func (r *resolver) Start(args struct { Input StartMoveInput }) (*stockMoveResolv
 	return r.doAction(cur, act)
 }
 
-func (r *resolver) Assign(args struct { ID graphql.ID }) (*stockMoveResolver, error) {
+func (r *resolver) Assign(args struct{ ID graphql.ID }) (*stockMoveResolver, error) {
 	cur, err := r.store.loadMove(MoveID(args.ID))
 
 	if err != nil {
@@ -719,7 +728,10 @@ func (r *resolver) Assign(args struct { ID graphql.ID }) (*stockMoveResolver, er
 	return r.doAction(cur, act)
 }
 
-func (r *resolver) Ship(args struct { ID graphql.ID; Outgoing int32 }) (*stockMoveResolver, error) {
+func (r *resolver) Ship(args struct {
+	ID       graphql.ID
+	Outgoing int32
+}) (*stockMoveResolver, error) {
 	cur, err := r.store.loadMove(MoveID(args.ID))
 
 	if err != nil {
@@ -733,7 +745,10 @@ func (r *resolver) Ship(args struct { ID graphql.ID; Outgoing int32 }) (*stockMo
 	return r.doAction(cur, act)
 }
 
-func (r *resolver) Arrive(args struct { ID graphql.ID; Incoming int32 }) (*stockMoveResolver, error) {
+func (r *resolver) Arrive(args struct {
+	ID       graphql.ID
+	Incoming int32
+}) (*stockMoveResolver, error) {
 	cur, err := r.store.loadMove(MoveID(args.ID))
 
 	if err != nil {
@@ -747,7 +762,7 @@ func (r *resolver) Arrive(args struct { ID graphql.ID; Incoming int32 }) (*stock
 	return r.doAction(cur, act)
 }
 
-func (r *resolver) Complete(args struct { ID graphql.ID }) (*stockMoveResolver, error) {
+func (r *resolver) Complete(args struct{ ID graphql.ID }) (*stockMoveResolver, error) {
 	cur, err := r.store.loadMove(MoveID(args.ID))
 
 	if err != nil {
@@ -761,7 +776,7 @@ func (r *resolver) Complete(args struct { ID graphql.ID }) (*stockMoveResolver, 
 	return r.doAction(cur, act)
 }
 
-func (r *resolver) Cancel(args struct { ID graphql.ID }) (*stockMoveResolver, error) {
+func (r *resolver) Cancel(args struct{ ID graphql.ID }) (*stockMoveResolver, error) {
 	cur, err := r.store.loadMove(MoveID(args.ID))
 
 	if err != nil {
@@ -775,17 +790,42 @@ func (r *resolver) Cancel(args struct { ID graphql.ID }) (*stockMoveResolver, er
 	return r.doAction(cur, act)
 }
 
-func main() {
-	ctx := context.Background()
+func shutdown(srv *http.Server, cancel context.CancelFunc) {
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt)
 
-	opts := options.Client().ApplyURI(mongoUri)
+	<-sig
+
+	cancel()
+
+	log.Print("shutdown")
+
+	err := srv.Shutdown(context.Background())
+
+	if err != nil {
+		log.Printf("ERROR Shutdown: %v", err)
+	}
+}
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	opts := options.Client().ApplyURI(mongoURI)
 	client, err := mongo.Connect(ctx, opts)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer client.Disconnect(ctx)
+	defer func() {
+		log.Print("disconnect mongo")
+
+		err = client.Disconnect(ctx)
+
+		if err != nil {
+			log.Printf("ERROR mongo disconnect: %v", err)
+		}
+	}()
 
 	store := store{
 		ctx,
@@ -794,14 +834,15 @@ func main() {
 	}
 
 	gqlOpt := graphql.UseFieldResolvers()
-	schema := graphql.MustParseSchema(gqlSchema, &resolver{ store }, gqlOpt)
+	schema := graphql.MustParseSchema(gqlSchema, &resolver{store}, gqlOpt)
 
-	http.Handle("/", &relay.Handler{Schema: schema})
+	srv := http.Server{Addr: address, Handler: &relay.Handler{Schema: schema}}
 
-	err = http.ListenAndServe(address, nil)
+	go shutdown(&srv, cancel)
 
-	if err != nil {
-		log.Printf("ERROR %v", err)
-		return
+	err = srv.ListenAndServe()
+
+	if err != nil && err != http.ErrServerClosed {
+		log.Printf("ERROR ListenAndServe: %v", err)
 	}
 }
