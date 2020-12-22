@@ -108,7 +108,7 @@ func sample3() {
 
 	printResult(r2)
 
-	_, ok := r2.State.(v.AssignFailedStockMove)
+	_, ok := r2.State.(*v.AssignFailedStockMove)
 
 	if ok {
 		println("*** assign failed")
