@@ -1,5 +1,4 @@
-
-use juniper::{execute, FieldError, FieldResult, Variables};
+use juniper::{execute_sync, EmptySubscription, FieldError, FieldResult, Variables};
 use uuid::Uuid;
 
 use std::collections::HashMap;
@@ -38,14 +37,13 @@ fn error(msg: &str) -> FieldError {
 #[derive(Debug)]
 struct Query;
 
-#[juniper::object(Context = Store)]
+#[juniper::graphql_object(context = Store)]
 impl Query {
     fn find(ctx: &Store, id: String) -> FieldResult<Item> {
-        let s = ctx.list
+        let s = ctx
+            .list
             .read()
-            .map_err(|e| 
-                error(format!("read lock: {:?}", e).as_str())
-            )?;
+            .map_err(|e| error(format!("read lock: {:?}", e).as_str()))?;
 
         s.get(&id).cloned().ok_or(error("not found"))
     }
@@ -54,7 +52,7 @@ impl Query {
 #[derive(Debug)]
 struct Mutation;
 
-#[juniper::object(Context = Store)]
+#[juniper::graphql_object(context = Store)]
 impl Mutation {
     fn create(ctx: &Store, input: CreateItem) -> FieldResult<Item> {
         let data = Item {
@@ -63,11 +61,10 @@ impl Mutation {
             value: input.value,
         };
 
-        let mut s = ctx.list
+        let mut s = ctx
+            .list
             .write()
-            .map_err(|e|
-                error(format!("write lock: {:?}", e).as_str())
-            )?;
+            .map_err(|e| error(format!("write lock: {:?}", e).as_str()))?;
 
         if s.insert(data.id.clone(), data.clone()).is_none() {
             Ok(data)
@@ -77,11 +74,11 @@ impl Mutation {
     }
 }
 
-type Schema = juniper::RootNode<'static, Query, Mutation>;
+type Schema = juniper::RootNode<'static, Query, Mutation, EmptySubscription<Store>>;
 
 fn main() {
     let ctx = Store::default();
-    let schema = Schema::new(Query, Mutation);
+    let schema = Schema::new(Query, Mutation, EmptySubscription::new());
 
     let m = r#"
         mutation {
@@ -91,7 +88,7 @@ fn main() {
         }
     "#;
 
-    let (r1, _) = execute(m, None, &schema, &Variables::new(), &ctx).unwrap();
+    let (r1, _) = execute_sync(m, None, &schema, &Variables::new(), &ctx).unwrap();
     println!("*** r1 = {:?}", r1);
 
     let id = r1
@@ -116,11 +113,8 @@ fn main() {
 
     let mut vars = Variables::new();
 
-    vars.insert(
-        "p".to_string(), 
-        juniper::InputValue::scalar(id.clone())
-    );
+    vars.insert("p".to_string(), juniper::InputValue::scalar(id.clone()));
 
-    let (r2, _) = execute(q, None, &schema, &vars, &ctx).unwrap();
+    let (r2, _) = execute_sync(q, None, &schema, &vars, &ctx).unwrap();
     println!("*** r2 = {:?}", r2);
 }
