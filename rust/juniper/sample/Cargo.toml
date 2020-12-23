@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-juniper = "0.14"
+juniper = "0.15"
 uuid = { version = "0.8", features = ["v4"] }
