@@ -1,0 +1,9 @@
+{
+  "name": "cri_containerd_sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.2.3",
+    "@grpc/proto-loader": "^0.5.5"
+  }
+}
