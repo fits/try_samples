@@ -102,16 +102,16 @@ type resolver struct {}
 
 func (r *resolver) FindAll() []*cart {
 	return []*cart{
-		&cart{empty: &EmptyCart{"empty-1"}},
-		&cart{
+		{empty: &EmptyCart{"empty-1"}},
+		{
 			active: &ActiveCart{
 				"active-1", 
-				[]CartItem{ CartItem{"item-1", 1}, CartItem{"item-2", 2} },
+				[]CartItem{ {"item-1", 1}, {"item-2", 2} },
 			},
 		},
-		&cart{empty: &EmptyCart{"empty-2"}},
-		&cart{
-			active: &ActiveCart{"active-2", []CartItem{ CartItem{"item-1", 3} }},
+		{empty: &EmptyCart{"empty-2"}},
+		{
+			active: &ActiveCart{"active-2", []CartItem{ {"item-1", 3} }},
 		},
 	}
 }
