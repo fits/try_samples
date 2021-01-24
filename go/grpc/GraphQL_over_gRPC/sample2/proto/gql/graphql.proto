@@ -8,7 +8,8 @@ package gql;
 
 message QueryRequest {
     string query = 1;
-    google.protobuf.Value variables = 2;
+    string operationName = 2;
+    google.protobuf.Value variables = 3;
 }
 
 service GraphQL {
