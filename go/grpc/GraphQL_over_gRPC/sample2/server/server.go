@@ -3,20 +3,51 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"net"
 	"log"
+	"net"
 	"sync"
 
 	"github.com/google/uuid"
 	graphql "github.com/graph-gophers/graphql-go"
 
+	pb "sample/proto/gql"
+
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/structpb"
-	pb "sample/proto/gql"
 )
 
 const (
 	address = ":50051"
+
+	schemaString = `
+		enum Category {
+			Standard
+			Extra
+		}
+
+		input CreateItem {
+			category: Category!
+			value: Int!
+		}
+
+		type Item {
+			id: ID!
+			category: Category!
+			value: Int!
+		}
+
+		type Mutation {
+			create(input: CreateItem!): Item
+		}
+
+		type Query {
+			find(id: ID!): Item
+		}
+
+		type Subscription {
+			created: Item
+		}
+	`
 )
 
 var store []Item
@@ -103,9 +134,9 @@ type CreateItem struct {
 	Value    int32
 }
 
-type resolver struct {}
+type resolver struct{}
 
-func (_ *resolver) Create(args struct { Input CreateItem }) (*Item, error) {
+func (_ *resolver) Create(args struct{ Input CreateItem }) (*Item, error) {
 	log.Printf("call create: %v\n", args)
 
 	id, err := uuid.NewRandom()
@@ -121,7 +152,7 @@ func (_ *resolver) Create(args struct { Input CreateItem }) (*Item, error) {
 	return &item, nil
 }
 
-func (_ *resolver) Find(args struct { ID graphql.ID }) *Item {
+func (_ *resolver) Find(args struct{ ID graphql.ID }) *Item {
 	log.Printf("call find: %v\n", args)
 	return findItem(args.ID)
 }
@@ -133,7 +164,7 @@ func (_ *resolver) Created(ctx context.Context) <-chan *Item {
 	subscribe(ch)
 
 	go func() {
-		<- ctx.Done()
+		<-ctx.Done()
 		log.Println("created context done")
 
 		unsubscribe(ch)
@@ -179,7 +210,8 @@ func (s *server) Query(ctx context.Context, req *pb.QueryRequest) (*structpb.Str
 		vs = req.GetVariables().GetStructValue().AsMap()
 	}
 
-	res := s.schema.Exec(ctx, req.GetQuery(), "", vs)
+	res := s.schema.Exec(ctx,
+		req.GetQuery(), req.GetOperationName(), vs)
 
 	return toStruct(res)
 }
@@ -193,7 +225,8 @@ func (s *server) Subscription(req *pb.QueryRequest, stream pb.GraphQL_Subscripti
 		vs = req.GetVariables().GetStructValue().AsMap()
 	}
 
-	ch, err := s.schema.Subscribe(stream.Context(), req.GetQuery(), "", vs)
+	ch, err := s.schema.Subscribe(stream.Context(),
+		req.GetQuery(), req.GetOperationName(), vs)
 
 	if err != nil {
 		return err
@@ -213,7 +246,11 @@ func (s *server) Subscription(req *pb.QueryRequest, stream pb.GraphQL_Subscripti
 			return err
 		}
 
-		stream.Send(s)
+		err = stream.Send(s)
+
+		if err != nil {
+			log.Printf("send error: %#v", err)
+		}
 	}
 }
 
@@ -226,36 +263,7 @@ func main() {
 
 	s := grpc.NewServer()
 
-	gqlSchema := `
-		enum Category {
-			Standard
-			Extra
-		}
-
-		input CreateItem {
-			category: Category!
-			value: Int!
-		}
-
-		type Item {
-			id: ID!
-			category: Category!
-			value: Int!
-		}
-
-		type Mutation {
-			create(input: CreateItem!): Item
-		}
-
-		type Query {
-			find(id: ID!): Item
-		}
-
-		type Subscription {
-			created: Item
-		}
-	`
-	schema := graphql.MustParseSchema(gqlSchema, &resolver{})
+	schema := graphql.MustParseSchema(schemaString, &resolver{})
 
 	pb.RegisterGraphQLServer(s, &server{schema: schema})
 
