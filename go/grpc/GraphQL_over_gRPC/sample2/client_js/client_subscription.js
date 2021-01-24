@@ -21,7 +21,7 @@ const query = `
     }
 `
 
-const stream = client.Subscription({ query, variables: null })
+const stream = client.Subscription({ query })
 
 stream.on('data', res => {
     console.log(`*** received: ${JSON.stringify(res)}`)
