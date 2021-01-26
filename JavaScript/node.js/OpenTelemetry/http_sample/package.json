@@ -1,0 +1,10 @@
+{
+  "name": "http_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@opentelemetry/api": "^0.15.0",
+    "@opentelemetry/node": "^0.15.0",
+    "@opentelemetry/plugin-http": "^0.15.0"
+  }
+}
