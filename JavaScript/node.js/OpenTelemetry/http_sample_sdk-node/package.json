@@ -1,0 +1,9 @@
+{
+  "name": "http_sample_sdk-node",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@opentelemetry/plugin-http": "^0.15.0",
+    "@opentelemetry/sdk-node": "^0.15.0"
+  }
+}
