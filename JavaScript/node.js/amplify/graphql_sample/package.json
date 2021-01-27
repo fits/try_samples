@@ -1,0 +1,8 @@
+{
+  "name": "graphql_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@aws-amplify/api": "^3.2.17"
+  }
+}
