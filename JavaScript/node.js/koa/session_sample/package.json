@@ -1,0 +1,9 @@
+{
+  "name": "session_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "koa": "^2.13.1",
+    "koa-session": "^6.1.0"
+  }
+}
