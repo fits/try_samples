@@ -1,5 +1,8 @@
 
-use juniper::{FieldResult, FieldError, RootNode, http::GraphQLRequest};
+use juniper::{
+    EmptySubscription, FieldResult, FieldError, 
+    RootNode, http::GraphQLRequest
+};
 use tide::{Body, Request, Response, StatusCode};
 use uuid::Uuid;
 
@@ -27,7 +30,7 @@ struct ItemInput {
 #[derive(Debug)]
 struct Query;
 
-#[juniper::object(Context = Store)]
+#[juniper::graphql_object(Context = Store)]
 impl Query {
     fn find(ctx: &Store, id: String) -> FieldResult<Item> {
         let s = ctx.0
@@ -43,7 +46,7 @@ impl Query {
 #[derive(Debug)]
 struct Mutation;
 
-#[juniper::object(Context = Store)]
+#[juniper::graphql_object(Context = Store)]
 impl Mutation {
     fn create(ctx: &Store, input: ItemInput) -> FieldResult<Item> {
         let data = Item {
@@ -66,7 +69,7 @@ impl Mutation {
     }
 }
 
-type Schema = RootNode<'static, Query, Mutation>;
+type Schema = RootNode<'static, Query, Mutation, EmptySubscription<Store>>;
 
 type State = (Store, Arc<Schema>);
 
@@ -74,7 +77,7 @@ type State = (Store, Arc<Schema>);
 async fn main() -> tide::Result<()> {
     let state = (
         Store::default(),
-        Arc::new(Schema::new(Query, Mutation)),
+        Arc::new(Schema::new(Query, Mutation, EmptySubscription::new())),
     );
 
     let mut app = tide::with_state(state);
@@ -96,7 +99,7 @@ async fn handle_graphql(mut req: Request<State>) -> tide::Result {
 
     println!("{:?}", query);
 
-    let res = query.execute(&state.1, &state.0);
+    let res = query.execute(&state.1, &state.0).await;
 
     let status = if res.is_ok() {
         StatusCode::Ok
