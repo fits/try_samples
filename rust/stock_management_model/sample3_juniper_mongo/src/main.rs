@@ -1,23 +1,20 @@
-
+use bson::{doc, Bson, Document};
 use juniper::{
-    graphql_interface, graphql_object,
-    ID,
-    EmptySubscription, FieldResult, FieldError, 
-    GraphQLObject, GraphQLInputObject,
-    RootNode, http::GraphQLRequest
+    graphql_interface, graphql_object, http::GraphQLRequest, EmptySubscription, FieldError,
+    FieldResult, GraphQLInputObject, GraphQLObject, RootNode, ID,
 };
-use tide::{Body, Request, Response, StatusCode};
-use mongodb::{Client, options::ClientOptions, Database, Collection, 
-    options::UpdateOptions, options::FindOneAndUpdateOptions, 
-    options::ReturnDocument, options::FindOptions};
-use bson::{Bson, Document, doc};
+use mongodb::{
+    options::ClientOptions, options::FindOneAndUpdateOptions, options::FindOptions,
+    options::ReturnDocument, options::UpdateOptions, Client, Collection, Database,
+};
 use serde::{Deserialize, Serialize};
+use tide::{Body, Request, Response, StatusCode};
 use uuid::Uuid;
 
 use async_std::stream::StreamExt;
 
-use std::sync::Arc;
 use std::cmp;
+use std::sync::Arc;
 
 use stockmove::Restore;
 
@@ -49,10 +46,7 @@ impl Store {
     async fn load_stock(&self, item: String, location: String) -> StoreResult<Option<StoredStock>> {
         let query = doc! {"_id": stock_id(&item, &location)};
 
-        let r = self.0
-            .collection("stocks")
-            .find_one(query, None)
-            .await?;
+        let r = self.0.collection("stocks").find_one(query, None).await?;
 
         if let Some(d) = r {
             let s = bson::from_document::<StoredStock>(d)?;
@@ -79,9 +73,12 @@ impl Store {
         }
     }
 
-    async fn save_event(&self, move_id: MoveId, revision: Revision, 
-        data: &(stockmove::StockMove, stockmove::MoveEvent)) -> StoreResult<RestoredStockMove> {
-
+    async fn save_event(
+        &self,
+        move_id: MoveId,
+        revision: Revision,
+        data: &(stockmove::StockMove, stockmove::MoveEvent),
+    ) -> StoreResult<RestoredStockMove> {
         let info = data.0.info().ok_or("invalid state")?;
         let id = self.next_event_id().await?;
 
@@ -99,73 +96,60 @@ impl Store {
 
         Self::set_on_insert(self.0.collection("events"), query, &event)
             .await
-            .map(|_|
-                RestoredStockMove {
-                    move_id,
-                    revision,
-                    state: data.0.clone(),
-                }
-            )
+            .map(|_| RestoredStockMove {
+                move_id,
+                revision,
+                state: data.0.clone(),
+            })
     }
 
     async fn load_move(&self, move_id: MoveId) -> StoreResult<Option<RestoredStockMove>> {
         let es = self
-            .load_events(
-                doc! {"move_id": move_id.clone()}, 
-                doc! {"revision": 1}
-            )
+            .load_events(doc! {"move_id": move_id.clone()}, doc! {"revision": 1})
             .await?;
 
         let revision = es.iter().fold(0, |acc, x| cmp::max(acc, x.revision));
 
         let fst = stockmove::StockMove::initial_state();
 
-        let state = fst.clone().restore(
-            es.into_iter().map(|e| e.event)
-        );
+        let state = fst.clone().restore(es.into_iter().map(|e| e.event));
 
         if state == fst {
             Ok(None)
         } else {
-            Ok(Some(
-                RestoredStockMove {
-                    move_id,
-                    revision,
-                    state,
-                }
-            ))
+            Ok(Some(RestoredStockMove {
+                move_id,
+                revision,
+                state,
+            }))
         }
     }
 
     async fn load_events(&self, query: Document, sort: Document) -> StoreResult<Vec<StoredEvent>> {
-        let opts = FindOptions::builder()
-            .sort(Some(sort))
-            .build();
+        let opts = FindOptions::builder().sort(Some(sort)).build();
 
-        let es = self.0
+        let es = self
+            .0
             .collection("events")
             .find(query, opts)
             .await?
-            .map(|r| 
-                r.clone().and_then(|d| 
-                    bson::from_document::<StoredEvent>(d)
-                        .map_err(|e| e.into())
-                )
-            )
+            .map(|r| {
+                r.clone()
+                    .and_then(|d| bson::from_document::<StoredEvent>(d).map_err(|e| e.into()))
+            })
             .collect::<Vec<_>>()
             .await
             .iter()
             .cloned()
             .flat_map(|r| r.ok())
             .collect::<Vec<_>>();
-        
+
         println!("debug: {:?}", es);
 
         Ok(es)
     }
 
-    async fn set_on_insert<T>(col: Collection, 
-        query: Document, data: &T) -> StoreResult<Bson> 
+    async fn set_on_insert<T>(col: Collection, query: Document, data: &T) -> StoreResult<Bson>
     where
         T: Serialize,
     {
@@ -176,16 +160,10 @@ impl Store {
 
             let opts = UpdateOptions::builder().upsert(true).build();
 
-            col
-                .update_one(
-                    query,
-                    doc! {"$setOnInsert": d},
-                    opts,
-                )
+            col.update_one(query, doc! {"$setOnInsert": d}, opts)
                 .await?
                 .upserted_id
                 .ok_or("conflict".into())
-
         } else {
             Err("invalid type".into())
         }
@@ -197,21 +175,16 @@ impl Store {
             .return_document(Some(ReturnDocument::After))
             .build();
 
-        let doc = self.0.collection("events_seq")
-            .find_one_and_update(
-                doc! {"_id": "seq_no"},
-                doc! {"$inc": {"seq_no": 1}},
-                opts,
-            )
+        let doc = self
+            .0
+            .collection("events_seq")
+            .find_one_and_update(doc! {"_id": "seq_no"}, doc! {"$inc": {"seq_no": 1}}, opts)
             .await?
             .ok_or("no document")?;
-        
+
         println!("{:?}", doc);
 
-        doc.get_i32("seq_no")
-            .map_err(|e|
-                format!("{:?}", e).into()
-            )
+        doc.get_i32("seq_no").map_err(|e| format!("{:?}", e).into())
     }
 }
 
@@ -301,20 +274,25 @@ impl Stock for UnmanagedStock {
 impl From<StoredStock> for StockValue {
     fn from(s: StoredStock) -> Self {
         match s.stock {
-            stockmove::Stock::Managed { item, location, qty, assigned } => 
-                ManagedStock {
-                    id: stock_id(&item, &location),
-                    item: item.into(),
-                    location: location.into(),
-                    qty,
-                    assigned,
-                }.into(), 
-            stockmove::Stock::Unmanaged { item, location } => 
-                UnmanagedStock {
-                    id: stock_id(&item, &location),
-                    item: item.into(),
-                    location: location.into(),
-                }.into(),
+            stockmove::Stock::Managed {
+                item,
+                location,
+                qty,
+                assigned,
+            } => ManagedStock {
+                id: stock_id(&item, &location),
+                item: item.into(),
+                location: location.into(),
+                qty,
+                assigned,
+            }
+            .into(),
+            stockmove::Stock::Unmanaged { item, location } => UnmanagedStock {
+                id: stock_id(&item, &location),
+                item: item.into(),
+                location: location.into(),
+            }
+            .into(),
         }
     }
 }
@@ -352,11 +330,7 @@ impl From<stockmove::StockMoveInfo> for StockMoveInfo {
     }
 }
 
-#[graphql_interface(for = [
-    DraftStockMove, CompletedStockMove, CancelledStockMove, 
-    AssignedStockMove, ShippedStockMove, ArrivedStockMove,
-    AssignFailedStockMove, ShipmentFailedStockMove,
-])]
+#[graphql_interface(for = [DraftStockMove, CompletedStockMove, CancelledStockMove, AssignedStockMove, ShippedStockMove, ArrivedStockMove, AssignFailedStockMove, ShipmentFailedStockMove])]
 trait StockMove {
     fn id(&self) -> ID;
     fn info(&self) -> &StockMoveInfo;
@@ -516,50 +490,76 @@ impl From<RestoredStockMove> for Option<StockMoveValue> {
     fn from(s: RestoredStockMove) -> Self {
         match s.state {
             stockmove::StockMove::Nothing => None,
-            stockmove::StockMove::Draft { info } => 
-                Some(
-                    DraftStockMove { id: s.move_id.into(), info: info.into() }.into()
-                ),
-            stockmove::StockMove::Completed { info, outgoing, incoming } => 
-                Some(
-                    CompletedStockMove {
-                        id: s.move_id.into(), info: info.into(), outgoing, incoming
-                    }.into()
-                ),
-            stockmove::StockMove::Cancelled { info } => 
-                Some(
-                    CancelledStockMove { id: s.move_id.into(), info: info.into() }.into()
-                ),
-            stockmove::StockMove::Assigned { info, assigned } => 
-                Some(
-                    AssignedStockMove {
-                        id: s.move_id.into(), info: info.into(), assigned
-                    }.into()
-                ),
-            stockmove::StockMove::Shipped { info, outgoing } => 
-                Some(
-                    ShippedStockMove {
-                        id: s.move_id.into(), info: info.into(), outgoing
-                    }.into()
-                ),
-            stockmove::StockMove::Arrived { info, outgoing, incoming } => 
-                Some(
-                    ArrivedStockMove {
-                        id: s.move_id.into(), info: info.into(), outgoing, incoming
-                    }.into()
-                ),
-            stockmove::StockMove::AssignFailed { info } => 
-                Some(
-                    AssignFailedStockMove {
-                        id: s.move_id.into(), info: info.into()
-                    }.into()
-                ),
-            stockmove::StockMove::ShipmentFailed { info } => 
-                Some(
-                    ShipmentFailedStockMove {
-                        id: s.move_id.into(), info: info.into()
-                    }.into()
-                ),
+            stockmove::StockMove::Draft { info } => Some(
+                DraftStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                }
+                .into(),
+            ),
+            stockmove::StockMove::Completed {
+                info,
+                outgoing,
+                incoming,
+            } => Some(
+                CompletedStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                    outgoing,
+                    incoming,
+                }
+                .into(),
+            ),
+            stockmove::StockMove::Cancelled { info } => Some(
+                CancelledStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                }
+                .into(),
+            ),
+            stockmove::StockMove::Assigned { info, assigned } => Some(
+                AssignedStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                    assigned,
+                }
+                .into(),
+            ),
+            stockmove::StockMove::Shipped { info, outgoing } => Some(
+                ShippedStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                    outgoing,
+                }
+                .into(),
+            ),
+            stockmove::StockMove::Arrived {
+                info,
+                outgoing,
+                incoming,
+            } => Some(
+                ArrivedStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                    outgoing,
+                    incoming,
+                }
+                .into(),
+            ),
+            stockmove::StockMove::AssignFailed { info } => Some(
+                AssignFailedStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                }
+                .into(),
+            ),
+            stockmove::StockMove::ShipmentFailed { info } => Some(
+                ShipmentFailedStockMove {
+                    id: s.move_id.into(),
+                    info: info.into(),
+                }
+                .into(),
+            ),
         }
     }
 }
@@ -568,9 +568,11 @@ fn stock_id(item: &str, location: &str) -> String {
     format!("{}/{}", item, location)
 }
 
-async fn action(ctx: &Store, rs: RestoredStockMove, 
-    act: stockmove::StockMoveAction) -> FieldResult<Option<StockMoveValue>> {
-    
+async fn action(
+    ctx: &Store,
+    rs: RestoredStockMove,
+    act: stockmove::StockMoveAction,
+) -> FieldResult<Option<StockMoveValue>> {
     let mr = rs.state.action(act);
 
     if let Some(t) = mr {
@@ -585,9 +587,11 @@ async fn action(ctx: &Store, rs: RestoredStockMove,
     }
 }
 
-async fn find_and_action(ctx: &Store, move_id: MoveId, 
-    act: stockmove::StockMoveAction) -> FieldResult<Option<StockMoveValue>> {
-
+async fn find_and_action(
+    ctx: &Store,
+    move_id: MoveId,
+    act: stockmove::StockMoveAction,
+) -> FieldResult<Option<StockMoveValue>> {
     let rs = ctx.load_move(move_id).await?;
 
     if let Some(r) = rs {
@@ -597,28 +601,29 @@ async fn find_and_action(ctx: &Store, move_id: MoveId,
     }
 }
 
-
 #[derive(Debug)]
 struct Query;
 
 #[graphql_object(Context = Store)]
 impl Query {
-    async fn find_stock(ctx: &Store, item: String, location: String) -> FieldResult<Option<StockValue>> {
-        let r = ctx.load_stock(item, location)
+    async fn find_stock(
+        ctx: &Store,
+        item: String,
+        location: String,
+    ) -> FieldResult<Option<StockValue>> {
+        let r = ctx
+            .load_stock(item, location)
             .await
-            .map_err(|e|
-                error(format!("{:?}", e).as_str())
-            )?;
+            .map_err(|e| error(format!("{:?}", e).as_str()))?;
 
         Ok(r.map(|s| s.into()))
     }
 
     async fn find_move(ctx: &Store, id: ID) -> FieldResult<Option<StockMoveValue>> {
-        let r = ctx.load_move(id.to_string())
+        let r = ctx
+            .load_move(id.to_string())
             .await
-            .map_err(|e|
-                error(format!("{:?}", e).as_str())
-            )?;
+            .map_err(|e| error(format!("{:?}", e).as_str()))?;
 
         Ok(r.and_then(|s| s.into()))
     }
@@ -630,35 +635,27 @@ struct Mutation;
 #[graphql_object(Context = Store)]
 impl Mutation {
     async fn create_managed(ctx: &Store, input: CreateStockInput) -> FieldResult<StockValue> {
-        let stock = stockmove::Stock::managed_new(
-            input.item.to_string(), 
-            input.location.to_string(),
-        );
+        let stock =
+            stockmove::Stock::managed_new(input.item.to_string(), input.location.to_string());
 
         let s: StoredStock = stock.into();
 
         ctx.save_stock(&s)
             .await
             .map(|_| s.into())
-            .map_err(|e|
-                error(format!("{:?}", e).as_str())
-            )
+            .map_err(|e| error(format!("{:?}", e).as_str()))
     }
 
     async fn create_unmanaged(ctx: &Store, input: CreateStockInput) -> FieldResult<StockValue> {
-        let stock = stockmove::Stock::unmanaged_new(
-            input.item.to_string(), 
-            input.location.to_string(),
-        );
+        let stock =
+            stockmove::Stock::unmanaged_new(input.item.to_string(), input.location.to_string());
 
         let s: StoredStock = stock.into();
 
         ctx.save_stock(&s)
             .await
             .map(|_| s.into())
-            .map_err(|e|
-                error(format!("{:?}", e).as_str())
-            )
+            .map_err(|e| error(format!("{:?}", e).as_str()))
     }
 
     async fn start(ctx: &Store, input: StartMoveInput) -> FieldResult<Option<StockMoveValue>> {
@@ -672,39 +669,30 @@ impl Mutation {
         let rs = RestoredStockMove {
             move_id: format!("move-{}", Uuid::new_v4()),
             revision: 0,
-            state: stockmove::StockMove::initial_state(), 
+            state: stockmove::StockMove::initial_state(),
         };
 
         action(ctx, rs, act).await
     }
 
     async fn complete(ctx: &Store, id: ID) -> FieldResult<Option<StockMoveValue>> {
-        find_and_action(
-            ctx, id.to_string(), 
-            stockmove::StockMoveAction::Complete,
-        ).await
+        find_and_action(ctx, id.to_string(), stockmove::StockMoveAction::Complete).await
     }
 
     async fn cancel(ctx: &Store, id: ID) -> FieldResult<Option<StockMoveValue>> {
-        find_and_action(
-            ctx, id.to_string(), 
-            stockmove::StockMoveAction::Cancel,
-        ).await
+        find_and_action(ctx, id.to_string(), stockmove::StockMoveAction::Cancel).await
     }
 
     async fn assign(ctx: &Store, id: ID) -> FieldResult<Option<StockMoveValue>> {
         let rs = ctx.load_move(id.to_string()).await?;
 
         if let Some(r) = rs {
-            let info = r.state
-                .info()
-                .ok_or("not found info")?;
+            let info = r.state.info().ok_or("not found info")?;
 
-            let st = ctx.load_stock(info.item.clone(), info.from.clone())
+            let st = ctx
+                .load_stock(info.item.clone(), info.from.clone())
                 .await?
-                .unwrap_or(
-                    stockmove::Stock::managed_new(info.item, info.from).into()
-                );
+                .unwrap_or(stockmove::Stock::managed_new(info.item, info.from).into());
 
             let act = stockmove::StockMoveAction::Assign { stock: st.stock };
 
@@ -716,16 +704,20 @@ impl Mutation {
 
     async fn ship(ctx: &Store, id: ID, outgoing: i32) -> FieldResult<Option<StockMoveValue>> {
         find_and_action(
-            ctx, id.to_string(), 
+            ctx,
+            id.to_string(),
             stockmove::StockMoveAction::Ship { outgoing },
-        ).await
+        )
+        .await
     }
 
     async fn arrive(ctx: &Store, id: ID, incoming: i32) -> FieldResult<Option<StockMoveValue>> {
         find_and_action(
-            ctx, id.to_string(), 
+            ctx,
+            id.to_string(),
             stockmove::StockMoveAction::Arrive { incoming },
-        ).await
+        )
+        .await
     }
 }
 
@@ -768,12 +760,7 @@ async fn handle_graphql(mut req: Request<State>) -> tide::Result {
         StatusCode::BadRequest
     };
 
-    Body::from_json(&res)
-        .map(|b| 
-            Response::builder(status)
-                .body(b)
-                .build()
-        )
+    Body::from_json(&res).map(|b| Response::builder(status).body(b).build())
 }
 
 fn error(msg: &str) -> FieldError {

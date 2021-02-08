@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 #[allow(dead_code)]
@@ -6,32 +5,32 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "type")]
 pub enum StockMoveEvent<Item, Location, Quantity> {
     Started {
-        item: Item, 
-        qty: Quantity, 
-        from: Location, 
+        item: Item,
+        qty: Quantity,
+        from: Location,
         to: Location,
     },
     Completed,
     Cancelled,
     Assigned {
-        item: Item, 
+        item: Item,
         from: Location,
-        assigned: Quantity, 
+        assigned: Quantity,
     },
     Shipped {
-        item: Item, 
+        item: Item,
         from: Location,
-        outgoing: Quantity, 
+        outgoing: Quantity,
     },
     AssignShipped {
-        item: Item, 
+        item: Item,
         from: Location,
         outgoing: Quantity,
         assigned: Quantity,
     },
     Arrived {
-        item: Item, 
+        item: Item,
         to: Location,
-        incoming: Quantity, 
+        incoming: Quantity,
     },
 }
