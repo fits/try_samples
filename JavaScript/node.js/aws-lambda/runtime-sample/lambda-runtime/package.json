@@ -1,0 +1,9 @@
+{
+  "name": "lambda-runtime",
+  "version": "1.0.0",
+  "description": "",
+  "main": "runtime.js",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
