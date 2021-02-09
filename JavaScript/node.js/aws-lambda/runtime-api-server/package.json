@@ -1,0 +1,9 @@
+{
+  "name": "fake-runtime-api-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "fastify": "^3.11.0"
+  }
+}
