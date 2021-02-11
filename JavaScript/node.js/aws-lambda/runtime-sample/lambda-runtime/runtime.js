@@ -18,7 +18,6 @@ const envData = {
 
 const run = async () => {
     const nextRes = await fetch(`${runtimeUrl}/next`)
-    const event = await nextRes.json()
 
     const deadline = parseInt(nextRes.headers.get('lambda-runtime-deadline-ms'))
 
@@ -35,8 +34,10 @@ const run = async () => {
     )
 
     try {
+        const event = await nextRes.json()
+
         const res = await app[handlerName](event, context)
-        console.log(`*** handler result: ${res}`)
+        console.log(`* handler result: ${res}`)
 
         await fetch(
             `${runtimeUrl}/${context.awsRequestId}/response`, 
@@ -46,7 +47,7 @@ const run = async () => {
     } catch (e) {
         await fetch(
             `${runtimeUrl}/${context.awsRequestId}/error`, 
-            {method: 'POST', body: JSON.stringify(e)}
+            {method: 'POST', body: JSON.stringify({type: e.type, message: e.message})}
         )
     }
 }
