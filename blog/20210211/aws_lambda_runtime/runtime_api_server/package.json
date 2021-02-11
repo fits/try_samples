@@ -1,0 +1,9 @@
+{
+  "name": "runtime_api_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "fastify": "^3.11.0"
+  }
+}
