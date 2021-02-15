@@ -1,0 +1,10 @@
+{
+    "app proxy": {
+        "source": 8080,
+        "target": 8081
+    },
+    "auth proxy": {
+        "source": 8580,
+        "target": 8581
+    }
+}

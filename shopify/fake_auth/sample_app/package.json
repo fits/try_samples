@@ -1,0 +1,11 @@
+{
+  "name": "sample_app",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@shopify/koa-shopify-auth": "^3.2.0",
+    "koa": "^2.13.1",
+    "koa-session": "^6.1.0",
+    "node-fetch": "^2.6.1"
+  }
+}
