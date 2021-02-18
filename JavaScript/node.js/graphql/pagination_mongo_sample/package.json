@@ -1,0 +1,9 @@
+{
+  "name": "pagination_mongo_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "graphql": "^15.5.0",
+    "mongodb": "^3.6.4"
+  }
+}
