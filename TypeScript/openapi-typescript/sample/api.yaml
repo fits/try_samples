@@ -1,0 +1,35 @@
+openapi: 3.0.1
+info:
+  title: Sample App
+  version: 0.0.1
+paths:
+  /item:
+    get:
+      operationId: itemGet
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+    options:
+      operationId: itemOptions
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    Item:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        related:
+          $ref: '#/components/schemas/Item'
