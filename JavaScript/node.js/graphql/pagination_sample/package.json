@@ -1,0 +1,8 @@
+{
+  "name": "pagination_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "graphql": "^15.5.0"
+  }
+}
