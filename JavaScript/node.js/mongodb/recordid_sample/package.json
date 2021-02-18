@@ -1,0 +1,8 @@
+{
+  "name": "recordid_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "mongodb": "^3.6.4"
+  }
+}
