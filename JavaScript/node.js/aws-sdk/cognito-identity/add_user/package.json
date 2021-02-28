@@ -1,0 +1,8 @@
+{
+  "name": "add_user",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.7.0"
+  }
+}
