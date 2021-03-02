@@ -1,0 +1,8 @@
+[
+    {
+        "Source": "sample1",
+        "Detail": "{ \"a\": 1 }",
+        "DetailType": "sampleDetailType",
+        "EventBusName": "sample"
+    }
+]
