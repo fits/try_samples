@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "dynalite": "^3.2.1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.7.0"
+  }
+}
