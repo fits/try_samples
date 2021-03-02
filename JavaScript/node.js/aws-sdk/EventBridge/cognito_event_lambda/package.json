@@ -1,0 +1,9 @@
+{
+  "name": "cognito_event_lambda",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.7.0",
+    "@aws-sdk/client-lambda": "^3.7.0"
+  }
+}
