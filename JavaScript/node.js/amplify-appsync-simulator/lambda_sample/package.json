@@ -1,0 +1,8 @@
+{
+  "name": "lambda_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "amplify-appsync-simulator": "^1.25.4"
+  }
+}
