@@ -1,0 +1,9 @@
+{
+  "name": "dynamodb_sample",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.8.0",
+    "amplify-appsync-simulator": "^1.25.4"
+  }
+}
