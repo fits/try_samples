@@ -1,0 +1,56 @@
+
+type Stock {
+    tenantId: ID!
+    item: ID!
+    location: ID!
+    rev: String!
+    qty: Int!
+    assigned: Int!
+}
+
+enum EventType {
+    assigned
+    arrived
+    shipped
+}
+
+type Event {
+    type: EventType!
+    tenantId: ID!
+    item: ID!
+    location: ID!
+    rev: String!
+    qty: Int
+    assigned: Int
+}
+
+input FindInput {
+    tenantId: ID!
+    item: ID!
+    location: ID!
+}
+
+input StockInput {
+    tenantId: ID!
+    item: ID!
+    location: ID!
+    qty: Int!
+}
+
+input ShipInput {
+    tenantId: ID!
+    item: ID!
+    location: ID!
+    qty: Int!
+    assigned: Int!
+}
+
+type Query {
+    find(input: FindInput!): Stock
+}
+
+type Mutation {
+    assign(input: StockInput!): Event!
+    arrive(input: StockInput!): Event!
+    ship(input: ShipInput!): Event!
+}
