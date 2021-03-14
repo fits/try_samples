@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "amplify-appsync-simulator": "^1.25.4"
+  }
+}
