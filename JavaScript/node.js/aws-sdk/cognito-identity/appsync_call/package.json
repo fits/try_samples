@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+        "amazon-cognito-identity-js": "^4.5.14",
+        "graphql": "^15.5.0",
+        "graphql-request": "^3.4.0"
+    }
+}
