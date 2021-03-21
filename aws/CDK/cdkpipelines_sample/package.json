@@ -1,0 +1,18 @@
+{
+  "name": "cdkpipelines_sample",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^14.14.31",
+    "aws-cdk": "1.94.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.2"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-codecommit": "^1.94.1",
+    "@aws-cdk/aws-codepipeline": "^1.94.1",
+    "@aws-cdk/aws-codepipeline-actions": "^1.94.1",
+    "@aws-cdk/core": "^1.94.1",
+    "@aws-cdk/pipelines": "^1.94.1"
+  }
+}
