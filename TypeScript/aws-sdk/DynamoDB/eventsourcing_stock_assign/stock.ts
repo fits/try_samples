@@ -10,8 +10,11 @@ import { config } from './config'
 
 const RETRY_NUM = 10
 
-const SLEEP_BASE_TIME = 50
-const SLEEP_RANDOM_TIME = 300
+const SLEEP_FIRST_MAX = 500
+const SLEEP_FIRST_UNIT = 5
+
+const SLEEP_MIN = 50
+const SLEEP_RANDOM = 300
 
 const eventTable = 'StockEvents'
 const revTable = 'StockEventsRevision'
@@ -146,6 +149,10 @@ export class StockAction {
             return
         }
 
+        await sleep(
+            Math.min(SLEEP_FIRST_MAX, SLEEP_FIRST_UNIT * expectedSize)
+        )
+
         for (let i = 0; i < RETRY_NUM; i++) {
             const events = await StockAction.loadEvents(
                 event.stockId, 
@@ -156,9 +163,10 @@ export class StockAction {
             if (events.length != expectedSize) {
                 console.log(`*** retry ${i + 1}: rev=${event.revision}`)
 
-                const time = SLEEP_BASE_TIME + Math.floor(Math.random() * SLEEP_RANDOM_TIME)
+                await sleep(
+                    Math.max(SLEEP_MIN, Math.floor(Math.random() * SLEEP_RANDOM))
+                )
 
-                await sleep(time)
                 continue
             }
 
