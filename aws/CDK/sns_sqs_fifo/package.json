@@ -1,0 +1,19 @@
+{
+  "name": "sns_sqs_fifo",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^15.0.1",
+    "aws-cdk": "^1.101.0",
+    "esbuild": "^0.11.16",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-lambda-event-sources": "^1.101.0",
+    "@aws-cdk/aws-lambda-nodejs": "^1.101.0",
+    "@aws-cdk/aws-sns": "^1.101.0",
+    "@aws-cdk/aws-sns-subscriptions": "^1.101.0",
+    "@aws-cdk/aws-sqs": "^1.101.0"
+  }
+}
