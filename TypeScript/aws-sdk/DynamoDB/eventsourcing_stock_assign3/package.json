@@ -1,0 +1,14 @@
+{
+  "name": "eventsourcing_stock_assign3",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^15.3.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.16.0",
+    "uuid": "^8.3.2"
+  }
+}
