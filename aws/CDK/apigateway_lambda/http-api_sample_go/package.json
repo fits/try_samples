@@ -1,0 +1,16 @@
+{
+  "name": "http-api_sample_go",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^15.12.1",
+    "aws-cdk": "^1.107.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigatewayv2": "^1.107.0",
+    "@aws-cdk/aws-apigatewayv2-integrations": "^1.107.0",
+    "@aws-cdk/aws-lambda-go": "^1.107.0"
+  }
+}
