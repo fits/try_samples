@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+    <script src="https://unpkg.com/vue@next"></script>
+  </head>
+  <body>
+    <div id="items">
+      <ul>
+        <li v-for="item in items">
+          {{ item.id }} : {{ item.value }}
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      const ItemFind = {
+        data() {
+          return {
+            items: []
+          }
+        },
+        async created() {
+          const res = await fetch('./items.json')
+          this.items = await res.json()
+        }
+      }
+
+      Vue.createApp(ItemFind).mount('#items')
+    </script>
+	</body>
+</html>
