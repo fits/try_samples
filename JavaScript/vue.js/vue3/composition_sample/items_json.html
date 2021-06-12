@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+    <script src="https://unpkg.com/vue@next"></script>
+  </head>
+  <body>
+    <div id="items">
+      <p>
+        <button v-on:click="loadItems">RELOAD</button>
+
+        <template v-if="loading">
+          <mark style="margin-left: 10px;">Loading ...</mark>
+        </template>
+      </p>
+      <p>
+        <ul>
+          <li v-for="item in items">
+            {{ item.id }} : {{ item.value }}
+          </li>
+        </ul>
+      </p>
+    </div>
+
+    <script>
+      const Item = {
+        setup(props) {
+          const loading = Vue.ref(false)
+          const items = Vue.ref([])
+
+          const loadItems = async () => {
+            loading.value = true
+
+            try {
+              const res = await fetch('./items.json')
+              items.value = await res.json()
+
+            } finally {
+              loading.value = false
+            }
+          }
+
+          loadItems()
+
+          return {
+            items,
+            loading,
+            loadItems,
+          }
+        }
+      }
+
+      Vue.createApp(Item).mount('#items')
+    </script>
+	</body>
+</html>
