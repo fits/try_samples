@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://unpkg.com/vue@next"></script>
+  </head>
+  <body>
+    <div id="counter">
+      <button v-on:click="down">DOWN</button>
+      <button v-on:click="up">UP</button>
+      <p>
+        COUNTER:: {{ counter }}
+      </p>
+    </div>
+
+    <script type="module">
+      const Counter = {
+        setup(props) {
+          const counter = Vue.ref(0)
+
+          const up = () => counter.value++
+          const down = () => counter.value--
+
+          return {
+            counter,
+            up,
+            down
+          }
+        }
+      }
+
+      Vue.createApp(Counter).mount('#counter')
+    </script>
+  </body>
+</html>
