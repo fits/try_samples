@@ -1,6 +1,7 @@
 module.exports = {
+    testEnvironment: 'jsdom',
     preset: 'ts-jest',
     transform: {
-        ".*\\.(vue)$": "vue-jest"
+        '.*\\.(vue)$': 'vue-jest'
     }
 }
