@@ -1,0 +1,5 @@
+[
+  {"name": "item-A", "value": 12, "category": "A"},
+  {"name": "item-B", "value": 34, "category": "A"},
+  {"name": "item-C", "value": 56, "category": "B"}
+]
