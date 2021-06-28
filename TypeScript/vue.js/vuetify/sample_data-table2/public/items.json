@@ -1,0 +1,5 @@
+[
+  {"name": "item-A", "value": 12, "variations": [{"size": "L", "color": "White"}]},
+  {"name": "item-B", "value": 34, "variations": [{"size": "S", "color": "Blue"}, {"size": "M", "color": "Red"}]},
+  {"name": "item-C", "value": 56, "variations": [{"size": "L", "color": "Green"}, {"size": "L", "color": "White"}, {"size": "S", "color": "Yellow"}]}
+]
