@@ -1,0 +1,15 @@
+{
+  "name": "docker_sample",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^16.6.1",
+    "aws-cdk": "^1.118.0",
+    "esbuild": "^0.12.20",
+    "ts-node": "^10.2.0",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-ec2": "^1.118.0"
+  }
+}
