@@ -36,11 +36,21 @@ query
 term
   = left:word ':' right:word
     {
+      if (right.match(/[*?]/)) {
+        return {
+          wildcard: {
+            [left]: {
+              value: right
+            }
+          }
+        }
+      }
+
       return {
         term: { [left]: right }
       }
     }
-  / left:word ':' lb:('(' / '[') lv:number _ 'TO' _ rv:number rb:(')' / ']')
+  / left:word ':' lb:('{' / '[') lv:number _ 'TO' _ rv:number rb:('}' / ']')
     {
       const cond = [
         [ (lb == '[') ? 'gte' : 'gt', lv ],
@@ -77,5 +87,5 @@ printParse('test:a1 OR  test:b2  OR test:c3')
 
 printParse('test:a1-* OR test:b2 OR -test:c3')
 
-printParse('test:[1 TO 10)')
-printParse('test:(5 TO  *]')
+printParse('test:[1 TO 10}')
+printParse('test:{5 TO  *]')
