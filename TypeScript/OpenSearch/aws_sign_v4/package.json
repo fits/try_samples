@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "@types/aws4": "^1.5.2",
+    "@types/node": "^16.10.3",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "@aws-sdk/credential-provider-node": "^3.35.0",
+    "@opensearch-project/opensearch": "^1.0.0",
+    "aws4": "^1.11.0"
+  }
+}
