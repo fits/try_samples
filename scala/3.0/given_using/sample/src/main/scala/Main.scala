@@ -5,7 +5,7 @@ trait Context[A]:
 def sample(v: String)(using ctx: Context[String]) =
   ctx.show(v + "!!")
 
-def sample(v: Int)(using ctx: Context[Int]) =
+def sample(using ctx: Context[Int])(v: Int) =
   ctx.show(v * 10)
 
 @main def main: Unit = 
