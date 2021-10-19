@@ -5,10 +5,10 @@ enum Event:
 
 import Event.*
 
-def restore(events: List[Event]): Int = events.foldLeft(0)((acc, ev) => ev match
+def restore(events: List[Event]): Int = events.foldLeft(0) { (acc, ev) => ev match
   case Created => 0
   case Added(v) => acc + v
-)
+}
 
 @main def sample: Unit = 
   val ev1 = Created
