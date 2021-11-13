@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@types/node": "^16.11.7",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "graphql": "^15.7.2",
+    "graphql-request": "^3.6.1"
+  }
+}
