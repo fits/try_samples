@@ -1,4 +1,4 @@
-@Grab('org.apache.lucene:lucene-analyzers-kuromoji:5.4.1')
+@Grab('org.apache.lucene:lucene-analyzers-kuromoji:8.11.0')
 import org.apache.lucene.analysis.ja.JapaneseAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute
