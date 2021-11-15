@@ -1,0 +1,8 @@
+[package]
+name = "tokenizer_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tantivy = "0.16.1"
+lindera-tantivy = "0.8.1"
