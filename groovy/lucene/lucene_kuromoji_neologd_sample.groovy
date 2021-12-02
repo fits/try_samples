@@ -1,5 +1,5 @@
-@GrabResolver(name = 'codelibs', root = 'http://maven.codelibs.org/')
-@Grab('org.codelibs:lucene-analyzers-kuromoji-ipadic-neologd:7.0.0-20171012')
+@GrabResolver('https://maven.codelibs.org/')
+@Grab('org.codelibs:lucene-analyzers-kuromoji-ipadic-neologd:8.2.0-20200120')
 import org.codelibs.neologd.ipadic.lucene.analysis.ja.JapaneseTokenizer
 import org.codelibs.neologd.ipadic.lucene.analysis.ja.tokenattributes.*
 import org.apache.lucene.analysis.tokenattributes.*
