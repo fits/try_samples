@@ -3,7 +3,7 @@ use tantivy::doc;
 use tantivy::schema::*;
 use chrono::prelude::*;
 
-fn main() -> tantivy::Result<()>{
+fn main() {
     let mut schema_builder = Schema::builder();
 
     let name = schema_builder.add_text_field("name", STRING);
@@ -18,6 +18,4 @@ fn main() -> tantivy::Result<()>{
     let json = schema.to_json(&doc);
 
     println!("{}", json);
-
-    Ok(())
 }
