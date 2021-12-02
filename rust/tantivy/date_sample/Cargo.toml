@@ -1,0 +1,8 @@
+[package]
+name = "date_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tantivy = "0.16.1"
+chrono = "0.4"
