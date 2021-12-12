@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@types/node": "^16.11.12",
+    "aws-cdk": "^2.1.0",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-rds": "^1.135.0"
+  }
+}
