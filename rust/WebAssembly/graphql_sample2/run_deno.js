@@ -17,7 +17,11 @@ const run = async () => {
 
         instance.exports._drop_result(ptr)
 
-        return JSON.parse(res)
+        try {
+            return JSON.parse(res)
+        } catch(e) {
+            console.error(res)
+        }
     }
 
     const query = (ptr, q) => {
