@@ -28,6 +28,20 @@ struct ItemConnection {
     page_info: PageInfo,
 }
 
+impl From<&Value> for Item {
+    fn from(v: &Value) -> Self {
+        let id = v["_id"].as_str().unwrap_or("");
+        let name = v["_source"]["name"].as_str().unwrap_or("").to_string();
+        let value = v["_source"]["value"].as_i64().unwrap_or(0) as i32;
+
+        Item {
+            id: ID::new(id),
+            name,
+            value,
+        }
+    }
+}
+
 #[derive(Default)]
 struct Store {
     db: Elasticsearch,
@@ -62,17 +76,7 @@ impl Query {
         let edges = body["hits"]["hits"]
             .as_array()
             .map(|rs| 
-                rs.iter().map(|r| {
-                    let id = r["_id"].as_str().unwrap_or("");
-                    let name = r["_source"]["name"].as_str().unwrap_or("").to_string();
-                    let value = r["_source"]["value"].as_i64().unwrap_or(0) as i32;
-
-                    Item {
-                        id: ID::new(id),
-                        name,
-                        value,
-                    }
-                }).collect::<Vec<_>>()
+                rs.iter().map(Into::<Item>::into).collect::<Vec<_>>()
             )
             .unwrap_or(vec![]);
 
