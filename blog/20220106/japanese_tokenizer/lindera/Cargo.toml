@@ -1,0 +1,8 @@
+[package]
+name = "lindera_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lindera = "0.8.1"
+lindera-core = "0.8.1"
