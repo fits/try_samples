@@ -26,27 +26,30 @@ class SampleTransform extends Transform {
     }
 
     _transform(chunk, _encoding, callback) {
-        console.log('*** transform')
+        console.log('*** _transform')
 
         this.batch.push(chunk)
 
         if (this.batch.length >= this.batchSize) {
-            this.push(this.batch)
-            this.batch = []
+            this.processBatch()
         }
 
         callback()
     }
 
     _flush(callback) {
-        console.log('*** _flash')
+        console.log('*** _flush')
 
         if (this.batch.length > 0) {
-            this.push(this.batch)
-            this.batch = []
+            this.processBatch()
         }
 
         callback()
+    }
+
+    processBatch() {
+        this.push(this.batch)
+        this.batch = []
     }
 }
 
