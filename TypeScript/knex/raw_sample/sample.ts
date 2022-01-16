@@ -1,10 +1,10 @@
-import { knex as knexInit } from 'knex'
+import { knex as Knex } from 'knex'
 import { BatchTransform } from './stream_util'
 
 const minPrice = parseInt(process.argv[2])
 const batchSize = parseInt(process.env.BATCH_SIZE ?? '100')
 
-const knex = knexInit({
+const knex = Knex({
     client: 'mysql2',
     connection: {
         host: process.env.DB_HOST,
