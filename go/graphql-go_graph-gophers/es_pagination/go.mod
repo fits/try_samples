@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/elastic/go-elasticsearch/v8 v8.0.0-alpha
-	github.com/graph-gophers/graphql-go v1.2.0
+	github.com/graph-gophers/graphql-go v1.3.0
 )
 
 require (
