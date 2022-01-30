@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="default-config" version="1.6">
+
+    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
+    <field name="_version_" type="plong" indexed="false" stored="false"/>
+
+    <!-- If you don't use child/nested documents, then you should remove the next two fields:  -->
+    <!-- for nested documents (minimal; points to root document) -->
+    <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
+    <!-- for nested documents (relationship tracking) -->
+    <field name="_nest_path_" type="_nest_path_" /><fieldType name="_nest_path_" class="solr.NestPathField" />
+
+    <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
+    <uniqueKey>id</uniqueKey>
+
+    <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true" />
+    <fieldType name="strings" class="solr.StrField" sortMissingLast="true" multiValued="true" docValues="true" />
+
+    <!-- boolean type: "true" or "false" -->
+    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+    <fieldType name="booleans" class="solr.BoolField" sortMissingLast="true" multiValued="true"/>
+
+    <!--
+      Numeric field types that index values using KD-trees.
+      Point fields don't support FieldCache, so they must have docValues="true" if needed for sorting, faceting, functions, etc.
+    -->
+    <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+    <fieldType name="pfloat" class="solr.FloatPointField" docValues="true"/>
+    <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+    <fieldType name="pdouble" class="solr.DoublePointField" docValues="true"/>
+
+    <fieldType name="pints" class="solr.IntPointField" docValues="true" multiValued="true"/>
+    <fieldType name="pfloats" class="solr.FloatPointField" docValues="true" multiValued="true"/>
+    <fieldType name="plongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
+    <fieldType name="pdoubles" class="solr.DoublePointField" docValues="true" multiValued="true"/>
+    <fieldType name="random" class="solr.RandomSortField" indexed="true"/>
+
+    <!-- since fields of this type are by default not stored or indexed,
+       any data added to them will be ignored outright.  -->
+    <fieldType name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
+
+    <!-- KD-tree versions of date fields -->
+    <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
+    <fieldType name="pdates" class="solr.DatePointField" docValues="true" multiValued="true"/>
+    
+    <!--Binary data type. The data should be sent/retrieved in as Base64 encoded Strings -->
+    <fieldType name="binary" class="solr.BinaryField"/>
+    
+    <fieldType name="rank" class="solr.RankField"/>
+
+    <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100" multiValued="true">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" />
+        <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="text_ja" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="false">
+      <analyzer>
+        <tokenizer class="solr.JapaneseTokenizerFactory" mode="search"/>
+        <!--<tokenizer class="solr.JapaneseTokenizerFactory" mode="search" userDictionary="lang/userdict_ja.txt"/>-->
+        <!-- Reduces inflected verbs and adjectives to their base/dictionary forms (辞書形) -->
+        <filter class="solr.JapaneseBaseFormFilterFactory"/>
+        <!-- Removes tokens with certain part-of-speech tags -->
+        <filter class="solr.JapanesePartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
+        <!-- Normalizes full-width romaji to half-width and half-width kana to full-width (Unicode NFKC subset) -->
+        <filter class="solr.CJKWidthFilterFactory"/>
+        <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+        <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
+        <filter class="solr.JapaneseKatakanaStemFilterFactory" minimumLength="4"/>
+        <!-- Lower-cases romaji characters -->
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+</schema>
