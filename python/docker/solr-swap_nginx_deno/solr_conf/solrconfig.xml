@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+  <luceneMatchVersion>8.11.1</luceneMatchVersion>
+  <dataDir>${solr.data.dir:}</dataDir>
+
+  <directoryFactory name="DirectoryFactory"
+                    class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}"/>
+
+  <codecFactory class="solr.SchemaCodecFactory"/>
+
+  <indexConfig>
+    <lockType>${solr.lock.type:native}</lockType>
+  </indexConfig>
+
+  <updateHandler class="solr.DirectUpdateHandler2">
+    <updateLog>
+      <str name="dir">${solr.ulog.dir:}</str>
+      <int name="numVersionBuckets">${solr.ulog.numVersionBuckets:65536}</int>
+    </updateLog>
+    <autoCommit>
+      <maxTime>${solr.autoCommit.maxTime:15000}</maxTime>
+      <openSearcher>false</openSearcher>
+    </autoCommit>
+    <autoSoftCommit>
+      <maxTime>${solr.autoSoftCommit.maxTime:-1}</maxTime>
+    </autoSoftCommit>
+  </updateHandler>
+
+  <query>
+    <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
+    <filterCache size="512"
+                 initialSize="512"
+                 autowarmCount="0"/>
+
+    <queryResultCache size="512"
+                      initialSize="512"
+                      autowarmCount="0"/>
+
+    <documentCache size="512"
+                   initialSize="512"
+                   autowarmCount="0"/>
+
+    <cache name="perSegFilter"
+           size="10"
+           initialSize="0"
+           autowarmCount="10"
+           regenerator="solr.NoOpRegenerator" />
+
+    <enableLazyFieldLoading>true</enableLazyFieldLoading>
+    <queryResultWindowSize>20</queryResultWindowSize>
+    <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
+
+    <listener event="newSearcher" class="solr.QuerySenderListener">
+      <arr name="queries">
+      </arr>
+    </listener>
+    <listener event="firstSearcher" class="solr.QuerySenderListener">
+      <arr name="queries">
+      </arr>
+    </listener>
+
+    <useColdSearcher>false</useColdSearcher>
+  </query>
+
+  <circuitBreakers enabled="true">
+  </circuitBreakers>
+
+  <requestDispatcher>
+    <httpCaching never304="true" />
+  </requestDispatcher>
+
+  <requestHandler name="/select" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="echoParams">explicit</str>
+      <int name="rows">10</int>
+    </lst>
+  </requestHandler>
+
+  <requestHandler name="/query" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="echoParams">explicit</str>
+      <str name="wt">json</str>
+      <str name="indent">true</str>
+    </lst>
+  </requestHandler>
+
+  <initParams path="/update/**,/query,/select">
+    <lst name="defaults">
+      <str name="df">_text_</str>
+    </lst>
+  </initParams>
+
+  <updateProcessor class="solr.UUIDUpdateProcessorFactory" name="uuid"/>
+  <updateProcessor class="solr.RemoveBlankFieldUpdateProcessorFactory" name="remove-blank"/>
+  <updateProcessor class="solr.FieldNameMutatingUpdateProcessorFactory" name="field-name-mutating">
+    <str name="pattern">[^\w-\.]</str>
+    <str name="replacement">_</str>
+  </updateProcessor>
+  <updateProcessor class="solr.ParseBooleanFieldUpdateProcessorFactory" name="parse-boolean"/>
+  <updateProcessor class="solr.ParseLongFieldUpdateProcessorFactory" name="parse-long"/>
+  <updateProcessor class="solr.ParseDoubleFieldUpdateProcessorFactory" name="parse-double"/>
+  <updateProcessor class="solr.ParseDateFieldUpdateProcessorFactory" name="parse-date">
+    <arr name="format">
+      <str>yyyy-MM-dd['T'[HH:mm[:ss[.SSS]][z</str>
+      <str>yyyy-MM-dd['T'[HH:mm[:ss[,SSS]][z</str>
+      <str>yyyy-MM-dd HH:mm[:ss[.SSS]][z</str>
+      <str>yyyy-MM-dd HH:mm[:ss[,SSS]][z</str>
+      <str>[EEE, ]dd MMM yyyy HH:mm[:ss] z</str>
+      <str>EEEE, dd-MMM-yy HH:mm:ss z</str>
+      <str>EEE MMM ppd HH:mm:ss [z ]yyyy</str>
+    </arr>
+  </updateProcessor>
+  <updateProcessor class="solr.AddSchemaFieldsUpdateProcessorFactory" name="add-schema-fields">
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.String</str>
+      <str name="fieldType">strings</str>
+      <bool name="default">true</bool>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.Boolean</str>
+      <str name="fieldType">booleans</str>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.util.Date</str>
+      <str name="fieldType">pdates</str>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.Long</str>
+      <str name="valueClass">java.lang.Integer</str>
+      <str name="fieldType">plongs</str>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.Number</str>
+      <str name="fieldType">pdoubles</str>
+    </lst>
+  </updateProcessor>
+
+  <!-- The update.autoCreateFields property can be turned to false to disable schemaless mode -->
+  <updateRequestProcessorChain name="add-unknown-fields-to-the-schema" default="${update.autoCreateFields:true}"
+           processor="uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date,add-schema-fields">
+    <processor class="solr.LogUpdateProcessorFactory"/>
+    <processor class="solr.DistributedUpdateProcessorFactory"/>
+    <processor class="solr.RunUpdateProcessorFactory"/>
+  </updateRequestProcessorChain>
+
+  <queryResponseWriter name="json" class="solr.JSONResponseWriter">
+    <str name="content-type">text/plain; charset=UTF-8</str>
+  </queryResponseWriter>
+
+</config>
