@@ -24,20 +24,16 @@ const sql = `
         price >= :price
 `
 
-const stream = knex.raw(sql, { price: minPrice }).stream()
+const run = async () => {
+    const stream = knex.raw(sql, { price: minPrice })
+        .stream()
+        .pipe(new BatchTransform(batchSize))
 
-stream.on('error', e => {
-    console.error(e)
-    knex.destroy()
-})
+    for await (const rows of stream) {
+        console.log(rows)
+    }
+}
 
-stream.on('finish', () => {
-    console.log('*** finish')
-    knex.destroy()
-})
-
-const batchStream = stream.pipe(new BatchTransform(batchSize))
-
-batchStream.on('data', rows => {
-    console.log(rows)
-})
+run()
+    .catch(err => console.error(err))
+    .finally(() => knex.destroy())
