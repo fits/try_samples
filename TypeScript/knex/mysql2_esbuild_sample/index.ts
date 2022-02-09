@@ -1,5 +1,6 @@
 import { knex as Knex } from 'knex'
 import KnexMysql2 from 'knex/lib/dialects/mysql2'
+import { pipeline } from 'stream/promises'
 import { BatchTransform } from './stream_util'
 
 const minPrice = parseInt(process.argv[2])
@@ -25,13 +26,15 @@ const sql = `
 `
 
 const run = async () => {
-    const stream = knex.raw(sql, { price: minPrice })
-        .stream()
-        .pipe(new BatchTransform(batchSize))
-
-    for await (const rows of stream) {
-        console.log(rows)
-    }
+    await pipeline(
+        knex.raw(sql, { price: minPrice }).stream(),
+        new BatchTransform(batchSize),
+        async (stream) => {
+            for await (const rows of stream) {
+                console.log(rows)
+            }
+        }
+    )
 }
 
 run()
