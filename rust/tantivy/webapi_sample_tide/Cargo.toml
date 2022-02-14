@@ -1,0 +1,10 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tantivy = "0.16"
+tide = "0.16"
+async-std = { version = "1.8", features = ["attributes"] }
+serde = { version = "1.0", features = ["derive"] }
