@@ -1,0 +1,5 @@
+{"name":"item-1", "color":"white", "price":100, "date":"2022-02-17T01:30:00+09:00"}
+{"name":"item-2", "color":"black", "price":2000, "date":"2022-02-17T05:00:00Z"}
+{"name":"item-3", "color":"yellow", "price":330, "date":"2022-02-17T13:00:00+09:00"}
+{"name":"item 4", "color":"white", "price":4000, "date":"2022-02-18T05:00:00+09:00"}
+{"name":"item 5", "color":"black", "price":500, "date":"2022-02-18T03:15:00Z"}
