@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "fastify": "^3.27.1",
+    "flexsearch": "^0.7.21"
+  }
+}
