@@ -1,68 +1,66 @@
 const wasmFile = Deno.args[0]
 
+const toResult = (wasm, retptr) => {
+    const sptr = wasm.exports._result_ptr(retptr) 
+    const len = wasm.exports._result_size(retptr)
+
+    const memory = wasm.exports.memory.buffer
+
+    const buf = new Uint8Array(memory, sptr, len)
+    const res = new TextDecoder('utf-8').decode(buf)
+
+    return JSON.parse(res)
+}
+
+const query = (wasm, ptr, q) => {
+    const buf = new TextEncoder('utf-8').encode(q)
+    const sptr = wasm.exports._new_string(buf.length)
+
+    try {
+        new Uint8Array(wasm.exports.memory.buffer).set(buf, sptr)
+
+        const retptr = wasm.exports.query(ptr, sptr, buf.length)
+
+        try {
+            return toResult(wasm, retptr)
+        } finally {
+            wasm.exports._drop_result(retptr)
+        }
+    } finally {
+        wasm.exports._drop_string(sptr)
+    }
+}
+
 const run = async () => {
     const buf = await Deno.readFile(wasmFile)
     const module = await WebAssembly.compile(buf)
 
-    let instance = await WebAssembly.instantiate(module, {})
+    const wasm = await WebAssembly.instantiate(module, {})
 
-    const toResult = ptr => {
-        const sptr = instance.exports._result_ptr(ptr) 
-        const len = instance.exports._result_size(ptr)
+    const ctxptr = wasm.exports.open()
 
-        const memory = instance.exports.memory.buffer
-
-        const buf = new Uint8Array(memory, sptr, len)
-        const res = new TextDecoder('utf-8').decode(buf)
-
-        instance.exports._drop_result(ptr)
-
-        try {
-            return JSON.parse(res)
-        } catch(e) {
-            console.error(res)
-        }
+    const queryAndShow = (q) => {
+        console.log( query(wasm, ctxptr, q) )
     }
 
-    const query = (ptr, q) => {
-        const buf = new TextEncoder('utf-8').encode(q)
-        const sptr = instance.exports._new_string(buf.length)
-
-        new Uint8Array(instance.exports.memory.buffer).set(buf, sptr)
-
-        const r = toResult(
-            instance.exports.query(ptr, sptr, buf.length)
-        )
-
-        instance.exports._drop_string(sptr)
-
-        return r
-    }
-
-    const ptr = instance.exports.open()
-
-    console.log(
-        query(ptr, `
+    try {
+        queryAndShow(`
             mutation {
                 create(input: { id: "item-1", value: 12 }) {
                     id
                 }
             }
         `)
-    )
 
-    console.log(
-        query(ptr, `
+        queryAndShow(`
             mutation {
                 create(input: { id: "item-2", value: 34 }) {
                     id
                 }
             }
         `)
-    )
 
-    console.log(
-        query(ptr, `
+        queryAndShow(`
             query {
                 find(id: "item-1") {
                     id
@@ -70,10 +68,8 @@ const run = async () => {
                 }
             }
         `)
-    )
 
-    console.log(
-        query(ptr, `
+        queryAndShow(`
             {
                 find(id: "item-2") {
                     id
@@ -81,19 +77,17 @@ const run = async () => {
                 }
             }
         `)
-    )
 
-    console.log(
-        query(ptr, `
+        queryAndShow(`
             {
-                find(id: "item-12") {
+                find(id: "item-3") {
                     id
                 }
             }
         `)
-    )
-
-    instance.exports.close(ptr)
+    } finally {
+        wasm.exports.close(ctxptr)
+    }
 }
 
 run().catch(err => console.error(err))
