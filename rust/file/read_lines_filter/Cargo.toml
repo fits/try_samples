@@ -1,0 +1,14 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[[bin]]
+name = "sample1"
+path = "sample1.rs"
+
+[[bin]]
+name = "sample2"
+path = "sample2.rs"
