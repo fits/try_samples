@@ -31,63 +31,59 @@ const query = (wasm, ptr, q) => {
     }
 }
 
-const run = async () => {
-    const buf = await Deno.readFile(wasmFile)
-    const module = await WebAssembly.compile(buf)
+const buf = await Deno.readFile(wasmFile)
+const module = await WebAssembly.compile(buf)
 
-    const wasm = await WebAssembly.instantiate(module, {})
+const wasm = await WebAssembly.instantiate(module, {})
 
-    const ctxptr = wasm.exports.open()
+const ctxptr = wasm.exports.open()
 
-    const queryAndShow = (q) => {
-        console.log( query(wasm, ctxptr, q) )
-    }
-
-    try {
-        queryAndShow(`
-            mutation {
-                create(input: { id: "item-1", value: 12 }) {
-                    id
-                }
-            }
-        `)
-
-        queryAndShow(`
-            mutation {
-                create(input: { id: "item-2", value: 34 }) {
-                    id
-                }
-            }
-        `)
-
-        queryAndShow(`
-            query {
-                find(id: "item-1") {
-                    id
-                    value
-                }
-            }
-        `)
-
-        queryAndShow(`
-            {
-                find(id: "item-2") {
-                    id
-                    value
-                }
-            }
-        `)
-
-        queryAndShow(`
-            {
-                find(id: "item-3") {
-                    id
-                }
-            }
-        `)
-    } finally {
-        wasm.exports.close(ctxptr)
-    }
+const queryAndShow = (q) => {
+    console.log( query(wasm, ctxptr, q) )
 }
 
-run().catch(err => console.error(err))
+try {
+    queryAndShow(`
+        mutation {
+            create(input: { id: "item-1", value: 12 }) {
+                id
+            }
+        }
+    `)
+
+    queryAndShow(`
+        mutation {
+            create(input: { id: "item-2", value: 34 }) {
+                id
+            }
+        }
+    `)
+
+    queryAndShow(`
+        query {
+            find(id: "item-1") {
+                id
+                value
+            }
+        }
+    `)
+
+    queryAndShow(`
+        {
+            find(id: "item-2") {
+                id
+                value
+            }
+        }
+    `)
+
+    queryAndShow(`
+        {
+            find(id: "item-3") {
+                id
+            }
+        }
+    `)
+} finally {
+    wasm.exports.close(ctxptr)
+}
