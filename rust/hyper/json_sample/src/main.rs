@@ -9,7 +9,7 @@ use std::sync::{Arc, RwLock};
 #[derive(Default, Clone, Debug)]
 struct Store(Arc<RwLock<Vec<JsValue>>>);
 
-fn to_response(s: String) -> Result<Response<Body>> {
+fn json_response(s: String) -> Result<Response<Body>> {
     let res = Response::builder()
         .status(StatusCode::OK)
         .header(header::CONTENT_TYPE, "application/json")
@@ -19,31 +19,25 @@ fn to_response(s: String) -> Result<Response<Body>> {
     Ok(res)
 }
 
-fn not_found() -> Result<Response<Body>> {
+fn response(code: StatusCode, s: String) -> Result<Response<Body>> {
     let res = Response::builder()
-        .status(StatusCode::NOT_FOUND)
-        .body(Body::empty())
+        .status(code)
+        .body(Body::from(s))
         .unwrap();
 
     Ok(res)
+}
+
+fn not_found() -> Result<Response<Body>> {
+    response(StatusCode::NOT_FOUND, String::default())
 }
 
 fn server_error(s: String) -> Result<Response<Body>> {
-    let res = Response::builder()
-        .status(StatusCode::INTERNAL_SERVER_ERROR)
-        .body(Body::from(s))
-        .unwrap();
-
-    Ok(res)
+    response(StatusCode::INTERNAL_SERVER_ERROR, s)
 }
 
 fn bad_request(s: String) -> Result<Response<Body>> {
-    let res = Response::builder()
-        .status(StatusCode::BAD_REQUEST)
-        .body(Body::from(s))
-        .unwrap();
-
-    Ok(res)
+    response(StatusCode::BAD_REQUEST, s)
 }
 
 async fn post_items(req: Request<Body>, store: Store) -> Result<Response<Body>> {
@@ -55,7 +49,7 @@ async fn post_items(req: Request<Body>, store: Store) -> Result<Response<Body>> 
                 store.push(v);
                 let size = store.len();
             
-                to_response(size.to_string())
+                json_response(size.to_string())
             },
             Err(e) => server_error(e.to_string())
         },
@@ -69,7 +63,7 @@ fn get_items(_req: Request<Body>, store: Store) -> Result<Response<Body>> {
             let json = serde_json::to_string(&store.clone())
                 .unwrap_or("".to_string());
 
-            to_response(json)
+            json_response(json)
         },
         Err(e) => server_error(e.to_string())
     }
