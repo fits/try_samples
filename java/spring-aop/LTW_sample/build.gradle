@@ -1,0 +1,27 @@
+plugins {
+    id 'org.springframework.boot' version '2.6.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'sample'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    runtimeOnly 'org.springframework:spring-instrument'
+}
+
+def javaagent() {
+    def jarFile = configurations.runtimeClasspath.filter(f -> f.name.contains('spring-instrument'))[0]
+    "-javaagent:${jarFile}" as String
+}
+
+bootRun {
+    jvmArgs = [javaagent(), '-Daj.weaving.verbose=true', '-Dorg.aspectj.weaver.showWeaveInfo=true']
+}
