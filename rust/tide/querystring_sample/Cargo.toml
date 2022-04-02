@@ -1,0 +1,8 @@
+[package]
+name = "querystring_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tide = "0.16.0"
+serde = { version = "1.0", features = ["derive"] }
