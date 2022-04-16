@@ -14,8 +14,7 @@ def fields_to_update(st, prefix=[]):
             case Token(ttype=tt, value=v) if tt == DDL or (tt == DML and v.upper() != 'UPDATE'):
                 break
             case IdentifierList():
-                for f in fields_to_update(t, p):
-                    yield f
+                yield from fields_to_update(t, p)
             case Identifier():
                 p = p + [t.get_real_name()]
             case Comparison(left=Identifier() as l):
