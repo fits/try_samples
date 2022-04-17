@@ -1,6 +1,6 @@
 import sqlparse
 from sqlparse.sql import Identifier, IdentifierList, Comparison, Token
-from sqlparse.tokens import DML, DDL
+from sqlparse.tokens import DML
 
 import sys
 
