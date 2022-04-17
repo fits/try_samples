@@ -1,0 +1,1 @@
+update ITEMS as i set i.price = 200, i.updated_at = NOW(), i.rev = i.rev + 1 where id = '2'
