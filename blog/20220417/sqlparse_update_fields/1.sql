@@ -1,0 +1,1 @@
+UPDATE ITEMS SET price = 1000 WHERE id = '1'
