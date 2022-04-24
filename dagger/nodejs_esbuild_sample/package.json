@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build": "npx esbuild ./src/app.ts --bundle --platform=node --outfile=build/bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.37"
+  },
+  "dependencies": {
+    "fp-ts": "^2.11.10"
+  }
+}
