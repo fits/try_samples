@@ -28,8 +28,8 @@
         <configuration>
           <includes>
             <!--
-              XXXSpec ƒNƒ‰ƒX‚ğÀs‚·‚é‚½‚ß‚Ìİ’è
-              Šg’£q‚ğ .java ‚Å include ‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢“_‚É’ˆÓ
+              XXXSpec ã‚¯ãƒ©ã‚¹ã‚’å®Ÿè¡Œã™ã‚‹ãŸã‚ã®è¨­å®š
+              æ‹¡å¼µå­ã‚’ .java ã§ include ã—ãªã‘ã‚Œã°ãªã‚‰ãªã„ç‚¹ã«æ³¨æ„
              -->
             <include>**/*Spec.java</include>
           </includes>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
