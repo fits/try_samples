@@ -2,14 +2,10 @@ package com.example.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-@ControllerAdvice
-@ResponseBody
+@RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler(AppException.class)
     public ResponseError handleAppException(AppException ex) {
