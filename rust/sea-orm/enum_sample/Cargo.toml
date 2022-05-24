@@ -1,0 +1,8 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sea-orm = { version = "0.8", features = ["sqlx-mysql", "runtime-async-std-rustls", "macros" ] }
+async-std = { version = "1", features = ["attributes"] }
