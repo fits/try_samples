@@ -3,21 +3,18 @@ module sample
 go 1.15
 
 require (
-	github.com/containerd/containerd v1.4.3
-	github.com/containerd/continuity v0.0.0-20201202124332-91328d7c60e7 // indirect
-	github.com/containerd/fifo v0.0.0-20201026212402-0724c46b320c // indirect
-	github.com/containerd/ttrpc v1.0.2 // indirect
-	github.com/containerd/typeurl v1.0.1 // indirect
-	github.com/docker/go-events v0.0.0-20190806004212-e31b211e4f1c // indirect
-	github.com/gogo/googleapis v1.4.0 // indirect
-	github.com/opencontainers/image-spec v1.0.1 // indirect
-	github.com/opencontainers/runc v0.1.1 // indirect
-	github.com/opencontainers/runtime-spec v1.0.2 // indirect
-	github.com/opencontainers/selinux v1.6.0 // indirect
-	github.com/sirupsen/logrus v1.7.0 // indirect
-	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
-	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb // indirect
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
-	golang.org/x/sys v0.0.0-20201202213521-69691e467435 // indirect
-	google.golang.org/grpc v1.34.0 // indirect
+	github.com/Microsoft/go-winio v0.5.2 // indirect
+	github.com/Microsoft/hcsshim v0.8.24 // indirect
+	github.com/containerd/containerd v1.5.10
+	github.com/containerd/typeurl v1.0.2
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/opencontainers/runc v1.0.3 // indirect
+	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	google.golang.org/grpc v1.40.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	gopkg.in/yaml.v3 v3.0.0 // indirect
 )
