@@ -1,0 +1,24 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.0'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    implementation 'org.seasar.doma.boot:doma-spring-boot-starter:1.6.0'
+    implementation 'org.seasar.doma:doma-core:2.51.1'
+    annotationProcessor 'org.seasar.doma:doma-processor:2.51.1'
+
+    runtimeOnly 'mysql:mysql-connector-java'
+}
