@@ -14,6 +14,9 @@ import java.util.function.Function;
 @SpringBootApplication
 public class Application {
     public static void main(String[] args) {
+        var handler = args.length > 0 ? args[0] : "sample";
+        System.setProperty("_HANDLER", handler);
+
         SpringApplication.run(Application.class, args);
     }
 
