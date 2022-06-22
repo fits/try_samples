@@ -1,0 +1,15 @@
+plugins {
+    id 'application'
+}
+
+sourceCompatibility = '17'
+mainClassName = 'App'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform('com.typesafe.akka:akka-bom_3:2.6.19')
+    implementation 'com.typesafe.akka:akka-stream_3'
+}
