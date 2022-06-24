@@ -6,10 +6,10 @@ plugins {
 mainClassName = 'sample.SampleApp'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    compile 'org.mongodb:mongodb-driver-reactivestreams:1.9.2'
-    compile 'io.projectreactor:reactor-core:3.2.1.RELEASE'
+    implementation 'org.mongodb:mongodb-driver-reactivestreams:4.6.1'
+    implementation 'io.projectreactor:reactor-core:3.4.19'
 }
