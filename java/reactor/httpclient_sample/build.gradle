@@ -1,0 +1,14 @@
+
+plugins {
+    id 'application'
+}
+
+mainClassName = 'sample.App'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.projectreactor.netty:reactor-netty:1.0.20'
+}
