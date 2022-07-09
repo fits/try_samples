@@ -5,6 +5,6 @@ const width = parseInt(process.argv[3])
 
 const start = Date.now()
 
-await sharp(file).resize(width).toFile('output.jpg')
+await sharp(file).rotate().resize(width).toFile('output.jpg')
 
 console.log(`time: ${Date.now() - start} ms`)
