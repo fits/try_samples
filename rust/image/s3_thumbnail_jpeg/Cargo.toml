@@ -1,0 +1,16 @@
+[package]
+name = "s3_thumbnail_jpeg"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+lto = true
+panic = "abort"
+
+[dependencies]
+image = "0.24"
+bytes = "1.2"
+http = "0.2"
+aws-config = "0.46"
+aws-sdk-s3 = "0.16"
+tokio = { version = "1", features = ["full"] }
