@@ -27,8 +27,8 @@ class BinlogConfig:
 
     def save(self, log_file, log_pos):
         self.config['binlog'] = {
-            'log_file': stream.log_file, 
-            'log_pos': stream.log_pos
+            'log_file': log_file, 
+            'log_pos': log_pos
         }
 
         with open(self.conf_file, 'w') as f:
