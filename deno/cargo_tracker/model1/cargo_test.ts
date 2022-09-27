@@ -1,6 +1,6 @@
 
 import { assertExists, assertEquals, assert } from "https://deno.land/std@0.155.0/testing/asserts.ts"
-import { create, changeDestination, changeDeadline, assignToRoute, close } from './models.ts'
+import { create, changeDestination, changeDeadline, assignToRoute, close } from './cargo.ts'
 
 const daysAfter = (n: number) => new Date(Date.now() + (n * 24 * 60 * 60 * 1000))
 
