@@ -47,18 +47,28 @@ Object.assign(schema.getTypeMap().Date, {
         console.log(`*** called parseValue: ${inputValue}`)
 
         if (typeof inputValue === 'string') {
-            return new Date(inputValue)
-        }
+            const d = new Date(inputValue)
 
+            if (isNaN(d.getTime())) {
+                throw new GraphQLError('invalid date')
+            }
+        
+            return d
+        }
         throw new GraphQLError('non string value')
     },
     parseLiteral: (valueNode: ValueNode) => {
         console.log(`*** called parseLiteral: ${JSON.stringify(valueNode)}`)
 
         if (valueNode.kind === Kind.STRING) {
-            return new Date(valueNode.value)
-        }
+            const d = new Date(valueNode.value)
 
+            if (isNaN(d.getTime())) {
+                throw new GraphQLError('invalid date')
+            }
+        
+            return d
+        }
         throw new GraphQLError('non string value')
     }
 })
