@@ -1,6 +1,6 @@
 
 import {
-    graphql, buildSchema, GraphQLScalarType, GraphQLError, ValueNode, Kind
+    graphql, buildSchema, GraphQLScalarType, GraphQLError, Kind
 } from 'https://cdn.skypack.dev/graphql?dts'
 
 type StrMap = { [s: string]: unknown }
@@ -26,13 +26,13 @@ export const GraphQLDate = new GraphQLScalarType<Date, string>({
         }
         throw error('non date')
     },
-    parseValue: (inputValue: unknown) => {    
+    parseValue: (inputValue) => {    
         if (typeof inputValue === 'string') {
             return new Date(inputValue)
         }
         throw error('non string value')
     },
-    parseLiteral: (valueNode: ValueNode) => {
+    parseLiteral: (valueNode) => {
         if (valueNode.kind === Kind.STRING) {
             return new Date(valueNode.value)
         }
