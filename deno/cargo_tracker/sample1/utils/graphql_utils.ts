@@ -28,16 +28,26 @@ export const GraphQLDate = new GraphQLScalarType<Date, string>({
     },
     parseValue: (inputValue) => {    
         if (typeof inputValue === 'string') {
-            return new Date(inputValue)
+            return toDate(inputValue)
         }
         throw error('non string value')
     },
     parseLiteral: (valueNode) => {
         if (valueNode.kind === Kind.STRING) {
-            return new Date(valueNode.value)
+            return toDate(valueNode.value)
         }
         throw error('non string value')
     }
 })
 
 export const error = (msg: string) => new GraphQLError(msg)
+
+const toDate = (v: string) => {
+    const d = new Date(v)
+
+    if (isNaN(d.getTime())) {
+        throw new GraphQLError('invalid date')
+    }
+
+    return d
+}
