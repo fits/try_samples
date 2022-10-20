@@ -22,6 +22,8 @@ const toDate = (v: string) => {
     return d
 }
 
+type MaybeObjMap = { [key: string]: unknown } | null | undefined
+
 Object.assign(schema.getTypeMap().SampleDate, {
     serialize: (outputValue: unknown) => {
         console.log(`*** called serialize: ${outputValue}`)
@@ -39,8 +41,8 @@ Object.assign(schema.getTypeMap().SampleDate, {
         }
         throw new GraphQLError('non string value')
     },
-    parseLiteral: (valueNode: ValueNode) => {
-        console.log(`*** called parseLiteral: ${JSON.stringify(valueNode)}`)
+    parseLiteral: (valueNode: ValueNode, variables?: MaybeObjMap) => {
+        console.log(`*** called parseLiteral: ${JSON.stringify(valueNode)}, ${JSON.stringify(variables)}`)
 
         if (valueNode.kind === Kind.STRING) {
             return toDate(valueNode.value)
@@ -61,14 +63,20 @@ console.log(r1)
 
 console.log('-----')
 
-const r2 = await graphql({ schema, rootValue, source: '{ addDay(date: "2022-10-21T13:00:00Z") }' })
+const r2 = await graphql({
+    schema, 
+    rootValue, 
+    source: '{ addDay(date: "2022-10-21T13:00:00Z") }'
+})
 console.log(r2)
 
 console.log('-----')
 
-const r3 = await graphql({ schema, rootValue, 
+const r3 = await graphql({
+    schema,
+    rootValue, 
     source: `
-        query AddDay($d: SampleDate!) {
+        query ($d: SampleDate!) {
             addDay(date: $d)
         }
     `,
