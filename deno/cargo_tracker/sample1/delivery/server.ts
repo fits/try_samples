@@ -1,10 +1,9 @@
 
-import { bindGql, GraphQLDate, error } from '../utils/graphql_utils.ts'
-import { serve } from '../utils/server_utils.ts'
+import { gqlServe, GraphQLDate, error } from '../utils/graphql_utils.ts'
 
 import {
     TrackingId, Delivery, UnLocode, VoyageNumber, DeliveryAction,
-    create, receive, load, unload, claim, isMisdirected, isArrived
+    create, receive, load, unload, claim, isMisdirected, isUnloadedAtDestination
 } from './delivery.ts'
 
 const port = parseInt(Deno.env.get('DELIVERY_PORT') ?? '8082')
@@ -53,7 +52,7 @@ const schema = `
     type Query {
         find(trackingId: ID!): Delivery
         isMisdirected(trackingId: ID!): Boolean!
-        isArrived(trackingId: ID!): Boolean!
+        isUnloadedAtDestination(trackingId: ID!): Boolean!
     }
 
     type Mutation {
@@ -142,7 +141,7 @@ const rootValue = {
 
         return isMisdirected(s, (_tid) => r?.itinerary)
     },
-    isArrived: async ({ trackingId }: TrackingIdInput) => {
+    isUnloadedAtDestination: async ({ trackingId }: TrackingIdInput) => {
         const s = store[trackingId]
 
         if (!s) {
@@ -151,7 +150,7 @@ const rootValue = {
 
         const r = await findRouteAndSpec(trackingId)
 
-        return isArrived(s, (_tid) => r ? [r.itinerary, r.routeSpec] : undefined)
+        return isUnloadedAtDestination(s, (_tid) => r ? [r.itinerary, r.routeSpec] : undefined)
     },
     create: ({ trackingId }: TrackingIdInput) => {
         if (!store[trackingId]) {
@@ -200,26 +199,27 @@ const rootValue = {
     }
 }
 
-const gql = bindGql(schema, rootValue, {
-    Date: GraphQLDate,
-    Delivery: {
-        resolveType: (v: Delivery) => {
-            switch (v.tag) {
-                case 'delivery.not-received':
-                    return 'NotReceivedDelivery'
-                case 'delivery.in-port':
-                    return 'InPortDelivery'
-                case 'delivery.onboard-carrier':
-                    return 'OnBoardCarrierDelivery'
-                case 'delivery.claimed':
-                    return 'ClaimedDelivery'
+gqlServe({
+    schema, 
+    rootValue, 
+    port, 
+    typeResolvs: {
+        Date: GraphQLDate,
+        Delivery: {
+            resolveType: (v: Delivery) => {
+                switch (v.tag) {
+                    case 'delivery.not-received':
+                        return 'NotReceivedDelivery'
+                    case 'delivery.in-port':
+                        return 'InPortDelivery'
+                    case 'delivery.onboard-carrier':
+                        return 'OnBoardCarrierDelivery'
+                    case 'delivery.claimed':
+                        return 'ClaimedDelivery'
+                }
             }
         }
     }
 })
-
-const proc = async (req: string) => JSON.stringify(await gql(req))
-
-serve(proc, port)
 
 console.log(`listen: ${port}`)

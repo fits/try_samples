@@ -1,7 +1,6 @@
 
 import { VoyageNumber } from '../common.ts'
-import { bindGql, error, GraphQLDate } from '../utils/graphql_utils.ts'
-import { serve } from '../utils/server_utils.ts'
+import { gqlServe, error, GraphQLDate } from '../utils/graphql_utils.ts'
 
 import {
     TrackingId, Cargo, ActiveCargo, UnLocode, CargoAction,
@@ -221,28 +220,29 @@ const rootValue = {
     }
 }
 
-const gql = bindGql(schema, rootValue, {
-    Date: GraphQLDate,
-    Cargo: {
-        resolveType: (v: Cargo) => {
-            console.log(v)
-            switch (v.tag) {
-                case 'cargo.unrouted':
-                    return 'UnroutedCargo'
-                case 'cargo.routed':
-                    return 'RoutedCargo'
-                case 'cargo.misrouted':
-                    return 'MisroutedCargo'
-                case 'cargo.closed':
-                    return 'ClosedCargo'
+gqlServe({
+    schema, 
+    rootValue, 
+    port, 
+    typeResolvs: {
+        Date: GraphQLDate,
+        Cargo: {
+            resolveType: (v: Cargo) => {
+                console.log(v)
+                switch (v.tag) {
+                    case 'cargo.unrouted':
+                        return 'UnroutedCargo'
+                    case 'cargo.routed':
+                        return 'RoutedCargo'
+                    case 'cargo.misrouted':
+                        return 'MisroutedCargo'
+                    case 'cargo.closed':
+                        return 'ClosedCargo'
+                }
+                return 'Unknown'
             }
-            return 'Unknown'
         }
     }
 })
-
-const proc = async (req: string) => JSON.stringify(await gql(req))
-
-serve(proc, port)
 
 console.log(`listen: ${port}`)
