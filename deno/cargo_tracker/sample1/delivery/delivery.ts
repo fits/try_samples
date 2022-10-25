@@ -146,7 +146,7 @@ export function claim(trackingId: TrackingId, completionTime: Date,
     findRoute: FindRouteAndSpec): DeliveryAction {
 
     return state => {
-        if (isArrived(state, findRoute)) {
+        if (isUnloadedAtDestination(state, findRoute)) {
             const event: Claimed = {
                 tag: 'transport-event.claimed',
                 trackingId,
@@ -160,7 +160,7 @@ export function claim(trackingId: TrackingId, completionTime: Date,
     }
 }
 
-export function isArrived(state: Delivery, findRoute: FindRouteAndSpec): boolean {
+export function isUnloadedAtDestination(state: Delivery, findRoute: FindRouteAndSpec): boolean {
     const r = findRoute(state.trackingId)
 
     if (!r || r[0].legs.length == 0) {
