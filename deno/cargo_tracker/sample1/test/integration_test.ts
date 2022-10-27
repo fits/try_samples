@@ -30,11 +30,13 @@ describe('location', () => {
     })
 
     it('find', async () => {
-        const r1 = await findLocation('JNTKO')
-        assertExists(r1.data.find)
-    
-        const r2 = await findLocation('ABTKO')
-        assert(r2.data.find == null)
+        const r = await findLocation('JNTKO')
+        assertExists(r.data.find)
+    })
+
+    it('find invalid location', async () => {
+        const r = await findLocation('ABTKO')
+        assert(r.data.find == null)
     })
 })
 
