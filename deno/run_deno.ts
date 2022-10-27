@@ -7,3 +7,5 @@ setTimeout(() => {
     p.kill('SIGTERM')
     p.close()
 }, 3000)
+
+console.log(await p.status())
