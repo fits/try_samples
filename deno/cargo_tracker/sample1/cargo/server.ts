@@ -228,7 +228,6 @@ gqlServe({
         Date: GraphQLDate,
         Cargo: {
             resolveType: (v: Cargo) => {
-                console.log(v)
                 switch (v.tag) {
                     case 'cargo.unrouted':
                         return 'UnroutedCargo'
