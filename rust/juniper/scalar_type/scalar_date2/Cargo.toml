@@ -1,0 +1,15 @@
+[package]
+name = "scalar_date"
+version = "0.1.0"
+edition = "2021"
+default-run = "sample1"
+
+[dependencies]
+juniper = { git = "https://github.com/graphql-rust/juniper" }
+chrono = "0.4"
+serde_json = "1.0"
+bson = "2"
+
+[[bin]]
+name = "sample1"
+path = "src/sample1.rs"
