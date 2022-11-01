@@ -1,0 +1,9 @@
+[package]
+name = "chrono_date_feature"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+juniper = { git = "https://github.com/graphql-rust/juniper", features = ["chrono"] }
+chrono = "0.4"
+serde_json = "1.0"
