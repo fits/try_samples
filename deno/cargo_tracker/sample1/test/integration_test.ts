@@ -1,6 +1,6 @@
 
-import { assertExists, assertEquals, assert } from 'https://deno.land/std@0.159.0/testing/asserts.ts'
-import { describe, it, beforeAll, afterAll } from 'https://deno.land/std@0.159.0/testing/bdd.ts'
+import { assertExists, assertEquals, assert } from 'https://deno.land/std@0.161.0/testing/asserts.ts'
+import { describe, it, beforeAll, afterAll } from 'https://deno.land/std@0.161.0/testing/bdd.ts'
 
 const runServerWait = parseInt(Deno.env.get('RUN_SERVER_WAIT') ?? '100')
 
