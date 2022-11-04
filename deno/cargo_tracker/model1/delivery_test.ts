@@ -1,5 +1,5 @@
 
-import { assertExists, assertEquals, assert } from 'https://deno.land/std@0.155.0/testing/asserts.ts'
+import { assertExists, assertEquals, assert } from 'https://deno.land/std@0.161.0/testing/asserts.ts'
 
 import { RouteSpecification, Itinerary } from './common.ts'
 

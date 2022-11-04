@@ -1,6 +1,9 @@
 
 import { UnLocode, VoyageNumber, RouteSpecification, Itinerary, Leg } from './common.ts'
-import { TrackingId } from './cargo.ts'
+
+export type { UnLocode, VoyageNumber } from './common.ts'
+
+export type TrackingId = string
 
 export type HandlingEvent = Received | Loaded | Unloaded | Claimed
 
@@ -62,11 +65,11 @@ export interface ClaimedDelivery {
 }
 
 type DeliveryResult = { delivery: Delivery, event: HandlingEvent } | undefined
-type DeliveryAction = (state: Delivery) => DeliveryResult
+export type DeliveryAction = (state: Delivery) => DeliveryResult
 type DeliveryOptional = Delivery | undefined
 
-type FindRoute = (trackingId: TrackingId) => Itinerary | undefined
-type FindRouteAndSpec = (trackingId: TrackingId) => [Itinerary, RouteSpecification] | undefined
+export type FindRoute = (trackingId: TrackingId) => Itinerary | undefined
+export type FindRouteAndSpec = (trackingId: TrackingId) => [Itinerary, RouteSpecification] | undefined
 
 export function create(trackingId: TrackingId): DeliveryOptional {
     if (trackingId.trim().length == 0) {
@@ -143,13 +146,7 @@ export function claim(trackingId: TrackingId, completionTime: Date,
     findRoute: FindRouteAndSpec): DeliveryAction {
 
     return state => {
-        const r = findRoute(trackingId)
-
-        if (!r || r[0].legs.length == 0) {
-            return undefined
-        }
-
-        if (state.tag == 'delivery.in-port' && isArrived(state.location, r[0], r[1])) {
+        if (isUnloadedAtDestination(state, findRoute)) {
             const event: Claimed = {
                 tag: 'transport-event.claimed',
                 trackingId,
@@ -161,6 +158,16 @@ export function claim(trackingId: TrackingId, completionTime: Date,
 
         return undefined
     }
+}
+
+export function isUnloadedAtDestination(state: Delivery, findRoute: FindRouteAndSpec): boolean {
+    const r = findRoute(state.trackingId)
+
+    if (!r || r[0].legs.length == 0) {
+        return false
+    }
+
+    return state.tag == 'delivery.in-port' && isArrivedLocation(state.location, r[0], r[1])
 }
 
 export function isMisdirected(state: Delivery, findRoute: FindRoute): boolean {
@@ -200,7 +207,7 @@ function isMisdirectedForClaimed(state: ClaimedDelivery, legs: Leg[]): boolean {
     return lastLocation(legs) != state.location
 }
 
-function isArrived(location: UnLocode, itinerary: Itinerary, 
+function isArrivedLocation(location: UnLocode, itinerary: Itinerary, 
     routeSpec: RouteSpecification): boolean {
 
     return [ lastLocation(itinerary.legs), routeSpec.destination ].includes(location)
@@ -233,8 +240,8 @@ function transit(state: Delivery, event: HandlingEvent): DeliveryOptional {
         case 'delivery.not-received':
             if (event.tag == 'transport-event.received') {
                 return {
-                    ...state, 
                     tag: 'delivery.in-port', 
+                    trackingId: state.trackingId,
                     location: event.location
                 }
             }
@@ -243,15 +250,16 @@ function transit(state: Delivery, event: HandlingEvent): DeliveryOptional {
             switch (event.tag) {
                 case 'transport-event.loaded':
                     return {
-                        ...state,
                         tag: 'delivery.onboard-carrier',
+                        trackingId: state.trackingId,
                         currentVoyageNo: event.voyageNo,
                         location: event.location
                     }
                 case 'transport-event.claimed':
                     return {
-                        ...state,
                         tag: 'delivery.claimed',
+                        trackingId: state.trackingId,
+                        location: state.location,
                         claimedTime: event.completionTime
                     }                    
             }
@@ -260,8 +268,8 @@ function transit(state: Delivery, event: HandlingEvent): DeliveryOptional {
             switch (event.tag) {
                 case 'transport-event.unloaded':
                     return {
-                        ...state,
                         tag: 'delivery.in-port',
+                        trackingId: state.trackingId,
                         location: event.location
                     }
             }
