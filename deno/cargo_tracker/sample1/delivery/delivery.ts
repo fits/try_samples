@@ -240,8 +240,8 @@ function transit(state: Delivery, event: HandlingEvent): DeliveryOptional {
         case 'delivery.not-received':
             if (event.tag == 'transport-event.received') {
                 return {
-                    ...state, 
                     tag: 'delivery.in-port', 
+                    trackingId: state.trackingId,
                     location: event.location
                 }
             }
@@ -250,15 +250,16 @@ function transit(state: Delivery, event: HandlingEvent): DeliveryOptional {
             switch (event.tag) {
                 case 'transport-event.loaded':
                     return {
-                        ...state,
                         tag: 'delivery.onboard-carrier',
+                        trackingId: state.trackingId,
                         currentVoyageNo: event.voyageNo,
                         location: event.location
                     }
                 case 'transport-event.claimed':
                     return {
-                        ...state,
                         tag: 'delivery.claimed',
+                        trackingId: state.trackingId,
+                        location: state.location,
                         claimedTime: event.completionTime
                     }                    
             }
@@ -267,8 +268,8 @@ function transit(state: Delivery, event: HandlingEvent): DeliveryOptional {
             switch (event.tag) {
                 case 'transport-event.unloaded':
                     return {
-                        ...state,
                         tag: 'delivery.in-port',
+                        trackingId: state.trackingId,
                         location: event.location
                     }
             }
