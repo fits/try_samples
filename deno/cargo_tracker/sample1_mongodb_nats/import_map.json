@@ -1,0 +1,8 @@
+{
+    "imports": {
+        "std/": "https://deno.land/std@0.161.0/",
+        "graphql": "https://cdn.skypack.dev/graphql?dts",
+        "mongo": "https://deno.land/x/mongo@v0.31.1/mod.ts",
+        "nats": "https://deno.land/x/nats@v1.9.0/src/mod.ts"
+    }
+}
