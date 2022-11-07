@@ -36,5 +36,6 @@ for await (const m of sub) {
     const msg = sc.decode(m.data)
     console.log(`sid: ${m.sid}, seq: ${m.seq}, subject: ${m.subject}, data: ${JSON.stringify(msg)}`)
 
-    m.ack()
+    const r = await m.ackAck()
+    console.log(`**** ack: ${r}`)
 }
