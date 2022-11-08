@@ -1,9 +1,9 @@
 
 import { Maybe } from '../utils/type_utils.ts'
 
-import { gqlServe, GraphQLDate, error } from '../utils/graphql_utils.ts'
+import { gqlServe, GraphQLDate, error, postQuery } from '../utils/graphql_utils.ts'
 import { MongoClient, ObjectId, Store } from '../utils/mongo_utils.ts'
-import { connectNats, EventBroker } from '../utils/nats_utils.ts'
+import { connectNats, StreamEventBroker } from '../utils/nats_utils.ts'
 
 import {
     TrackingId, Delivery, UnLocode, VoyageNumber, DeliveryAction, HandlingEvent,
@@ -17,13 +17,13 @@ const dbUrl = Deno.env.get('DB_ENDPOINT') ?? 'mongodb://127.0.0.1'
 const dbName = Deno.env.get('DB_NAME') ?? 'delivery'
 const colName = Deno.env.get('COLLECTION_NAME') ?? 'data'
 
-const msgServer = Deno.env.get('MESSAGING_ENDPOINT') ?? 'localhost'
+const msgServer = Deno.env.get('MESSAGING_SERVER') ?? 'localhost'
 
 type DeliveryStore = Store<Delivery, HandlingEvent>
 
 type Context = {
     store: DeliveryStore,
-    broker: EventBroker<HandlingEvent>
+    broker: StreamEventBroker<HandlingEvent>
 }
 
 const schema = `
@@ -102,16 +102,16 @@ const doAction = async (ctx: Context, trackingId: TrackingId, action: DeliveryAc
     })
 
     if (event) {
-        ctx.broker.publish(event.tag, event)
+        await ctx.broker.publish(event.tag, event)
     }
 
     return r?.state
 }
 
 const findRouteAndSpec = async (trackingId: TrackingId) => {
-    const r = await fetch(cargoEndpoint, {
-        method: 'POST',
-        body: `{
+    const r = await postQuery(
+        cargoEndpoint, 
+        `{
             find(trackingId: "${trackingId}") {
                 trackingId
                 routeSpec {
@@ -136,14 +136,12 @@ const findRouteAndSpec = async (trackingId: TrackingId) => {
                 }
             }
         }`
-    })
+    )
 
-    const body = await r.json()
-
-    if (body.data?.find) {
+    if (r.data?.find) {
         return {
-            itinerary: body.data.find.itinerary, 
-            routeSpec: body.data.find.routeSpec
+            itinerary: r.data.find.itinerary, 
+            routeSpec: r.data.find.routeSpec
         }
     }
 
@@ -249,7 +247,7 @@ const nats = await connectNats({ servers: msgServer })
 
 const contextValue: Context = {
     store: new Store(db.collection(colName)),
-    broker: new EventBroker(nats)
+    broker: new StreamEventBroker(nats)
 }
 
 gqlServe({

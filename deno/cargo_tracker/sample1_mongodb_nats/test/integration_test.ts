@@ -13,20 +13,15 @@ const locationUrl = `http://localhost:${locationPort}`
 const deliveryUrl = `http://localhost:${deliveryPort}`
 
 describe('location', () => {
-    let p: Deno.Process
+    let pm: ProcessManager
 
     beforeAll(async () => {
-        p = runServer(
-            'location/server.ts', 
-            {'LOCATION_PORT':  `${locationPort}`}
-        )
-
-        await sleep()
+        pm = new ProcessManager()
+        await pm.start()
     })
 
-    afterAll(() => {
-        p.kill('SIGTERM')
-        p.close()
+    afterAll(async () => {
+        await pm?.stop()
     })
 
     it('find', async () => {
@@ -41,39 +36,16 @@ describe('location', () => {
 })
 
 describe('single route', () => {
-    const ps: Deno.Process[] = []
+    let pm: ProcessManager
     let trackingId: string
 
     beforeAll(async () => {
-        ps.push(runServer(
-            'location/server.ts', 
-            {'LOCATION_PORT':  `${locationPort}`}
-        ))
-
-        ps.push(runServer(
-            'cargo/server.ts', 
-            {
-                'CARGO_PORT':  `${cargoPort}`,
-                'LOCATION_ENDPOINT': locationUrl
-            }
-        ))
-
-        ps.push(runServer(
-            'delivery/server.ts', 
-            {
-                'DELIVERY_PORT':  `${deliveryPort}`,
-                'CARGO_ENDPOINT': cargoUrl
-            }
-        ))
-
-        await sleep()
+        pm = new ProcessManager()
+        await pm.start()
     })
 
-    afterAll(() => {
-        ps.forEach(p => {
-            p.kill('SIGTERM')
-            p.close()
-        })
+    afterAll(async () => {
+        await pm?.stop()
     })
 
     it('create cargo', async () => {
@@ -102,11 +74,6 @@ describe('single route', () => {
         assertEquals(leg.voyageNo, '0100S')
         assertEquals(leg.load.location, 'USNYC')
         assertEquals(leg.load.time, d1)
-    })
-
-    it('create delivery', async () => {
-        const r = await createDelivery(trackingId)
-        assertExists(r.data.create)
     })
 
     it('receive', async () => {
@@ -143,6 +110,127 @@ describe('single route', () => {
         assertExists(r.data.close)
     })
 })
+
+describe('misdirected', () => {
+    let pm: ProcessManager
+    let trackingId: string
+
+    beforeAll(async () => {
+        pm = new ProcessManager()
+        await pm.start()
+    })
+
+    afterAll(async () => {
+        await pm?.stop()
+    })
+
+    it('create cargo', async () => {
+        const r = await createCargo('USNYC', 'JNTKO', afterDays(30).toISOString())
+        assertExists(r.data.create)
+    
+        trackingId = r.data.create.trackingId
+    })
+
+    it('assign route', async () => {
+        const d1 = afterDays(1).toISOString()
+
+        const r = await assignCargo(trackingId, [
+            {
+                voyageNo: '0100S', 
+                loadLocation: 'USNYC', 
+                loadTime: d1, 
+                unloadLocation: 'JNTKO', 
+                unloadTime: afterDays(2).toISOString()
+            }
+        ])
+        assertExists(r.data.assignToRoute)
+    })
+
+    it('receive', async () => {
+        const r = await receiveDelivery(trackingId, 'USNYC')
+        assertExists(r.data.receive)
+
+        assertEquals(await isMisdirected(trackingId), false)
+        assertEquals(await isUnloadedAtDestination(trackingId), false)
+    })
+
+    it('load', async () => {
+        const r = await loadDelivery(trackingId, '0100S', 'USNYC')
+        assertExists(r.data.load)
+
+        assertEquals(await isMisdirected(trackingId), false)
+        assertEquals(await isUnloadedAtDestination(trackingId), false)
+    })
+
+    it('unload misdirected', async () => {
+        const r = await unloadDelivery(trackingId, 'USDAL')
+        assertExists(r.data.unload)
+    
+        assertEquals(await isMisdirected(trackingId), true)
+        assertEquals(await isUnloadedAtDestination(trackingId), false)
+    })
+})
+
+class ProcessManager {
+    private ps: Deno.Process[] = []
+
+    async start() {
+        this.ps.push(runServer(
+            'location/server.ts', 
+            { 'LOCATION_PORT':  `${locationPort}` }
+        ))
+
+        this.ps.push(runServer(
+            'cargo/server.ts', 
+            {
+                'CARGO_PORT':  `${cargoPort}`,
+                'LOCATION_ENDPOINT': locationUrl
+            }
+        ))
+
+        this.ps.push(runServer(
+            'delivery/server.ts', 
+            {
+                'DELIVERY_PORT':  `${deliveryPort}`,
+                'CARGO_ENDPOINT': cargoUrl
+            }
+        ))
+
+        await sleep()
+
+        this.ps.push(runServer(
+            'handling/cargo_event_handler.ts', 
+            {
+                'DELIVERY_ENDPOINT':  deliveryUrl,
+                'DURABLE_NAME': 'cargo-test1'
+            }
+        ))
+
+        this.ps.push(runServer(
+            'handling/delivery_event_handler.ts', 
+            {
+                'DELIVERY_ENDPOINT':  deliveryUrl,
+                'DURABLE_NAME': 'delivery-test1'
+            }
+        ))
+
+        this.ps.push(runServer(
+            'handling/tracking_event_handler.ts', 
+            { 'DURABLE_NAME': 'tracking-test1' }
+        ))
+
+        await sleep()
+    }
+
+    async stop() {
+        await sleep()
+
+        this.ps.forEach(p => {
+            p.kill('SIGTERM')
+            p.close()
+        })
+    }
+}
 
 
 const postJson = async (url: string, body: unknown) => {
@@ -220,18 +308,6 @@ const closeCargo = ( tid: string ) => postJson(cargoUrl, {
     query: `
         mutation ($tid: ID!) {
             close(trackingId: $tid) {
-                __typename
-                trackingId
-            }
-        }
-    `,
-    variables: { tid }
-})
-
-const createDelivery = (tid: string) => postJson(deliveryUrl, {
-    query: `
-        mutation ($tid: ID!) {
-            create(trackingId: $tid) {
                 __typename
                 trackingId
             }

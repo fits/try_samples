@@ -1,21 +1,21 @@
 
-import { connect, NatsConnection, JSONCodec } from 'nats'
+import { connect, NatsConnection, JSONCodec, JetStreamClient } from 'nats'
 
 export const connectNats = connect
 
-type Message<E> = { id: string, event: E, date: Date }
+export type Message<E> = { id: string, event: E, date: Date }
 
-export class EventBroker<E> {
-    private con: NatsConnection
+export class StreamEventBroker<E> {
+    private js: JetStreamClient
     private codec
 
     constructor(con: NatsConnection) {
-        this.con = con
+        this.js = con.jetstream()
         this.codec = JSONCodec<Message<E>>()
     }
 
-    publish(subject: string, event: E) {
+    async publish(subject: string, event: E) {
         const msg = { id: crypto.randomUUID(), event, date: new Date() }
-        this.con?.publish(subject, this.codec.encode(msg))
+        await this.js.publish(subject, this.codec.encode(msg))
     }
 }

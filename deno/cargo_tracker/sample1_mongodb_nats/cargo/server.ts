@@ -2,9 +2,9 @@
 import { VoyageNumber } from '../common.ts'
 import { Maybe } from '../utils/type_utils.ts'
 
-import { gqlServe, error, GraphQLDate } from '../utils/graphql_utils.ts'
+import { gqlServe, error, postQuery, GraphQLDate } from '../utils/graphql_utils.ts'
 import { MongoClient, ObjectId, Store } from '../utils/mongo_utils.ts'
-import { connectNats, EventBroker } from '../utils/nats_utils.ts'
+import { connectNats, StreamEventBroker } from '../utils/nats_utils.ts'
 
 import {
     TrackingId, Cargo, ActiveCargo, UnLocode, CargoAction,
@@ -18,13 +18,13 @@ const dbUrl = Deno.env.get('DB_ENDPOINT') ?? 'mongodb://127.0.0.1'
 const dbName = Deno.env.get('DB_NAME') ?? 'cargo'
 const colName = Deno.env.get('COLLECTION_NAME') ?? 'data'
 
-const msgServer = Deno.env.get('MESSAGING_ENDPOINT') ?? 'localhost'
+const msgServer = Deno.env.get('MESSAGING_SERVER') ?? 'localhost'
 
 type CargoStore = Store<ActiveCargo, CargoEvent>
 
 type Context = {
     store: CargoStore,
-    broker: EventBroker<CargoEvent>
+    broker: StreamEventBroker<CargoEvent>
 }
 
 const schema = `
@@ -146,25 +146,23 @@ const doAction = async (ctx: Context, trackingId: TrackingId, action: CargoActio
     })
 
     if (event) {
-        ctx.broker.publish(event.tag, event)
+        await ctx.broker.publish(event.tag, event)
     }
 
     return r?.state
 }
 
 const existsLocation = async (location: UnLocode) => {
-    const r = await fetch(locationEndpoint, {
-        method: 'POST',
-        body: `{
+    const r = await postQuery(
+        locationEndpoint, 
+        `{
             find(unLocode: "${location}") {
                 unLocode
             }
         }`
-    })
+    )
 
-    const body = await r.json()
-
-    return body.data?.find?.unLocode === location
+    return r.data?.find?.unLocode === location
 }
 
 const validateLocations = async (locations: UnLocode[]) => {
@@ -198,7 +196,7 @@ const rootValue = {
         if (s) {
             const r = await ctx.store.update(oid, rev, s.cargo, s.event)
 
-            ctx.broker.publish(s.event.tag, s.event)
+            await ctx.broker.publish(s.event.tag, s.event)
 
             return r?.state
         }
@@ -249,7 +247,7 @@ const nats = await connectNats({ servers: msgServer })
 
 const contextValue: Context = {
     store: new Store(db.collection(colName)),
-    broker: new EventBroker(nats)
+    broker: new StreamEventBroker(nats)
 }
 
 gqlServe({

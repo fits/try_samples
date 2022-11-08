@@ -146,3 +146,15 @@ const serve = async (process: Processor, port = 8080,
         handler(con)
     }
 }
+
+export const postQuery = async (url: string, query: string, variables?: unknown) => {
+    const r = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query, variables })
+    })
+
+    return r.json()
+}
