@@ -133,11 +133,9 @@ object action:
   def close(trackingId: TrackingId): Command[Option[Cargo]] = liftF(Close(trackingId))
 end action
 
-def interpret: CommandA ~> Id =
+def interpret(using store: mutable.Map[TrackingId, Cargo]): CommandA ~> Id =
   new (CommandA ~> Id) {
     import CargoAction.action
-
-    val store = mutable.Map.empty[TrackingId, Cargo]
 
     val save = (s: Cargo) => {
       store.put(s.trackingId, s)
@@ -156,6 +154,8 @@ end interpret
 import action.*
 
 @main def main(): Unit =
+  given store: mutable.Map[TrackingId, Cargo] = mutable.Map.empty[TrackingId, Cargo]
+
   val now = LocalDateTime.now()
 
   val d1 = for {
@@ -223,3 +223,5 @@ import action.*
   } yield r
 
   println(d5.foldMap(interpret))
+
+  println(store)
