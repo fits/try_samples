@@ -1,8 +1,7 @@
 
 import java.time.LocalDateTime
-
-import cargo.{Itinerary, Leg, LocationTime}
-import cargo.CargoAction._
+import models.cargo.{Itinerary, Leg, LocationTime}
+import models.cargo.CargoAction._
 
 @main def main(): Unit =
   val now = LocalDateTime.now()
