@@ -76,7 +76,12 @@ object CargoAction:
       case s => (s, List.empty[Event])
     }
     case AssignRoute(i) => Kleisli {
-      case s: (Cargo.Unrouted | Cargo.Routed | Cargo.Misrouted) if i.legs.nonEmpty =>
+      case Cargo.Unrouted(t, r) if i.legs.nonEmpty =>
+        (
+          inspectRoute(Cargo.Routed(t, r, i)),
+          List(Event.AssignedRoute(t, i))
+        )
+      case s: (Cargo.Routed | Cargo.Misrouted) if i.legs.nonEmpty && i != s.itinerary =>
         (
           inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec, i)),
           List(Event.AssignedRoute(s.trackingId, i))
@@ -84,12 +89,12 @@ object CargoAction:
       case s => (s, List.empty[Event])
     }
     case ChangeDestination(d) => Kleisli {
-      case s: Cargo.Unrouted =>
+      case s: Cargo.Unrouted if d != s.routeSpec.destination =>
         (
           s.copy(routeSpec = s.routeSpec.copy(destination = d)),
           List(Event.ChangedDestination(s.trackingId, d))
         )
-      case s: (Cargo.Routed | Cargo.Misrouted) =>
+      case s: (Cargo.Routed | Cargo.Misrouted) if d != s.routeSpec.destination =>
         (
           inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec.copy(destination = d), s.itinerary)),
           List(Event.ChangedDestination(s.trackingId, d))
@@ -97,12 +102,12 @@ object CargoAction:
       case s => (s, List.empty[Event])
     }
     case ChangeDeadline(d) => Kleisli {
-      case s: Cargo.Unrouted if d.isFuture =>
+      case s: Cargo.Unrouted if d.isFuture && d != s.routeSpec.deadline =>
         (
           s.copy(routeSpec = s.routeSpec.copy(deadline = d)),
           List(Event.ChangedDeadline(s.trackingId, d))
         )
-      case s: (Cargo.Routed | Cargo.Misrouted) if d.isFuture =>
+      case s: (Cargo.Routed | Cargo.Misrouted) if d.isFuture && d != s.routeSpec.deadline =>
         (
           inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec.copy(deadline = d), s.itinerary)),
           List(Event.ChangedDeadline(s.trackingId, d))
