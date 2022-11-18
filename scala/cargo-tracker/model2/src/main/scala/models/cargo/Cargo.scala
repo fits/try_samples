@@ -1,10 +1,10 @@
-package cargo
+package models.cargo
 
-import cats.{Id, ~>}
 import cats.arrow.FunctionK
+import cats.data.{State, Kleisli}
 import cats.free.Free
-import Free.liftF
-import cats.data.State
+import cats.free.Free.liftF
+import cats.{Id, ~>}
 
 import java.time.LocalDateTime
 
@@ -51,13 +51,11 @@ enum CommandA[A]:
   case ChangeDeadline(newDeadline: Date) extends CommandA[List[Event]]
   case Close() extends CommandA[List[Event]]
 
-type Command[A] = Free[CommandA, A]
-
-import CommandA.*
-
 type CargoState[A] = State[Cargo, A]
 
 object CargoAction:
+  import CommandA.*
+
   def emptyCargo = Cargo.Empty()
 
   def create(trackingId: TrackingId, origin: UnLocode, destination: UnLocode, deadline: Date) =
@@ -71,57 +69,59 @@ object CargoAction:
 
   def close() = liftF(Close())
 
+  def action[A](cmd: CommandA[A]): Kleisli[Id, Cargo, (Cargo, A)] = cmd match
+    case Create(t, r) => Kleisli {
+      case Cargo.Empty() if t.nonBlank && r.deadline.isFuture =>
+        (Cargo.Unrouted(t, r), List(Event.Created(t, r)))
+      case s => (s, List.empty[Event])
+    }
+    case AssignRoute(i) => Kleisli {
+      case s: (Cargo.Unrouted | Cargo.Routed | Cargo.Misrouted) if i.legs.nonEmpty =>
+        (
+          inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec, i)),
+          List(Event.AssignedRoute(s.trackingId, i))
+        )
+      case s => (s, List.empty[Event])
+    }
+    case ChangeDestination(d) => Kleisli {
+      case s: Cargo.Unrouted =>
+        (
+          s.copy(routeSpec = s.routeSpec.copy(destination = d)),
+          List(Event.ChangedDestination(s.trackingId, d))
+        )
+      case s: (Cargo.Routed | Cargo.Misrouted) =>
+        (
+          inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec.copy(destination = d), s.itinerary)),
+          List(Event.ChangedDestination(s.trackingId, d))
+        )
+      case s => (s, List.empty[Event])
+    }
+    case ChangeDeadline(d) => Kleisli {
+      case s: Cargo.Unrouted if d.isFuture =>
+        (
+          s.copy(routeSpec = s.routeSpec.copy(deadline = d)),
+          List(Event.ChangedDeadline(s.trackingId, d))
+        )
+      case s: (Cargo.Routed | Cargo.Misrouted) if d.isFuture =>
+        (
+          inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec.copy(deadline = d), s.itinerary)),
+          List(Event.ChangedDeadline(s.trackingId, d))
+        )
+      case s => (s, List.empty[Event])
+    }
+    case Close() => Kleisli {
+      case s: (Cargo.Routed | Cargo.Misrouted) =>
+        (Cargo.Closed(s.trackingId, s.routeSpec, s.itinerary), List(Event.Closed(s.trackingId)))
+      case s => (s, List.empty[Event])
+    }
+  end action
+
   def interpret: CommandA ~> CargoState =
     new (CommandA ~> CargoState) {
-      def apply[A](cmd: CommandA[A]): CargoState[A] =
-        cmd match {
-          case Create(t, r) => State {
-            case Cargo.Empty() if t.nonBlank && r.deadline.isFuture =>
-              (Cargo.Unrouted(t, r), List(Event.Created(t, r)))
-            case s => (s, List.empty[Event])
-          }
-          case AssignRoute(i) => State {
-            case s: (Cargo.Unrouted | Cargo.Routed | Cargo.Misrouted) if i.legs.nonEmpty =>
-              (
-                inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec, i)),
-                List(Event.AssignedRoute(s.trackingId, i))
-              )
-            case s => (s, List.empty[Event])
-          }
-          case ChangeDestination(d) => State {
-            case s: Cargo.Unrouted =>
-              (
-                s.copy(routeSpec = s.routeSpec.copy(destination = d)),
-                List(Event.ChangedDestination(s.trackingId, d))
-              )
-            case s: (Cargo.Routed | Cargo.Misrouted) =>
-              (
-                inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec.copy(destination = d), s.itinerary)),
-                List(Event.ChangedDestination(s.trackingId, d))
-              )
-            case s => (s, List.empty[Event])
-          }
-          case ChangeDeadline(d) => State {
-            case s: Cargo.Unrouted if d.isFuture =>
-              (
-                s.copy(routeSpec = s.routeSpec.copy(deadline = d)),
-                List(Event.ChangedDeadline(s.trackingId, d))
-              )
-            case s: (Cargo.Routed | Cargo.Misrouted) if d.isFuture =>
-              (
-                inspectRoute(Cargo.Routed(s.trackingId, s.routeSpec.copy(deadline = d), s.itinerary)),
-                List(Event.ChangedDeadline(s.trackingId, d))
-              )
-            case s => (s, List.empty[Event])
-          }
-          case Close() => State {
-            case s: (Cargo.Routed | Cargo.Misrouted) =>
-              (Cargo.Closed(s.trackingId, s.routeSpec, s.itinerary), List(Event.Closed(s.trackingId)))
-            case s => (s, List.empty[Event])
-          }
-        }
+      def apply[A](cmd: CommandA[A]): CargoState[A] = State {
+        action(cmd).run(_)
+      }
     }
-  end interpret
 
   private def isSatisfiedWithRoute(itinerary: Itinerary, routeSpec: RouteSpecification): Boolean =
     val fst: Option[LocationTime] = Some(LocationTime(routeSpec.origin, LocalDateTime.MIN))
