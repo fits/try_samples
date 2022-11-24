@@ -65,6 +65,45 @@ def sample2(): Unit =
   result.foreach(r => println(r))
 end sample2
 
+def sample2b(): Unit =
+  val ast =
+    graphql"""
+      type Item {
+        name: String!
+        value: Int!
+      }
+
+      type Query {
+        find: Item!
+      }
+    """
+
+  import sangria.schema.AstSchemaBuilder._
+
+  val builder = AstSchemaBuilder.resolverBased(
+    FieldResolver.map(
+      "Query" -> Map(
+        "find" -> (_ => Item("item-2b", 32)),
+      ),
+      "Item" -> Map(
+        "name" -> (_.asInstanceOf[Context[_, Item]].value.name),
+        "value" -> (_.asInstanceOf[Context[_, Item]].value.value)
+      )
+    )
+  )
+
+  val schema = Schema.buildFromAst(ast, builder)
+
+  val query = graphql"{ find { name value } }"
+
+  given executionContext: ExecutionContext = ExecutionContext.global
+
+  val result = Executor.execute(schema, query)
+
+  result.foreach(r => println(r))
+end sample2b
+
 @main def main(): Unit =
   sample1()
   sample2()
+  sample2b()
