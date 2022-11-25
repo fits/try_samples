@@ -1,0 +1,23 @@
+plugins {
+	id 'scala'
+	id 'application'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.scala-lang:scala3-library_3:3.2.1'
+
+	implementation 'org.http4s:http4s-dsl_3:0.23.16'
+	implementation 'org.http4s:http4s-circe_3:0.23.16'
+	implementation 'org.http4s:http4s-ember-server_3:0.23.16'
+	implementation 'io.circe:circe-generic_3:0.14.3'
+	implementation 'org.sangria-graphql:sangria_3:3.4.1'
+	implementation 'org.sangria-graphql:sangria-circe_3:1.3.2'
+}
+
+application {
+	mainClass = 'App'
+}
