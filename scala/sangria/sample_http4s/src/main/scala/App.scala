@@ -7,7 +7,7 @@ import org.http4s.headers.`Content-Type`
 import org.http4s.dsl.io.*
 import org.http4s.ember.server.EmberServerBuilder
 import sangria.schema.*
-import sangria.execution.Executor
+import sangria.execution.{ErrorWithResolver, Executor}
 import sangria.parser.QueryParser
 import sangria.marshalling.circe.*
 
@@ -47,7 +47,11 @@ object App extends IOApp.Simple:
         .flatMap { q =>
           val query = QueryParser.parse(q.query).get
 
-          val res = Executor.execute(schema, query).map(_.spaces2)
+          val res = Executor.execute(schema, query)
+            .recover {
+              case e: ErrorWithResolver => e.resolveError
+            }
+            .map(_.spaces2)
 
           IO.fromFuture(IO(res))
         }
