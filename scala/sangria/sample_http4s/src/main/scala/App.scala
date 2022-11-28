@@ -9,12 +9,13 @@ import org.http4s.ember.server.EmberServerBuilder
 import sangria.schema.*
 import sangria.execution.{ErrorWithResolver, Executor}
 import sangria.parser.QueryParser
+import sangria.marshalling.InputUnmarshaller
 import sangria.marshalling.circe.*
 
 import scala.util.Properties
 import scala.concurrent.ExecutionContext
 
-case class GqlQuery(query: String)
+case class GqlQuery(query: String, variables: Option[Map[String, String]])
 case class Item(name: String, value: Int)
 
 object App extends IOApp.Simple:
@@ -32,7 +33,12 @@ object App extends IOApp.Simple:
   ))
 
   val QueryType = ObjectType("Query", fields[Unit, Unit](
-    Field("find", ItemType, resolve = _ => Item("item-1", 12))
+    Field(
+      "find",
+      ItemType,
+      arguments = List(Argument("name", StringType)),
+      resolve = ctx => Item(ctx.args.arg("name"), 12)
+    )
   ))
 
   val schema = Schema(QueryType)
@@ -41,13 +47,17 @@ object App extends IOApp.Simple:
     case req @ POST -> Root =>
       val params = req.headers.get[`Content-Type`] match
         case Some(`Content-Type`(MediaType.application.json, _)) => req.as[GqlQuery]
-        case _ => req.as[String].map(GqlQuery(_))
+        case _ => req.as[String].map(GqlQuery(_, None))
 
       params
         .flatMap { q =>
           val query = QueryParser.parse(q.query).get
 
-          val res = Executor.execute(schema, query)
+          val vars = q.variables
+            .map(InputUnmarshaller.mapVars)
+            .getOrElse(InputUnmarshaller.emptyMapVars)
+
+          val res = Executor.execute(schema, query, variables = vars)
             .recover {
               case e: ErrorWithResolver => e.resolveError
             }
