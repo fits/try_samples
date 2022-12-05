@@ -8,18 +8,9 @@ import cats.{Id, ~>}
 
 import java.time.LocalDateTime
 
+import models._
+
 type TrackingId = String
-type UnLocode = String
-type VoyageNo = String
-type Date = LocalDateTime
-
-case class RouteSpecification(origin: UnLocode, destination: UnLocode, deadline: Date)
-
-case class Itinerary(legs: List[Leg])
-
-case class LocationTime(location: UnLocode, time: Date)
-
-case class Leg(voyageNo: VoyageNo, load: LocationTime, unload: LocationTime)
 
 trait HasRouteSpec {
   val trackingId: TrackingId
@@ -53,7 +44,7 @@ enum CommandA[A]:
 
 type CargoState[A] = State[Cargo, A]
 
-object CargoAction:
+object Cargo:
   import CommandA.*
 
   def emptyCargo = Cargo.Empty()
@@ -153,4 +144,4 @@ object CargoAction:
     def isFuture: Boolean = d.isAfter(LocalDateTime.now())
     def isBeforeOrEq(t: Date): Boolean = d.compareTo(t) <= 0
 
-end CargoAction
+end Cargo
