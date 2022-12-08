@@ -1,6 +1,5 @@
 
 import java.time.LocalDateTime
-import models.*
 
 @main def main(): Unit =
   checkCargo()
@@ -10,7 +9,8 @@ def now: LocalDateTime = LocalDateTime.now()
 def nextDay(n: Long): LocalDateTime = now.plusDays(n)
 
 def checkCargo(): Unit =
-  import models.cargo.Cargo.*
+  import models.cargo.*
+  import Cargo.*
 
   val d1 = create("id-1", "USNYC", "JNTKO", nextDay(10))
 
@@ -25,8 +25,11 @@ def checkCargo(): Unit =
         Leg("0200A", LocationTime("CNSHA", nextDay(5)), LocationTime("JNTKO", nextDay(7)))
       ))
     )
+    b1 <- isOnRoute("CNSHA", None)
+    b2 <- isDestination("JNTKO")
     ev3 <- close()
-  } yield ev1 ++ ev2 ++ ev3
+    b3 <- isOnRoute("JNTKO", None)
+  } yield (ev1 ++ ev2 ++ ev3, b1, b2, b3)
 
   val r2 = d2.foldMap(interpret).run(emptyCargo).value
   println(r2)
@@ -93,36 +96,21 @@ def checkDelivery(): Unit =
   import models.delivery.*
   import Delivery.*
 
-  val itinerary = Itinerary(List(
-    Leg("0100S", LocationTime("USNYC", nextDay(1)), LocationTime("JNTKO", nextDay(4)))
-  ))
-
-  val routeSpec = RouteSpecification("USNYC", "JNTKO", nextDay(5))
-
-  val findRoute: FindRoute = _ => Some(itinerary)
-  val findRouteAndSpec: FindRouteAndSpec = _ => Some((itinerary, routeSpec))
-
   val d1 = for {
     e1 <- receive("USNYC", now)
-    e2 <- load("0100S", nextDay(1), findRoute)
+    e2 <- load("0100S", nextDay(1))
     e3 <- unload("JNTKO", nextDay(4))
-    m1 <- isMisdirected(findRoute)
-    a1 <- isUnloadedAtDestination(findRouteAndSpec)
     e4 <- claim(nextDay(4))
-    m2 <- isMisdirected(findRoute)
-    a2 <- isUnloadedAtDestination(findRouteAndSpec)
-  } yield (e1 ++ e2 ++ e3 ++ e4, (m1, a1), (m2, a2))
+  } yield e1 ++ e2 ++ e3 ++ e4
 
   val r1 = d1.foldMap(interpret).run(createDelivery("t1")).value
   println(r1)
 
   val d2 = for {
     e1 <- receive("USNYC", now)
-    e2 <- load("0100S", nextDay(1), findRoute)
+    e2 <- load("0100S", nextDay(1))
     e3 <- unload("AUMEL", nextDay(4))
-    m1 <- isMisdirected(findRoute)
-    a1 <- isUnloadedAtDestination(findRouteAndSpec)
-  } yield (e1 ++ e2 ++ e3, (m1, a1))
+  } yield e1 ++ e2 ++ e3
 
   val r2 = d2.foldMap(interpret).run(createDelivery("t2")).value
   println(r2)
