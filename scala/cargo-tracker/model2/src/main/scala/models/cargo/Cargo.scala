@@ -8,9 +8,18 @@ import cats.{Id, ~>}
 
 import java.time.LocalDateTime
 
-import models._
-
 type TrackingId = String
+type UnLocode = String
+type VoyageNo = String
+type Date = LocalDateTime
+
+case class RouteSpecification(origin: UnLocode, destination: UnLocode, deadline: Date)
+
+case class Itinerary(legs: List[Leg])
+
+case class LocationTime(location: UnLocode, time: Date)
+
+case class Leg(voyageNo: VoyageNo, load: LocationTime, unload: LocationTime)
 
 trait HasRouteSpec {
   val trackingId: TrackingId
@@ -41,6 +50,8 @@ enum CommandA[A]:
   case ChangeDestination(newDestination: UnLocode) extends CommandA[List[Event]]
   case ChangeDeadline(newDeadline: Date) extends CommandA[List[Event]]
   case Close() extends CommandA[List[Event]]
+  case IsDestination(location: UnLocode) extends CommandA[Boolean]
+  case IsOnRoute(location: UnLocode, voyageNo: Option[VoyageNo]) extends CommandA[Option[Boolean]]
 
 type CargoState[A] = State[Cargo, A]
 
@@ -59,6 +70,10 @@ object Cargo:
   def changeDeadline(deadline: Date) = liftF(ChangeDeadline(deadline))
 
   def close() = liftF(Close())
+
+  def isDestination(location: UnLocode) = liftF(IsDestination(location))
+
+  def isOnRoute(location: UnLocode, voyageNo: Option[VoyageNo]) = liftF(IsOnRoute(location, voyageNo))
 
   def action[A](cmd: CommandA[A]): Kleisli[Id, Cargo, (Cargo, A)] = cmd match
     case Create(t, r) => Kleisli {
@@ -109,6 +124,20 @@ object Cargo:
       case s: (Cargo.Routed | Cargo.Misrouted) =>
         (Cargo.Closed(s.trackingId, s.routeSpec, s.itinerary), List(Event.Closed(s.trackingId)))
       case s => (s, List.empty[Event])
+    }
+    case IsDestination(l) => Kleisli {
+      case s: HasItinerary => (s, s.routeSpec.destination == l || s.itinerary.legs.last.unload.location == l)
+      case s: HasRouteSpec => (s, s.routeSpec.destination == l)
+      case s => (s, false)
+    }
+    case IsOnRoute(l, v) => Kleisli {
+      case s: Closed => (s, None)
+      case s: HasItinerary =>
+        val r = s.itinerary.legs.exists { leg =>
+          v.map(_ == leg.voyageNo).getOrElse(true) && (leg.load.location == l || leg.unload.location == l)
+        }
+        (s, Some(r))
+      case s => (s, None)
     }
   end action
 

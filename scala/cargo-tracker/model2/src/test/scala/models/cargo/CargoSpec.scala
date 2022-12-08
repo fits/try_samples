@@ -6,11 +6,9 @@ import matchers._
 
 import java.time.LocalDateTime
 
-import models._
-
 class CargoSpec extends AnyFlatSpec with should.Matchers:
-  import CommandA._
-  import Cargo._
+  import Cargo.*
+  import CommandA.*
 
   def nextDays(n: Long): LocalDateTime = LocalDateTime.now().plusDays(n)
 
@@ -329,4 +327,126 @@ class CargoSpec extends AnyFlatSpec with should.Matchers:
     e shouldBe empty
   }
 
-end CargoSpec
+  it should "IsDestination is true if location is equals RouteSpec's destination" in {
+    val states = List(
+      Cargo.Unrouted("t1", testRouteSpec),
+      Cargo.Routed("t1", testRouteSpec, testItinerary),
+      Cargo.Misrouted("t1", testRouteSpec, testItinerary2),
+      Cargo.Closed("t1", testRouteSpec, testItinerary)
+    )
+
+    states.foreach { s =>
+      val (_, r) = Cargo.action(IsDestination("JNTKO")).run(s)
+
+      r shouldBe true
+    }
+  }
+
+  it should "IsDestination is false if location is not equals RouteSpec's destination" in {
+    val states = List(
+      Cargo.Unrouted("t1", testRouteSpec),
+      Cargo.Routed("t1", testRouteSpec, testItinerary),
+      Cargo.Misrouted("t1", testRouteSpec, testItinerary2),
+      Cargo.Closed("t1", testRouteSpec, testItinerary)
+    )
+
+    states.foreach { s =>
+      val (_, r) = Cargo.action(IsDestination("CNSHA")).run(s)
+
+      r shouldBe false
+    }
+  }
+
+  it should "IsDestination is false if state is empty" in {
+    val (_, r) = Cargo.action(IsDestination("AUMEL")).run(Cargo.emptyCargo)
+
+    r shouldBe false
+  }
+
+  it should "IsDestination is true if location is equals itinerary's last location" in {
+    val r = RouteSpecification("USNYC", "AUMEL", nextDays(10))
+
+    val states = List(
+      Cargo.Misrouted("t1", r, testItinerary),
+      Cargo.Closed("t1", r, testItinerary)
+    )
+
+    states.foreach { s =>
+      val (_, r) = Cargo.action(IsDestination("JNTKO")).run(s)
+
+      r shouldBe true
+    }
+  }
+
+  it should "IsOnRoute is none if state is not progressing" in {
+    val states = List(
+      Cargo.Empty(),
+      Cargo.Unrouted("t1", testRouteSpec),
+      Cargo.Closed("t1", testRouteSpec, testItinerary)
+    )
+
+    states.foreach { s =>
+      val (_, r) = Cargo.action(IsOnRoute("JNTKO", None)).run(s)
+
+      r shouldBe None
+    }
+  }
+
+  it should "IsOnRoute is true if state is progressing and itinerary contains location" in {
+    val states = List(
+      Cargo.Routed("t1", testRouteSpec, testItinerary),
+      Cargo.Misrouted("t1", testRouteSpec.copy(destination = "AUMEL"), testItinerary)
+    )
+
+    states.foreach { s =>
+      List("USNYC", "CNSHA", "JNTKO").foreach { l =>
+        val (_, r) = Cargo.action(IsOnRoute(l, None)).run(s)
+
+        r shouldBe Some(true)
+      }
+    }
+  }
+
+  it should "IsOnRoute is false if state is progressing and itinerary does not contain location" in {
+    val states = List(
+      Cargo.Routed("t1", testRouteSpec, testItinerary),
+      Cargo.Misrouted("t1", testRouteSpec.copy(destination = "AUMEL"), testItinerary)
+    )
+
+    states.foreach { s =>
+      val (_, r) = Cargo.action(IsOnRoute("AUMEL", None)).run(s)
+
+      r shouldBe Some(false)
+    }
+  }
+
+  it should "IsOnRoute is true if state is progressing and itinerary contains target voyage's location" in {
+    val states = List(
+      Cargo.Routed("t1", testRouteSpec, testItinerary),
+      Cargo.Misrouted("t1", testRouteSpec.copy(destination = "AUMEL"), testItinerary)
+    )
+
+    states.foreach { s =>
+      List(("0100S", "USNYC"), ("0200A", "CNSHA")).foreach { (v, l) =>
+        val (_, r) = Cargo.action(IsOnRoute(l, Some(v))).run(s)
+
+        r shouldBe Some(true)
+      }
+    }
+  }
+
+  it should "IsOnRoute is false if state is progressing and itinerary does not contain target voyage's location" in {
+    val states = List(
+      Cargo.Routed("t1", testRouteSpec, testItinerary),
+      Cargo.Misrouted("t1", testRouteSpec.copy(destination = "AUMEL"), testItinerary)
+    )
+
+    states.foreach { s =>
+      List(("0100S", "JNTKO"), ("0200A", "USNYC"), ("0999B", "AUMEL")).foreach { (v, l) =>
+        val (_, r) = Cargo.action(IsOnRoute(l, Some(v))).run(s)
+
+        r shouldBe Some(false)
+      }
+    }
+  }
+
