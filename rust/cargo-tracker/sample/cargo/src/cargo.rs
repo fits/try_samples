@@ -25,7 +25,7 @@ pub struct LocationTime {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Leg {
-    pub voyageNo: VoyageNo,
+    pub voyage_no: VoyageNo,
     pub load: LocationTime,
     pub unload: LocationTime,
 }
@@ -237,7 +237,7 @@ impl Cargo {
                 let r = itinerary.0
                     .iter()
                     .any(|l| 
-                        voyageNo.as_ref().map_or_else(|| true, |v| v == &l.voyageNo) &&
+                        voyageNo.as_ref().map_or_else(|| true, |v| v == &l.voyage_no) &&
                         (l.load.location == location || l.unload.location == location)
                     );
 
@@ -325,12 +325,12 @@ mod tests {
         Itinerary(
             vec![
                 Leg {
-                    voyageNo: "v1".to_string(), 
+                    voyage_no: "v1".to_string(), 
                     load: LocationTime { location: "loc1".to_string(), time: next_day(1) },
                     unload: LocationTime { location: "locA".to_string(), time: next_day(2) },
                 },
                 Leg {
-                    voyageNo: "v2".to_string(), 
+                    voyage_no: "v2".to_string(), 
                     load: LocationTime { location: "locA".to_string(), time: next_day(3) },
                     unload: LocationTime { location: "loc2".to_string(), time: next_day(4) },
                 },
@@ -429,7 +429,7 @@ mod tests {
         let it = Itinerary(
             vec![
                 Leg {
-                    voyageNo: "v1".to_string(), 
+                    voyage_no: "v1".to_string(), 
                     load: LocationTime { location: "loc1".to_string(), time: next_day(1) },
                     unload: LocationTime { location: "loc9".to_string(), time: next_day(2) },
                 },
@@ -485,7 +485,7 @@ mod tests {
             vec![
                 test_itinerary().0, 
                 vec![Leg {
-                    voyageNo: "v3".to_string(), 
+                    voyage_no: "v3".to_string(), 
                     load: LocationTime { location: "loc2".to_string(), time: next_day(5) },
                     unload: LocationTime { location: "loc3".to_string(), time: next_day(6) },
                 }],
@@ -736,7 +736,7 @@ mod tests {
             vec![
                 test_itinerary().0, 
                 vec![Leg {
-                    voyageNo: "v3".to_string(), 
+                    voyage_no: "v3".to_string(), 
                     load: LocationTime { location: "loc2".to_string(), time: next_day(5) },
                     unload: LocationTime { location: "loc3".to_string(), time: next_day(6) },
                 }],
@@ -756,7 +756,7 @@ mod tests {
             vec![
                 test_itinerary().0, 
                 vec![Leg {
-                    voyageNo: "v3".to_string(), 
+                    voyage_no: "v3".to_string(), 
                     load: LocationTime { location: "loc2".to_string(), time: next_day(5) },
                     unload: LocationTime { location: "loc3".to_string(), time: next_day(6) },
                 }],
@@ -776,7 +776,7 @@ mod tests {
             vec![
                 test_itinerary().0, 
                 vec![Leg {
-                    voyageNo: "v3".to_string(), 
+                    voyage_no: "v3".to_string(), 
                     load: LocationTime { location: "loc2".to_string(), time: next_day(5) },
                     unload: LocationTime { location: "loc3".to_string(), time: next_day(6) },
                 }],
