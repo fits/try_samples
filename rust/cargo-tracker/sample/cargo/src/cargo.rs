@@ -1,5 +1,6 @@
 
 use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 pub type TrackingId = String;
@@ -7,30 +8,30 @@ pub type UnLocode = String;
 pub type VoyageNo = String;
 pub type Date = DateTime<Local>;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct RouteSpec {
     pub origin: UnLocode,
     pub destination: UnLocode,
     pub deadline: Date,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Itinerary(Vec<Leg>);
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct Itinerary(pub Vec<Leg>);
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct LocationTime {
     pub location: UnLocode, 
     pub time: Date,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Leg {
     pub voyage_no: VoyageNo,
     pub load: LocationTime,
     pub unload: LocationTime,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Cargo {
     Nothing,
     Unrouted { tracking_id: TrackingId, route_spec: RouteSpec },
@@ -39,7 +40,7 @@ pub enum Cargo {
     Closed { tracking_id: TrackingId, route_spec: RouteSpec, itinerary: Itinerary },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Event {
     Created { tracking_id: TrackingId, route_spec: RouteSpec },
     AssignedRoute { tracking_id: TrackingId, itinerary: Itinerary },
@@ -78,10 +79,10 @@ impl fmt::Display for CommandError {
 
 impl std::error::Error for CommandError {}
 
-pub type Result<T> = std::result::Result<T, CommandError>;
+pub type CargoResult<T> = std::result::Result<T, CommandError>;
 
 impl Cargo {
-    pub fn action(&self, cmd: &Command) -> Result<(Self, Event)> {
+    pub fn action(&self, cmd: &Command) -> CargoResult<(Self, Event)> {
         match self {
             Self::Nothing => match cmd {
                 Command::Create(t, r) => 
@@ -230,14 +231,14 @@ impl Cargo {
         }
     }
 
-    pub fn is_on_route(&self, location: UnLocode, voyageNo: Option<VoyageNo>) -> Option<bool> {
+    pub fn is_on_route(&self, location: UnLocode, voyage_no: Option<VoyageNo>) -> Option<bool> {
         match self {
             Self::Routed { itinerary, .. } |
             Self::Misrouted { itinerary, .. } => {
                 let r = itinerary.0
                     .iter()
                     .any(|l| 
-                        voyageNo.as_ref().map_or_else(|| true, |v| v == &l.voyage_no) &&
+                        voyage_no.as_ref().map_or_else(|| true, |v| v == &l.voyage_no) &&
                         (l.load.location == location || l.unload.location == location)
                     );
 
@@ -287,19 +288,19 @@ fn create_routed(tracking_id: TrackingId, route_spec: RouteSpec, itinerary: Itin
     }
 }
 
-fn invalid_state<T>() -> Result<T> {
+fn invalid_state<T>() -> CargoResult<T> {
     Err(CommandError::InvalidState)
 }
 
-fn past_deadline<T>() -> Result<T> {
+fn past_deadline<T>() -> CargoResult<T> {
     Err(CommandError::PastDeadline)
 }
 
-fn empty_itinerary<T>() -> Result<T> {
+fn empty_itinerary<T>() -> CargoResult<T> {
     Err(CommandError::EmptyItinerary)
 }
 
-fn no_change<T>(name: &'static str) -> Result<T> {
+fn no_change<T>(name: &'static str) -> CargoResult<T> {
     Err(CommandError::NoChange(name))
 }
 
@@ -466,7 +467,7 @@ mod tests {
         let cmd = Command::AssignRoute(test_itinerary());
         let state = Cargo::Unrouted { tracking_id: "t1".to_string(), route_spec: rs };
 
-        if let Ok((s, e)) = state.action(&cmd) {
+        if let Ok((s, _e)) = state.action(&cmd) {
             if let Cargo::Misrouted { .. } = s {
                 assert!(true);
             } else {
