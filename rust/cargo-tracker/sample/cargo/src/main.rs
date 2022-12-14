@@ -30,11 +30,17 @@ use cargo::*;
 type Revision = u32;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+struct StoredEvent {
+    event: cargo::Event,
+    created_at: DateTime<Utc>
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 struct StoredState {
     _id: String,
     rev: Revision,
     state: Cargo,
-    events: Vec<cargo::Event>,
+    events: Vec<StoredEvent>
 }
 
 #[derive(Debug, Clone)]
@@ -210,7 +216,7 @@ async fn save_with_action(ctx: &Store, tracking_id: &str, cmd: &Command) -> Fiel
                 "state": to_bson(&c)?
             },
             "$push": {
-                "events": to_bson(&e)?
+                "events": to_bson(&StoredEvent { event: e, created_at: Utc::now() })?
             }
         };
 
@@ -275,7 +281,7 @@ impl Mutation {
             _id: tracking_id,
             rev: 1,
             state: s.clone(),
-            events: vec![e],
+            events: vec![StoredEvent { event: e, created_at: Utc::now() }]
         };
 
         ctx.0.insert_one(d, None).await?;
