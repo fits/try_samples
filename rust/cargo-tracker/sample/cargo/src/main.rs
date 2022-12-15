@@ -21,8 +21,8 @@ use mongodb::{
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use std::env;
 use std::fmt;
-use std::net::SocketAddr;
 use std::sync::Arc;
 
 use cargo::*;
@@ -330,14 +330,19 @@ type Context = Arc<(Store, Schema)>;
 
 #[tokio::main]
 async fn main() {
-    let addr: SocketAddr = "127.0.0.1:8080".parse().unwrap();
+    let addr = env::var("ADDRESS").unwrap_or("127.0.0.1:8080".to_string()).parse().unwrap();
+    let mongo_endpoint = env::var("MONGO_ENDPOINT").unwrap_or("mongodb://127.0.0.1".to_string());
+
+    let db_name = env::var("DB_NAME").unwrap_or("cargo".to_string());
+    let col_name = env::var("COLLECTION_NAME").unwrap_or("data".to_string());
+
     let schema = Schema::new(Query, Mutation, EmptySubscription::new());
 
-    let opt = ClientOptions::parse("mongodb://127.0.0.1").await.unwrap();
+    let opt = ClientOptions::parse(mongo_endpoint).await.unwrap();
     let mongo = Client::with_options(opt).unwrap();
 
     let ctx: Context = Arc::new((
-        Store(mongo.database("cargo").collection("data")), 
+        Store(mongo.database(&db_name).collection(&col_name)), 
         schema
     ));
 
@@ -345,6 +350,8 @@ async fn main() {
         .route("/", post(graphql_handler))
         .with_state(ctx);
     
+    println!("server start: {}", addr);
+
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
