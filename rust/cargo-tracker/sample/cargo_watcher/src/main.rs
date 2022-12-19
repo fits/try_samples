@@ -15,7 +15,7 @@ use std::{
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     let token_file = env::var("TOKEN_FILE").unwrap_or("resume_token.json".to_string());
 
     let nats_endpoint = env::var("NATS_ENDPOINT").unwrap_or("nats://127.0.0.1".to_string());
@@ -24,11 +24,19 @@ async fn main() {
     let db_name = env::var("DB_NAME").unwrap_or("cargo".to_string());
     let col_name = env::var("COLLECTION_NAME").unwrap_or("data".to_string());
 
-    let nats_client = async_nats::connect(nats_endpoint).await.unwrap();
+    let nats_client = async_nats::connect(nats_endpoint).await?;
     let jetstream = async_nats::jetstream::new(nats_client);
 
-    let opt = ClientOptions::parse(mongo_endpoint).await.unwrap();
-    let mongo_client = Client::with_options(opt).unwrap();
+    let cfg = async_nats::jetstream::stream::Config {
+        name: "cargo-event".to_string(),
+        subjects: vec!["cargo-event.*".to_string()],
+        ..Default::default()
+    };
+
+    jetstream.create_stream(cfg).await?;
+
+    let opt = ClientOptions::parse(mongo_endpoint).await?;
+    let mongo_client = Client::with_options(opt)?;
 
     let col: Collection<Document> = mongo_client.database(&db_name).collection(&col_name);
 
@@ -42,15 +50,17 @@ async fn main() {
         .resume_after(token)
         .build();
     
-    let mut stream = col.watch(None, opts).await.unwrap();
+    let mut stream = col.watch(None, opts).await?;
 
     while let Ok(r) = stream.next_if_any().await {
         if let Some(ev) = r {
-            handle_stream_event(&ev, &jetstream).await.unwrap();
+            handle_stream_event(&ev, &jetstream).await?;
 
-            save_token(&token_file, &ev.id).unwrap();
+            save_token(&token_file, &ev.id)?;
         }
     }
+
+    Ok(())
 }
 
 async fn handle_stream_event(event: &ChangeStreamEvent<Document>, jetstream: &async_nats::jetstream::Context) -> Result<()> {
@@ -66,7 +76,10 @@ async fn handle_stream_event(event: &ChangeStreamEvent<Document>, jetstream: &as
 
         println!("publish: subject={}, payload={}", subject, payload);
 
-        jetstream.publish(subject, payload.into()).await?;
+        let ack_f = jetstream.publish(subject, payload.into()).await?;
+        let ack = ack_f.await?;
+
+        println!("published: ack={:?}", ack);
     }
 
     Ok(())
