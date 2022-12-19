@@ -1,0 +1,19 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2021"
+default-run = "server"
+
+[dependencies]
+tokio = { version = "1.23", features = ["full"] }
+quinn = "0.9"
+rcgen = "0.10"
+rustls = { version = "0.20", features = ["dangerous_configuration", "quic"] }
+
+[[bin]]
+name = "server"
+path = "src/server.rs"
+
+[[bin]]
+name = "client"
+path = "src/client.rs"
