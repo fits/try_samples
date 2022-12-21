@@ -1,0 +1,6 @@
+{
+    "imports": {
+        "std/": "https://deno.land/std@0.168.0/",
+        "nats": "https://deno.land/x/nats@v1.9.3/src/mod.ts"
+    }
+}
