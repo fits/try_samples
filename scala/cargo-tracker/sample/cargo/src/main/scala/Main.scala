@@ -72,7 +72,7 @@ case class Store(col: MongoCollection[Document])(using ExecutionContext):
           val opts = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
 
           col.findOneAndUpdate(flt, upd, opts)
-            .map(_ => s)
+            .map(d => decode[StoredState](d.toJson).toTry.get.state)
             .headOption()
       }
     }
