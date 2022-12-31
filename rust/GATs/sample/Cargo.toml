@@ -2,5 +2,12 @@
 name = "sample"
 version = "0.1.0"
 edition = "2021"
+default-run = "sample1"
 
-[dependencies]
+[[bin]]
+name = "sample1"
+path = "src/main.rs"
+
+[[bin]]
+name = "sample2"
+path = "src/main2.rs"
