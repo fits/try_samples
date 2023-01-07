@@ -26,7 +26,7 @@ import scala.concurrent.ExecutionContext
 
   val q = graphql"""{ sample(input: "") }"""
 
-  given executionContext: ExecutionContext = ExecutionContext.global
+  given ExecutionContext = ExecutionContext.global
 
   val r1 = Executor.execute(schema, q)
 
