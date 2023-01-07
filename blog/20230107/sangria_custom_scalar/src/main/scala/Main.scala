@@ -44,7 +44,7 @@ import java.time.format.DateTimeFormatter
 
   val schema = Schema(QueryType)
 
-  given executionContext: ExecutionContext = ExecutionContext.global
+  given ExecutionContext = ExecutionContext.global
 
   val r1 = Executor.execute(schema, graphql"{ now }")
 
