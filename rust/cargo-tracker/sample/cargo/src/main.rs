@@ -308,7 +308,7 @@ impl Mutation {
     }
 
     async fn change_destination(ctx: &Store, tracking_id: ID, location: ID) -> FieldResult<Option<CargoInterfaceValue>> {
-        let cmd = Command::ChangedDestination(location.to_string());
+        let cmd = Command::ChangeDestination(location.to_string());
 
         let r = save_with_action(ctx, tracking_id.to_string().as_str(), &cmd).await?;
 
@@ -316,7 +316,7 @@ impl Mutation {
     }
 
     async fn change_deadline(ctx: &Store, tracking_id: ID, deadline: DateTime<Utc>) -> FieldResult<Option<CargoInterfaceValue>> {
-        let cmd = Command::ChangedDeadline(deadline.into());
+        let cmd = Command::ChangeDeadline(deadline.into());
 
         let r = save_with_action(ctx, tracking_id.to_string().as_str(), &cmd).await?;
 
