@@ -53,8 +53,8 @@ pub enum Event {
 pub enum Command {
     Create(TrackingId, RouteSpec),
     AssignRoute(Itinerary),
-    ChangedDestination(UnLocode),
-    ChangedDeadline(Date),
+    ChangeDestination(UnLocode),
+    ChangeDeadline(Date),
     Close,
 }
 
@@ -113,7 +113,7 @@ impl Cargo {
                             }
                         ))
                     }
-                Command::ChangedDestination(l) =>
+                Command::ChangeDestination(l) =>
                     if l == &route_spec.destination {
                         no_change("destination")
                     } else {
@@ -128,7 +128,7 @@ impl Cargo {
                             }
                         ))
                     }
-                Command::ChangedDeadline(d) => 
+                Command::ChangeDeadline(d) => 
                     if d == &route_spec.deadline {
                         no_change("deadline")
                     } else if d <= &now() {
@@ -167,7 +167,7 @@ impl Cargo {
                             }
                         ))
                     }
-                Command::ChangedDestination(l) =>
+                Command::ChangeDestination(l) =>
                     if l == &route_spec.destination {
                         no_change("destination")
                     } else {
@@ -183,7 +183,7 @@ impl Cargo {
                             }
                         ))
                     }
-                Command::ChangedDeadline(d) => 
+                Command::ChangeDeadline(d) => 
                     if d == &route_spec.deadline {
                         no_change("deadline")
                     } else if d <= &now() {
@@ -552,7 +552,7 @@ mod tests {
     fn change_destination_unrouted() {
         let rs = test_route_spec(next_day(2));
         
-        let cmd = Command::ChangedDestination("loc9".to_string());
+        let cmd = Command::ChangeDestination("loc9".to_string());
         let state = Cargo::Unrouted { tracking_id: "t1".to_string(), route_spec: rs.clone() };
 
         if let Ok((s, e)) = state.action(&cmd) {
@@ -577,7 +577,7 @@ mod tests {
     fn change_destination_unrouted_with_same() {
         let rs = test_route_spec(next_day(2));
         
-        let cmd = Command::ChangedDestination("loc2".to_string());
+        let cmd = Command::ChangeDestination("loc2".to_string());
         let state = Cargo::Unrouted { tracking_id: "t1".to_string(), route_spec: rs.clone() };
 
         assert!(state.action(&cmd).is_err());
@@ -588,7 +588,7 @@ mod tests {
         let rs = test_route_spec(next_day(10));
         let it = test_itinerary();
         
-        let cmd = Command::ChangedDestination("loc9".to_string());
+        let cmd = Command::ChangeDestination("loc9".to_string());
         let state = Cargo::Routed { tracking_id: "t1".to_string(), route_spec: rs.clone(), itinerary: it.clone() };
 
         if let Ok((s, e)) = state.action(&cmd) {
@@ -616,7 +616,7 @@ mod tests {
         let rs = test_route_spec(next_day(10));
         let it = test_itinerary();
         
-        let cmd = Command::ChangedDestination("loc2".to_string());
+        let cmd = Command::ChangeDestination("loc2".to_string());
         let state = Cargo::Routed { tracking_id: "t1".to_string(), route_spec: rs.clone(), itinerary: it.clone() };
 
         assert!(state.action(&cmd).is_err());
@@ -628,7 +628,7 @@ mod tests {
         
         let d = next_day(7);
 
-        let cmd = Command::ChangedDeadline(d.clone());
+        let cmd = Command::ChangeDeadline(d.clone());
         let state = Cargo::Unrouted { tracking_id: "t1".to_string(), route_spec: rs.clone() };
 
         if let Ok((s, e)) = state.action(&cmd) {
@@ -653,7 +653,7 @@ mod tests {
     fn change_deadline_unrouted_with_same() {
         let rs = test_route_spec(next_day(5));
 
-        let cmd = Command::ChangedDeadline(rs.deadline.clone());
+        let cmd = Command::ChangeDeadline(rs.deadline.clone());
         let state = Cargo::Unrouted { tracking_id: "t1".to_string(), route_spec: rs.clone() };
 
         assert!(state.action(&cmd).is_err());
@@ -665,7 +665,7 @@ mod tests {
 
         let rs = test_route_spec(next_day(5));
 
-        let cmd = Command::ChangedDeadline(d);
+        let cmd = Command::ChangeDeadline(d);
         let state = Cargo::Unrouted { tracking_id: "t1".to_string(), route_spec: rs.clone() };
 
         assert!(state.action(&cmd).is_err());
@@ -678,7 +678,7 @@ mod tests {
         
         let d = next_day(7);
 
-        let cmd = Command::ChangedDeadline(d.clone());
+        let cmd = Command::ChangeDeadline(d.clone());
         let state = Cargo::Routed { tracking_id: "t1".to_string(), route_spec: rs.clone(), itinerary: it.clone() };
 
         if let Ok((s, e)) = state.action(&cmd) {
@@ -705,7 +705,7 @@ mod tests {
     fn change_deadline_routed_with_same() {
         let rs = test_route_spec(next_day(2));
 
-        let cmd = Command::ChangedDeadline(rs.deadline.clone());
+        let cmd = Command::ChangeDeadline(rs.deadline.clone());
         let state = Cargo::Misrouted { tracking_id: "t1".to_string(), route_spec: rs, itinerary: test_itinerary() };
 
         assert!(state.action(&cmd).is_err());
@@ -717,7 +717,7 @@ mod tests {
 
         let rs = test_route_spec(next_day(5));
 
-        let cmd = Command::ChangedDeadline(d);
+        let cmd = Command::ChangeDeadline(d);
         let state = Cargo::Routed { tracking_id: "t1".to_string(), route_spec: rs, itinerary: test_itinerary() };
 
         assert!(state.action(&cmd).is_err());
