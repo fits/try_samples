@@ -1,10 +1,9 @@
 use image::{ DynamicImage, ImageResult };
-use image::io::Reader as ImageReader;
 use image::codecs::jpeg::{ JpegDecoder, JpegEncoder };
 
 use std::env;
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{ BufReader, BufWriter };
 use std::time::Instant;
 
 fn to_u32(v: String) -> Option<u32> {
@@ -21,8 +20,8 @@ fn main() -> ImageResult<()> {
 
     let t = Instant::now();
 
-    let reader = ImageReader::open(file)?;
-    let mut dec = JpegDecoder::new(reader.into_inner())?;
+    let reader = BufReader::new(File::open(file)?);
+    let mut dec = JpegDecoder::new(reader)?;
 
     dec.scale(w as u16, h as u16)?;
 
