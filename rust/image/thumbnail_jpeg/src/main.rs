@@ -28,8 +28,8 @@ fn main() -> ImageResult<()> {
 
     let img_n = DynamicImage::from_decoder(dec)?.thumbnail(w, h);
 
-    let mut writer = BufWriter::new(File::create(dest)?);
-    let mut enc = JpegEncoder::new(&mut writer);
+    let writer = BufWriter::new(File::create(dest)?);
+    let mut enc = JpegEncoder::new(writer);
 
     enc.encode(img_n.as_bytes(), img_n.width(), img_n.height(), img_n.color())?;
 
