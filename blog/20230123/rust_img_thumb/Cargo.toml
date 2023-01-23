@@ -1,0 +1,15 @@
+[package]
+name = "thumbnail_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+image = "0.24"
+
+[[bin]]
+name = "thumb"
+path = "src/thumb.rs"
+
+[[bin]]
+name = "thumb_jpeg"
+path = "src/thumb_jpeg.rs"
