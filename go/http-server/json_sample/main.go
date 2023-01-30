@@ -31,7 +31,6 @@ func main() {
 		switch r.Method {
 		case http.MethodGet:
 			json.NewEncoder(rw).Encode(server.docs)
-			break
 		case http.MethodPost:
 			var doc Document
 			err := json.NewDecoder(r.Body).Decode(&doc)
@@ -46,7 +45,6 @@ func main() {
 				json.NewEncoder(rw).Encode(AddResult{id})
 			}
 
-			break
 		default:
 			rw.WriteHeader(http.StatusMethodNotAllowed)
 		}
