@@ -90,7 +90,7 @@ func saveState(endpoint string, state Cart, etag *string) error {
 		return err
 	}
 
-	if res.StatusCode >= 300 {
+	if res.StatusCode != 204 {
 		return errors.New(fmt.Sprintf("failed to store state: statusCode=%d", res.StatusCode))
 	}
 
