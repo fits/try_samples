@@ -12,25 +12,25 @@ import (
 )
 
 type Cart struct {
-	ID string `json:"id"`
-	Items []CartItem	
+	ID    string `json:"id"`
+	Items []CartItem
 }
 
 type CartItem struct {
 	ItemID string `json:"item_id"`
-	Price int
-	Qty int
+	Price  int
+	Qty    int
 }
 
 type AddItem struct {
 	ItemID string `json:"item_id"`
-	Qty int
+	Qty    int
 }
 
 type State struct {
-	Key string
+	Key   string
 	Value Cart
-	Etag *string
+	Etag  *string
 }
 
 func serverError(w http.ResponseWriter, err error) {
@@ -79,7 +79,7 @@ func loadState(endpoint string, id string) (Cart, *string, error) {
 
 func saveState(endpoint string, state Cart, etag *string) error {
 	s, _ := json.Marshal([]State{
-		State{state.ID, state, etag},
+		{state.ID, state, etag},
 	})
 
 	body := bytes.NewBuffer(s)
@@ -161,7 +161,7 @@ func main() {
 				serverError(w, err)
 				return
 			}
-			
+
 			cart.Items = append(cart.Items, CartItem{param.ItemID, price, param.Qty})
 		}
 
@@ -175,6 +175,5 @@ func main() {
 		json.NewEncoder(w).Encode(cart.Items)
 	})
 
-	log.Fatal(http.ListenAndServe(":" + port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
-

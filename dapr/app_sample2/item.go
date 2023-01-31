@@ -12,12 +12,12 @@ import (
 )
 
 type Item struct {
-	ID string `json:"id"`
+	ID    string `json:"id"`
 	Price int
 }
 
 type State struct {
-	Key string
+	Key   string
 	Value Item
 }
 
@@ -46,7 +46,7 @@ func loadState(endpoint string, id string) (Item, error) {
 
 func saveState(endpoint string, state Item) error {
 	s, _ := json.Marshal([]State{
-		State{state.ID, state},
+		{state.ID, state},
 	})
 
 	body := bytes.NewBuffer(s)
@@ -80,7 +80,7 @@ func main() {
 
 		if id == "" {
 			serverError(w, errors.New("invalid id"))
-			return			
+			return
 		}
 
 		switch r.Method {
@@ -91,12 +91,12 @@ func main() {
 				serverError(w, err)
 				return
 			}
-	
+
 			json.NewEncoder(w).Encode(state.Price)
 
 		case http.MethodPost, http.MethodPut:
 			var price int
-		
+
 			err := json.NewDecoder(r.Body).Decode(&price)
 
 			if err != nil {
@@ -120,5 +120,5 @@ func main() {
 		}
 	})
 
-	log.Fatal(http.ListenAndServe(":" + port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
