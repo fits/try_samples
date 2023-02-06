@@ -7,3 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+
+[profile.release]
+opt-level = "s"
+lto = true
