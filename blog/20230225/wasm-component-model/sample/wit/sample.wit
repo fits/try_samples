@@ -1,0 +1,16 @@
+default world sample {
+    enum log-level {
+        debug,
+        info,
+    }
+
+    record item {
+        id: string,
+        value: u32,
+    }
+
+    import log: func(level: log-level, msg: string)
+    import getitem: func(id: string) -> item
+
+    export run: func()
+}
