@@ -1,0 +1,79 @@
+{
+    "resourceSpans": [
+        {
+            "resource": {
+                "attributes": [
+                    {
+                        "key": "service.name",
+                        "value": {
+                            "stringValue": "sample-app1"
+                        }
+                    }
+                ]
+            },
+            "scopeSpans": [
+                {
+                    "scope": {
+                        "name": "sample-scope"
+                    },
+                    "spans": [
+                        {
+                            "traceId": "00000000000000000000000000000002",
+                            "spanId": "0000000000000011",
+                            "name": "proc1",
+                            "startTimeUnixNano": "1678546011308000000",
+                            "endTimeUnixNano": "1678556021308000000",
+                            "attributes": [
+                                {
+                                    "key": "api",
+                                    "value": {
+                                        "stringValue": "GET /proc1"
+                                    }
+                                },
+                                {
+                                    "key": "protocol",
+                                    "value": {
+                                        "stringValue": "http"
+                                    }
+                                },
+                                {
+                                    "key": "status_code",
+                                    "value": {
+                                        "stringValue": "200"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "traceId": "00000000000000000000000000000002",
+                            "spanId": "0000000000000012",
+                            "name": "proc2",
+                            "startTimeUnixNano": "1678636031308000000",
+                            "endTimeUnixNano": "1678736141308000000",
+                            "attributes": [
+                                {
+                                    "key": "api",
+                                    "value": {
+                                        "stringValue": "GET /proc2"
+                                    }
+                                },
+                                {
+                                    "key": "protocol",
+                                    "value": {
+                                        "stringValue": "http"
+                                    }
+                                },
+                                {
+                                    "key": "status_code",
+                                    "value": {
+                                        "stringValue": "200"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
