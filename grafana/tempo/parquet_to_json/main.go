@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 
@@ -23,5 +24,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	print(string(r))
+	fmt.Print(string(r))
 }
