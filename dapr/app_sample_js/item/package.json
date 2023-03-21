@@ -1,0 +1,17 @@
+{
+  "name": "item",
+  "version": "0.1.0",
+  "description": "",
+  "main": "bundle.js",
+  "scripts": {
+    "build": "npx esbuild app.ts --bundle --platform=node --outfile=bundle.js"
+  },
+  "dependencies": {
+    "@dapr/dapr": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.5",
+    "esbuild": "^0.17.12",
+    "typescript": "^5.0.2"
+  }
+}
