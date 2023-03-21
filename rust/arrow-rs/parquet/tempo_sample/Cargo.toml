@@ -1,0 +1,8 @@
+[package]
+name = "tempo_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+parquet = "35"
+arrow = "35"
