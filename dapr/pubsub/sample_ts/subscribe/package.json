@@ -1,0 +1,17 @@
+{
+  "name": "subscribe",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "build": "npx esbuild app.ts --bundle --platform=node --outfile=dist/bundle.js"
+  },
+  "dependencies": {
+    "@dapr/dapr": "^3.0.0",
+    "esbuild": "^0.17.15"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "typescript": "^5.0.3"
+  }
+}
