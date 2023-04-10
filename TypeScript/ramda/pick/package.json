@@ -1,0 +1,14 @@
+{
+  "name": "pick",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "ramda": "^0.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "@types/ramda": "^0.28.23",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
