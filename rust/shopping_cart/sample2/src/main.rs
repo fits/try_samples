@@ -12,9 +12,26 @@ fn main() {
     let s2 = s1.add_item(p1.clone(), 1).unwrap();
     println!("{:?}", s2);
     
-    let s3 = s2.add_item(p2, 2).unwrap();
+    let s3 = s2.add_item(p2.clone(), 2).unwrap();
     println!("{:?}", s3);
 
-    let s4 = s3.add_item(p1, 3).unwrap();
+    let s4 = s3.add_item(p1.clone(), 3).unwrap();
     println!("{:?}", s4);
+
+    let s5 = s4.begin_promotion().unwrap();
+    println!("{:?}", s5);
+
+    let d1 = SalesPromotion::Discount { promotion_id: "p1".to_string(), discount: 10 };
+
+    let s6 = s5.add_promotion(d1).unwrap();
+    println!("{:?}", s6);
+
+    let s7 = s6.end_promotion().unwrap();
+    println!("{:?}", s7);
+
+    let s8 = s7.add_item(p2.clone(), 1).unwrap();
+    println!("{:?}", s8);
+
+    let s7a = s6.cancel_promotion().unwrap();
+    println!("{:?}", s7a);
 }
