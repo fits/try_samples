@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: buildkitd
+  labels:
+    app: buildkitd
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/buildkitd: unconfined
+spec:
+  containers:
+    - name: buildkitd
+      image: moby/buildkit:master-rootless
+      args:
+        - --addr
+        - tcp://0.0.0.0:1234
+        - --oci-worker-no-process-sandbox
+      securityContext:
+        seccompProfile:
+          type: Unconfined
+        runAsUser: 1000
+        runAsGroup: 1000
+      volumeMounts:
+        - mountPath: /home/user/.local/share/buildkit
+          name: buildkitd
+  volumes:
+    - name: buildkitd
+      emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: buildkitd
+  name: buildkitd
+spec:
+  ports:
+    - port: 1234
+      protocol: TCP
+  selector:
+    app: buildkitd
