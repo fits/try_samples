@@ -1,0 +1,41 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sampleapp
+  labels:
+    app: sampleapp
+spec:
+  selector:
+    app: sampleapp
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 3000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleapp
+  labels:
+    app: sampleapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sampleapp
+  template:
+    metadata:
+      labels:
+        app: sampleapp
+    spec:
+      containers:
+      - name: sampleapp
+        image: sampleapp
+        env:
+        - name: PORT
+          value: "3000"
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
