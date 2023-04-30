@@ -12,6 +12,6 @@ WORKDIR /app
 
 RUN apt-get update && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/cargo/bin/sample .
+COPY --from=builder /usr/local/cargo/bin/sampleapp .
 
-CMD ["./sample"]
+CMD ["./sampleapp"]

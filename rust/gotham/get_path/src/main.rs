@@ -4,11 +4,13 @@ use gotham::hyper::Uri;
 
 use std::env;
 
-fn sample(state: State) -> (State, &'static str) {
+fn sample(state: State) -> (State, String) {
     let uri = Uri::borrow_from(&state);
     println!("path={}", uri);
 
-    (state, "ok")
+    let res = format!("ok:{}", uri);
+
+    (state, res)
 }
 
 fn main() {
