@@ -1,19 +1,21 @@
 interface types {
+    type cart-id = string
+    type item-id = string
     type amount = s32
     type quantity = u32
 
     record cart-item {
-        item: string,
+        item: item-id,
         qty: quantity,
         unit-price: amount,
     }
 
     record empty-cart {
-        id: string,
+        id: cart-id,
     }
 
     record active-cart {
-        id: string,
+        id: cart-id,
         items: list<cart-item>
     }
 
@@ -24,10 +26,10 @@ interface types {
 }
 
 default world cart-world {
-    use self.types.{ cart, quantity, amount }
+    use self.types.{ cart, cart-id, item-id, quantity, amount }
 
-    import find-price: func(item: string) -> option<amount>
+    import find-price: func(item: item-id) -> option<amount>
 
-    export create: func(id: string) -> cart
-    export add-item: func(state: cart, item: string, qty: quantity) -> option<cart>
+    export create: func(id: cart-id) -> cart
+    export add-item: func(state: cart, item: item-id, qty: quantity) -> option<cart>
 }
