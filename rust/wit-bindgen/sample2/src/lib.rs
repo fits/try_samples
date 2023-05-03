@@ -6,11 +6,11 @@ use types::{EmptyCart, ActiveCart, CartItem};
 struct Component;
 
 impl CartWorld for Component {
-    fn create(id: String) -> Cart {
+    fn create(id: CartId) -> Cart {
         Cart::EmptyCart(EmptyCart { id: id.clone() })
     }
 
-    fn add_item(state: Cart, item: String, qty: Quantity) -> Option<Cart> {
+    fn add_item(state: Cart, item: ItemIdResult, qty: Quantity) -> Option<Cart> {
         let price = find_price(&item);
 
         if let Some(p) = price {
