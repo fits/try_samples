@@ -1,0 +1,7 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: auth-svc
+spec:
+  type: ExternalName
+  externalName: host.lima.internal
