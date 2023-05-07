@@ -1,0 +1,10 @@
+[package]
+name = "sampleapp"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gotham = "0.7"
+
+[profile.release]
+lto = true
