@@ -1,0 +1,37 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: sampleauth
+spec:
+  forwardAuth:
+    address: http://auth-svc.default.svc.cluster.local:8100
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: sample-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /sample/
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares:
+      default-sampleauth@kubernetescrd, default-sample-prefix@kubernetescrd
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /sample/
+        pathType: Prefix
+        backend:
+          service:
+            name: sampleapp
+            port:
+              number: 8080
