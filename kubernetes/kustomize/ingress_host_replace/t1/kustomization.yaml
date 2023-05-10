@@ -1,0 +1,10 @@
+bases:
+- ../base
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/rules/0/host
+      value: t1
+  target:
+    kind: Ingress
+    name: sample-ingress
