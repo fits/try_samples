@@ -27,9 +27,15 @@ func main() {
 
 	info := m["coredns_build_info"]
 
-	for _, v := range info.GetMetric()[0].Label {
-		fmt.Printf("%s: name=%s, value=%s \n", info.GetName(), v.GetName(), v.GetValue())
+	for _, l := range info.GetMetric()[0].Label {
+		fmt.Printf("%s: name=%s, value=%s \n", info.GetName(), l.GetName(), l.GetValue())
 	}
+
+	println("-----")
+
+	cache_hits := m["coredns_cache_hits_total"].GetMetric()[0].GetCounter()
+
+	fmt.Printf("coredns_cache_hits_total=%f \n", cache_hits.GetValue())
 
 	println("-----")
 
