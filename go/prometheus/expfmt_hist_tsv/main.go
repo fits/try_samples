@@ -68,7 +68,7 @@ func main() {
 							k,
 							label,
 							sum,
-							fmt.Sprintf("%.f", b.GetUpperBound()),
+							fmt.Sprintf("%f", b.GetUpperBound()),
 							fmt.Sprintf("%d", count),
 						}, SEP)
 
