@@ -1,0 +1,47 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  selector:
+    app: order
+  ports:
+  - protocol: TCP
+    port: 3001
+    targetPort: 3000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "order"
+        dapr.io/app-port: "3000"
+        dapr.io/enable-metrics: "false"
+        dapr.io/enable-profiling: "true"
+    spec:
+      containers:
+      - name: order
+        image: order
+        env:
+        - name: APP_PORT
+          value: "3000"
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
