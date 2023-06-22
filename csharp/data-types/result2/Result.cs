@@ -10,14 +10,15 @@ public abstract record Result<T, E>
 
     public static Result<T, E>? FromJson(string json)
     {
-        var doc = JsonDocument.Parse(json);
+        using(var doc = JsonDocument.Parse(json))
+        {
+            try {
+                doc.RootElement.GetProperty("Value");
+                return doc.Deserialize<OkResult>();
 
-        try {
-            doc.RootElement.GetProperty("Value");
-            return doc.Deserialize<OkResult>();
-
-        } catch(KeyNotFoundException) {
-            return doc.Deserialize<ErrResult>();
+            } catch(KeyNotFoundException) {
+                return doc.Deserialize<ErrResult>();
+            }
         }
     }
 }
