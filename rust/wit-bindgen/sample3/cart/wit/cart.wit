@@ -1,0 +1,33 @@
+package sample:cart
+
+world cart {
+    type cart-id = string
+    type item-id = string
+    type amount = s32
+    type quantity = u32
+
+    record cart-item {
+        item: item-id,
+        qty: quantity,
+        unit-price: amount,
+    }
+
+    record empty-cart {
+        id: cart-id,
+    }
+
+    record active-cart {
+        id: cart-id,
+        items: list<cart-item>
+    }
+
+    union cart-data {
+        empty-cart,
+        active-cart,
+    }
+
+    import find-price: func(item: item-id) -> option<amount>
+
+    export create: func(id: cart-id) -> cart-data
+    export add-item: func(state: cart-data, item: item-id, qty: quantity) -> option<cart-data>
+}
