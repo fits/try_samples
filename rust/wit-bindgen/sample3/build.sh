@@ -8,4 +8,4 @@ wasm-tools component new ./target/wasm32-unknown-unknown/release/item.wasm -o it
 cd ../cart
 
 cargo build --release --target wasm32-unknown-unknown
-wasm-tools component new ./target/wasm32-unknown-unknown/release/cart.wasm -o cart-comp.wasm --adapt ../item/item-comp.wasm
+wasm-tools component new ./target/wasm32-unknown-unknown/release/cart.wasm -o cart-comp.wasm
