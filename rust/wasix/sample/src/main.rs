@@ -4,7 +4,8 @@ fn main() -> Result<()> {
     print_message("step1\n")?;
 
     unsafe {
-        wasix::thread_sleep(3)?;
+        // sleep 5sec
+        wasix::thread_sleep(5 * 1000000000)?;
     }
 
     print_message("step2\n")?;
@@ -19,7 +20,7 @@ fn print_message(msg: &str) -> Result<()> {
     }];
 
     unsafe {
-        wasix::fd_write(1, &d)?;
+        wasix::fd_write(wasix::FD_STDOUT, &d)?;
     }
 
     Ok(())
