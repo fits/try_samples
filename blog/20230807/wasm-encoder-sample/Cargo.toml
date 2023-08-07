@@ -1,0 +1,8 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+wasm-encoder = "0.31.1"
+wasmparser = "0.110.0"
