@@ -162,13 +162,13 @@ where
         });
 
         if upd {
-            if new_lines.len() > 0 {
+            if new_lines.is_empty() {
+                Some(Self::Empty { id: id.clone() })
+            } else {
                 Some(Self::NonEmpty {
                     id: id.clone(),
                     lines: new_lines,
                 })
-            } else {
-                Some(Self::Empty { id: id.clone() })
             }
         } else {
             None
