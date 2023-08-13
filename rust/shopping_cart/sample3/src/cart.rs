@@ -64,7 +64,9 @@ where
             if let Some(state) = acc {
                 match state {
                     Self::Nothing => match x {
-                        CartEvent::Created { id } => Some(Self::Empty { id: id.clone() }),
+                        CartEvent::Created { id } if !id.is_empty() => {
+                            Some(Self::Empty { id: id.clone() })
+                        }
                         _ => None,
                     },
                     Self::Empty { id } => Self::apply_to(&id, &vec![], x),
@@ -124,8 +126,16 @@ where
         self.apply_events(vec![&event]).map(|s| (s, event))
     }
 
-    fn validate_line(qty: &Quantity, price: &Amount) -> bool {
-        *qty > 0 && Self::validate_price(price)
+    fn validate_line(
+        lines: &Vec<CartLine<Item>>,
+        line_id: &CartLineId,
+        qty: &Quantity,
+        price: &Amount,
+    ) -> bool {
+        !line_id.is_empty()
+            && *qty > 0
+            && Self::validate_price(price)
+            && Self::not_exists_line(lines, line_id)
     }
 
     fn validate_price(price: &Amount) -> bool {
@@ -136,6 +146,35 @@ where
         lines.iter().find(|x| x.line_id == *line_id).is_none()
     }
 
+    fn update_line<F: Fn(&CartLine<Item>) -> Option<Vec<CartLine<Item>>>>(
+        id: &CartId,
+        lines: &Vec<CartLine<Item>>,
+        f: F,
+    ) -> Option<Self> {
+        let v: (bool, Vec<CartLine<Item>>) = (false, vec![]);
+
+        let (upd, new_lines) = lines.iter().fold(v, |acc, x| {
+            if let Some(cs) = f(x) {
+                (true, [acc.1, cs].concat())
+            } else {
+                (acc.0, [acc.1, vec![x.clone()]].concat())
+            }
+        });
+
+        if upd {
+            if new_lines.len() > 0 {
+                Some(Self::NonEmpty {
+                    id: id.clone(),
+                    lines: new_lines,
+                })
+            } else {
+                Some(Self::Empty { id: id.clone() })
+            }
+        } else {
+            None
+        }
+    }
+
     fn apply_to(id: &CartId, lines: &Vec<CartLine<Item>>, event: &CartEvent<Item>) -> Option<Self> {
         match event {
             CartEvent::LineAdded {
@@ -143,7 +182,7 @@ where
                 item,
                 qty,
                 unit_price,
-            } if Self::validate_line(qty, unit_price) && Self::not_exists_line(lines, line_id) => {
+            } if Self::validate_line(lines, line_id, qty, unit_price) => {
                 let line = CartLine {
                     line_id: line_id.clone(),
                     item: item.clone(),
@@ -158,65 +197,31 @@ where
                     lines: new_lines,
                 })
             }
-            CartEvent::QtyChanged { line_id, new_qty } => {
-                let new_lines = lines
-                    .iter()
-                    .flat_map(|x| {
-                        if x.line_id == *line_id {
-                            if *new_qty > 0 {
-                                vec![CartLine {
-                                    qty: *new_qty,
-                                    ..x.clone()
-                                }]
-                            } else {
-                                vec![]
-                            }
-                        } else {
-                            vec![x.clone()]
-                        }
-                    })
-                    .collect::<Vec<_>>();
-
-                if new_lines != *lines {
-                    if new_lines.len() > 0 {
-                        Some(Self::NonEmpty {
-                            id: id.clone(),
-                            lines: new_lines,
-                        })
+            CartEvent::QtyChanged { line_id, new_qty } => Self::update_line(id, lines, move |x| {
+                if x.line_id == *line_id && x.qty != *new_qty {
+                    if *new_qty > 0 {
+                        Some(vec![CartLine {
+                            qty: *new_qty,
+                            ..x.clone()
+                        }])
                     } else {
-                        Some(Self::Empty { id: id.clone() })
+                        Some(vec![])
                     }
                 } else {
                     None
                 }
-            }
+            }),
             CartEvent::PriceChanged { line_id, new_price } if Self::validate_price(new_price) => {
-                let new_lines = lines
-                    .iter()
-                    .flat_map(|x| {
-                        if x.line_id == *line_id {
-                            vec![CartLine {
-                                unit_price: new_price.clone(),
-                                ..x.clone()
-                            }]
-                        } else {
-                            vec![x.clone()]
-                        }
-                    })
-                    .collect::<Vec<_>>();
-
-                if new_lines != *lines {
-                    if new_lines.len() > 0 {
-                        Some(Self::NonEmpty {
-                            id: id.clone(),
-                            lines: new_lines,
-                        })
+                Self::update_line(id, lines, move |x| {
+                    if x.line_id == *line_id && x.unit_price != *new_price {
+                        Some(vec![CartLine {
+                            unit_price: new_price.clone(),
+                            ..x.clone()
+                        }])
                     } else {
-                        Some(Self::Empty { id: id.clone() })
+                        None
                     }
-                } else {
-                    None
-                }
+                })
             }
             CartEvent::Checkout if !lines.is_empty() => Some(Self::Ordered {
                 id: id.clone(),
@@ -297,6 +302,13 @@ mod tests {
     }
 
     #[test]
+    fn create_by_empty_id() {
+        let state: Cart<String> = Cart::Nothing;
+
+        assert!(state.create("".to_string()).is_none());
+    }
+
+    #[test]
     fn add_line_to_empty() {
         let state = empty_cart("cart-1");
         let item = "item-1".to_string();
@@ -318,6 +330,16 @@ mod tests {
         } else {
             assert!(false);
         }
+    }
+
+    #[test]
+    fn add_line_to_empty_by_empty_id() {
+        let state = empty_cart("cart-1");
+        let item = "item-1".to_string();
+
+        assert!(state
+            .add_line("".to_string(), &item, 1, BigInt::from(100))
+            .is_none());
     }
 
     #[test]
