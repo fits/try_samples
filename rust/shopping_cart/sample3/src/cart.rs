@@ -1,11 +1,12 @@
 #![allow(dead_code)]
 
-use num_bigint::BigInt;
+use super::amount::{Amount, Value};
+
+use num_traits::Zero;
 
 pub type CartId = String;
 pub type CartLineId = String;
 pub type Quantity = u32;
-pub type Amount = BigInt;
 
 #[derive(Debug, Clone)]
 pub enum CartEvent<Item> {
@@ -139,7 +140,10 @@ where
     }
 
     fn validate_price(price: &Amount) -> bool {
-        *price >= BigInt::from(0)
+        price
+            .amount(None)
+            .map(|v| v >= Value::zero())
+            .unwrap_or(false)
     }
 
     fn not_exists_line(lines: &Vec<CartLine<Item>>, line_id: &CartLineId) -> bool {
@@ -234,8 +238,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::vec;
+
+    use super::*;
 
     type LineInput = (&'static str, &'static str, Quantity, Amount);
 
@@ -313,7 +318,7 @@ mod tests {
         let state = empty_cart("cart-1");
         let item = "item-1".to_string();
 
-        if let Some((s, _ev)) = state.add_line("line-1".to_string(), &item, 2, BigInt::from(1000)) {
+        if let Some((s, _ev)) = state.add_line("line-1".to_string(), &item, 2, to_price(1000)) {
             if let Cart::NonEmpty { id, lines } = s {
                 assert_eq!(id, "cart-1");
                 assert_eq!(lines.len(), 1);
@@ -323,7 +328,7 @@ mod tests {
                 assert!(it.line_id.len() > 0);
                 assert_eq!(it.item, "item-1");
                 assert_eq!(it.qty, 2);
-                assert_eq!(it.unit_price, BigInt::from(1000));
+                assert_eq!(it.unit_price, to_price(1000));
             } else {
                 assert!(false);
             }
@@ -338,7 +343,7 @@ mod tests {
         let item = "item-1".to_string();
 
         assert!(state
-            .add_line("".to_string(), &item, 1, BigInt::from(100))
+            .add_line("".to_string(), &item, 1, to_price(100))
             .is_none());
     }
 
@@ -348,7 +353,7 @@ mod tests {
         let item = "item-1".to_string();
 
         assert!(state
-            .add_line("line-1".to_string(), &item, 2, BigInt::from(-1))
+            .add_line("line-1".to_string(), &item, 2, to_price(-1))
             .is_none());
     }
 
@@ -358,17 +363,17 @@ mod tests {
         let item = "item-1".to_string();
 
         assert!(state
-            .add_line("line-1".to_string(), &item, 0, BigInt::from(100))
+            .add_line("line-1".to_string(), &item, 0, to_price(100))
             .is_none());
     }
 
     #[test]
     fn add_other_item() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         let item2 = "item-2".to_string();
 
-        if let Some((s, _ev)) = state.add_line("line-2".to_string(), &item2, 1, BigInt::from(800)) {
+        if let Some((s, _ev)) = state.add_line("line-2".to_string(), &item2, 1, to_price(800)) {
             if let Cart::NonEmpty { id, lines } = s {
                 assert_eq!(id, "cart-1");
                 assert_eq!(lines.len(), 2);
@@ -378,7 +383,7 @@ mod tests {
                 assert!(it.line_id.len() > 0);
                 assert_eq!(it.item, "item-2");
                 assert_eq!(it.qty, 1);
-                assert_eq!(it.unit_price, BigInt::from(800));
+                assert_eq!(it.unit_price, to_price(800));
             } else {
                 assert!(false);
             }
@@ -389,11 +394,11 @@ mod tests {
 
     #[test]
     fn add_same_item() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         let item = "item-1".to_string();
 
-        if let Some((s, _ev)) = state.add_line("line-2".to_string(), &item, 1, BigInt::from(800)) {
+        if let Some((s, _ev)) = state.add_line("line-2".to_string(), &item, 1, to_price(800)) {
             if let Cart::NonEmpty { id, lines } = s {
                 assert_eq!(id, "cart-1");
                 assert_eq!(lines.len(), 2);
@@ -403,7 +408,7 @@ mod tests {
                 assert!(it.line_id.len() > 0);
                 assert_eq!(it.item, "item-1");
                 assert_eq!(it.qty, 1);
-                assert_eq!(it.unit_price, BigInt::from(800));
+                assert_eq!(it.unit_price, to_price(800));
             } else {
                 assert!(false);
             }
@@ -414,24 +419,24 @@ mod tests {
 
     #[test]
     fn add_same_line_id() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         let item = "item-2".to_string();
 
         assert!(state
-            .add_line("line-1".to_string(), &item, 1, BigInt::from(800))
+            .add_line("line-1".to_string(), &item, 1, to_price(800))
             .is_none());
     }
 
     #[test]
     fn apply_events_same_line_id_add() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         let event = CartEvent::LineAdded {
             line_id: "line-1".to_string(),
             item: "item-2".to_string(),
             qty: 1,
-            unit_price: BigInt::from(100),
+            unit_price: to_price(100),
         };
 
         assert!(state.apply_events(vec![&event]).is_none());
@@ -439,7 +444,7 @@ mod tests {
 
     #[test]
     fn change_qty() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         if let Some((s, _ev)) = state.change_qty(&"line-1".to_string(), 1) {
             if let Cart::NonEmpty { id: _id, lines } = s {
@@ -458,7 +463,7 @@ mod tests {
 
     #[test]
     fn change_qty_zero() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         if let Some((s, _ev)) = state.change_qty(&"line-1".to_string(), 0) {
             if let Cart::Empty { id } = s {
@@ -473,7 +478,7 @@ mod tests {
 
     #[test]
     fn change_qty_invalid_line() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         assert!(state.change_qty(&"line-2".to_string(), 1).is_none());
     }
@@ -483,8 +488,8 @@ mod tests {
         let state = multi_lines_cart(
             "cart-1",
             vec![
-                ("line-1", "item-1", 2, BigInt::from(1500)),
-                ("line-2", "item-2", 1, BigInt::from(800)),
+                ("line-1", "item-1", 2, to_price(1500)),
+                ("line-2", "item-2", 1, to_price(800)),
             ],
         );
 
@@ -505,22 +510,22 @@ mod tests {
 
     #[test]
     fn no_change_qty() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         assert!(state.change_qty(&"line-1".to_string(), 2).is_none());
     }
 
     #[test]
     fn change_price() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
-        if let Some((s, _ev)) = state.change_price(&"line-1".to_string(), BigInt::from(1000)) {
+        if let Some((s, _ev)) = state.change_price(&"line-1".to_string(), to_price(1000)) {
             if let Cart::NonEmpty { id: _id, lines } = s {
                 assert_eq!(lines.len(), 1);
 
                 let it = lines.last().unwrap();
 
-                assert_eq!(it.unit_price, BigInt::from(1000));
+                assert_eq!(it.unit_price, to_price(1000));
             } else {
                 assert!(false);
             }
@@ -531,28 +536,28 @@ mod tests {
 
     #[test]
     fn change_price_negative() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         assert!(state
-            .change_price(&"line-2".to_string(), BigInt::from(-1))
+            .change_price(&"line-2".to_string(), to_price(-1))
             .is_none());
     }
 
     #[test]
     fn change_price_invalid_line() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         assert!(state
-            .change_price(&"line-2".to_string(), BigInt::from(100))
+            .change_price(&"line-2".to_string(), to_price(100))
             .is_none());
     }
 
     #[test]
     fn no_change_price() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         assert!(state
-            .change_price(&"line-1".to_string(), BigInt::from(1500))
+            .change_price(&"line-1".to_string(), to_price(1500))
             .is_none());
     }
 
@@ -567,7 +572,7 @@ mod tests {
 
     #[test]
     fn checkout_non_empty() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         if let Some((s, _ev)) = state.checkout() {
             if let Cart::Ordered { id, lines } = s {
@@ -579,7 +584,7 @@ mod tests {
                 assert_eq!(it.line_id, "line-1");
                 assert_eq!(it.item, "item-1");
                 assert_eq!(it.qty, 2);
-                assert_eq!(it.unit_price, BigInt::from(1500));
+                assert_eq!(it.unit_price, to_price(1500));
             } else {
                 assert!(false);
             }
@@ -590,12 +595,16 @@ mod tests {
 
     #[test]
     fn checkout_again() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, BigInt::from(1500));
+        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
         if let Some((s, _ev)) = state.checkout() {
             assert!(s.checkout().is_none());
         } else {
             assert!(false);
         }
+    }
+
+    fn to_price(v: i32) -> Amount {
+        Amount::Fixed(Value::new(v.into(), 1.into()))
     }
 }
