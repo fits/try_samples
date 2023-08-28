@@ -12,7 +12,7 @@ pub enum Amount {
 }
 
 impl Amount {
-    pub fn amount(&self, target: Option<Value>) -> Option<Value> {
+    pub fn amount(&self, target: Option<&Value>) -> Option<Value> {
         match self {
             Self::Fixed(v) => Some(v.clone()),
             Self::Rate(r) => target.map(|t| t * r),
@@ -42,7 +42,7 @@ mod tests {
     fn fixed_amount_with_target() {
         let a = Amount::Fixed(to_value(100));
 
-        if let Some(v) = a.amount(Some(to_value(200))) {
+        if let Some(v) = a.amount(Some(&to_value(200))) {
             assert_eq!(v, to_value(100));
         } else {
             assert!(false);
@@ -60,7 +60,7 @@ mod tests {
     fn rate_amount_with_target() {
         let a = Amount::Rate(to_rate(30));
 
-        if let Some(v) = a.amount(Some(to_value(200))) {
+        if let Some(v) = a.amount(Some(&to_value(200))) {
             assert_eq!(v, to_value(60));
         } else {
             assert!(false);
@@ -77,7 +77,7 @@ mod tests {
     fn diff_amount_with_small_target() {
         let a = Amount::Diff(to_value(100));
 
-        if let Some(v) = a.amount(Some(to_value(85))) {
+        if let Some(v) = a.amount(Some(&to_value(85))) {
             assert_eq!(v, to_value(15));
         } else {
             assert!(false);
@@ -88,7 +88,7 @@ mod tests {
     fn diff_amount_with_big_target() {
         let a = Amount::Diff(to_value(100));
 
-        if let Some(v) = a.amount(Some(to_value(123))) {
+        if let Some(v) = a.amount(Some(&to_value(123))) {
             assert_eq!(v, to_value(-23));
         } else {
             assert!(false);
