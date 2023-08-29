@@ -1,8 +1,7 @@
 #![allow(dead_code)]
 
-use super::amount::{Amount, Value};
-
-use num_traits::Zero;
+use super::amount::Value;
+use super::price::Price;
 
 pub type CartId = String;
 pub type CartLineId = String;
@@ -17,7 +16,7 @@ pub enum CartEvent<Item> {
         line_id: CartLineId,
         item: Item,
         qty: Quantity,
-        unit_price: Amount,
+        unit_price: Price,
     },
     QtyChanged {
         line_id: CartLineId,
@@ -25,7 +24,7 @@ pub enum CartEvent<Item> {
     },
     PriceChanged {
         line_id: CartLineId,
-        new_price: Amount,
+        new_price: Price,
     },
     Checkout,
 }
@@ -35,7 +34,7 @@ pub struct CartLine<Item> {
     line_id: CartLineId,
     item: Item,
     qty: Quantity,
-    unit_price: Amount,
+    unit_price: Price,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -91,7 +90,7 @@ where
         line_id: CartLineId,
         item: &Item,
         qty: Quantity,
-        unit_price: Amount,
+        unit_price: Price,
     ) -> Option<CartResult<Item>> {
         let event = CartEvent::LineAdded {
             line_id,
@@ -112,7 +111,7 @@ where
         self.apply_events(vec![&event]).map(|s| (s, event))
     }
 
-    pub fn change_price(&self, line_id: &CartLineId, price: Amount) -> Option<CartResult<Item>> {
+    pub fn change_price(&self, line_id: &CartLineId, price: Price) -> Option<CartResult<Item>> {
         let event: CartEvent<Item> = CartEvent::PriceChanged {
             line_id: line_id.clone(),
             new_price: price,
@@ -131,7 +130,7 @@ where
         lines: &Vec<CartLine<Item>>,
         line_id: &CartLineId,
         qty: &Quantity,
-        price: &Amount,
+        price: &Price,
     ) -> bool {
         !line_id.is_empty()
             && *qty > 0
@@ -139,11 +138,8 @@ where
             && Self::not_exists_line(lines, line_id)
     }
 
-    fn validate_price(price: &Amount) -> bool {
-        price
-            .amount(None)
-            .map(|v| v >= Value::zero())
-            .unwrap_or(false)
+    fn validate_price(price: &Price) -> bool {
+        price.price_total() >= Value::default()
     }
 
     fn not_exists_line(lines: &Vec<CartLine<Item>>, line_id: &CartLineId) -> bool {
@@ -238,11 +234,12 @@ where
 
 #[cfg(test)]
 mod tests {
+    use num_bigint::BigInt;
     use std::vec;
 
     use super::*;
 
-    type LineInput = (&'static str, &'static str, Quantity, Amount);
+    type LineInput = (&'static str, &'static str, Quantity, Price);
 
     fn empty_cart(id: &'static str) -> Cart<String> {
         Cart::Empty { id: id.to_string() }
@@ -253,7 +250,7 @@ mod tests {
         line_id: &'static str,
         item: &'static str,
         qty: Quantity,
-        unit_price: Amount,
+        unit_price: Price,
     ) -> Cart<String> {
         let line = CartLine {
             line_id: line_id.to_string(),
@@ -344,16 +341,6 @@ mod tests {
 
         assert!(state
             .add_line("".to_string(), &item, 1, to_price(100))
-            .is_none());
-    }
-
-    #[test]
-    fn add_line_to_empty_with_negative_price() {
-        let state = empty_cart("cart-1");
-        let item = "item-1".to_string();
-
-        assert!(state
-            .add_line("line-1".to_string(), &item, 2, to_price(-1))
             .is_none());
     }
 
@@ -535,15 +522,6 @@ mod tests {
     }
 
     #[test]
-    fn change_price_negative() {
-        let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
-
-        assert!(state
-            .change_price(&"line-2".to_string(), to_price(-1))
-            .is_none());
-    }
-
-    #[test]
     fn change_price_invalid_line() {
         let state = single_line_cart("cart-1", "line-1", "item-1", 2, to_price(1500));
 
@@ -604,7 +582,8 @@ mod tests {
         }
     }
 
-    fn to_price(v: i32) -> Amount {
-        Amount::Fixed(Value::new(v.into(), 1.into()))
+    fn to_price(v: i32) -> Price {
+        let p = Value::from(BigInt::from(v));
+        Price::new(p).unwrap()
     }
 }
