@@ -1,0 +1,7 @@
+[package]
+name = "run_component"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+wasmtime = { git = 'https://github.com/bytecodealliance/wasmtime', features = ['component-model'] }
