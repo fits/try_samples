@@ -1,0 +1,7 @@
+[package]
+name = "run_component"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+wasmtime = { version = '12', features = ['component-model'] }
