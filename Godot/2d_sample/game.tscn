@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3 uid="uid://dgmgnc4fi7bo5"]
+
+[ext_resource type="Script" path="res://game.gd" id="1_jb6jc"]
+[ext_resource type="PackedScene" uid="uid://c1pif73cxlcly" path="res://player.tscn" id="2_ravb1"]
+[ext_resource type="PackedScene" uid="uid://cttn0834t0urm" path="res://goal.tscn" id="3_5ima2"]
+[ext_resource type="PackedScene" uid="uid://d1xkxbarjl8qw" path="res://hud.tscn" id="4_ijdjc"]
+
+[node name="Game" type="Node"]
+script = ExtResource("1_jb6jc")
+
+[node name="Goal" parent="." instance=ExtResource("3_5ima2")]
+
+[node name="Player" parent="." instance=ExtResource("2_ravb1")]
+
+[node name="HUD" parent="." instance=ExtResource("4_ijdjc")]
+
+[connection signal="goal_touched" from="Player" to="." method="_on_player_goal_touched"]
+[connection signal="game_started" from="HUD" to="." method="_on_hud_game_started"]

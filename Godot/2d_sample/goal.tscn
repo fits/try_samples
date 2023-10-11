@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://cttn0834t0urm"]
+
+[ext_resource type="Script" path="res://goal.gd" id="1_iw82t"]
+[ext_resource type="Texture2D" uid="uid://ce5hxuf1aalpl" path="res://img/g1.png" id="1_vabck"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ql3k6"]
+radius = 20.0
+height = 68.0
+
+[node name="Goal" type="Area2D"]
+disable_mode = 2
+script = ExtResource("1_iw82t")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_vabck")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_ql3k6")
