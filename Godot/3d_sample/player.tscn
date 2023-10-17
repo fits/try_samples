@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://ugahkm5iw7m4"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_hcfmp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yd6t0"]
+size = Vector3(0.8, 1.6, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_26ya5"]
+albedo_color = Color(0.392157, 0.784314, 0.392157, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_iicaq"]
+material = SubResource("StandardMaterial3D_26ya5")
+size = Vector3(0.8, 1.6, 0.4)
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_hcfmp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_yd6t0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_iicaq")
