@@ -1,0 +1,51 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: rabbit1
+  labels:
+    app: rabbit1
+spec:
+  selector:
+    app: rabbit1
+  ports:
+  - protocol: TCP
+    name: queue
+    port: 5672
+    targetPort: 5672
+  - protocol: TCP
+    name: manage
+    port: 15672
+    targetPort: 15672
+  - protocol: TCP
+    name: metrics
+    port: 15692
+    targetPort: 15692
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbit1
+  labels:
+    app: rabbit1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbit1
+  template:
+    metadata:
+      labels:
+        app: rabbit1
+    spec:
+      containers:
+      - name: rabbit1
+        image: rabbitmq:3-management-alpine
+        ports:
+        - containerPort: 5672
+          name: queue
+        - containerPort: 15672
+          name: manage
+        - containerPort: 15692
+          name: metrics

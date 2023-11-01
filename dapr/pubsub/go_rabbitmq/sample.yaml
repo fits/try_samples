@@ -1,0 +1,42 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sample
+  labels:
+    app: sample
+spec:
+  selector:
+    app: sample
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 3000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample
+  labels:
+    app: sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample
+  template:
+    metadata:
+      labels:
+        app: sample
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "sample"
+        dapr.io/app-port: "3000"
+    spec:
+      containers:
+      - name: sample
+        image: sample
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
