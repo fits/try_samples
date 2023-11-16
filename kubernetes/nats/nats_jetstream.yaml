@@ -1,0 +1,46 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: nats1
+  labels:
+    app: nats1
+spec:
+  selector:
+    app: nats1
+  ports:
+  - protocol: TCP
+    name: broker
+    port: 4222
+    targetPort: 4222
+  - protocol: TCP
+    name: manage
+    port: 8222
+    targetPort: 8222
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats1
+  labels:
+    app: nats1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats1
+  template:
+    metadata:
+      labels:
+        app: nats1
+    spec:
+      containers:
+      - name: nats1
+        image: nats:2-alpine
+        args: ["-js", "-m", "8222"]
+        ports:
+        - containerPort: 4222
+          name: broker
+        - containerPort: 8222
+          name: manage
