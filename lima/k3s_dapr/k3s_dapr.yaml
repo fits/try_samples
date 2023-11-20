@@ -1,0 +1,42 @@
+images:
+- location: "https://cloud-images.ubuntu.com/releases/23.10/release/ubuntu-23.10-server-cloudimg-arm64.img"
+  arch: "aarch64"
+
+mounts:
+- location: "~/work/lima/k3s_dapr"
+  writable: true
+
+containerd:
+  system: false
+  user: false
+
+provision:
+- mode: system
+  script: |
+    #!/bin/sh
+    curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+- mode: system
+  script: |
+    #!/bin/bash
+    curl -sfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash -s
+- mode: system
+  script: |
+    #!/bin/bash
+    set -euxo pipefail
+
+    if ! timeout 30s bash -c "until test -f /etc/rancher/k3s/k3s.yaml; do sleep 3; done"; then
+      echo >&2 "k3s is not running yet"
+      exit 1
+    fi
+
+    DAPR_NS=dapr-system
+
+    if kubectl get ns $DAPR_NS >/dev/null 2>&1; then
+      echo "skip dapr install"
+      exit 0
+    fi
+
+    export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+    helm repo add dapr https://dapr.github.io/helm-charts/
+    helm repo update
+    helm upgrade --install dapr dapr/dapr --version=1.12 --namespace $DAPR_NS --create-namespace
