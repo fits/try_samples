@@ -1,0 +1,72 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kafka1
+  labels:
+    app: kafka1
+spec:
+  selector:
+    app: kafka1
+  ports:
+  - protocol: TCP
+    name: internal
+    port: 9092
+    targetPort: 9092
+  - protocol: TCP
+    name: controller
+    port: 9093
+    targetPort: 9093
+  - protocol: TCP
+    name: external
+    port: 9094
+    targetPort: 9094
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka1
+  labels:
+    app: kafka1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka1
+  template:
+    metadata:
+      labels:
+        app: kafka1
+    spec:
+      containers:
+      - name: kafka
+        image: confluentinc/cp-kafka
+        ports:
+        - containerPort: 9092
+          name: internal
+        - containerPort: 9093
+          name: controller
+        - containerPort: 9094
+          name: external
+        env:
+        - name: CLUSTER_ID
+          value: "7psGYDAnTk2EqZYrehuwsg"
+        - name: KAFKA_NODE_ID
+          value: "1"
+        - name: KAFKA_PROCESS_ROLES
+          value: "broker,controller"
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: "1@kafka1:9093"
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+        - name: KAFKA_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: "INTERNAL"
+        - name: KAFKA_LISTENERS
+          value: "INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "INTERNAL://kafka1:9092,EXTERNAL://localhost:9094"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
