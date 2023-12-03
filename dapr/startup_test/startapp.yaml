@@ -1,0 +1,54 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: startapp
+  labels:
+    app: startapp
+spec:
+  selector:
+    app: startapp
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 3000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: startapp
+  labels:
+    app: startapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: startapp
+  template:
+    metadata:
+      labels:
+        app: startapp
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "startapp"
+        dapr.io/app-port: "3000"
+        dapr.io/log-level: "error"
+    spec:
+      containers:
+      - name: startapp
+        image: startapp
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
+        env:
+        - name: DELAY_SECOND
+          value: "20"
+        startupProbe:
+          httpGet:
+            port: 3000
+            path: /started
+          initialDelaySeconds: 5
+          # failureThreshold: 3
+          failureThreshold: 10
+          periodSeconds: 5
