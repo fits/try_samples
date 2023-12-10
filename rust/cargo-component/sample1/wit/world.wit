@@ -1,0 +1,15 @@
+package component:sample1;
+
+interface types {
+    type cart-id = string;
+
+    record empty-cart {
+        id: cart-id,
+    }
+}
+
+world example {
+    use types.{ empty-cart, cart-id };
+
+    export create: func(id: cart-id) -> empty-cart;
+}
