@@ -1,0 +1,15 @@
+[package]
+name = "sample2"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cargo-component-bindings = "0.5.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "component:sample2"
+
+[package.metadata.component.dependencies]
