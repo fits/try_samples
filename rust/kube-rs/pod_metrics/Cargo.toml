@@ -1,0 +1,11 @@
+[package]
+name = "pod_metrics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+kube = { version = "0.87.1", features = ["runtime", "derive"] }
+k8s-openapi = { version = "0.20.0", features = ["latest"] }
+tokio = { version = "1.35.0", features = ["full"] }
+http = "0.2"
+serde_json = "1.0"
