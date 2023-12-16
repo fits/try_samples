@@ -1,0 +1,33 @@
+package component:sample;
+
+interface types {
+    type cart-id = string;
+    type item-id = string;
+    type quantity = u32;
+
+    record cart-item {
+        item: item-id,
+        qty: quantity,
+    }
+
+    record empty-cart {
+        id: cart-id,
+    }
+
+    record active-cart {
+        id: cart-id,
+        items: list<cart-item>,
+    }
+
+    variant cart {
+        empty(empty-cart),
+        active(active-cart),
+    }
+}
+
+world sample {
+    use types.{ cart, cart-id, item-id, quantity };
+
+    export create: func(id: cart-id) -> cart;
+    export change-qty: func(state: cart, item: item-id, qty: quantity) -> cart;
+}
