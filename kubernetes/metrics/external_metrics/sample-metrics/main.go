@@ -13,7 +13,7 @@ import (
 	"sigs.k8s.io/custom-metrics-apiserver/pkg/provider"
 )
 
-type SampleProvider struct {}
+type SampleProvider struct{}
 
 func (p *SampleProvider) GetExternalMetric(ctx context.Context, namespace string, metricSelector labels.Selector, info provider.ExternalMetricInfo) (*external_metrics.ExternalMetricValueList, error) {
 	name := info.Metric
@@ -22,23 +22,23 @@ func (p *SampleProvider) GetExternalMetric(ctx context.Context, namespace string
 		{
 			MetricName: name,
 			MetricLabels: map[string]string{
-				"app": "sample",
+				"app":      "sample",
 				"category": "1",
 			},
 			Timestamp: metav1.Now(),
-			Value: *resource.NewQuantity(123, resource.DecimalSI),
+			Value:     *resource.NewQuantity(123, resource.DecimalSI),
 		},
 		{
 			MetricName: name,
 			MetricLabels: map[string]string{
-				"app": "sample",
+				"app":      "sample",
 				"category": "2",
 			},
 			Timestamp: metav1.Now(),
-			Value: *resource.NewScaledQuantity(456, resource.Micro),
+			Value:     *resource.NewScaledQuantity(456, resource.Micro),
 		},
 	}
-	
+
 	return &external_metrics.ExternalMetricValueList{
 		Items: items,
 	}, nil
