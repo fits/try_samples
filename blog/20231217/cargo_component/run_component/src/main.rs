@@ -1,4 +1,3 @@
-
 use wasmtime::component::{Component, Linker};
 use wasmtime::{Config, Engine, Store};
 
@@ -34,11 +33,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let s3 = bindings.call_change_qty(&mut store, &s2, &"item-2".to_string(), 1)?;
     println!("{:?}", s3);
 
-    let s4 = bindings.call_change_qty(&mut store, &s3, &"item-1".to_string(), 0)?;
+    let s4 = bindings.call_change_qty(&mut store, &s3, &"item-2".to_string(), 5)?;
     println!("{:?}", s4);
 
-    let s5 = bindings.call_change_qty(&mut store, &s4, &"item-2".to_string(), 0)?;
+    let s5 = bindings.call_change_qty(&mut store, &s4, &"item-1".to_string(), 0)?;
     println!("{:?}", s5);
+
+    let s6 = bindings.call_change_qty(&mut store, &s5, &"item-2".to_string(), 0)?;
+    println!("{:?}", s6);
 
     Ok(())
 }
