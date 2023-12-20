@@ -1,4 +1,4 @@
-package component:sample2;
+package component:sample;
 
 interface types {
     type cart-id = string;
@@ -25,7 +25,7 @@ interface types {
     }
 }
 
-world example {
+world sample {
     use types.{ cart, cart-id, item-id, quantity };
 
     export create: func(id: cart-id) -> cart;

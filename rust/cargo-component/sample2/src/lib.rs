@@ -1,6 +1,6 @@
 cargo_component_bindings::generate!();
 
-use bindings::component::sample2::types::{ActiveCart, CartItem, EmptyCart};
+use bindings::component::sample::types::{ActiveCart, CartItem, EmptyCart};
 use bindings::{Cart, CartId, Guest, ItemId, Quantity};
 
 struct Component;
@@ -11,55 +11,39 @@ impl Guest for Component {
     }
 
     fn change_qty(state: Cart, item: ItemId, qty: Quantity) -> Cart {
-        match state {
-            Cart::Empty(EmptyCart { id }) => Cart::Active(ActiveCart {
-                id: id.clone(),
-                items: vec![CartItem {
-                    item: item.clone(),
-                    qty,
-                }],
-            }),
-            Cart::Active(ActiveCart { id, items }) => {
-                let new_items = insert_or_update(&items, item, qty);
+        let (id, items) = match state {
+            Cart::Empty(EmptyCart { ref id }) => (id.clone(), Vec::<CartItem>::new()),
+            Cart::Active(ActiveCart { ref id, ref items }) => (id.clone(), items.clone()),
+        };
 
-                if new_items.is_empty() {
-                    Cart::Empty(EmptyCart { id: id.clone() })
-                } else {
-                    Cart::Active(ActiveCart {
-                        id: id.clone(),
-                        items: new_items,
-                    })
-                }
-            }
+        let new_items = update_items(items, item, qty);
+
+        if new_items.is_empty() {
+            Cart::Empty(EmptyCart { id })
+        } else {
+            Cart::Active(ActiveCart {
+                id,
+                items: new_items,
+            })
         }
     }
 }
 
-fn insert_or_update(items: &Vec<CartItem>, item: ItemId, qty: Quantity) -> Vec<CartItem> {
-    let mut res = vec![];
-    let mut upd = false;
-
-    for v in items {
-        if v.item == item {
-            upd = true;
-
-            if qty > 0 {
-                res.push(CartItem {
-                    item: item.clone(),
-                    qty,
-                });
+fn update_items(mut items: Vec<CartItem>, item: ItemId, qty: Quantity) -> Vec<CartItem> {
+    match items.iter().position(|v| v.item == item) {
+        Some(index) => {
+            if qty == 0 {
+                items.remove(index);
+            } else {
+                items[index].qty = qty;
             }
-        } else {
-            res.push(v.clone());
         }
-    }
+        None => {
+            if qty > 0 {
+                items.push(CartItem { item, qty });
+            }
+        }
+    };
 
-    if !upd && qty > 0 {
-        res.push(CartItem {
-            item: item.clone(),
-            qty,
-        })
-    }
-
-    res
+    items
 }
