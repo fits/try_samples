@@ -22,7 +22,7 @@ const run = async () => {
         const ts = await admin.fetchTopicOffsets(topic)
 
         ts.forEach(t => {
-            res[t.partition] = { current: t.high }
+            res[t.partition] = { current: parseInt(t.high) }
         })
 
         const os = await admin.fetchOffsets({
@@ -32,7 +32,10 @@ const run = async () => {
 
         os[0].partitions.forEach(p => {
             const tmp = res[p.partition]
-            res[p.partition] = Object.assign(tmp, { consume: p.offset, diff: tmp.current - p.offset })
+
+            const offset = Math.max(0, p.offset)
+
+            res[p.partition] = Object.assign(tmp, { consumed: offset, diff: tmp.current - offset })
         })
 
         console.log(res)
