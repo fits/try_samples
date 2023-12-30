@@ -79,13 +79,10 @@ async fn main() -> Result<()> {
 
     device.poll(wgpu::MaintainBase::Wait);
 
-    let data = output_slice.get_mapped_range();
-
-    let res = bytemuck::cast_slice::<_, u32>(&data).to_vec();
+    let res = bytemuck::cast_slice::<_, u32>(&output_slice.get_mapped_range()).to_vec();
 
     println!("{:?}", res);
 
-    drop(data);
     output_buf.unmap();
 
     Ok(())
