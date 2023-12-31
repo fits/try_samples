@@ -7,6 +7,8 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 async fn main() -> Result<()> {
     env_logger::init();
 
+    let workgroup_size = 4;
+
     let vs: Vec<u32> = vec![1, 2, 3, 4, 5, 6, 7, 8];
 
     let instance = wgpu::Instance::default();
@@ -66,7 +68,7 @@ async fn main() -> Result<()> {
 
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        pass.dispatch_workgroups(vs.len() as u32, 1, 1);
+        pass.dispatch_workgroups((vs.len() / workgroup_size) as u32, 1, 1);
     }
 
     encoder.copy_buffer_to_buffer(&storage_buf, 0, &output_buf, 0, storage_buf.size());
