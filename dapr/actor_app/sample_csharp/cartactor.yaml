@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cartactor
+  labels:
+    app: cartactor
+spec:
+  selector:
+    app: cartactor
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 3000
+    name: app
+  - protocol: TCP
+    port: 9091
+    targetPort: 9090
+    name: metrics
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartactor
+  labels:
+    app: cartactor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cartactor
+  template:
+    metadata:
+      labels:
+        app: cartactor
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "cartactor"
+        dapr.io/app-port: "3000"
+        dapr.io/enable-app-health-check: "false"
+        dapr.io/log-level: "error"
+        dapr.io/enable-profiling: "true"
+    spec:
+      containers:
+      - name: cartactor
+        image: cartactor
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
