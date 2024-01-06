@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: cartcall
+  labels:
+    app: cartcall
+spec:
+  selector:
+    app: cartcall
+  ports:
+  - protocol: TCP
+    port: 8082
+    targetPort: 3000
+    name: app
+  - protocol: TCP
+    port: 9092
+    targetPort: 9090
+    name: metrics
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartcall
+  labels:
+    app: cartcall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cartcall
+  template:
+    metadata:
+      labels:
+        app: cartcall
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "cartcall"
+        dapr.io/app-port: "3000"
+        dapr.io/enable-app-health-check: "false"
+        dapr.io/log-level: "error"
+        dapr.io/enable-profiling: "true"
+    spec:
+      containers:
+      - name: cartcall
+        image: cartcall
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Never
