@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: sampleapp-kafka
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: sampleapp
+  pollingInterval: 15
+  minReplicaCount:  1
+  maxReplicaCount:  8
+  triggers:
+  - type: kafka
+  # - type apache-kafka
+    metadata:
+      bootstrapServers: "kafka1.kafka.svc.cluster.local:9092"
+      consumerGroup: sampleapp
+      topic: tp1
+      lagThreshold: "100"

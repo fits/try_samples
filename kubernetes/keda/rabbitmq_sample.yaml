@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: sampleapp-rabbitmq
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: sampleapp
+  pollingInterval: 15
+  minReplicaCount:  1
+  maxReplicaCount:  8
+  triggers:
+  - type: rabbitmq
+    metadata:
+      host: amqp://rabbit1.default.svc.cluster.local:5672
+      mode: QueueLength
+      value: "100"
+      queueName: tp1
