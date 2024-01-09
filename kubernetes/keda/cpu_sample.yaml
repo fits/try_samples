@@ -1,0 +1,17 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: sampleapp-cpu
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: sampleapp
+  pollingInterval: 15
+  minReplicaCount:  1
+  maxReplicaCount:  4
+  triggers:
+  - type: cpu
+    metricType: AverageValue
+    metadata:
+      value: "500m"
+      containerName: "daprd"
