@@ -1,0 +1,26 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sampleapp-eg
+spec:
+  parentRefs:
+  - name: eg
+  rules:
+  - matches:
+    - path:
+        value: "/metrics"
+    backendRefs:
+    - name: sampleapp
+      port: 9090
+  - matches:
+    - path:
+        value: "/admin"
+    - path:
+        value: "/info"
+    backendRefs:
+    - name: sampleapp
+      port: 9000
+  - matches:
+    backendRefs:
+    - name: sampleapp
+      port: 3000
