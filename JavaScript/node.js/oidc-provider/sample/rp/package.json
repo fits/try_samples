@@ -1,0 +1,11 @@
+{
+  "name": "rp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "dependencies": {
+    "@fastify/formbody": "^7.4.0",
+    "fastify": "^4.25.2",
+    "openid-client": "^5.6.4"
+  }
+}
