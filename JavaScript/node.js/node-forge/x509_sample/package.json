@@ -1,0 +1,9 @@
+{
+  "name": "x509_sample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "dependencies": {
+    "node-forge": "^1.3.1"
+  }
+}
