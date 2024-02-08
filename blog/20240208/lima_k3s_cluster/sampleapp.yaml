@@ -1,0 +1,39 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sampleapp
+  labels:
+    app: sampleapp
+spec:
+  selector:
+    app: sampleapp
+  ports:
+  - protocol: TCP
+    port: 3001
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleapp
+  labels:
+    app: sampleapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sampleapp
+  template:
+    metadata:
+      labels:
+        app: sampleapp
+    spec:
+      containers:
+      - name: sampleapp
+        image: localhost:5000/sampleapp
+        env:
+        - name: APP_PORT
+          value: "3001"
+        ports:
+        - containerPort: 3001
