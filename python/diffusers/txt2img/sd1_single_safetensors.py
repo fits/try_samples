@@ -18,10 +18,11 @@ prompt = sys.argv[1]
 seed = int(sys.argv[2])
 destfile = sys.argv[3]
 
-pipe = StableDiffusionPipeline.from_single_file(model, use_safetensors=True, original_config_file=config_file, local_files_only=local, load_safety_checker=False)
+vae = AutoencoderKL.from_pretrained('./vae', local_files_only=local)
+
+pipe = StableDiffusionPipeline.from_single_file(model, use_safetensors=True, original_config_file=config_file, vae=vae, local_files_only=local, load_safety_checker=False)
 
 pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config, use_karras_sigmas=True)
-pipe.vae = AutoencoderKL.from_pretrained('./vae', local_files_only=local)
 
 pipe.enable_vae_slicing()
 pipe.enable_attention_slicing()
