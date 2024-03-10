@@ -1,0 +1,15 @@
+model: ./models/model.safetensors
+original_config_file: ./models/v1-inference.yaml
+device: cpu
+steps: 14
+guidance_scale: 6.0
+clip_skip: 1
+strength: 0.5
+negative_prompt: worst quality,low quality:1.4,normal quality,jpeg artifacts,out of focus,blurry,bokeh,ugly
+output_dir: ./dest
+images:
+  - id: 1
+    seed: 1 
+    prompts:
+      - id: 1 
+        prompt: 
