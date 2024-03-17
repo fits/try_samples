@@ -1,0 +1,8 @@
+package component:sample;
+
+world sample {
+    import wasi:cli/stdout@0.2.0;
+    import wasi:clocks/wall-clock@0.2.0;
+
+    export wasi:cli/run@0.2.0;
+}
