@@ -1,0 +1,11 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+burn = "0.12"
+burn-ndarray = "0.12"
+
+[build-dependencies]
+burn-import = "0.12"
