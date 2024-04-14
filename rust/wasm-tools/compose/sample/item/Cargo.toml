@@ -1,0 +1,16 @@
+[package]
+name = "item"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bitflags = "2.5.0"
+wit-bindgen-rt = "0.24.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "component:item"
+
+[package.metadata.component.dependencies]
