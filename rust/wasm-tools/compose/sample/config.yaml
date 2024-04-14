@@ -1,0 +1,9 @@
+search-paths:
+  - ./item/target/wasm32-unknown-unknown/release
+
+instantiations:
+  root:
+    arguments:
+      component:item/itemfind:
+        instance: item
+        export: component:item/itemfind
