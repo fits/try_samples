@@ -1,0 +1,17 @@
+package component:item;
+
+interface itemfind {
+    type item-id = string;
+    type amount = s32;
+
+    record item {
+        id: item-id,
+        price: amount,
+    }
+
+    find-item: func(id: item-id) -> option<item>;
+}
+
+world item {
+    export itemfind;
+}
