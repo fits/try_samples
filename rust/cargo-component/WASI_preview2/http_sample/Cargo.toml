@@ -1,0 +1,25 @@
+[package]
+name = "http_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bitflags = "2.5.0"
+wit-bindgen-rt = "0.24.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "component:http-sample"
+
+[package.metadata.component.dependencies]
+
+[package.metadata.component.target.dependencies]
+"wasi:http" = { path = "./WASI/preview2/http" }
+"wasi:cli" = { path = "./WASI/preview2/cli" }
+"wasi:clocks" = { path = "./WASI/preview2/clocks" }
+"wasi:filesystem" = { path = "./WASI/preview2/filesystem" }
+"wasi:io" = { path = "./WASI/preview2/io" }
+"wasi:random" = { path = "./WASI/preview2/random" }
+"wasi:sockets" = { path = "./WASI/preview2/sockets" }
