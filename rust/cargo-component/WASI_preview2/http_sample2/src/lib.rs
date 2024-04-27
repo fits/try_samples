@@ -19,17 +19,17 @@ impl Guest for Component {
 }
 
 fn create_response(s: String) -> Result<OutgoingResponse, ErrorCode> {
-    let buf = s.as_bytes();
+    let c = s.as_bytes();
 
     let h = Headers::new();
-    h.append(&"content-length".to_string(), &buf.len().to_string().into())?;
+    h.append(&"content-length".to_string(), &c.len().to_string().into())?;
 
     let r = OutgoingResponse::new(h);
 
     let b = r.body()?;
     let w = b.write()?;
 
-    w.write(buf)?;
+    w.write(c)?;
     w.flush()?;
 
     Ok(r)
