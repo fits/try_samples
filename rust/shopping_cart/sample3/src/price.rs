@@ -1,11 +1,10 @@
 #![allow(dead_code)]
-#![allow(private_in_public)]
 
 use super::amount::{Amount, Value};
 use super::tax::SalesTax;
 
 #[derive(Debug, Clone, PartialEq)]
-struct PriceAmount(Amount);
+pub struct PriceAmount(Amount);
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Price {
