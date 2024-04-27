@@ -78,6 +78,7 @@ mod tests {
         if let Some(Price::IncludeTax(p, t)) = r {
             assert_eq!(p.0, Amount::Fixed(to_value(100)));
             assert_eq!(*t.rate().numer(), BigInt::from(1));
+            assert_eq!(*t.rate().denom(), BigInt::from(10));
         } else {
             assert!(false);
         }
