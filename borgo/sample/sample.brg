@@ -1,0 +1,11 @@
+use fmt
+use os
+
+fn main() {
+    let s = os.LookupEnv("SAMPLE")
+
+    match s {
+        Some(v) => fmt.Printf("sample = %s", v),
+        None => fmt.Println("not found"),
+    }
+}
