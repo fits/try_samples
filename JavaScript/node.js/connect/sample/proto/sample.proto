@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message Input {
+    string command = 1;
+}
+
+message Output {
+    string result = 1;
+}
+
+service Process {
+    rpc Exec(Input) returns (Output);
+}
