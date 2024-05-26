@@ -1,0 +1,54 @@
+use bufio
+use fmt
+use os
+use strconv
+use strings
+
+enum Element {
+    Empty,
+    Number(float64),
+    String(string),
+}
+
+fn readFile(file: string) -> Result<[Element]> {
+    let f = os.Open(file)?
+    defer f.Close()
+
+    let sc = bufio.NewScanner(f)
+
+    let mut res = []
+
+    while sc.Scan() {
+        let line = sc.Text()
+
+        if strings.NewReader(line).Len() > 0 {
+            res = res.Append(match strconv.ParseFloat(line, 64) {
+                Ok(n) => Element.Number(n),
+                Err(_) => Element.String(line),
+            })
+        } else {
+            res = res.Append(Element.Empty)
+        }
+    }
+
+    Ok(res)
+}
+
+fn printElements(es: [Element]) -> Result<int> {
+    for (i, x) in es.Enumerate() {
+        match x {
+            Element.Empty => fmt.Printf("%d : empty\n", i)?,
+            Element.Number(n) => fmt.Printf("%d : number=%f \n", i, n)?,
+            Element.String(s) => fmt.Printf("%d : string=%s \n", i, s)?,
+        }
+    }
+
+    Ok(0)
+}
+
+fn main() {
+    match readFile(os.Args[1]) {
+        Ok(es) => printElements(es),
+        Err(e) => fmt.Printf("[error] %v\n", e),
+    }
+}
