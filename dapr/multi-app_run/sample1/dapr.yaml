@@ -1,0 +1,14 @@
+version: 1
+apps:
+  - appID: item1
+    appDirPath: ./app/item/
+    appPort: 8081
+    daprHTTPPort: 3501
+    command: ["node", "index.mjs"]
+  - appID: sample1
+    appDirPath: ./app/sample/
+    appPort: 8082
+    daprHTTPPort: 3502
+    env:
+      APP_ITEM: item1
+    command: ["node", "index.mjs"]
