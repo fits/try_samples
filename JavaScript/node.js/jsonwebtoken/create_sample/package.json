@@ -1,0 +1,8 @@
+{
+  "name": "create_sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  }
+}
