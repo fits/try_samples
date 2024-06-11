@@ -1,0 +1,8 @@
+{
+  "name": "password_grant",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "dependencies": {
+    "oidc-provider": "^8.4.6"
+  }
+}
