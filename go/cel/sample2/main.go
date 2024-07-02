@@ -17,7 +17,7 @@ type Item struct {
 func main() {
 	env, err := cel.NewEnv(
 		cel.Variable("item", cel.ObjectType("main.Item")),
-		ext.NativeTypes(reflect.TypeOf(&Item{})),
+		ext.NativeTypes(reflect.TypeFor[Item]()),
 	)
 
 	if err != nil {
