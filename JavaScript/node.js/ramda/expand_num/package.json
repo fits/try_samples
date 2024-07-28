@@ -1,0 +1,8 @@
+{
+  "name": "expand_num",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "dependencies": {
+    "ramda": "^0.30.1"
+  }
+}
