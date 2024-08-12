@@ -63,6 +63,7 @@ impl ItemCondition {
 pub enum GroupCondition {
     Items(ItemCondition),
     QtyLimit(Box<GroupCondition>, Quantity, Option<Quantity>),
+    PickOne(Vec<ItemCondition>),
 }
 
 impl GroupCondition {
@@ -100,6 +101,32 @@ impl GroupCondition {
                         None
                     }
                 }),
+            Self::PickOne(cs) => {
+                if cs.len() > 0 {
+                    let mut rs: Vec<&'a OrderItem> = vec![];
+
+                    for c in cs {
+                        for i in items {
+                            if rs.contains(&i) {
+                                continue;
+                            }
+
+                            if c.predict(i) {
+                                rs.push(i);
+                                break;
+                            }
+                        }
+                    }
+
+                    if rs.len() == cs.len() {
+                        Some(rs)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            }
         }
     }
 }
@@ -703,6 +730,109 @@ mod tests {
             ];
 
             assert!(c.select(&it).is_none());
+        }
+
+        #[test]
+        fn select_pickone() {
+            let c = PickOne(vec![
+                Item(vec!["item-1".into()]),
+                Item(vec!["item-2".into()]),
+            ]);
+
+            let it = vec![
+                item_order("o1".into(), "item-1".into()),
+                item_order("o2".into(), "item-3".into()),
+                item_order("o3".into(), "item-1".into()),
+                item_order("o4".into(), "item-2".into()),
+                item_order("o5".into(), "item-4".into()),
+            ];
+
+            let r = c.select(&it).unwrap();
+
+            assert_eq!(2, r.len());
+            assert_eq!("o1", r.get(0).unwrap().id);
+            assert_eq!("o4", r.get(1).unwrap().id);
+        }
+
+        #[test]
+        fn select_pickone_same() {
+            let c = PickOne(vec![
+                Item(vec!["item-1".into()]),
+                Item(vec!["item-2".into()]),
+                Item(vec!["item-1".into()]),
+            ]);
+
+            let it = vec![
+                item_order("o1".into(), "item-1".into()),
+                item_order("o2".into(), "item-3".into()),
+                item_order("o3".into(), "item-1".into()),
+                item_order("o4".into(), "item-2".into()),
+                item_order("o5".into(), "item-4".into()),
+            ];
+
+            let r = c.select(&it).unwrap();
+
+            assert_eq!(3, r.len());
+            assert_eq!("o1", r.get(0).unwrap().id);
+            assert_eq!("o4", r.get(1).unwrap().id);
+            assert_eq!("o3", r.get(2).unwrap().id);
+        }
+
+        #[test]
+        fn select_pickone_empty() {
+            let c = PickOne(vec![]);
+
+            let it = vec![
+                item_order("o1".into(), "item-1".into()),
+                item_order("o2".into(), "item-3".into()),
+                item_order("o3".into(), "item-1".into()),
+                item_order("o4".into(), "item-2".into()),
+                item_order("o5".into(), "item-4".into()),
+            ];
+
+            let r = c.select(&it);
+
+            assert!(r.is_none());
+        }
+
+        #[test]
+        fn select_pickone_any_none() {
+            let c = PickOne(vec![
+                Item(vec!["item-1".into()]),
+                Item(vec!["item-7".into()]),
+            ]);
+
+            let it = vec![
+                item_order("o1".into(), "item-1".into()),
+                item_order("o2".into(), "item-3".into()),
+                item_order("o3".into(), "item-1".into()),
+                item_order("o4".into(), "item-2".into()),
+                item_order("o5".into(), "item-4".into()),
+            ];
+
+            let r = c.select(&it);
+
+            assert!(r.is_none());
+        }
+
+        #[test]
+        fn select_pickone_last_missing() {
+            let c = PickOne(vec![
+                Item(vec!["item-3".into()]),
+                Item(vec!["item-3".into()]),
+            ]);
+
+            let it = vec![
+                item_order("o1".into(), "item-1".into()),
+                item_order("o2".into(), "item-3".into()),
+                item_order("o3".into(), "item-1".into()),
+                item_order("o4".into(), "item-2".into()),
+                item_order("o5".into(), "item-4".into()),
+            ];
+
+            let r = c.select(&it);
+
+            assert!(r.is_none());
         }
     }
 
@@ -1319,6 +1449,39 @@ mod tests {
                 let (d2, i2) = d.get(1).unwrap();
                 assert_eq!(from_u(50), *d2);
                 assert_eq!("o3", i2.id);
+            } else {
+                assert!(false);
+            }
+        }
+
+        #[test]
+        fn set_price() {
+            let rule = DiscountRule {
+                condition: PickOne(vec![
+                    Item(vec!["item-1".into()]),
+                    Item(vec!["item-2".into()]),
+                    Item(vec!["item-2".into()]),
+                ]),
+                action: Whole(DiscountMethod::price(from_u(700))),
+            };
+
+            let items = vec![
+                item_price_order("o1".into(), "item-1".into(), from_u(100)),
+                item_price_order("o2".into(), "item-2".into(), from_u(500)),
+                item_price_order("o3".into(), "item-1".into(), from_u(100)),
+                item_price_order("o4".into(), "item-1".into(), from_u(100)),
+                item_price_order("o5".into(), "item-2".into(), from_u(500)),
+            ];
+
+            let r = rule.apply(&items);
+
+            if let Some(Reward::GroupPrice(p, is)) = r {
+                assert_eq!(from_u(700), p);
+
+                assert_eq!(3, is.len());
+                assert_eq!("o1", is.get(0).unwrap().id);
+                assert_eq!("o2", is.get(1).unwrap().id);
+                assert_eq!("o5", is.get(2).unwrap().id);
             } else {
                 assert!(false);
             }
