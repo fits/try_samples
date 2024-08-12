@@ -33,6 +33,18 @@ pub enum ItemCondition {
 }
 
 impl ItemCondition {
+    fn not(&self) -> Self {
+        Self::Not(Box::new(self.to_owned()))
+    }
+
+    fn and(&self, c: Self) -> Self {
+        Self::And(Box::new(self.to_owned()), Box::new(c))
+    }
+
+    fn or(&self, c: Self) -> Self {
+        Self::Or(Box::new(self.to_owned()), Box::new(c))
+    }
+
     fn predict(&self, target: &OrderItem) -> bool {
         match self {
             Self::Item(items) => items.contains(&target.item_id),
@@ -54,6 +66,10 @@ pub enum GroupCondition {
 }
 
 impl GroupCondition {
+    fn qty_limit(&self, from: Quantity, to: Option<Quantity>) -> Self {
+        Self::QtyLimit(Box::new(self.to_owned()), from, to)
+    }
+
     fn select<'a>(&self, items: &'a Vec<OrderItem>) -> Option<Vec<&'a OrderItem>> {
         match self {
             Self::Items(c) => {
@@ -459,7 +475,7 @@ mod tests {
 
         #[test]
         fn not_item() {
-            let c = Not(Box::new(Item(vec!["item-1".into()])));
+            let c = Item(vec!["item-1".into()]).not();
 
             assert_eq!(false, c.predict(&item_order("o1".into(), "item-1".into())));
             assert!(c.predict(&item_order("o2".into(), "item-2".into())));
@@ -467,10 +483,8 @@ mod tests {
 
         #[test]
         fn and_match() {
-            let c = And(
-                Box::new(Item(vec!["item-1".into(), "item-2".into()])),
-                Box::new(Attribute("category".into(), vec!["c1".into(), "c2".into()])),
-            );
+            let c = Item(vec!["item-1".into(), "item-2".into()])
+                .and(Attribute("category".into(), vec!["c1".into(), "c2".into()]));
 
             assert!(c.predict(&item_attr_order(
                 "o1".into(),
@@ -488,10 +502,8 @@ mod tests {
 
         #[test]
         fn and_unmatch() {
-            let c = And(
-                Box::new(Item(vec!["item-1".into(), "item-2".into()])),
-                Box::new(Attribute("category".into(), vec!["c1".into(), "c2".into()])),
-            );
+            let c = Item(vec!["item-1".into(), "item-2".into()])
+                .and(Attribute("category".into(), vec!["c1".into(), "c2".into()]));
 
             assert_eq!(
                 false,
@@ -524,10 +536,8 @@ mod tests {
 
         #[test]
         fn or_match() {
-            let c = Or(
-                Box::new(Item(vec!["item-1".into(), "item-2".into()])),
-                Box::new(Attribute("category".into(), vec!["c1".into(), "c2".into()])),
-            );
+            let c = Item(vec!["item-1".into(), "item-2".into()])
+                .or(Attribute("category".into(), vec!["c1".into(), "c2".into()]));
 
             assert!(c.predict(&item_attr_order(
                 "o1".into(),
@@ -552,10 +562,8 @@ mod tests {
 
         #[test]
         fn or_unmatch() {
-            let c = Or(
-                Box::new(Item(vec!["item-1".into(), "item-2".into()])),
-                Box::new(Attribute("category".into(), vec!["c1".into(), "c2".into()])),
-            );
+            let c = Item(vec!["item-1".into(), "item-2".into()])
+                .or(Attribute("category".into(), vec!["c1".into(), "c2".into()]));
 
             assert_eq!(
                 false,
@@ -605,11 +613,7 @@ mod tests {
 
         #[test]
         fn select_qty_lower_match() {
-            let c = QtyLimit(
-                Box::new(Items(Item(vec!["item-1".into(), "item-2".into()]))),
-                3,
-                None,
-            );
+            let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(3, None);
 
             let it = vec![
                 item_order("o1".into(), "item-1".into()),
@@ -624,11 +628,7 @@ mod tests {
 
         #[test]
         fn select_qty_lower_unmatch() {
-            let c = QtyLimit(
-                Box::new(Items(Item(vec!["item-1".into(), "item-2".into()]))),
-                4,
-                None,
-            );
+            let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(4, None);
 
             let it = vec![
                 item_order("o1".into(), "item-1".into()),
@@ -643,11 +643,7 @@ mod tests {
 
         #[test]
         fn select_qty_upper_over() {
-            let c = QtyLimit(
-                Box::new(Items(Item(vec!["item-1".into(), "item-2".into()]))),
-                1,
-                Some(2),
-            );
+            let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(1, Some(2));
 
             let it = vec![
                 item_order("o1".into(), "item-1".into()),
@@ -664,11 +660,7 @@ mod tests {
 
         #[test]
         fn select_qty_upper_under() {
-            let c = QtyLimit(
-                Box::new(Items(Item(vec!["item-1".into(), "item-2".into()]))),
-                2,
-                Some(5),
-            );
+            let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(2, Some(5));
 
             let it = vec![
                 item_order("o1".into(), "item-1".into()),
@@ -685,11 +677,7 @@ mod tests {
 
         #[test]
         fn select_qty_upper_zero() {
-            let c = QtyLimit(
-                Box::new(Items(Item(vec!["item-1".into(), "item-2".into()]))),
-                0,
-                Some(0),
-            );
+            let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(0, Some(0));
 
             let it = vec![
                 item_order("o1".into(), "item-1".into()),
@@ -704,11 +692,7 @@ mod tests {
 
         #[test]
         fn select_qty_upper_under_lower() {
-            let c = QtyLimit(
-                Box::new(Items(Item(vec!["item-1".into(), "item-2".into()]))),
-                2,
-                Some(1),
-            );
+            let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(2, Some(1));
 
             let it = vec![
                 item_order("o1".into(), "item-1".into()),
@@ -1277,7 +1261,7 @@ mod tests {
         #[test]
         fn bogo_free() {
             let rule = DiscountRule {
-                condition: QtyLimit(Box::new(Items(Item(vec!["item-1".into()]))), 2, Some(2)),
+                condition: Items(Item(vec!["item-1".into()])).qty_limit(2, Some(2)),
                 action: Each(DiscountMethod::rate(from_u(100)), Some(1)),
             };
 
@@ -1310,7 +1294,7 @@ mod tests {
         #[test]
         fn bogo_half() {
             let rule = DiscountRule {
-                condition: QtyLimit(Box::new(Items(Item(vec!["item-1".into()]))), 2, Some(2)),
+                condition: Items(Item(vec!["item-1".into()])).qty_limit(2, Some(2)),
                 action: Each(DiscountMethod::rate(from_u(50)), Some(1)),
             };
 
