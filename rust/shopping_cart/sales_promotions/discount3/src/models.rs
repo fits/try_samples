@@ -4,6 +4,7 @@ use std::cmp::max;
 use std::collections::HashMap;
 
 use num::BigRational;
+use num_traits::Zero;
 
 pub type OrderItemId = String;
 pub type ItemId = String;
@@ -146,34 +147,30 @@ pub enum DiscountMethod {
     ChangePrice(Amount),
 }
 
-fn amount_zero() -> Amount {
-    Amount::from_integer(0.into())
-}
-
 fn amount_100() -> Amount {
     Amount::from_integer(100.into())
 }
 
 impl DiscountMethod {
     fn value(v: Amount) -> Self {
-        Self::ValueDiscount(v.max(amount_zero()))
+        Self::ValueDiscount(v.max(Amount::zero()))
     }
 
     fn rate(v: Amount) -> Self {
-        let r = v.max(amount_zero()).min(amount_100()) / amount_100();
+        let r = v.max(Amount::zero()).min(amount_100()) / amount_100();
         Self::RateDiscount(r)
     }
 
     fn price(v: Amount) -> Self {
-        Self::ChangePrice(v.max(amount_zero()))
+        Self::ChangePrice(v.max(Amount::zero()))
     }
 }
 
 fn subtotal(items: &Vec<&OrderItem>) -> Amount {
-    let mut total = amount_zero();
+    let mut total = Amount::zero();
 
     for t in items {
-        total += t.price.clone().max(amount_zero());
+        total += t.price.clone().max(Amount::zero());
     }
 
     total
@@ -186,7 +183,7 @@ pub enum DiscountAction {
 }
 
 fn is_all_zero(rs: &Vec<(Amount, &OrderItem)>) -> bool {
-    let zero = amount_zero();
+    let zero = Amount::zero();
 
     for (r, _) in rs {
         if *r > zero {
@@ -214,7 +211,7 @@ impl DiscountAction {
                 DiscountMethod::ValueDiscount(v) => {
                     let v = subtotal(&items).min(v.clone());
 
-                    if v > amount_zero() {
+                    if v > Amount::zero() {
                         Some(Reward::GroupDiscount(v, items, None))
                     } else {
                         None
@@ -224,7 +221,7 @@ impl DiscountAction {
                     let total = subtotal(&items);
                     let d = total * r;
 
-                    if d > amount_zero() {
+                    if d > Amount::zero() {
                         Some(Reward::GroupDiscount(d, items, Some(r.clone())))
                     } else {
                         None
@@ -232,7 +229,7 @@ impl DiscountAction {
                 }
                 DiscountMethod::ChangePrice(p) => {
                     let total = subtotal(&items);
-                    let price = p.clone().max(amount_zero());
+                    let price = p.clone().max(Amount::zero());
 
                     if total > price {
                         Some(Reward::GroupPrice(price, items))
@@ -247,13 +244,13 @@ impl DiscountAction {
                 if items.len() > skip {
                     match m {
                         DiscountMethod::ValueDiscount(v) => {
-                            if *v > amount_zero() {
+                            if *v > Amount::zero() {
                                 let rs = items
                                     .into_iter()
                                     .enumerate()
                                     .map(|(i, x)| {
                                         if i < skip {
-                                            (amount_zero(), x)
+                                            (Amount::zero(), x)
                                         } else {
                                             (v.clone().min(x.price.clone()), x)
                                         }
@@ -270,13 +267,13 @@ impl DiscountAction {
                             }
                         }
                         DiscountMethod::RateDiscount(r) => {
-                            if *r > amount_zero() {
+                            if *r > Amount::zero() {
                                 let rs = items
                                     .into_iter()
                                     .enumerate()
                                     .map(|(i, x)| {
                                         if i < skip {
-                                            (amount_zero(), x)
+                                            (Amount::zero(), x)
                                         } else {
                                             (r.clone() * x.price.clone(), x)
                                         }
