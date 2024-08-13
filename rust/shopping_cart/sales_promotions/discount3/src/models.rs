@@ -135,9 +135,9 @@ impl GroupCondition {
 #[derive(Debug, Clone)]
 pub enum Reward<T> {
     GroupDiscount(Amount, Vec<T>, Option<Amount>),
-    ItemDiscount(Vec<(Amount, T)>, Option<Amount>),
+    ItemDiscount(Vec<(Option<Amount>, T)>, Option<Amount>),
     GroupPrice(Amount, Vec<T>),
-    ItemPrice(Vec<(Amount, T)>),
+    ItemPrice(Vec<(Option<Amount>, T)>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -182,21 +182,9 @@ pub enum DiscountAction {
     Each(DiscountMethod, Option<Quantity>),
 }
 
-fn is_all_zero(rs: &Vec<(Amount, &OrderItem)>) -> bool {
-    let zero = Amount::zero();
-
+fn is_all_none(rs: &Vec<(Option<Amount>, &OrderItem)>) -> bool {
     for (r, _) in rs {
-        if *r > zero {
-            return false;
-        }
-    }
-
-    true
-}
-
-fn is_all_same_price(rs: &Vec<(Amount, &OrderItem)>) -> bool {
-    for (r, o) in rs {
-        if *r != o.price {
+        if r.is_some() {
             return false;
         }
     }
@@ -249,15 +237,15 @@ impl DiscountAction {
                                     .into_iter()
                                     .enumerate()
                                     .map(|(i, x)| {
-                                        if i < skip {
-                                            (Amount::zero(), x)
+                                        if i < skip || x.price.is_zero() {
+                                            (None, x)
                                         } else {
-                                            (v.clone().min(x.price.clone()), x)
+                                            (Some(v.clone().min(x.price.clone())), x)
                                         }
                                     })
                                     .collect::<Vec<_>>();
 
-                                if is_all_zero(&rs) {
+                                if is_all_none(&rs) {
                                     None
                                 } else {
                                     Some(Reward::ItemDiscount(rs, None))
@@ -272,15 +260,15 @@ impl DiscountAction {
                                     .into_iter()
                                     .enumerate()
                                     .map(|(i, x)| {
-                                        if i < skip {
-                                            (Amount::zero(), x)
+                                        if i < skip || x.price.is_zero() {
+                                            (None, x)
                                         } else {
-                                            (r.clone() * x.price.clone(), x)
+                                            (Some(r.clone() * x.price.clone()), x)
                                         }
                                     })
                                     .collect::<Vec<_>>();
 
-                                if is_all_zero(&rs) {
+                                if is_all_none(&rs) {
                                     None
                                 } else {
                                     Some(Reward::ItemDiscount(rs, Some(r.clone())))
@@ -294,15 +282,15 @@ impl DiscountAction {
                                 .into_iter()
                                 .enumerate()
                                 .map(|(i, x)| {
-                                    if i < skip {
-                                        (x.price.clone(), x)
+                                    if i < skip || x.price.is_zero() || x.price <= *p {
+                                        (None, x)
                                     } else {
-                                        (p.clone().min(x.price.clone()), x)
+                                        (Some(p.clone()), x)
                                     }
                                 })
                                 .collect::<Vec<_>>();
 
-                            if is_all_same_price(&rs) {
+                            if is_all_none(&rs) {
                                 None
                             } else {
                                 Some(Reward::ItemPrice(rs))
@@ -1096,15 +1084,15 @@ mod tests {
                 assert_eq!(3, d.len());
 
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(100), *d1);
+                assert_eq!(from_u(100), d1.to_owned().unwrap());
                 assert_eq!(&&o1, i1);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(100), *d2);
+                assert_eq!(from_u(100), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
 
                 let (d3, i3) = d.get(2).unwrap();
-                assert_eq!(from_u(100), *d3);
+                assert_eq!(from_u(100), d3.to_owned().unwrap());
                 assert_eq!(&&o3, i3);
             } else {
                 assert!(false);
@@ -1136,7 +1124,7 @@ mod tests {
                 assert_eq!(2, d.len());
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(50), *d2);
+                assert_eq!(from_u(50), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
             } else {
                 assert!(false);
@@ -1158,15 +1146,15 @@ mod tests {
 
                 // no discount by skip
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(0), *d1);
+                assert!(d1.is_none());
                 assert_eq!(&&o1, i1);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(50), *d2);
+                assert_eq!(from_u(50), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
 
                 let (d3, i3) = d.get(2).unwrap();
-                assert_eq!(from_u(100), *d3);
+                assert_eq!(from_u(100), d3.to_owned().unwrap());
                 assert_eq!(&&o3, i3);
             } else {
                 assert!(false);
@@ -1213,15 +1201,15 @@ mod tests {
                 assert_eq!(from_u(1) / from_u(5), r);
 
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(20), *d1);
+                assert_eq!(from_u(20), d1.to_owned().unwrap());
                 assert_eq!(&&o1, i1);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(30), *d2);
+                assert_eq!(from_u(30), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
 
                 let (d3, i3) = d.get(2).unwrap();
-                assert_eq!(from_u(40), *d3);
+                assert_eq!(from_u(40), d3.to_owned().unwrap());
                 assert_eq!(&&o3, i3);
             } else {
                 assert!(false);
@@ -1256,15 +1244,15 @@ mod tests {
 
                 // no discount by skip
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(0), *d1);
+                assert!(d1.is_none());
                 assert_eq!(&&o1, i1);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(30), *d2);
+                assert_eq!(from_u(30), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
 
                 let (d3, i3) = d.get(2).unwrap();
-                assert_eq!(from_u(40), *d3);
+                assert_eq!(from_u(40), d3.to_owned().unwrap());
                 assert_eq!(&&o3, i3);
             } else {
                 assert!(false);
@@ -1297,15 +1285,15 @@ mod tests {
                 assert_eq!(3, d.len());
 
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(100), *d1);
+                assert_eq!(from_u(100), d1.to_owned().unwrap());
                 assert_eq!(&&o1, i1);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(100), *d2);
+                assert_eq!(from_u(100), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
 
                 let (d3, i3) = d.get(2).unwrap();
-                assert_eq!(from_u(100), *d3);
+                assert_eq!(from_u(100), d3.to_owned().unwrap());
                 assert_eq!(&&o3, i3);
             } else {
                 assert!(false);
@@ -1325,11 +1313,11 @@ mod tests {
                 assert_eq!(2, d.len());
 
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(100), *d1);
+                assert_eq!(from_u(100), d1.to_owned().unwrap());
                 assert_eq!(&&o1, i1);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(80), *d2);
+                assert!(d2.is_none());
                 assert_eq!(&&o2, i2);
             } else {
                 assert!(false);
@@ -1363,15 +1351,15 @@ mod tests {
 
                 // no change by skip
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(110), *d1);
+                assert!(d1.is_none());
                 assert_eq!(&&o1, i1);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(100), *d2);
+                assert_eq!(from_u(100), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
 
                 let (d3, i3) = d.get(2).unwrap();
-                assert_eq!(from_u(100), *d3);
+                assert_eq!(from_u(100), d3.to_owned().unwrap());
                 assert_eq!(&&o3, i3);
             } else {
                 assert!(false);
@@ -1407,11 +1395,11 @@ mod tests {
                 assert_eq!(from_u(1), rate);
 
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(0), *d1);
+                assert!(d1.is_none());
                 assert_eq!("o1", i1.id);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(100), *d2);
+                assert_eq!(from_u(100), d2.to_owned().unwrap());
                 assert_eq!("o3", i2.id);
             } else {
                 assert!(false);
@@ -1440,11 +1428,11 @@ mod tests {
                 assert_eq!(from_u(1) / from_u(2), rate);
 
                 let (d1, i1) = d.get(0).unwrap();
-                assert_eq!(from_u(0), *d1);
+                assert!(d1.is_none());
                 assert_eq!("o1", i1.id);
 
                 let (d2, i2) = d.get(1).unwrap();
-                assert_eq!(from_u(50), *d2);
+                assert_eq!(from_u(50), d2.to_owned().unwrap());
                 assert_eq!("o3", i2.id);
             } else {
                 assert!(false);
