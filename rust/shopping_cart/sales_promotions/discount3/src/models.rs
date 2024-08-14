@@ -170,7 +170,7 @@ fn subtotal(items: &Vec<&OrderItem>) -> Amount {
     let mut total = Amount::zero();
 
     for t in items {
-        total += t.price.clone().max(Amount::zero());
+        total += t.price.clone();
     }
 
     total
@@ -237,7 +237,7 @@ impl DiscountAction {
                                     .into_iter()
                                     .enumerate()
                                     .map(|(i, x)| {
-                                        if i < skip || x.price.is_zero() {
+                                        if i < skip || x.price <= Amount::zero() {
                                             (None, x)
                                         } else {
                                             (Some(v.clone().min(x.price.clone())), x)
@@ -260,7 +260,7 @@ impl DiscountAction {
                                     .into_iter()
                                     .enumerate()
                                     .map(|(i, x)| {
-                                        if i < skip || x.price.is_zero() {
+                                        if i < skip || x.price <= Amount::zero() {
                                             (None, x)
                                         } else {
                                             (Some(r.clone() * x.price.clone()), x)
@@ -282,7 +282,7 @@ impl DiscountAction {
                                 .into_iter()
                                 .enumerate()
                                 .map(|(i, x)| {
-                                    if i < skip || x.price.is_zero() || x.price <= *p {
+                                    if i < skip || x.price <= Amount::zero() || x.price <= *p {
                                         (None, x)
                                     } else {
                                         (Some(p.clone()), x)
@@ -401,7 +401,7 @@ mod tests {
         let o3 = price_order("o2".into(), from_i(-250));
 
         let r = subtotal(&vec![&o1, &o2, &o3]);
-        assert_eq!(from_u(100), r);
+        assert_eq!(from_i(-300), r);
     }
 
     mod condition {
@@ -971,6 +971,37 @@ mod tests {
         }
 
         #[test]
+        fn whole_value_discount_include_negative_price() {
+            let a = Whole(DiscountMethod::value(from_u(200)));
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-200));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            if let Some(GroupDiscount(d, _ts, m)) = r {
+                assert_eq!(from_u(50), d);
+                assert_eq!(DiscountMethod::value(from_u(200)), m);
+            } else {
+                assert!(false);
+            }
+        }
+
+        #[test]
+        fn whole_value_discount_negative_subtotal() {
+            let a = Whole(DiscountMethod::value(from_u(200)));
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_i(-250));
+            let o3 = price_order("o3".into(), from_i(-200));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            assert!(r.is_none());
+        }
+
+        #[test]
         fn whole_rate_discount() {
             let a = Whole(DiscountMethod::rate(from_u(10)));
 
@@ -1016,6 +1047,37 @@ mod tests {
         }
 
         #[test]
+        fn whole_rate_discount_include_negative_price() {
+            let a = Whole(DiscountMethod::rate(from_u(10)));
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-150));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            if let Some(GroupDiscount(d, _ts, m)) = r {
+                assert_eq!(from_u(10), d);
+                assert_eq!(DiscountMethod::rate(from_u(10)), m);
+            } else {
+                assert!(false);
+            }
+        }
+
+        #[test]
+        fn whole_rate_discount_subtotal_negative() {
+            let a = Whole(DiscountMethod::rate(from_u(10)));
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-300));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            assert!(r.is_none());
+        }
+
+        #[test]
         fn whole_price() {
             let a = Whole(DiscountMethod::price(from_u(400)));
 
@@ -1056,6 +1118,36 @@ mod tests {
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
             let o3 = price_order("o3".into(), from_u(200));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            assert!(r.is_none());
+        }
+
+        #[test]
+        fn whole_price_include_negative_price() {
+            let a = Whole(DiscountMethod::price(from_u(100)));
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-100));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            if let Some(GroupPrice(d, _ts, _m)) = r {
+                assert_eq!(from_u(100), d);
+            } else {
+                assert!(false);
+            }
+        }
+
+        #[test]
+        fn whole_price_subtotal_negative() {
+            let a = Whole(DiscountMethod::price(from_u(450)));
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-300));
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
@@ -1131,6 +1223,36 @@ mod tests {
                 let (d2, i2) = d.get(1).unwrap();
                 assert_eq!(from_u(50), d2.to_owned().unwrap());
                 assert_eq!(&&o2, i2);
+            } else {
+                assert!(false);
+            }
+        }
+
+        #[test]
+        fn each_value_discount_include_negative_price() {
+            let a = Each(DiscountMethod::value(from_u(100)), None);
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-200));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            if let Some(ItemDiscount(d, m)) = r {
+                assert_eq!(3, d.len());
+                assert_eq!(DiscountMethod::value(from_u(100)), m);
+
+                let (d1, i1) = d.get(0).unwrap();
+                assert_eq!(from_u(100), d1.to_owned().unwrap());
+                assert_eq!(&&o1, i1);
+
+                let (d2, i2) = d.get(1).unwrap();
+                assert_eq!(from_u(100), d2.to_owned().unwrap());
+                assert_eq!(&&o2, i2);
+
+                let (d3, i3) = d.get(2).unwrap();
+                assert!(d3.is_none());
+                assert_eq!(&&o3, i3);
             } else {
                 assert!(false);
             }
@@ -1231,6 +1353,36 @@ mod tests {
             let r = a.action(vec![&o1, &o2]);
 
             assert!(r.is_none());
+        }
+
+        #[test]
+        fn each_rate_discount_include_negative_price() {
+            let a = Each(DiscountMethod::rate(from_u(20)), None);
+
+            let o1 = price_order("o1".into(), from_u(100));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-200));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            if let Some(ItemDiscount(d, m)) = r {
+                assert_eq!(3, d.len());
+                assert_eq!(DiscountMethod::rate(from_u(20)), m);
+
+                let (d1, i1) = d.get(0).unwrap();
+                assert_eq!(from_u(20), d1.to_owned().unwrap());
+                assert_eq!(&&o1, i1);
+
+                let (d2, i2) = d.get(1).unwrap();
+                assert_eq!(from_u(30), d2.to_owned().unwrap());
+                assert_eq!(&&o2, i2);
+
+                let (d3, i3) = d.get(2).unwrap();
+                assert!(d3.is_none());
+                assert_eq!(&&o3, i3);
+            } else {
+                assert!(false);
+            }
         }
 
         #[test]
@@ -1341,6 +1493,36 @@ mod tests {
             let r = a.action(vec![&o1, &o2]);
 
             assert!(r.is_none());
+        }
+
+        #[test]
+        fn each_price_include_negative_price() {
+            let a = Each(DiscountMethod::price(from_u(100)), None);
+
+            let o1 = price_order("o1".into(), from_u(110));
+            let o2 = price_order("o2".into(), from_u(150));
+            let o3 = price_order("o3".into(), from_i(-200));
+
+            let r = a.action(vec![&o1, &o2, &o3]);
+
+            if let Some(ItemPrice(d, m)) = r {
+                assert_eq!(3, d.len());
+                assert_eq!(DiscountMethod::price(from_u(100)), m);
+
+                let (d1, i1) = d.get(0).unwrap();
+                assert_eq!(from_u(100), d1.to_owned().unwrap());
+                assert_eq!(&&o1, i1);
+
+                let (d2, i2) = d.get(1).unwrap();
+                assert_eq!(from_u(100), d2.to_owned().unwrap());
+                assert_eq!(&&o2, i2);
+
+                let (d3, i3) = d.get(2).unwrap();
+                assert!(d3.is_none());
+                assert_eq!(&&o3, i3);
+            } else {
+                assert!(false);
+            }
         }
 
         #[test]
