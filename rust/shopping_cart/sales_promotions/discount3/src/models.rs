@@ -134,10 +134,10 @@ impl GroupCondition {
 
 #[derive(Debug, Clone)]
 pub enum Reward<T> {
-    GroupDiscount(Amount, Vec<T>, Option<Amount>),
-    ItemDiscount(Vec<(Option<Amount>, T)>, Option<Amount>),
-    GroupPrice(Amount, Vec<T>),
-    ItemPrice(Vec<(Option<Amount>, T)>),
+    GroupDiscount(Amount, Vec<T>, DiscountMethod),
+    ItemDiscount(Vec<(Option<Amount>, T)>, DiscountMethod),
+    GroupPrice(Amount, Vec<T>, DiscountMethod),
+    ItemPrice(Vec<(Option<Amount>, T)>, DiscountMethod),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -200,7 +200,7 @@ impl DiscountAction {
                     let v = subtotal(&items).min(v.clone());
 
                     if v > Amount::zero() {
-                        Some(Reward::GroupDiscount(v, items, None))
+                        Some(Reward::GroupDiscount(v, items, m.clone()))
                     } else {
                         None
                     }
@@ -210,7 +210,7 @@ impl DiscountAction {
                     let d = total * r;
 
                     if d > Amount::zero() {
-                        Some(Reward::GroupDiscount(d, items, Some(r.clone())))
+                        Some(Reward::GroupDiscount(d, items, m.clone()))
                     } else {
                         None
                     }
@@ -220,7 +220,7 @@ impl DiscountAction {
                     let price = p.clone().max(Amount::zero());
 
                     if total > price {
-                        Some(Reward::GroupPrice(price, items))
+                        Some(Reward::GroupPrice(price, items, m.clone()))
                     } else {
                         None
                     }
@@ -248,7 +248,7 @@ impl DiscountAction {
                                 if is_all_none(&rs) {
                                     None
                                 } else {
-                                    Some(Reward::ItemDiscount(rs, None))
+                                    Some(Reward::ItemDiscount(rs, m.clone()))
                                 }
                             } else {
                                 None
@@ -271,7 +271,7 @@ impl DiscountAction {
                                 if is_all_none(&rs) {
                                     None
                                 } else {
-                                    Some(Reward::ItemDiscount(rs, Some(r.clone())))
+                                    Some(Reward::ItemDiscount(rs, m.clone()))
                                 }
                             } else {
                                 None
@@ -293,7 +293,7 @@ impl DiscountAction {
                             if is_all_none(&rs) {
                                 None
                             } else {
-                                Some(Reward::ItemPrice(rs))
+                                Some(Reward::ItemPrice(rs, m.clone()))
                             }
                         }
                     }
@@ -914,8 +914,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(GroupDiscount(d, ts, None)) = r {
+            if let Some(GroupDiscount(d, ts, m)) = r {
                 assert_eq!(from_u(100), d);
+                assert_eq!(DiscountMethod::value(from_u(100)), m);
                 assert_eq!(3, ts.len());
                 assert_eq!(&&o1, ts.get(0).unwrap());
                 assert_eq!(&&o3, ts.get(2).unwrap());
@@ -947,8 +948,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(GroupDiscount(d, ts, None)) = r {
+            if let Some(GroupDiscount(d, ts, m)) = r {
                 assert_eq!(from_u(450), d);
+                assert_eq!(DiscountMethod::value(from_u(500)), m);
                 assert_eq!(3, ts.len());
                 assert_eq!(&&o1, ts.get(0).unwrap());
                 assert_eq!(&&o3, ts.get(2).unwrap());
@@ -978,9 +980,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(GroupDiscount(d, ts, rate)) = r {
+            if let Some(GroupDiscount(d, ts, m)) = r {
                 assert_eq!(from_u(45), d);
-                assert_eq!(from_u(1) / from_u(10), rate.unwrap());
+                assert_eq!(DiscountMethod::rate(from_u(10)), m);
                 assert_eq!(3, ts.len());
                 assert_eq!(&&o1, ts.get(0).unwrap());
                 assert_eq!(&&o3, ts.get(2).unwrap());
@@ -1023,8 +1025,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(GroupPrice(d, ts)) = r {
+            if let Some(GroupPrice(d, ts, m)) = r {
                 assert_eq!(from_u(400), d);
+                assert_eq!(DiscountMethod::price(from_u(400)), m);
                 assert_eq!(3, ts.len());
                 assert_eq!(&&o1, ts.get(0).unwrap());
                 assert_eq!(&&o3, ts.get(2).unwrap());
@@ -1080,8 +1083,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(ItemDiscount(d, None)) = r {
+            if let Some(ItemDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
+                assert_eq!(DiscountMethod::value(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -1120,8 +1124,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2]);
 
-            if let Some(ItemDiscount(d, None)) = r {
+            if let Some(ItemDiscount(d, m)) = r {
                 assert_eq!(2, d.len());
+                assert_eq!(DiscountMethod::value(from_u(100)), m);
 
                 let (d2, i2) = d.get(1).unwrap();
                 assert_eq!(from_u(50), d2.to_owned().unwrap());
@@ -1141,7 +1146,7 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(ItemDiscount(d, None)) = r {
+            if let Some(ItemDiscount(d, _m)) = r {
                 assert_eq!(3, d.len());
 
                 // no discount by skip
@@ -1196,9 +1201,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(ItemDiscount(d, Some(r))) = r {
+            if let Some(ItemDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(from_u(1) / from_u(5), r);
+                assert_eq!(DiscountMethod::rate(from_u(20)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(20), d1.to_owned().unwrap());
@@ -1238,9 +1243,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(ItemDiscount(d, Some(r))) = r {
+            if let Some(ItemDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(from_u(1) / from_u(5), r);
+                assert_eq!(DiscountMethod::rate(from_u(20)), m);
 
                 // no discount by skip
                 let (d1, i1) = d.get(0).unwrap();
@@ -1281,8 +1286,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(ItemPrice(d)) = r {
+            if let Some(ItemPrice(d, m)) = r {
                 assert_eq!(3, d.len());
+                assert_eq!(DiscountMethod::price(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -1309,8 +1315,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2]);
 
-            if let Some(ItemPrice(d)) = r {
+            if let Some(ItemPrice(d, m)) = r {
                 assert_eq!(2, d.len());
+                assert_eq!(DiscountMethod::price(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -1346,8 +1353,9 @@ mod tests {
 
             let r = a.action(vec![&o1, &o2, &o3]);
 
-            if let Some(ItemPrice(d)) = r {
+            if let Some(ItemPrice(d, m)) = r {
                 assert_eq!(3, d.len());
+                assert_eq!(DiscountMethod::price(from_u(100)), m);
 
                 // no change by skip
                 let (d1, i1) = d.get(0).unwrap();
@@ -1390,9 +1398,9 @@ mod tests {
 
             let r = rule.apply(&items);
 
-            if let Some(Reward::ItemDiscount(d, Some(rate))) = r {
+            if let Some(Reward::ItemDiscount(d, m)) = r {
                 assert_eq!(2, d.len());
-                assert_eq!(from_u(1), rate);
+                assert_eq!(DiscountMethod::rate(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert!(d1.is_none());
@@ -1423,9 +1431,9 @@ mod tests {
 
             let r = rule.apply(&items);
 
-            if let Some(Reward::ItemDiscount(d, Some(rate))) = r {
+            if let Some(Reward::ItemDiscount(d, m)) = r {
                 assert_eq!(2, d.len());
-                assert_eq!(from_u(1) / from_u(2), rate);
+                assert_eq!(DiscountMethod::rate(from_u(50)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert!(d1.is_none());
@@ -1460,8 +1468,9 @@ mod tests {
 
             let r = rule.apply(&items);
 
-            if let Some(Reward::GroupPrice(p, is)) = r {
+            if let Some(Reward::GroupPrice(p, is, m)) = r {
                 assert_eq!(from_u(700), p);
+                assert_eq!(DiscountMethod::price(from_u(700)), m);
 
                 assert_eq!(3, is.len());
                 assert_eq!("o1", is.get(0).unwrap().id);
