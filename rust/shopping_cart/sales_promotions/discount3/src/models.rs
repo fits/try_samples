@@ -17,10 +17,10 @@ pub type Attrs = HashMap<AttrKey, AttrValue>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct OrderItem {
-    id: OrderItemId,
-    item_id: ItemId,
-    price: Amount,
-    attrs: Attrs,
+    pub id: OrderItemId,
+    pub item_id: ItemId,
+    pub price: Amount,
+    pub attrs: Attrs,
 }
 
 #[derive(Debug, Clone)]
@@ -34,15 +34,15 @@ pub enum ItemCondition {
 }
 
 impl ItemCondition {
-    fn not(&self) -> Self {
+    pub fn not(&self) -> Self {
         Self::Not(Box::new(self.to_owned()))
     }
 
-    fn and(&self, c: Self) -> Self {
+    pub fn and(&self, c: Self) -> Self {
         Self::And(Box::new(self.to_owned()), Box::new(c))
     }
 
-    fn or(&self, c: Self) -> Self {
+    pub fn or(&self, c: Self) -> Self {
         Self::Or(Box::new(self.to_owned()), Box::new(c))
     }
 
@@ -68,7 +68,7 @@ pub enum GroupCondition {
 }
 
 impl GroupCondition {
-    fn qty_limit(&self, from: Quantity, to: Option<Quantity>) -> Self {
+    pub fn qty_limit(&self, from: Quantity, to: Option<Quantity>) -> Self {
         Self::QtyLimit(Box::new(self.to_owned()), from, to)
     }
 
@@ -152,16 +152,16 @@ fn amount_100() -> Amount {
 }
 
 impl DiscountMethod {
-    fn value(v: Amount) -> Self {
+    pub fn value(v: Amount) -> Self {
         Self::ValueDiscount(v.max(Amount::zero()))
     }
 
-    fn rate(v: Amount) -> Self {
+    pub fn rate(v: Amount) -> Self {
         let r = v.max(Amount::zero()).min(amount_100()) / amount_100();
         Self::RateDiscount(r)
     }
 
-    fn price(v: Amount) -> Self {
+    pub fn price(v: Amount) -> Self {
         Self::ChangePrice(v.max(Amount::zero()))
     }
 }
@@ -197,15 +197,15 @@ fn is_full_count(max_count: &Option<Quantity>, count: &Quantity) -> bool {
 }
 
 impl DiscountAction {
-    fn each(m: DiscountMethod) -> Self {
+    pub fn each(m: DiscountMethod) -> Self {
         Self::Each(m, None, None)
     }
 
-    fn each_with_skip(m: DiscountMethod, skip: Quantity) -> Self {
+    pub fn each_with_skip(m: DiscountMethod, skip: Quantity) -> Self {
         Self::Each(m, Some(skip), None)
     }
 
-    fn each_with_skip_take(m: DiscountMethod, skip: Quantity, take: Quantity) -> Self {
+    pub fn each_with_skip_take(m: DiscountMethod, skip: Quantity, take: Quantity) -> Self {
         Self::Each(m, Some(skip), Some(take))
     }
 
@@ -342,12 +342,12 @@ impl DiscountAction {
 
 #[derive(Debug, Clone)]
 pub struct DiscountRule {
-    condition: GroupCondition,
-    action: DiscountAction,
+    pub condition: GroupCondition,
+    pub action: DiscountAction,
 }
 
 impl DiscountRule {
-    fn apply<'a>(&self, items: &'a Vec<OrderItem>) -> Option<Reward<&'a OrderItem>> {
+    pub fn apply<'a>(&self, items: &'a Vec<OrderItem>) -> Option<Reward<&'a OrderItem>> {
         self.condition
             .select(items)
             .and_then(|x| self.action.action(x))
