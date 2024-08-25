@@ -28,9 +28,9 @@ pub enum ItemCondition {
     Item(Vec<ItemId>),
     Attribute(AttrKey, Vec<AttrValue>),
     PriceRange(Amount, Option<Amount>),
-    Not(Box<ItemCondition>),
-    And(Box<ItemCondition>, Box<ItemCondition>),
-    Or(Box<ItemCondition>, Box<ItemCondition>),
+    Not(Box<Self>),
+    And(Box<Self>, Box<Self>),
+    Or(Box<Self>, Box<Self>),
 }
 
 impl ItemCondition {
@@ -63,7 +63,7 @@ impl ItemCondition {
 #[derive(Debug, Clone)]
 pub enum GroupCondition {
     Items(ItemCondition),
-    QtyLimit(Box<GroupCondition>, Quantity, Option<Quantity>),
+    QtyLimit(Box<Self>, Quantity, Option<Quantity>),
     PickOne(Vec<ItemCondition>),
 }
 
