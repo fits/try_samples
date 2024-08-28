@@ -20,7 +20,7 @@ node.addEventListener('peer:discovery', ev => {
     console.log(`discovered peer: ${JSON.stringify(ev.detail)}`)
 })
 
-node.addEventListener('peer:connect', async ev => {
+node.addEventListener('peer:connect', ev => {
     console.log(`connected peer: ${JSON.stringify(ev.detail)}`)
 })
 
