@@ -1,0 +1,42 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: counter
+  labels:
+    app: counter
+spec:
+  selector:
+    app: counter
+  ports:
+  - protocol: TCP
+    port: 3001
+    nodePort: 30010
+  externalTrafficPolicy: Local
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: counter
+  labels:
+    app: counter
+spec:
+  selector:
+    matchLabels:
+      app: counter
+  template:
+    metadata:
+      labels:
+        app: counter
+    spec:
+      containers:
+      - name: counter
+        image: localhost:5000/counter
+        env:
+        - name: APP_PORT
+          value: "3001"
+        ports:
+        - containerPort: 3001
+      nodeSelector:
+        nodetype: edge
