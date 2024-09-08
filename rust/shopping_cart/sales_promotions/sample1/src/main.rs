@@ -1,4 +1,3 @@
-
 mod promotions;
 
 fn main() {}
