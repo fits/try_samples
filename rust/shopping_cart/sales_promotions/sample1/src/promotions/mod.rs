@@ -96,6 +96,14 @@ pub enum Reward<T> {
     Discount(DiscountReward<T>),
 }
 
+fn has_attr(target: &Attrs, key: &AttrKey, values: &Vec<AttrValue>) -> bool {
+    target.get(key).map(|x| values.contains(x)).unwrap_or(false)
+}
+
+fn in_range_amount(target: &Amount, from: &Amount, to: &Option<Amount>) -> bool {
+    target >= from && to.clone().map(|x| target <= &x).unwrap_or(true)
+}
+
 impl OrderCondition {
     pub fn not(&self) -> Self {
         Self::Not(Box::new(self.to_owned()))
@@ -114,7 +122,7 @@ impl Conditional<&Order> for OrderCondition {
     fn check(&self, target: &Order) -> bool {
         match self {
             Self::Anything => true,
-            Self::Attribute(k, v) => target.attrs.get(k).map(|x| v.contains(x)).unwrap_or(false),
+            Self::Attribute(k, v) => has_attr(&target.attrs, k, v),
             Self::IncludeItem(c) => target.lines.iter().any(|x| c.check(x)),
             Self::SubtotalRange(c, from, to) => {
                 let mut v = Amount::zero();
@@ -125,7 +133,7 @@ impl Conditional<&Order> for OrderCondition {
                     }
                 }
 
-                v >= *from && to.clone().map(|x| v <= x).unwrap_or(true)
+                in_range_amount(&v, from, to)
             }
             Self::Not(c) => !c.check(target),
             Self::And(c1, c2) => c1.check(target) && c2.check(target),
@@ -218,10 +226,8 @@ impl Conditional<&OrderLine> for ItemCondition {
         match self {
             Self::Anything => true,
             Self::Item(items) => items.contains(&target.item_id),
-            Self::Attribute(k, v) => target.attrs.get(k).map(|x| v.contains(x)).unwrap_or(false),
-            Self::PriceRange(from, to) => {
-                target.price >= *from && to.clone().map(|x| target.price <= x).unwrap_or(true)
-            }
+            Self::Attribute(k, v) => has_attr(&target.attrs, k, v),
+            Self::PriceRange(from, to) => in_range_amount(&target.price, from, to),
             Self::Not(c) => !c.check(target),
             Self::And(c1, c2) => c1.check(target) && c2.check(target),
             Self::Or(c1, c2) => c1.check(target) || c2.check(target),
