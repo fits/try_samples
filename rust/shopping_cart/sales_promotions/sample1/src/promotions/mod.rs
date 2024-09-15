@@ -19,6 +19,10 @@ pub type AttrKey = String;
 pub type AttrValue = String;
 pub type Attrs = HashMap<AttrKey, AttrValue>;
 
+pub trait Conditional<T> {
+    fn check(&self, target: T) -> bool;
+}
+
 #[derive(Debug, Clone)]
 pub struct PromotionRule {
     condition: OrderCondition,
@@ -29,7 +33,7 @@ pub struct PromotionRule {
 pub enum OrderCondition {
     Anything,
     Attribute(AttrKey, Vec<AttrValue>),
-    SubtotalRange(Amount, Option<Amount>),
+    SubtotalRange(ItemCondition, Amount, Option<Amount>),
     IncludeItem(ItemCondition),
     Not(Box<Self>),
     And(Box<Self>, Box<Self>),
@@ -92,6 +96,44 @@ pub enum Reward<T> {
     Discount(DiscountReward<T>),
 }
 
+impl OrderCondition {
+    pub fn not(&self) -> Self {
+        Self::Not(Box::new(self.to_owned()))
+    }
+
+    pub fn and(&self, c: Self) -> Self {
+        Self::And(Box::new(self.to_owned()), Box::new(c))
+    }
+
+    pub fn or(&self, c: Self) -> Self {
+        Self::Or(Box::new(self.to_owned()), Box::new(c))
+    }
+}
+
+impl Conditional<&Order> for OrderCondition {
+    fn check(&self, target: &Order) -> bool {
+        match self {
+            Self::Anything => true,
+            Self::Attribute(k, v) => target.attrs.get(k).map(|x| v.contains(x)).unwrap_or(false),
+            Self::IncludeItem(c) => target.lines.iter().any(|x| c.check(x)),
+            Self::SubtotalRange(c, from, to) => {
+                let mut v = Amount::zero();
+
+                for l in &target.lines {
+                    if c.check(l) {
+                        v += l.price.clone();
+                    }
+                }
+
+                v >= *from && to.clone().map(|x| v <= x).unwrap_or(true)
+            }
+            Self::Not(c) => !c.check(target),
+            Self::And(c1, c2) => c1.check(target) && c2.check(target),
+            Self::Or(c1, c2) => c1.check(target) || c2.check(target),
+        }
+    }
+}
+
 impl GroupCondition {
     pub fn qty_limit(&self, from: Quantity, to: Option<Quantity>) -> Self {
         Self::QtyLimit(Box::new(self.to_owned()), from, to)
@@ -102,7 +144,7 @@ impl GroupCondition {
             Self::Items(c) => {
                 let rs = items
                     .iter()
-                    .filter(move |&x| c.predict(x))
+                    .filter(move |&x| c.check(x))
                     .collect::<Vec<_>>();
 
                 if rs.len() > 0 {
@@ -137,7 +179,7 @@ impl GroupCondition {
                                 continue;
                             }
 
-                            if c.predict(i) {
+                            if c.check(i) {
                                 rs.push(i);
                                 break;
                             }
@@ -169,8 +211,10 @@ impl ItemCondition {
     pub fn or(&self, c: Self) -> Self {
         Self::Or(Box::new(self.to_owned()), Box::new(c))
     }
+}
 
-    fn predict(&self, target: &OrderLine) -> bool {
+impl Conditional<&OrderLine> for ItemCondition {
+    fn check(&self, target: &OrderLine) -> bool {
         match self {
             Self::Anything => true,
             Self::Item(items) => items.contains(&target.item_id),
@@ -178,9 +222,9 @@ impl ItemCondition {
             Self::PriceRange(from, to) => {
                 target.price >= *from && to.clone().map(|x| target.price <= x).unwrap_or(true)
             }
-            Self::Not(c) => !c.predict(target),
-            Self::And(c1, c2) => c1.predict(target) && c2.predict(target),
-            Self::Or(c1, c2) => c1.predict(target) || c2.predict(target),
+            Self::Not(c) => !c.check(target),
+            Self::And(c1, c2) => c1.check(target) && c2.check(target),
+            Self::Or(c1, c2) => c1.check(target) || c2.check(target),
         }
     }
 }
@@ -193,7 +237,28 @@ mod tests {
         Amount::from_integer(v.into())
     }
 
-    fn item_order(line_id: OrderLineId, item_id: ItemId) -> OrderLine {
+    fn order(id: OrderId, lines: Vec<OrderLine>) -> Order {
+        Order {
+            id,
+            attrs: HashMap::new(),
+            lines,
+        }
+    }
+
+    fn order_with_attr(
+        id: OrderId,
+        lines: Vec<OrderLine>,
+        key: AttrKey,
+        value: AttrValue,
+    ) -> Order {
+        Order {
+            id,
+            attrs: HashMap::from([(key, value)]),
+            lines,
+        }
+    }
+
+    fn line(line_id: OrderLineId, item_id: ItemId) -> OrderLine {
         OrderLine {
             line_id,
             attrs: HashMap::new(),
@@ -202,7 +267,7 @@ mod tests {
         }
     }
 
-    fn attr_order(line_id: OrderLineId, key: AttrKey, value: AttrValue) -> OrderLine {
+    fn line_with_attr(line_id: OrderLineId, key: AttrKey, value: AttrValue) -> OrderLine {
         OrderLine {
             line_id,
             attrs: HashMap::from([(key, value)]),
@@ -211,7 +276,7 @@ mod tests {
         }
     }
 
-    fn item_attr_order(
+    fn line_with_item_attr(
         line_id: OrderLineId,
         item_id: ItemId,
         key: AttrKey,
@@ -225,7 +290,7 @@ mod tests {
         }
     }
 
-    fn price_order(line_id: OrderLineId, price: Amount) -> OrderLine {
+    fn line_with_price(line_id: OrderLineId, price: Amount) -> OrderLine {
         OrderLine {
             line_id,
             attrs: HashMap::new(),
@@ -234,7 +299,212 @@ mod tests {
         }
     }
 
-    mod condition {
+    fn line_with_item_price(line_id: OrderLineId, item_id: ItemId, price: Amount) -> OrderLine {
+        OrderLine {
+            line_id,
+            attrs: HashMap::new(),
+            item_id,
+            price,
+        }
+    }
+
+    mod order_condition {
+        use super::OrderCondition::*;
+        use super::*;
+
+        #[test]
+        fn anything() {
+            let c = Anything;
+
+            assert!(c.check(&order("order1".into(), Vec::new())));
+        }
+
+        #[test]
+        fn not() {
+            let c = Anything.not();
+            let o = order("order1".into(), Vec::new());
+
+            assert_eq!(false, c.check(&o));
+            assert!(c.not().check(&o));
+        }
+
+        #[test]
+        fn and() {
+            let o = order("order1".into(), Vec::new());
+
+            assert!(Anything.and(Anything).check(&o));
+            assert_eq!(false, Anything.and(Anything.not()).check(&o));
+            assert_eq!(false, Anything.not().and(Anything).check(&o));
+        }
+
+        #[test]
+        fn or() {
+            let o = order("order1".into(), Vec::new());
+
+            assert!(Anything.or(Anything).check(&o));
+            assert!(Anything.or(Anything.not()).check(&o));
+            assert!(Anything.not().or(Anything).check(&o));
+            assert_eq!(false, Anything.not().or(Anything.not()).check(&o));
+        }
+
+        #[test]
+        fn in_item() {
+            let c = IncludeItem(ItemCondition::Item(vec!["item-2".into()]));
+
+            let o = order(
+                "order1".into(),
+                vec![
+                    line("line-1".into(), "item-1".into()),
+                    line("line-2".into(), "item-2".into()),
+                ],
+            );
+
+            assert!(c.check(&o));
+        }
+
+        #[test]
+        fn not_in_item() {
+            let c = IncludeItem(ItemCondition::Item(vec!["item-5".into()]));
+
+            let o = order(
+                "order1".into(),
+                vec![
+                    line("line-1".into(), "item-1".into()),
+                    line("line-2".into(), "item-2".into()),
+                ],
+            );
+
+            assert_eq!(false, c.check(&o));
+        }
+
+        #[test]
+        fn attr_match() {
+            let c = Attribute("category".into(), vec!["c1".into(), "c2".into()]);
+
+            assert!(c.check(&order_with_attr(
+                "o1".into(),
+                vec![],
+                "category".into(),
+                "c1".into()
+            )));
+            assert!(c.check(&order_with_attr(
+                "o2".into(),
+                vec![],
+                "category".into(),
+                "c2".into()
+            )));
+        }
+
+        #[test]
+        fn attr_unmatch() {
+            let c = Attribute("category".into(), vec!["c1".into(), "c2".into()]);
+
+            assert_eq!(
+                false,
+                c.check(&order_with_attr(
+                    "o1".into(),
+                    vec![],
+                    "category".into(),
+                    "c5".into()
+                ))
+            );
+        }
+
+        #[test]
+        fn subtotal_in_range() {
+            let c = SubtotalRange(
+                ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                from_u(600),
+                None,
+            );
+
+            let o = order(
+                "order1".into(),
+                vec![
+                    line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                ],
+            );
+
+            assert!(c.check(&o));
+        }
+
+        #[test]
+        fn subtotal_under() {
+            let c = SubtotalRange(
+                ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                from_u(600),
+                None,
+            );
+
+            let o = order(
+                "order1".into(),
+                vec![
+                    line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                ],
+            );
+
+            assert_eq!(false, c.check(&o));
+        }
+
+        #[test]
+        fn subtotal_with_upper_in_range() {
+            let c = SubtotalRange(
+                ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                from_u(600),
+                Some(from_u(700)),
+            );
+
+            let o = order(
+                "order1".into(),
+                vec![
+                    line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+                ],
+            );
+
+            assert!(c.check(&o));
+        }
+
+        #[test]
+        fn subtotal_over() {
+            let c = SubtotalRange(
+                ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                from_u(600),
+                Some(from_u(700)),
+            );
+
+            let o = order(
+                "order1".into(),
+                vec![
+                    line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-8".into(), "item-1".into(), from_u(100)),
+                ],
+            );
+
+            assert_eq!(false, c.check(&o));
+        }
+    }
+
+    mod item_condition {
         use super::GroupCondition::*;
         use super::ItemCondition::*;
         use super::*;
@@ -243,31 +513,31 @@ mod tests {
         fn anything() {
             let c = Anything;
 
-            assert!(c.predict(&item_order("o1".into(), "item-1".into())));
-            assert!(c.predict(&item_order("o2".into(), "item-2".into())));
+            assert!(c.check(&line("o1".into(), "item-1".into())));
+            assert!(c.check(&line("o2".into(), "item-2".into())));
         }
 
         #[test]
         fn item_include() {
             let c = Item(vec!["item-1".into(), "item-2".into()]);
 
-            assert!(c.predict(&item_order("o1".into(), "item-1".into())));
-            assert!(c.predict(&item_order("o2".into(), "item-2".into())));
+            assert!(c.check(&line("o1".into(), "item-1".into())));
+            assert!(c.check(&line("o2".into(), "item-2".into())));
         }
 
         #[test]
         fn item_exclude() {
             let c = Item(vec!["item-1".into(), "item-2".into()]);
 
-            assert_eq!(false, c.predict(&item_order("o1".into(), "item-3".into())));
+            assert_eq!(false, c.check(&line("o1".into(), "item-3".into())));
         }
 
         #[test]
         fn attr_match() {
             let c: ItemCondition = Attribute("category".into(), vec!["c1".into(), "c2".into()]);
 
-            assert!(c.predict(&attr_order("o1".into(), "category".into(), "c1".into())));
-            assert!(c.predict(&attr_order("o2".into(), "category".into(), "c2".into())));
+            assert!(c.check(&line_with_attr("o1".into(), "category".into(), "c1".into())));
+            assert!(c.check(&line_with_attr("o2".into(), "category".into(), "c2".into())));
         }
 
         #[test]
@@ -276,7 +546,7 @@ mod tests {
 
             assert_eq!(
                 false,
-                c.predict(&attr_order("o1".into(), "category".into(), "c3".into()))
+                c.check(&line_with_attr("o1".into(), "category".into(), "c3".into()))
             );
         }
 
@@ -286,7 +556,7 @@ mod tests {
 
             assert_eq!(
                 false,
-                c.predict(&attr_order("o1".into(), "keyword".into(), "k1".into()))
+                c.check(&line_with_attr("o1".into(), "keyword".into(), "k1".into()))
             );
         }
 
@@ -294,41 +564,41 @@ mod tests {
         fn price_lower_match() {
             let c = PriceRange(from_u(100), None);
 
-            assert!(c.predict(&price_order("o1".into(), from_u(100))));
-            assert!(c.predict(&price_order("o1".into(), from_u(200))));
+            assert!(c.check(&line_with_price("o1".into(), from_u(100))));
+            assert!(c.check(&line_with_price("o1".into(), from_u(200))));
         }
 
         #[test]
         fn price_lower_unmatch() {
             let c = PriceRange(from_u(100), None);
 
-            assert_eq!(false, c.predict(&price_order("o1".into(), from_u(99))));
-            assert_eq!(false, c.predict(&price_order("o2".into(), from_u(0))));
+            assert_eq!(false, c.check(&line_with_price("o1".into(), from_u(99))));
+            assert_eq!(false, c.check(&line_with_price("o2".into(), from_u(0))));
         }
 
         #[test]
         fn price_upper_match() {
             let c = PriceRange(from_u(100), Some(from_u(200)));
 
-            assert!(c.predict(&price_order("o1".into(), from_u(100))));
-            assert!(c.predict(&price_order("o2".into(), from_u(150))));
-            assert!(c.predict(&price_order("o3".into(), from_u(200))));
+            assert!(c.check(&line_with_price("o1".into(), from_u(100))));
+            assert!(c.check(&line_with_price("o2".into(), from_u(150))));
+            assert!(c.check(&line_with_price("o3".into(), from_u(200))));
         }
 
         #[test]
         fn price_upper_unmatch() {
             let c = PriceRange(from_u(100), Some(from_u(200)));
 
-            assert_eq!(false, c.predict(&price_order("o1".into(), from_u(201))));
-            assert_eq!(false, c.predict(&price_order("o2".into(), from_u(300))));
+            assert_eq!(false, c.check(&line_with_price("o1".into(), from_u(201))));
+            assert_eq!(false, c.check(&line_with_price("o2".into(), from_u(300))));
         }
 
         #[test]
         fn not_item() {
             let c = Item(vec!["item-1".into()]).not();
 
-            assert_eq!(false, c.predict(&item_order("o1".into(), "item-1".into())));
-            assert!(c.predict(&item_order("o2".into(), "item-2".into())));
+            assert_eq!(false, c.check(&line("o1".into(), "item-1".into())));
+            assert!(c.check(&line("o2".into(), "item-2".into())));
         }
 
         #[test]
@@ -336,13 +606,13 @@ mod tests {
             let c = Item(vec!["item-1".into(), "item-2".into()])
                 .and(Attribute("category".into(), vec!["c1".into(), "c2".into()]));
 
-            assert!(c.predict(&item_attr_order(
+            assert!(c.check(&line_with_item_attr(
                 "o1".into(),
                 "item-1".into(),
                 "category".into(),
                 "c2".into()
             )));
-            assert!(c.predict(&item_attr_order(
+            assert!(c.check(&line_with_item_attr(
                 "o2".into(),
                 "item-2".into(),
                 "category".into(),
@@ -357,7 +627,7 @@ mod tests {
 
             assert_eq!(
                 false,
-                c.predict(&item_attr_order(
+                c.check(&line_with_item_attr(
                     "o1".into(),
                     "item-3".into(),
                     "category".into(),
@@ -366,7 +636,7 @@ mod tests {
             );
             assert_eq!(
                 false,
-                c.predict(&item_attr_order(
+                c.check(&line_with_item_attr(
                     "o2".into(),
                     "item-2".into(),
                     "category".into(),
@@ -375,7 +645,7 @@ mod tests {
             );
             assert_eq!(
                 false,
-                c.predict(&item_attr_order(
+                c.check(&line_with_item_attr(
                     "o3".into(),
                     "item-1".into(),
                     "keyword".into(),
@@ -389,20 +659,20 @@ mod tests {
             let c = Item(vec!["item-1".into(), "item-2".into()])
                 .or(Attribute("category".into(), vec!["c1".into(), "c2".into()]));
 
-            assert!(c.predict(&item_attr_order(
+            assert!(c.check(&line_with_item_attr(
                 "o1".into(),
                 "item-1".into(),
                 "category".into(),
                 "c2".into()
             )));
-            assert!(c.predict(&item_attr_order(
+            assert!(c.check(&line_with_item_attr(
                 "o2".into(),
                 "item-3".into(),
                 "category".into(),
                 "c1".into()
             )));
 
-            assert!(c.predict(&item_attr_order(
+            assert!(c.check(&line_with_item_attr(
                 "o2".into(),
                 "item-1".into(),
                 "category".into(),
@@ -417,7 +687,7 @@ mod tests {
 
             assert_eq!(
                 false,
-                c.predict(&item_attr_order(
+                c.check(&line_with_item_attr(
                     "o1".into(),
                     "item-3".into(),
                     "category".into(),
@@ -431,11 +701,11 @@ mod tests {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()]));
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it).unwrap();
@@ -451,11 +721,11 @@ mod tests {
             let c = Items(Item(vec!["item-10".into(), "item-11".into()]));
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             assert!(c.select(&it).is_none());
@@ -466,11 +736,11 @@ mod tests {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(3, None);
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             assert!(c.select(&it).is_some());
@@ -481,11 +751,11 @@ mod tests {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(4, None);
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             assert!(c.select(&it).is_none());
@@ -496,11 +766,11 @@ mod tests {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(1, Some(2));
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it).unwrap();
@@ -513,11 +783,11 @@ mod tests {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(2, Some(5));
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it).unwrap();
@@ -530,11 +800,11 @@ mod tests {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(0, Some(0));
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             assert!(c.select(&it).is_none());
@@ -545,11 +815,11 @@ mod tests {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(2, Some(1));
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             assert!(c.select(&it).is_none());
@@ -563,11 +833,11 @@ mod tests {
             ]);
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it).unwrap();
@@ -586,11 +856,11 @@ mod tests {
             ]);
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it).unwrap();
@@ -606,11 +876,11 @@ mod tests {
             let c = PickOne(vec![]);
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it);
@@ -626,11 +896,11 @@ mod tests {
             ]);
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it);
@@ -646,11 +916,11 @@ mod tests {
             ]);
 
             let it = vec![
-                item_order("o1".into(), "item-1".into()),
-                item_order("o2".into(), "item-3".into()),
-                item_order("o3".into(), "item-1".into()),
-                item_order("o4".into(), "item-2".into()),
-                item_order("o5".into(), "item-4".into()),
+                line("o1".into(), "item-1".into()),
+                line("o2".into(), "item-3".into()),
+                line("o3".into(), "item-1".into()),
+                line("o4".into(), "item-2".into()),
+                line("o5".into(), "item-4".into()),
             ];
 
             let r = c.select(&it);
