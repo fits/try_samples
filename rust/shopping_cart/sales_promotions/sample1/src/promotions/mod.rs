@@ -235,6 +235,35 @@ impl Conditional<&OrderLine> for ItemCondition {
     }
 }
 
+impl RewardTarget<&OrderLine> {
+    pub fn targets(&self) -> Vec<&OrderLine> {
+        match self {
+            RewardTarget::None => vec![],
+            RewardTarget::Group(ts) => ts.clone(),
+            RewardTarget::Single(t) => vec![t],
+        }
+    }
+}
+
+impl Reward<&OrderLine> {
+    pub fn targets(&self) -> Vec<&OrderLine> {
+        match self {
+            Reward::Discount(d) => match d {
+                DiscountReward::SingleDiscount(_, t, _) => t.targets(),
+                DiscountReward::MultiDiscount(ts, _) => {
+                    let mut res = vec![];
+
+                    for (_, t) in ts {
+                        res.append(&mut t.targets());
+                    }
+
+                    res
+                }
+            },
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -932,6 +961,87 @@ mod tests {
             let r = c.select(&it);
 
             assert!(r.is_none());
+        }
+    }
+
+    mod reward_target {
+        use super::RewardTarget::*;
+        use super::*;
+
+        #[test]
+        fn none_empty_targets() {
+            assert_eq!(0, None::<&OrderLine>.targets().len());
+        }
+
+        #[test]
+        fn single_targets() {
+            let line = line("line1".into(), "item-1".into());
+
+            let t = Single(&line);
+
+            let ts = t.targets();
+
+            assert_eq!(1, ts.len());
+            assert_eq!("line1", ts.first().unwrap().line_id);
+        }
+
+        #[test]
+        fn group_targets() {
+            let line1 = line("line1".into(), "item-1".into());
+            let line2 = line("line2".into(), "item-2".into());
+
+            let t = Group(vec![&line1, &line2]);
+
+            let ts = t.targets();
+
+            assert_eq!(2, ts.len());
+            assert_eq!("line1", ts.first().unwrap().line_id);
+            assert_eq!("line2", ts.last().unwrap().line_id);
+        }
+    }
+
+    mod reward {
+        use super::Reward::*;
+        use super::*;
+
+        #[test]
+        fn single_discount_targets() {
+            let line = line("line1".into(), "item-1".into());
+
+            let t = RewardTarget::Single(&line);
+
+            let r = Discount(DiscountReward::SingleDiscount(
+                from_u(50),
+                t,
+                discount::DiscountMethod::ValueDiscount(from_u(50)),
+            ));
+
+            let ts = r.targets();
+
+            assert_eq!(1, ts.len());
+            assert_eq!("line1", ts.first().unwrap().line_id);
+        }
+
+        #[test]
+        fn multi_discount_targets() {
+            let line1 = line("line1".into(), "item-1".into());
+            let line2 = line("line2".into(), "item-2".into());
+            let line3 = line("line3".into(), "item-3".into());
+
+            let t1 = RewardTarget::Single(&line1);
+            let t2 = RewardTarget::Group(vec![&line2, &line3]);
+
+            let r = Discount(DiscountReward::MultiDiscount(
+                vec![(None, t1), (None, t2)],
+                discount::DiscountMethod::ValueDiscount(from_u(50)),
+            ));
+
+            let ts = r.targets();
+
+            assert_eq!(3, ts.len());
+            assert_eq!("line1", ts.first().unwrap().line_id);
+            assert_eq!("line2", ts.get(1).unwrap().line_id);
+            assert_eq!("line3", ts.last().unwrap().line_id);
         }
     }
 }
