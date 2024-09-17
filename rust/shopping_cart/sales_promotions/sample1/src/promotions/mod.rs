@@ -298,6 +298,17 @@ impl PromotionAction {
     }
 }
 
+impl PromotionRule {
+    pub fn apply<'a>(&self, target: &'a Order) -> Option<Vec<Reward<&'a OrderLine>>> {
+        if self.condition.check(target) {
+            let lines = target.lines.iter().collect();
+            self.action.apply(lines)
+        } else {
+            None
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1079,7 +1090,7 @@ mod tests {
         }
     }
 
-    mod action {
+    mod promotion_action {
         use super::PromotionAction::*;
         use super::RewardAction::*;
         use super::*;
@@ -1244,6 +1255,75 @@ mod tests {
             assert_eq!(2, ts2.len());
             assert_eq!("line-2", ts2.first().unwrap().line_id);
             assert_eq!("line-6", ts2.last().unwrap().line_id);
+        }
+    }
+
+    mod promotion_rule {
+        use super::*;
+
+        #[test]
+        fn condition_ok() {
+            let o = order_with_attr("order1".into(), vec![
+                line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+            ], "kind".into(), "A1".into());
+
+            let rule = PromotionRule {
+                condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
+                action: PromotionAction::All(RewardAction::Discount(DiscountRule { 
+                    condition: GroupCondition::PickOne(vec![
+                        ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                        ItemCondition::Item(vec!["item-3".into()]),
+                    ]),
+                    action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                        from_u(100),
+                    )),
+                }))
+            };
+
+            let r = rule.apply(&o);
+
+            assert!(r.is_some());
+
+            let rs = r.unwrap();
+
+            assert_eq!(2, rs.len());
+
+        }
+
+        #[test]
+        fn condition_ng() {
+            let o = order_with_attr("order1".into(), vec![
+                line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+            ], "kind".into(), "A1".into());
+
+            let rule = PromotionRule {
+                condition: OrderCondition::Attribute("kind".into(), vec!["B2".into()]),
+                action: PromotionAction::All(RewardAction::Discount(DiscountRule { 
+                    condition: GroupCondition::PickOne(vec![
+                        ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                        ItemCondition::Item(vec!["item-3".into()]),
+                    ]),
+                    action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                        from_u(100),
+                    )),
+                }))
+            };
+
+            let r = rule.apply(&o);
+
+            assert!(r.is_none());
         }
     }
 }
