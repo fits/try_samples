@@ -28,7 +28,7 @@ pub enum DiscountReward<T> {
 }
 
 impl DiscountRule {
-    pub fn apply<'a>(&self, items: &'a Vec<OrderLine>) -> Option<Reward<&'a OrderLine>> {
+    pub fn apply<'a>(&self, items: Vec<&'a OrderLine>) -> Option<Reward<&'a OrderLine>> {
         self.condition
             .select(items)
             .and_then(|x| self.action.action(x).map(|r| Reward::Discount(r)))
@@ -1389,7 +1389,9 @@ mod tests {
                 item_price_order("o5".into(), "item-2".into(), from_u(500)),
             ];
 
-            let r = rule.apply(&items);
+            let it = items.iter().collect();
+
+            let r = rule.apply(it);
 
             if let Some(Reward::Discount(r)) = r {
                 if let DiscountReward::MultiDiscount(d, m) = r {
@@ -1427,7 +1429,9 @@ mod tests {
                 item_price_order("o5".into(), "item-2".into(), from_u(500)),
             ];
 
-            let r = rule.apply(&items);
+            let it = items.iter().collect();
+
+            let r = rule.apply(it);
 
             if let Some(Reward::Discount(r)) = r {
                 if let DiscountReward::MultiDiscount(d, m) = r {
@@ -1468,7 +1472,9 @@ mod tests {
                 item_price_order("o5".into(), "item-2".into(), from_u(500)),
             ];
 
-            let r = rule.apply(&items);
+            let it = items.iter().collect();
+
+            let r = rule.apply(it);
 
             if let Some(Reward::Discount(r)) = r {
                 if let DiscountReward::SingleDiscount(p, is, m) = r {

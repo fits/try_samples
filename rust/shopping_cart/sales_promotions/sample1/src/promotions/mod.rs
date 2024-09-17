@@ -147,11 +147,11 @@ impl GroupCondition {
         Self::QtyLimit(Box::new(self.to_owned()), from, to)
     }
 
-    fn select<'a>(&self, items: &'a Vec<OrderLine>) -> Option<Vec<&'a OrderLine>> {
+    fn select<'a>(&self, items: Vec<&'a OrderLine>) -> Option<Vec<&'a OrderLine>> {
         match self {
             Self::Items(c) => {
                 let rs = items
-                    .iter()
+                    .into_iter()
                     .filter(move |&x| c.check(x))
                     .collect::<Vec<_>>();
 
@@ -182,7 +182,7 @@ impl GroupCondition {
                     let mut rs: Vec<&'a OrderLine> = vec![];
 
                     for c in cs {
-                        for i in items {
+                        for i in &items {
                             if rs.contains(&i) {
                                 continue;
                             }
@@ -260,6 +260,40 @@ impl Reward<&OrderLine> {
                     res
                 }
             },
+        }
+    }
+}
+
+impl PromotionAction {
+    pub fn apply<'a>(&self, target: Vec<&'a OrderLine>) -> Option<Vec<Reward<&'a OrderLine>>> {
+        let (RewardAction::Discount(rule), upper) = match self {
+            Self::All(a) => (a, None),
+            Self::Any(n, a) => (a, Some(*n)),
+        };
+
+        let mut res = vec![];
+        let mut items = target;
+
+        loop {
+            if upper.map(|x| x <= res.len()).unwrap_or(false) {
+                break;
+            }
+
+            if let Some(r) = rule.apply(items.to_owned()) {
+                let ts = r.targets();
+
+                items.retain(|x| !ts.contains(x));
+
+                res.push(r);
+            } else {
+                break;
+            }
+        }
+
+        if res.is_empty() {
+            None
+        } else {
+            Some(res)
         }
     }
 }
@@ -735,15 +769,15 @@ mod tests {
         fn select_items_match() {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()]));
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it).unwrap();
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it).unwrap();
 
             assert_eq!(3, r.len());
             assert_eq!("o1", r.get(0).unwrap().line_id);
@@ -755,60 +789,60 @@ mod tests {
         fn select_items_unmatch() {
             let c = Items(Item(vec!["item-10".into(), "item-11".into()]));
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            assert!(c.select(&it).is_none());
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            assert!(c.select(it).is_none());
         }
 
         #[test]
         fn select_qty_lower_match() {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(3, None);
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            assert!(c.select(&it).is_some());
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            assert!(c.select(it).is_some());
         }
 
         #[test]
         fn select_qty_lower_unmatch() {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(4, None);
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            assert!(c.select(&it).is_none());
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            assert!(c.select(it).is_none());
         }
 
         #[test]
         fn select_qty_upper_over() {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(1, Some(2));
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it).unwrap();
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it).unwrap();
 
             assert_eq!(2, r.len());
         }
@@ -817,15 +851,15 @@ mod tests {
         fn select_qty_upper_under() {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(2, Some(5));
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it).unwrap();
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it).unwrap();
 
             assert_eq!(3, r.len());
         }
@@ -834,30 +868,30 @@ mod tests {
         fn select_qty_upper_zero() {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(0, Some(0));
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            assert!(c.select(&it).is_none());
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            assert!(c.select(it).is_none());
         }
 
         #[test]
         fn select_qty_upper_under_lower() {
             let c = Items(Item(vec!["item-1".into(), "item-2".into()])).qty_limit(2, Some(1));
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            assert!(c.select(&it).is_none());
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            assert!(c.select(it).is_none());
         }
 
         #[test]
@@ -867,15 +901,15 @@ mod tests {
                 Item(vec!["item-2".into()]),
             ]);
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it).unwrap();
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it).unwrap();
 
             assert_eq!(2, r.len());
             assert_eq!("o1", r.get(0).unwrap().line_id);
@@ -890,15 +924,15 @@ mod tests {
                 Item(vec!["item-1".into()]),
             ]);
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it).unwrap();
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it).unwrap();
 
             assert_eq!(3, r.len());
             assert_eq!("o1", r.get(0).unwrap().line_id);
@@ -910,15 +944,15 @@ mod tests {
         fn select_pickone_empty() {
             let c = PickOne(vec![]);
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it);
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it);
 
             assert!(r.is_none());
         }
@@ -930,15 +964,15 @@ mod tests {
                 Item(vec!["item-7".into()]),
             ]);
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it);
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it);
 
             assert!(r.is_none());
         }
@@ -950,15 +984,15 @@ mod tests {
                 Item(vec!["item-3".into()]),
             ]);
 
-            let it = vec![
-                line("o1".into(), "item-1".into()),
-                line("o2".into(), "item-3".into()),
-                line("o3".into(), "item-1".into()),
-                line("o4".into(), "item-2".into()),
-                line("o5".into(), "item-4".into()),
-            ];
+            let l1 = line("o1".into(), "item-1".into());
+            let l2 = line("o2".into(), "item-3".into());
+            let l3 = line("o3".into(), "item-1".into());
+            let l4 = line("o4".into(), "item-2".into());
+            let l5 = line("o5".into(), "item-4".into());
 
-            let r = c.select(&it);
+            let it = vec![&l1, &l2, &l3, &l4, &l5];
+
+            let r = c.select(it);
 
             assert!(r.is_none());
         }
@@ -1042,6 +1076,174 @@ mod tests {
             assert_eq!("line1", ts.first().unwrap().line_id);
             assert_eq!("line2", ts.get(1).unwrap().line_id);
             assert_eq!("line3", ts.last().unwrap().line_id);
+        }
+    }
+
+    mod action {
+        use super::PromotionAction::*;
+        use super::RewardAction::*;
+        use super::*;
+
+        #[test]
+        fn all_action() {
+            let items = vec![
+                line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+            ];
+
+            let d = DiscountRule {
+                condition: GroupCondition::PickOne(vec![
+                    ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                    ItemCondition::Item(vec!["item-3".into()]),
+                ]),
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                    from_u(100),
+                )),
+            };
+
+            let a = All(Discount(d));
+
+            let it = items.iter().collect();
+
+            let r = a.apply(it);
+
+            assert!(r.is_some());
+
+            let rs = r.unwrap();
+
+            assert_eq!(2, rs.len());
+
+            let r1 = rs.first().unwrap();
+            let ts1 = r1.targets();
+            assert_eq!(2, ts1.len());
+            assert_eq!("line-1", ts1.first().unwrap().line_id);
+            assert_eq!("line-3", ts1.last().unwrap().line_id);
+
+            let r2 = rs.last().unwrap();
+            let ts2 = r2.targets();
+
+            assert_eq!(2, ts2.len());
+            assert_eq!("line-2", ts2.first().unwrap().line_id);
+            assert_eq!("line-6", ts2.last().unwrap().line_id);
+        }
+
+        #[test]
+        fn any0_action() {
+            let items = vec![
+                line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+            ];
+
+            let d = DiscountRule {
+                condition: GroupCondition::PickOne(vec![
+                    ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                    ItemCondition::Item(vec!["item-3".into()]),
+                ]),
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                    from_u(100),
+                )),
+            };
+
+            let a = Any(0, Discount(d));
+
+            let it = items.iter().collect();
+
+            let r = a.apply(it);
+
+            assert!(r.is_none());
+        }
+
+        #[test]
+        fn any1_action() {
+            let items = vec![
+                line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+            ];
+
+            let d = DiscountRule {
+                condition: GroupCondition::PickOne(vec![
+                    ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                    ItemCondition::Item(vec!["item-3".into()]),
+                ]),
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                    from_u(100),
+                )),
+            };
+
+            let a = Any(1, Discount(d));
+
+            let it = items.iter().collect();
+
+            let r = a.apply(it);
+
+            assert!(r.is_some());
+
+            let rs = r.unwrap();
+
+            assert_eq!(1, rs.len());
+
+            let r1 = rs.first().unwrap();
+            let ts1 = r1.targets();
+            assert_eq!(2, ts1.len());
+            assert_eq!("line-1", ts1.first().unwrap().line_id);
+            assert_eq!("line-3", ts1.last().unwrap().line_id);
+        }
+
+        #[test]
+        fn any2_action() {
+            let items = vec![
+                line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+            ];
+
+            let d = DiscountRule {
+                condition: GroupCondition::PickOne(vec![
+                    ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                    ItemCondition::Item(vec!["item-3".into()]),
+                ]),
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                    from_u(100),
+                )),
+            };
+
+            let a = Any(2, Discount(d));
+
+            let it = items.iter().collect();
+
+            let r = a.apply(it);
+
+            assert!(r.is_some());
+
+            let rs = r.unwrap();
+
+            assert_eq!(2, rs.len());
+
+            let r2 = rs.last().unwrap();
+            let ts2 = r2.targets();
+
+            assert_eq!(2, ts2.len());
+            assert_eq!("line-2", ts2.first().unwrap().line_id);
+            assert_eq!("line-6", ts2.last().unwrap().line_id);
         }
     }
 }
