@@ -26,13 +26,13 @@ pub trait Conditional<T> {
 #[derive(Debug, Clone)]
 pub struct PromotionGroup(Vec<PromotionRule>);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PromotionRule {
     condition: OrderCondition,
     action: PromotionAction,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum OrderCondition {
     Anything,
     Attribute(AttrKey, Vec<AttrValue>),
@@ -43,14 +43,14 @@ pub enum OrderCondition {
     Or(Box<Self>, Box<Self>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum GroupCondition {
     Items(ItemCondition),
     QtyLimit(Box<Self>, Quantity, Option<Quantity>),
     PickOne(Vec<ItemCondition>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ItemCondition {
     Anything,
     Attribute(AttrKey, Vec<AttrValue>),
@@ -61,13 +61,13 @@ pub enum ItemCondition {
     Or(Box<Self>, Box<Self>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum PromotionAction {
     All(RewardAction),
     Any(Quantity, RewardAction),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum RewardAction {
     Discount(DiscountRule),
 }
@@ -322,25 +322,24 @@ impl PromotionRule {
 }
 
 impl PromotionGroup {
-    pub fn apply<'a>(&self, target: &'a Order) -> Option<Vec<Reward<&'a OrderLine>>> {
-        let mut res: Vec<Reward<&'a OrderLine>> = vec![];
+    pub fn apply<'a>(
+        &self,
+        target: &'a Order,
+    ) -> Option<Vec<(Reward<&'a OrderLine>, &PromotionRule)>> {
+        let mut res: Vec<(Reward<&'a OrderLine>, &PromotionRule)> = vec![];
 
         for rule in &self.0 {
             let mut exc = vec![];
 
-            for r in &res {
+            for (r, _) in &res {
                 exc.append(&mut r.targets());
             }
 
-            let exc = if exc.is_empty() {
-                None
-            } else {
-                Some(exc)
-            };
+            let exc = if exc.is_empty() { None } else { Some(exc) };
 
             if let Some(r) = rule.apply(target, exc) {
                 for x in r {
-                    res.push(x.to_owned());    
+                    res.push((x.to_owned(), rule));
                 }
             }
         }
@@ -352,7 +351,6 @@ impl PromotionGroup {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -1457,45 +1455,61 @@ mod tests {
 
             let group = PromotionGroup(vec![
                 PromotionRule {
-                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
-                    action: PromotionAction::Any(1, RewardAction::Discount(DiscountRule {
-                        condition: GroupCondition::PickOne(vec![
-                            ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
-                            ItemCondition::Item(vec!["item-3".into()]),
-                        ]),
+                    condition: OrderCondition::Attribute(
+                        "kind".into(),
+                        vec!["A1".into(), "B2".into()],
+                    ),
+                    action: PromotionAction::Any(
+                        1,
+                        RewardAction::Discount(DiscountRule {
+                            condition: GroupCondition::PickOne(vec![
+                                ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                                ItemCondition::Item(vec!["item-3".into()]),
+                            ]),
+                            action: discount::DiscountAction::Whole(
+                                discount::DiscountMethod::ValueDiscount(from_u(100)),
+                            ),
+                        }),
+                    ),
+                },
+                PromotionRule {
+                    condition: OrderCondition::Attribute(
+                        "kind".into(),
+                        vec!["A1".into(), "B2".into()],
+                    ),
+                    action: PromotionAction::All(RewardAction::Discount(DiscountRule {
+                        condition: GroupCondition::PickOne(vec![ItemCondition::Item(vec![
+                            "item-4".into(),
+                            "item-5".into(),
+                        ])]),
                         action: discount::DiscountAction::Whole(
                             discount::DiscountMethod::ValueDiscount(from_u(100)),
                         ),
                     })),
                 },
                 PromotionRule {
-                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
+                    condition: OrderCondition::Attribute(
+                        "kind".into(),
+                        vec!["A1".into(), "B2".into()],
+                    ),
                     action: PromotionAction::All(RewardAction::Discount(DiscountRule {
-                        condition: GroupCondition::PickOne(vec![
-                            ItemCondition::Item(vec!["item-4".into(), "item-5".into()]),
-                        ]),
+                        condition: GroupCondition::PickOne(vec![ItemCondition::Item(vec![
+                            "item-3".into(),
+                        ])]),
                         action: discount::DiscountAction::Whole(
                             discount::DiscountMethod::ValueDiscount(from_u(100)),
                         ),
                     })),
                 },
                 PromotionRule {
-                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
+                    condition: OrderCondition::Attribute(
+                        "kind".into(),
+                        vec!["A1".into(), "B2".into()],
+                    ),
                     action: PromotionAction::All(RewardAction::Discount(DiscountRule {
-                        condition: GroupCondition::PickOne(vec![
-                            ItemCondition::Item(vec!["item-3".into()]),
-                        ]),
-                        action: discount::DiscountAction::Whole(
-                            discount::DiscountMethod::ValueDiscount(from_u(100)),
-                        ),
-                    })),
-                },
-                PromotionRule {
-                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
-                    action: PromotionAction::All(RewardAction::Discount(DiscountRule {
-                        condition: GroupCondition::PickOne(vec![
-                            ItemCondition::Item(vec!["item-3".into()]),
-                        ]),
+                        condition: GroupCondition::PickOne(vec![ItemCondition::Item(vec![
+                            "item-3".into(),
+                        ])]),
                         action: discount::DiscountAction::Whole(
                             discount::DiscountMethod::ValueDiscount(from_u(100)),
                         ),
@@ -1511,18 +1525,23 @@ mod tests {
 
             assert_eq!(2, rs.len());
 
-            let r1 = rs.first().unwrap();
+            let (r1, rule1) = rs.first().unwrap();
+
+            assert_eq!(&group.0.get(0).unwrap(), rule1);
+
             let ts1 = r1.targets();
             assert_eq!(2, ts1.len());
             assert_eq!("line-1", ts1.first().unwrap().line_id);
             assert_eq!("line-3", ts1.last().unwrap().line_id);
 
-            let r2 = rs.last().unwrap();
+            let (r2, rule2) = rs.last().unwrap();
+
+            assert_eq!(&group.0.get(2).unwrap(), rule2);
+
             let ts2 = r2.targets();
 
             assert_eq!(1, ts2.len());
             assert_eq!("line-6", ts2.first().unwrap().line_id);
-
         }
     }
 }
