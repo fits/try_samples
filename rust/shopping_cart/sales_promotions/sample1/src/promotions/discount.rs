@@ -2,7 +2,7 @@
 
 use super::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DiscountRule {
     pub condition: GroupCondition,
     pub action: DiscountAction,
