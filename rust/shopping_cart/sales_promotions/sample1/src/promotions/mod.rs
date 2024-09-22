@@ -24,6 +24,9 @@ pub trait Conditional<T> {
 }
 
 #[derive(Debug, Clone)]
+pub struct PromotionGroup(Vec<PromotionRule>);
+
+#[derive(Debug, Clone)]
 pub struct PromotionRule {
     condition: OrderCondition,
     action: PromotionAction,
@@ -235,8 +238,8 @@ impl Conditional<&OrderLine> for ItemCondition {
     }
 }
 
-impl RewardTarget<&OrderLine> {
-    pub fn targets(&self) -> Vec<&OrderLine> {
+impl<'a> RewardTarget<&'a OrderLine> {
+    pub fn targets(&self) -> Vec<&'a OrderLine> {
         match self {
             RewardTarget::None => vec![],
             RewardTarget::Group(ts) => ts.clone(),
@@ -245,8 +248,8 @@ impl RewardTarget<&OrderLine> {
     }
 }
 
-impl Reward<&OrderLine> {
-    pub fn targets(&self) -> Vec<&OrderLine> {
+impl<'a> Reward<&'a OrderLine> {
+    pub fn targets(&self) -> Vec<&'a OrderLine> {
         match self {
             Reward::Discount(d) => match d {
                 DiscountReward::SingleDiscount(_, t, _) => t.targets(),
@@ -317,6 +320,39 @@ impl PromotionRule {
         }
     }
 }
+
+impl PromotionGroup {
+    pub fn apply<'a>(&self, target: &'a Order) -> Option<Vec<Reward<&'a OrderLine>>> {
+        let mut res: Vec<Reward<&'a OrderLine>> = vec![];
+
+        for rule in &self.0 {
+            let mut exc = vec![];
+
+            for r in &res {
+                exc.append(&mut r.targets());
+            }
+
+            let exc = if exc.is_empty() {
+                None
+            } else {
+                Some(exc)
+            };
+
+            if let Some(r) = rule.apply(target, exc) {
+                for x in r {
+                    res.push(x.to_owned());    
+                }
+            }
+        }
+
+        if res.is_empty() {
+            None
+        } else {
+            Some(res)
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -1396,6 +1432,97 @@ mod tests {
             assert_eq!(2, ts2.len());
             assert_eq!("line-5", ts2.first().unwrap().line_id);
             assert_eq!("line-6", ts2.last().unwrap().line_id);
+        }
+    }
+
+    mod promotion_group {
+        use super::*;
+
+        #[test]
+        fn multi_rules() {
+            let o = order_with_attr(
+                "order1".into(),
+                vec![
+                    line_with_item_price("line-1".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-2".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-3".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-4".into(), "item-1".into(), from_u(100)),
+                    line_with_item_price("line-5".into(), "item-2".into(), from_u(200)),
+                    line_with_item_price("line-6".into(), "item-3".into(), from_u(300)),
+                    line_with_item_price("line-7".into(), "item-1".into(), from_u(100)),
+                ],
+                "kind".into(),
+                "A1".into(),
+            );
+
+            let group = PromotionGroup(vec![
+                PromotionRule {
+                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
+                    action: PromotionAction::Any(1, RewardAction::Discount(DiscountRule {
+                        condition: GroupCondition::PickOne(vec![
+                            ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
+                            ItemCondition::Item(vec!["item-3".into()]),
+                        ]),
+                        action: discount::DiscountAction::Whole(
+                            discount::DiscountMethod::ValueDiscount(from_u(100)),
+                        ),
+                    })),
+                },
+                PromotionRule {
+                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
+                    action: PromotionAction::All(RewardAction::Discount(DiscountRule {
+                        condition: GroupCondition::PickOne(vec![
+                            ItemCondition::Item(vec!["item-4".into(), "item-5".into()]),
+                        ]),
+                        action: discount::DiscountAction::Whole(
+                            discount::DiscountMethod::ValueDiscount(from_u(100)),
+                        ),
+                    })),
+                },
+                PromotionRule {
+                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
+                    action: PromotionAction::All(RewardAction::Discount(DiscountRule {
+                        condition: GroupCondition::PickOne(vec![
+                            ItemCondition::Item(vec!["item-3".into()]),
+                        ]),
+                        action: discount::DiscountAction::Whole(
+                            discount::DiscountMethod::ValueDiscount(from_u(100)),
+                        ),
+                    })),
+                },
+                PromotionRule {
+                    condition: OrderCondition::Attribute("kind".into(), vec!["A1".into(), "B2".into()]),
+                    action: PromotionAction::All(RewardAction::Discount(DiscountRule {
+                        condition: GroupCondition::PickOne(vec![
+                            ItemCondition::Item(vec!["item-3".into()]),
+                        ]),
+                        action: discount::DiscountAction::Whole(
+                            discount::DiscountMethod::ValueDiscount(from_u(100)),
+                        ),
+                    })),
+                },
+            ]);
+
+            let r = group.apply(&o);
+
+            assert!(r.is_some());
+
+            let rs = r.unwrap();
+
+            assert_eq!(2, rs.len());
+
+            let r1 = rs.first().unwrap();
+            let ts1 = r1.targets();
+            assert_eq!(2, ts1.len());
+            assert_eq!("line-1", ts1.first().unwrap().line_id);
+            assert_eq!("line-3", ts1.last().unwrap().line_id);
+
+            let r2 = rs.last().unwrap();
+            let ts2 = r2.targets();
+
+            assert_eq!(1, ts2.len());
+            assert_eq!("line-6", ts2.first().unwrap().line_id);
+
         }
     }
 }
