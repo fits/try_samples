@@ -49,6 +49,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	log.Printf("started: id=%s", node.ID())
+
+	awaitTerm()
+}
+
+func awaitTerm() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	go func() {
@@ -61,8 +67,6 @@ func main() {
 
 		cancel()
 	}()
-
-	log.Printf("started: id=%s", node.ID())
 
 	<-ctx.Done()
 }
