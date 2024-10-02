@@ -1,4 +1,5 @@
 use num::{BigInt, BigRational};
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
@@ -19,6 +20,7 @@ struct Data {
     id: Id,
     attrs: Attrs,
     value: BigRational,
+    created_at: DateTime<Local>,
 }
 
 fn main() -> Result<()> {
@@ -29,6 +31,7 @@ fn main() -> Result<()> {
             ("no".into(), AttrValue::Integer(100.into())),
         ]),
         value: BigRational::from_integer(123.into()),
+        created_at: Local::now(),
     };
 
     let s = serde_json::to_string(&d)?;
