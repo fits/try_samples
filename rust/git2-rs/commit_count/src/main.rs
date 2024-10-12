@@ -1,6 +1,6 @@
-use git2::{DiffFindOptions, Delta, Repository};
-use std::env;
+use git2::{Delta, DiffFile, DiffFindOptions, Repository};
 use std::collections::HashMap;
+use std::env;
 
 fn main() -> Result<(), git2::Error> {
     let path = env::args().skip(1).next().unwrap_or(".".into());
@@ -32,23 +32,29 @@ fn main() -> Result<(), git2::Error> {
         for d in diff.deltas() {
             match d.status() {
                 Delta::Added | Delta::Deleted | Delta::Modified => {
-                    if let Some(f) = d.new_file().path().and_then(|x| x.to_str()) {
+                    if let Some(f) = path_to_str(&d.new_file()) {
                         *store.entry(f.into()).or_insert(0) += 1;
                     }
                 }
                 Delta::Renamed => {
-                    println!("renamed: {:?} => {:?}", d.old_file().path(), d.new_file().path());
+                    println!(
+                        "# renamed: {} => {}",
+                        path_to_str(&d.old_file()).unwrap_or(""),
+                        path_to_str(&d.new_file()).unwrap_or(""),
+                    );
                 }
                 _ => {}
             }
         }
     }
 
-    println!("results:");
-
     for (k, v) in store {
         println!("{},{}", v, k);
     }
 
     Ok(())
+}
+
+fn path_to_str<'a>(f: &'a DiffFile) -> Option<&'a str> {
+    f.path().and_then(|x| x.to_str())
 }
