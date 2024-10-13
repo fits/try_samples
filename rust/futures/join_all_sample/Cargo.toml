@@ -1,0 +1,9 @@
+[package]
+name = "join_all_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = "0.3"
+rand = "0.8"
+async-std = "1"
