@@ -1,7 +1,9 @@
-use git2::{Delta, DiffFile, DiffFindOptions, Repository};
+use git2::{Delta, DiffFile, DiffOptions, DiffFindOptions, Repository};
 use std::env;
 
-fn main() -> Result<(), git2::Error> {
+type Result<T> = std::result::Result<T, git2::Error>;
+
+fn main() -> Result<()> {
     let path = env::args().skip(1).next().unwrap_or(".".into());
 
     let repo = Repository::open(path)?;
@@ -19,12 +21,15 @@ fn main() -> Result<(), git2::Error> {
             None
         };
 
-        let mut diff = repo.diff_tree_to_tree(old_tree.as_ref(), Some(&tree), None)?;
+        let mut opts = DiffOptions::new();
+        opts.minimal(true); 
 
-        let mut opts = DiffFindOptions::new();
-        opts.renames(true);
+        let mut diff = repo.diff_tree_to_tree(old_tree.as_ref(), Some(&tree), Some(&mut opts))?;
 
-        diff.find_similar(Some(&mut opts))?;
+        let mut fopts = DiffFindOptions::new();
+        fopts.renames(true);
+
+        diff.find_similar(Some(&mut fopts))?;
 
         for d in diff.deltas() {
             match d.status() {
