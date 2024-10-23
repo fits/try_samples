@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "sharp": "npm:sharp@^0.33.5"
+  },
+  "nodeModulesDir": "auto"
+}
