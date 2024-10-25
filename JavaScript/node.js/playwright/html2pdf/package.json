@@ -1,0 +1,8 @@
+{
+  "name": "html2pdf",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "dependencies": {
+    "playwright": "^1.48.1"
+  }
+}
