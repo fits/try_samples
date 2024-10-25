@@ -1,0 +1,8 @@
+{
+  "name": "create_simple",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "dependencies": {
+    "pdfkit": "^0.15.0"
+  }
+}
