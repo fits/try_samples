@@ -1,0 +1,9 @@
+package local:sample;
+
+interface handler {
+    add: func(a: s32, b: s32) -> s32;
+}
+
+world server {
+    export handler;
+}
