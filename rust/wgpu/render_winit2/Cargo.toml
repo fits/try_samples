@@ -7,3 +7,4 @@ edition = "2021"
 wgpu = "23.0.0"
 winit = "0.30.5"
 tokio = { version="1.41.1", features = ["full"] }
+bytemuck = "1.19.0"

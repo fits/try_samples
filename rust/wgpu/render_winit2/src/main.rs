@@ -1,4 +1,6 @@
-use wgpu::{Adapter, Device, Instance, Queue, Surface};
+use std::borrow::Cow;
+use wgpu::util::DeviceExt;
+use wgpu::{Adapter, Device, Instance, Queue, RenderPipeline, Surface};
 use winit::application::ApplicationHandler;
 use winit::event::WindowEvent;
 use winit::event_loop::EventLoop;
@@ -11,7 +13,8 @@ struct App<'a> {
     adapter: Adapter,
     device: Device,
     queue: Queue,
-    surface: Option<Surface<'a>>,
+    points: Vec<f32>,
+    render_context: Option<(Surface<'a>, RenderPipeline)>,
 }
 
 impl<'a> App<'a> {
@@ -26,25 +29,84 @@ impl<'a> App<'a> {
 
         surface.configure(&self.device, &config);
 
-        self.surface = Some(surface);
+        let shader = self
+            .device
+            .create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: None,
+                source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("shader.wgsl"))),
+            });
+
+        let pipeline_layout = self
+            .device
+            .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                label: None,
+                bind_group_layouts: &[],
+                push_constant_ranges: &[],
+            });
+
+        let capabilities = surface.get_capabilities(&self.adapter);
+
+        let vs_buf_layout = wgpu::VertexBufferLayout {
+            array_stride: 8,
+            attributes: &[wgpu::VertexAttribute {
+                format: wgpu::VertexFormat::Float32x2,
+                offset: 0,
+                shader_location: 0,
+            }],
+            step_mode: wgpu::VertexStepMode::Vertex,
+        };
+
+        let pipeline = self
+            .device
+            .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: None,
+                layout: Some(&pipeline_layout),
+                vertex: wgpu::VertexState {
+                    module: &shader,
+                    entry_point: Some("vs_main"),
+                    buffers: &[vs_buf_layout],
+                    compilation_options: Default::default(),
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &shader,
+                    entry_point: Some("fs_main"),
+                    targets: &[Some(capabilities.formats[0].into())],
+                    compilation_options: Default::default(),
+                }),
+                primitive: wgpu::PrimitiveState::default(),
+                depth_stencil: None,
+                multisample: wgpu::MultisampleState::default(),
+                multiview: None,
+                cache: None,
+            });
+
+        self.render_context = Some((surface, pipeline));
 
         Ok(())
     }
 
     fn render(&self) -> Result<()> {
-        if let Some(surface) = &self.surface {
+        if let Some((surface, pipeline)) = &self.render_context {
             let frame = surface.get_current_texture()?;
 
             let view = frame
                 .texture
                 .create_view(&wgpu::TextureViewDescriptor::default());
 
+            let buffer = self
+                .device
+                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: None,
+                    contents: bytemuck::cast_slice(&self.points),
+                    usage: wgpu::BufferUsages::VERTEX,
+                });
+
             let mut encoder = self
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
 
             {
-                encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                     label: None,
                     color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                         view: &view,
@@ -58,6 +120,10 @@ impl<'a> App<'a> {
                     timestamp_writes: None,
                     occlusion_query_set: None,
                 });
+
+                rpass.set_pipeline(pipeline);
+                rpass.set_vertex_buffer(0, buffer.slice(..));
+                rpass.draw(0..(self.points.len() as u32 / 2), 0..1);
             }
 
             self.queue.submit(Some(encoder.finish()));
@@ -126,7 +192,10 @@ async fn main() -> Result<()> {
         adapter,
         device,
         queue,
-        surface: None,
+        points: vec![
+            -0.7, -0.5, 0.5, -0.2, 0.0, 0.6, -0.7, -0.5, 0.8, -0.7, 0.9, -0.4,
+        ],
+        render_context: None,
     };
 
     event_loop.run_app(&mut app)?;
