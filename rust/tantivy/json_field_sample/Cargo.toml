@@ -1,0 +1,15 @@
+[package]
+name = "json_field_sample"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tantivy = "0.22.0"
+
+[[bin]]
+name = "indexer"
+path = "src/indexer.rs"
+
+[[bin]]
+name = "searcher"
+path = "src/searcher.rs"
