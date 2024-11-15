@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "sample1": "node --experimental-sqlite sample1.mjs",
+        "sample2": "node --experimental-sqlite sample2.mjs"
+    }
+}
