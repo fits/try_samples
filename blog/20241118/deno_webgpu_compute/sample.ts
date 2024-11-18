@@ -74,8 +74,8 @@ device.queue.submit([encoder.finish()])
 
 await outputBuf.mapAsync(GPUMapMode.READ)
 
-const res = new Uint32Array(outputBuf.getMappedRange())
+const output = new Uint32Array(outputBuf.getMappedRange())
 
-console.log(`output: ${res}`)
+console.log(`output: ${output}`)
 
 outputBuf.unmap()
