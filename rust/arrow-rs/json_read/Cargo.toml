@@ -1,0 +1,8 @@
+[package]
+name = "json_read"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arrow-json = "53.3.0"
+arrow-schema = "53.3.0"
