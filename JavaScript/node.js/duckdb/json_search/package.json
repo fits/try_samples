@@ -1,0 +1,8 @@
+{
+  "name": "json_search",
+  "version": "1.0.0",
+  "main": "dump_data.js",
+  "dependencies": {
+    "@duckdb/node-api": "^1.1.3-alpha.4"
+  }
+}
