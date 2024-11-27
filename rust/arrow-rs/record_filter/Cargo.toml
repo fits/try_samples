@@ -1,0 +1,10 @@
+[package]
+name = "record_filter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arrow-array = "53.3.0"
+arrow-json = "53.3.0"
+arrow-schema = "53.3.0"
+arrow-select = "53.3.0"
