@@ -73,3 +73,12 @@ await runQuery(`
     WHERE
         list_contains([x.rating FOR x IN reviews], 1)
 `)
+
+await runQuery(`
+    SELECT
+        id, title 
+    FROM
+        '${jsonFile}'
+    WHERE
+        EXISTS (FROM unnest(reviews) WHERE rating = 1)
+`)
