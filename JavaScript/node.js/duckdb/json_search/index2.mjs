@@ -37,3 +37,12 @@ await runQuery(`
     WITH x AS (SELECT id, title, unnest(reviews) as reviews FROM '${jsonFile}')
     SELECT DISTINCT id, title FROM x WHERE reviews.rating = 1 ORDER BY id
 `)
+
+await runQuery(`
+    SELECT
+        id, title 
+    FROM
+        '${jsonFile}'
+    WHERE
+        len(list_filter(reviews, x -> x.rating = 1)) > 0
+`)
