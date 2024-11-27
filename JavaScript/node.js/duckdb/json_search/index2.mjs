@@ -55,3 +55,21 @@ await runQuery(`
     WHERE
         [x.rating FOR x IN reviews] && [1]
 `)
+
+await runQuery(`
+    SELECT
+        id, title 
+    FROM
+        '${jsonFile}'
+    WHERE
+        1 = ANY ([x.rating FOR x in reviews])
+`)
+
+await runQuery(`
+    SELECT
+        id, title 
+    FROM
+        '${jsonFile}'
+    WHERE
+        list_contains([x.rating FOR x IN reviews], 1)
+`)
