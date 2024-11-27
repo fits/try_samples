@@ -46,3 +46,12 @@ await runQuery(`
     WHERE
         len(list_filter(reviews, x -> x.rating = 1)) > 0
 `)
+
+await runQuery(`
+    SELECT
+        id, title 
+    FROM
+        '${jsonFile}'
+    WHERE
+        [x.rating FOR x IN reviews] && [1]
+`)
