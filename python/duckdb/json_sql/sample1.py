@@ -2,6 +2,14 @@ import duckdb
 
 duckdb.sql("SELECT id, attrs.code, attrs, variants FROM items.jsonl WHERE id < 4").show()
 
+duckdb.sql("SELECT id, name, attrs.category FROM items.jsonl WHERE attrs.category = 'A1'").show()
+
+duckdb.sql('''
+    SELECT id, name FROM items.jsonl 
+    WHERE
+        EXISTS (FROM (SELECT unnest(variants) AS v) WHERE v.color = 'white')
+''').show()
+
 duckdb.sql('''
     SELECT
         id, name 
@@ -43,14 +51,3 @@ duckdb.sql('''
     WHERE
         v.color = 'white'
 ''').show()
-
-# ERROR: Binder Error: Referenced column "color" not found in FROM clause!
-#
-# duckdb.sql('''
-#     SELECT
-#         id, name 
-#     FROM
-#         items.jsonl 
-#     WHERE
-#         EXISTS (FROM unnest(variants) WHERE color = 'white')
-# ''').show()
