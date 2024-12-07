@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 polars = "0.44.2"
-polars-lazy = { version = "0.44.2", features = ["json", "dtype-struct"] }
+polars-lazy = { version = "0.44.2", features = ["json", "dtype-struct", "list_eval", "is_in"] }
