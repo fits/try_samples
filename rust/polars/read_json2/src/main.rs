@@ -41,6 +41,10 @@ fn main() -> Result<()> {
 
     dbg!(&df4);
 
+    let df4a = df.clone().lazy().explode(["variants"]).collect()?;
+
+    dbg!(&df4a);
+
     let df5 = df
         .clone()
         .lazy()
@@ -48,7 +52,7 @@ fn main() -> Result<()> {
         .unnest(["variants"])
         .filter(col("color").eq(lit("white")))
         .select([col("id"), col("name")])
-        .unique_stable(None, UniqueKeepStrategy::First)
+        .unique_stable(None, UniqueKeepStrategy::Any)
         .collect()?;
 
     dbg!(&df5);
