@@ -87,6 +87,24 @@ fn main() -> Result<()> {
 
     dbg!(&df7);
 
+    let df7a = df
+        .clone()
+        .lazy()
+        .select([
+            col("name"),
+            col("variants")
+                .list()
+                .eval(
+                    col("*").struct_().field_by_name("color").eq(lit("white")),
+                    false,
+                )
+                .list()
+                .sum(),
+        ])
+        .collect()?;
+
+    dbg!(&df7a);
+
     let df8 = df
         .clone()
         .lazy()
@@ -103,6 +121,24 @@ fn main() -> Result<()> {
         .collect()?;
 
     dbg!(&df8);
+
+    let df8a = df
+        .clone()
+        .lazy()
+        .filter(
+            col("variants")
+                .list()
+                .eval(
+                    col("").struct_().field_by_name("color").eq(lit("white")),
+                    true,
+                )
+                .list()
+                .sum()
+                .gt(lit(0)),
+        )
+        .collect()?;
+
+    dbg!(&df8a);
 
     Ok(())
 }
