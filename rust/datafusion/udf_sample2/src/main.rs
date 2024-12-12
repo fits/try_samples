@@ -1,4 +1,4 @@
-use datafusion::arrow::array::{AsArray, StringArray};
+use datafusion::arrow::array::{AsArray, new_empty_array};
 use datafusion::arrow::datatypes::DataType;
 use datafusion::common::{internal_err, utils::arrays_into_list_array};
 use datafusion::logical_expr::{ColumnarValue, Volatility};
@@ -17,26 +17,28 @@ async fn main() -> datafusion::error::Result<()> {
 
     ctx.register_json("items", path, opts).await?;
 
-    let extract_color = Arc::new(|args: &[ColumnarValue]| match &args[0] {
-        ColumnarValue::Array(a) => {
-            let r = a.as_list::<i32>().iter().map(|x| {
-                x.and_then(|y| y.as_struct().column_by_name("color").cloned())
-                    .unwrap_or(Arc::new(StringArray::new_null(0)))
-            });
-
-            Ok(ColumnarValue::Array(Arc::new(arrays_into_list_array(r)?)))
-        }
-        _ => {
-            internal_err!("invalid argument types")
-        }
-    });
-
     let t = ctx.table("items").await?;
     let variants_f = t.schema().field_with_name(None, "variants")?;
 
     if let DataType::List(s) = variants_f.data_type() {
         if let DataType::Struct(f) = s.data_type() {
             if let Some(color_f) = f.filter_leaves(|_, x| x.name() == "color").first() {
+                let color_dtype = color_f.data_type().clone();
+
+                let extract_color = Arc::new(move |args: &[ColumnarValue]| match &args[0] {
+                    ColumnarValue::Array(a) => {
+                        let r = a.as_list::<i32>().iter().map(|x| {
+                            x.and_then(|y| y.as_struct().column_by_name("color").cloned())
+                                .unwrap_or(new_empty_array(&color_dtype))
+                        });
+
+                        Ok(ColumnarValue::Array(Arc::new(arrays_into_list_array(r)?)))
+                    }
+                    _ => {
+                        internal_err!("invalid argument types")
+                    }
+                });
+
                 let udf = create_udf(
                     "extract_color",
                     vec![variants_f.data_type().clone()],
