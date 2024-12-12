@@ -1,0 +1,6 @@
+{"id":1,"name":"item1","price":1100,"attrs":{"code":"0001","category":"A1"},"variants":[{"color":"white", "size":"S"},{"color":"black","size":"F"}]}
+{"id":2,"name":"item2","price":2300,"attrs":{"code":"0002"},"variants":[{"color":"red"},{"color":"blue"},{"color":"white"}]}
+{"id":3,"name":"item3","price":360,"attrs":{"code":"0003"}}
+{"id":4,"name":"item4","price":4700,"attrs":{"code":"0004","category":"A1"},"variants":[{"color":"green", "size":"S"}]}
+{"id":5,"name":"item5","price":590,"attrs":{"code":"0005","category":"B2"},"variants":[{"color":"red"},{"color":"white","size":"F"},{"color":"white","size":"L"}]}
+{"id":6,"name":"item6","price":6200,"attrs":{"code":"0006","category":"C3"},"variants":[{"color":"blue","size":"S"},{"color":"green","size":"L"}]}
