@@ -8,6 +8,8 @@ use tokenizers::{Result, Tokenizer};
 fn main() -> Result<()> {
     let max_sample_len: usize = 1000;
     let buffer_len: usize = 200;
+    let temperature = Some(1.0);
+    let top_p = Some(0.3);
 
     let prompt = env::args().nth(1).ok_or("prompt")?;
 
@@ -29,7 +31,7 @@ fn main() -> Result<()> {
 
     let mut phi = Model::new(&config, vb)?;
 
-    let mut logits_proc = LogitsProcessor::new(seed, None, None);
+    let mut logits_proc = LogitsProcessor::new(seed, temperature, top_p);
 
     let tokens = tokenizer.encode(prompt, true)?;
 
