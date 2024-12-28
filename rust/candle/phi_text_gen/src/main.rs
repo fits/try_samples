@@ -2,13 +2,19 @@ use candle_core::{DType, Device, Tensor};
 use candle_nn::VarBuilder;
 use candle_transformers::generation::LogitsProcessor;
 use candle_transformers::models::phi::{Config, Model};
+use std::env;
 use tokenizers::{Result, Tokenizer};
 
 fn main() -> Result<()> {
-    let seed = 1234;
-    let max_len: usize = 1000;
+    let max_sample_len: usize = 1000;
+    let buffer_len: usize = 200;
 
-    let prompt = std::env::args().skip(1).next().ok_or("prompt arg")?;
+    let prompt = env::args().nth(1).ok_or("prompt")?;
+
+    let seed = env::args()
+        .nth(2)
+        .and_then(|x| x.parse().ok())
+        .unwrap_or(299792458);
 
     let device = Device::Cpu;
 
@@ -38,8 +44,8 @@ fn main() -> Result<()> {
     let mut tokens = tokens.get_ids().to_vec();
     let mut output_tokens = vec![];
 
-    for _index in 0..max_len {
-        let input = Tensor::new(&tokens[0..], &device)?.unsqueeze(0)?;
+    for _index in 0..max_sample_len {
+        let input = Tensor::new(&*tokens, &device)?.unsqueeze(0)?;
 
         let logits = phi.forward(&input)?;
 
@@ -53,12 +59,23 @@ fn main() -> Result<()> {
             break;
         }
 
+        if output_tokens.len() >= buffer_len {
+            print_tokens(&tokenizer, &output_tokens);
+            output_tokens.clear();
+        }
+
         tokens = vec![next_token];
     }
 
-    let output = tokenizer.decode(&output_tokens, true)?;
-
-    print!("{output}");
+    print_tokens(&tokenizer, &output_tokens);
 
     Ok(())
+}
+
+fn print_tokens(tokenizer: &Tokenizer, tokens: &Vec<u32>) {
+    if !tokens.is_empty() {
+        if let Ok(t) = tokenizer.decode(tokens, true) {
+            print!("{t}")
+        }
+    }
 }
