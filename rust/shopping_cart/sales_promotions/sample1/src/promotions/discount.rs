@@ -50,149 +50,8 @@ impl DiscountAction {
 
     fn action<'a>(&self, items: Vec<&'a OrderLine>) -> Option<DiscountReward<&'a OrderLine>> {
         match self {
-            Self::Whole(m) => match m {
-                DiscountMethod::FixedOff(v) => {
-                    let v = subtotal(&items).min(v.clone());
-
-                    if v > Amount::zero() {
-                        Some(DiscountReward::SingleDiscount(
-                            v,
-                            RewardTarget::Group(items),
-                            m.clone(),
-                        ))
-                    } else {
-                        None
-                    }
-                }
-                DiscountMethod::PercentageOff(r) => {
-                    let total = subtotal(&items);
-                    let d = total * r;
-
-                    if d > Amount::zero() {
-                        Some(DiscountReward::SingleDiscount(
-                            d,
-                            RewardTarget::Group(items),
-                            m.clone(),
-                        ))
-                    } else {
-                        None
-                    }
-                }
-                DiscountMethod::SpecialPrice(p) => {
-                    let total = subtotal(&items);
-                    let price = p.clone().max(Amount::zero());
-
-                    if total > price {
-                        Some(DiscountReward::SingleDiscount(
-                            price,
-                            RewardTarget::Group(items),
-                            m.clone(),
-                        ))
-                    } else {
-                        None
-                    }
-                }
-            },
-            Self::Each(m, skip, take) => {
-                let skip = skip.unwrap_or(0);
-
-                if items.len() > skip {
-                    match m {
-                        DiscountMethod::FixedOff(v) => {
-                            if *v > Amount::zero() {
-                                let mut count: Quantity = 0;
-
-                                let rs = items
-                                    .into_iter()
-                                    .enumerate()
-                                    .map(|(i, x)| {
-                                        if i < skip
-                                            || is_full_count(&take, &count)
-                                            || x.price <= Amount::zero()
-                                        {
-                                            (None, RewardTarget::Single(x))
-                                        } else {
-                                            count += 1;
-                                            (
-                                                Some(v.clone().min(x.price.clone())),
-                                                RewardTarget::Single(x),
-                                            )
-                                        }
-                                    })
-                                    .collect::<Vec<_>>();
-
-                                if is_all_none(&rs) {
-                                    None
-                                } else {
-                                    Some(DiscountReward::MultiDiscount(rs, m.clone()))
-                                }
-                            } else {
-                                None
-                            }
-                        }
-                        DiscountMethod::PercentageOff(r) => {
-                            if *r > Amount::zero() {
-                                let mut count: Quantity = 0;
-
-                                let rs = items
-                                    .into_iter()
-                                    .enumerate()
-                                    .map(|(i, x)| {
-                                        if i < skip
-                                            || is_full_count(&take, &count)
-                                            || x.price <= Amount::zero()
-                                        {
-                                            (None, RewardTarget::Single(x))
-                                        } else {
-                                            count += 1;
-                                            (
-                                                Some(r.clone() * x.price.clone()),
-                                                RewardTarget::Single(x),
-                                            )
-                                        }
-                                    })
-                                    .collect::<Vec<_>>();
-
-                                if is_all_none(&rs) {
-                                    None
-                                } else {
-                                    Some(DiscountReward::MultiDiscount(rs, m.clone()))
-                                }
-                            } else {
-                                None
-                            }
-                        }
-                        DiscountMethod::SpecialPrice(p) => {
-                            let mut count: Quantity = 0;
-
-                            let rs = items
-                                .into_iter()
-                                .enumerate()
-                                .map(|(i, x)| {
-                                    if i < skip
-                                        || is_full_count(&take, &count)
-                                        || x.price <= Amount::zero()
-                                        || x.price <= *p
-                                    {
-                                        (None, RewardTarget::Single(x))
-                                    } else {
-                                        count += 1;
-                                        (Some(p.clone()), RewardTarget::Single(x))
-                                    }
-                                })
-                                .collect::<Vec<_>>();
-
-                            if is_all_none(&rs) {
-                                None
-                            } else {
-                                Some(DiscountReward::MultiDiscount(rs, m.clone()))
-                            }
-                        }
-                    }
-                } else {
-                    None
-                }
-            }
+            Self::Whole(m) => whole_discount(items, m),
+            Self::Each(m, skip, take) => each_discount(&items, m, skip.unwrap_or(0), take),
         }
     }
 }
@@ -209,6 +68,78 @@ impl DiscountMethod {
 
     pub fn special_price(v: Amount) -> Self {
         Self::SpecialPrice(v.max(Amount::zero()))
+    }
+}
+
+fn is_valid_discount(method: &DiscountMethod) -> bool {
+    match method {
+        DiscountMethod::FixedOff(x) => *x > Amount::zero(),
+        DiscountMethod::PercentageOff(x) => *x > Amount::zero() && *x <= Amount::one(),
+        DiscountMethod::SpecialPrice(x) => *x >= Amount::zero(),
+    }
+}
+
+fn whole_discount<'a>(
+    items: Vec<&'a OrderLine>,
+    method: &DiscountMethod,
+) -> Option<DiscountReward<&'a OrderLine>> {
+    if !is_valid_discount(method) {
+        return None;
+    }
+
+    let subtotal = subtotal(&items);
+
+    if subtotal <= Amount::zero() {
+        return None;
+    }
+
+    let discount = match method {
+        DiscountMethod::FixedOff(v) => Some(v.clone().min(subtotal)),
+        DiscountMethod::PercentageOff(v) => Some(subtotal * v),
+        DiscountMethod::SpecialPrice(v) => Some(v.clone()).filter(|v| *v < subtotal),
+    };
+
+    discount.map(|d| DiscountReward::SingleDiscount(d, RewardTarget::Group(items), method.clone()))
+}
+
+fn each_discount<'a>(
+    items: &Vec<&'a OrderLine>,
+    method: &DiscountMethod,
+    skip: usize,
+    take: &Option<usize>,
+) -> Option<DiscountReward<&'a OrderLine>> {
+    if !is_valid_discount(method) || items.len() <= skip {
+        return None;
+    }
+
+    let mut count: Quantity = 0;
+
+    let rs = items
+        .into_iter()
+        .enumerate()
+        .map(|(i, &x)| {
+            if i < skip || is_full_count(take, &count) || x.price <= Amount::zero() {
+                return (None, RewardTarget::Single(x));
+            }
+
+            let discount = match method {
+                DiscountMethod::FixedOff(v) => Some(v.clone().min(x.price.clone())),
+                DiscountMethod::PercentageOff(v) => Some(v.clone() * x.price.clone()),
+                DiscountMethod::SpecialPrice(v) => Some(v.clone()).filter(|v| *v < x.price),
+            };
+
+            if discount.is_some() {
+                count += 1;
+            }
+
+            (discount, RewardTarget::Single(x))
+        })
+        .collect::<Vec<_>>();
+
+    if is_all_none(&rs) {
+        None
+    } else {
+        Some(DiscountReward::MultiDiscount(rs, method.clone()))
     }
 }
 
@@ -846,7 +777,8 @@ mod tests {
 
         #[test]
         fn each_value_discount_take2() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 2);
+            let a =
+                DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 2);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -876,7 +808,8 @@ mod tests {
 
         #[test]
         fn each_value_discount_take3() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 3);
+            let a =
+                DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 3);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -906,7 +839,8 @@ mod tests {
 
         #[test]
         fn each_value_discount_over_take4() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 4);
+            let a =
+                DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 4);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -936,7 +870,8 @@ mod tests {
 
         #[test]
         fn each_value_discount_take_zero() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 0);
+            let a =
+                DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 0);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -949,7 +884,8 @@ mod tests {
 
         #[test]
         fn each_value_discount_skip1_take1() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 1, 1);
+            let a =
+                DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 1, 1);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1094,7 +1030,11 @@ mod tests {
 
         #[test]
         fn each_rate_discount_take2() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::percentage_off(from_u(20)), 0, 2);
+            let a = DiscountAction::each_with_skip_take(
+                DiscountMethod::percentage_off(from_u(20)),
+                0,
+                2,
+            );
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1124,7 +1064,11 @@ mod tests {
 
         #[test]
         fn each_rate_discount_skip1_take1() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::percentage_off(from_u(20)), 1, 1);
+            let a = DiscountAction::each_with_skip_take(
+                DiscountMethod::percentage_off(from_u(20)),
+                1,
+                1,
+            );
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1154,7 +1098,11 @@ mod tests {
 
         #[test]
         fn each_rate_discount_take_zero() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::percentage_off(from_u(20)), 0, 0);
+            let a = DiscountAction::each_with_skip_take(
+                DiscountMethod::percentage_off(from_u(20)),
+                0,
+                0,
+            );
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1289,7 +1237,11 @@ mod tests {
 
         #[test]
         fn each_price_take2() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::special_price(from_u(100)), 0, 2);
+            let a = DiscountAction::each_with_skip_take(
+                DiscountMethod::special_price(from_u(100)),
+                0,
+                2,
+            );
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1319,7 +1271,11 @@ mod tests {
 
         #[test]
         fn each_price_take_zero() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::special_price(from_u(100)), 0, 0);
+            let a = DiscountAction::each_with_skip_take(
+                DiscountMethod::special_price(from_u(100)),
+                0,
+                0,
+            );
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1332,7 +1288,11 @@ mod tests {
 
         #[test]
         fn each_price_skip1_take1() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::special_price(from_u(100)), 1, 1);
+            let a = DiscountAction::each_with_skip_take(
+                DiscountMethod::special_price(from_u(100)),
+                1,
+                1,
+            );
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1378,7 +1338,10 @@ mod tests {
         fn bogo_free() {
             let rule = DiscountRule {
                 condition: Items(Item(vec!["item-1".into()])).qty_limit(2, Some(2)),
-                action: DiscountAction::each_with_skip(DiscountMethod::percentage_off(from_u(100)), 1),
+                action: DiscountAction::each_with_skip(
+                    DiscountMethod::percentage_off(from_u(100)),
+                    1,
+                ),
             };
 
             let items = vec![
@@ -1418,7 +1381,10 @@ mod tests {
         fn bogo_half() {
             let rule = DiscountRule {
                 condition: Items(Item(vec!["item-1".into()])).qty_limit(2, Some(2)),
-                action: DiscountAction::each_with_skip(DiscountMethod::percentage_off(from_u(50)), 1),
+                action: DiscountAction::each_with_skip(
+                    DiscountMethod::percentage_off(from_u(50)),
+                    1,
+                ),
             };
 
             let items = vec![

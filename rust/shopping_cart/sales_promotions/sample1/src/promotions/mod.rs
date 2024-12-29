@@ -7,7 +7,7 @@ use std::cmp::max;
 use std::collections::HashMap;
 
 use num::BigRational;
-use num_traits::Zero;
+use num_traits::{One, Zero};
 
 pub type OrderId = String;
 pub type OrderLineId = String;
@@ -1328,9 +1328,9 @@ mod tests {
                         ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
                         ItemCondition::Item(vec!["item-3".into()]),
                     ]),
-                    action: discount::DiscountAction::Whole(
-                        discount::DiscountMethod::FixedOff(from_u(100)),
-                    ),
+                    action: discount::DiscountAction::Whole(discount::DiscountMethod::FixedOff(
+                        from_u(100),
+                    )),
                 })),
             };
 
@@ -1367,9 +1367,9 @@ mod tests {
                         ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
                         ItemCondition::Item(vec!["item-3".into()]),
                     ]),
-                    action: discount::DiscountAction::Whole(
-                        discount::DiscountMethod::FixedOff(from_u(100)),
-                    ),
+                    action: discount::DiscountAction::Whole(discount::DiscountMethod::FixedOff(
+                        from_u(100),
+                    )),
                 })),
             };
 
@@ -1402,9 +1402,9 @@ mod tests {
                         ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
                         ItemCondition::Item(vec!["item-3".into()]),
                     ]),
-                    action: discount::DiscountAction::Whole(
-                        discount::DiscountMethod::FixedOff(from_u(100)),
-                    ),
+                    action: discount::DiscountAction::Whole(discount::DiscountMethod::FixedOff(
+                        from_u(100),
+                    )),
                 })),
             };
 
