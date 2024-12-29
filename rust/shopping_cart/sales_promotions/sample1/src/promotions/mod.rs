@@ -1101,7 +1101,7 @@ mod tests {
             let r = Discount(DiscountReward::SingleDiscount(
                 from_u(50),
                 t,
-                discount::DiscountMethod::ValueDiscount(from_u(50)),
+                discount::DiscountMethod::FixedOff(from_u(50)),
             ));
 
             let ts = r.targets();
@@ -1121,7 +1121,7 @@ mod tests {
 
             let r = Discount(DiscountReward::MultiDiscount(
                 vec![(None, t1), (None, t2)],
-                discount::DiscountMethod::ValueDiscount(from_u(50)),
+                discount::DiscountMethod::FixedOff(from_u(50)),
             ));
 
             let ts = r.targets();
@@ -1155,7 +1155,7 @@ mod tests {
                     ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
                     ItemCondition::Item(vec!["item-3".into()]),
                 ]),
-                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::FixedOff(
                     from_u(100),
                 )),
             };
@@ -1203,7 +1203,7 @@ mod tests {
                     ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
                     ItemCondition::Item(vec!["item-3".into()]),
                 ]),
-                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::FixedOff(
                     from_u(100),
                 )),
             };
@@ -1234,7 +1234,7 @@ mod tests {
                     ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
                     ItemCondition::Item(vec!["item-3".into()]),
                 ]),
-                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::FixedOff(
                     from_u(100),
                 )),
             };
@@ -1275,7 +1275,7 @@ mod tests {
                     ItemCondition::Item(vec!["item-1".into(), "item-2".into()]),
                     ItemCondition::Item(vec!["item-3".into()]),
                 ]),
-                action: discount::DiscountAction::Whole(discount::DiscountMethod::ValueDiscount(
+                action: discount::DiscountAction::Whole(discount::DiscountMethod::FixedOff(
                     from_u(100),
                 )),
             };
@@ -1329,7 +1329,7 @@ mod tests {
                         ItemCondition::Item(vec!["item-3".into()]),
                     ]),
                     action: discount::DiscountAction::Whole(
-                        discount::DiscountMethod::ValueDiscount(from_u(100)),
+                        discount::DiscountMethod::FixedOff(from_u(100)),
                     ),
                 })),
             };
@@ -1368,7 +1368,7 @@ mod tests {
                         ItemCondition::Item(vec!["item-3".into()]),
                     ]),
                     action: discount::DiscountAction::Whole(
-                        discount::DiscountMethod::ValueDiscount(from_u(100)),
+                        discount::DiscountMethod::FixedOff(from_u(100)),
                     ),
                 })),
             };
@@ -1403,7 +1403,7 @@ mod tests {
                         ItemCondition::Item(vec!["item-3".into()]),
                     ]),
                     action: discount::DiscountAction::Whole(
-                        discount::DiscountMethod::ValueDiscount(from_u(100)),
+                        discount::DiscountMethod::FixedOff(from_u(100)),
                     ),
                 })),
             };
@@ -1467,7 +1467,7 @@ mod tests {
                                 ItemCondition::Item(vec!["item-3".into()]),
                             ]),
                             action: discount::DiscountAction::Whole(
-                                discount::DiscountMethod::ValueDiscount(from_u(100)),
+                                discount::DiscountMethod::FixedOff(from_u(100)),
                             ),
                         }),
                     ),
@@ -1483,7 +1483,7 @@ mod tests {
                             "item-5".into(),
                         ])]),
                         action: discount::DiscountAction::Whole(
-                            discount::DiscountMethod::ValueDiscount(from_u(100)),
+                            discount::DiscountMethod::FixedOff(from_u(100)),
                         ),
                     })),
                 },
@@ -1497,7 +1497,7 @@ mod tests {
                             "item-3".into(),
                         ])]),
                         action: discount::DiscountAction::Whole(
-                            discount::DiscountMethod::ValueDiscount(from_u(100)),
+                            discount::DiscountMethod::FixedOff(from_u(100)),
                         ),
                     })),
                 },
@@ -1511,7 +1511,7 @@ mod tests {
                             "item-3".into(),
                         ])]),
                         action: discount::DiscountAction::Whole(
-                            discount::DiscountMethod::ValueDiscount(from_u(100)),
+                            discount::DiscountMethod::FixedOff(from_u(100)),
                         ),
                     })),
                 },
