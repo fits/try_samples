@@ -16,9 +16,9 @@ pub enum DiscountAction {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DiscountMethod {
-    ValueDiscount(Amount),
-    RateDiscount(Amount),
-    ChangePrice(Amount),
+    FixedOff(Amount),
+    PercentageOff(Amount),
+    SpecialPrice(Amount),
 }
 
 #[derive(Debug, Clone)]
@@ -51,7 +51,7 @@ impl DiscountAction {
     fn action<'a>(&self, items: Vec<&'a OrderLine>) -> Option<DiscountReward<&'a OrderLine>> {
         match self {
             Self::Whole(m) => match m {
-                DiscountMethod::ValueDiscount(v) => {
+                DiscountMethod::FixedOff(v) => {
                     let v = subtotal(&items).min(v.clone());
 
                     if v > Amount::zero() {
@@ -64,7 +64,7 @@ impl DiscountAction {
                         None
                     }
                 }
-                DiscountMethod::RateDiscount(r) => {
+                DiscountMethod::PercentageOff(r) => {
                     let total = subtotal(&items);
                     let d = total * r;
 
@@ -78,7 +78,7 @@ impl DiscountAction {
                         None
                     }
                 }
-                DiscountMethod::ChangePrice(p) => {
+                DiscountMethod::SpecialPrice(p) => {
                     let total = subtotal(&items);
                     let price = p.clone().max(Amount::zero());
 
@@ -98,7 +98,7 @@ impl DiscountAction {
 
                 if items.len() > skip {
                     match m {
-                        DiscountMethod::ValueDiscount(v) => {
+                        DiscountMethod::FixedOff(v) => {
                             if *v > Amount::zero() {
                                 let mut count: Quantity = 0;
 
@@ -130,7 +130,7 @@ impl DiscountAction {
                                 None
                             }
                         }
-                        DiscountMethod::RateDiscount(r) => {
+                        DiscountMethod::PercentageOff(r) => {
                             if *r > Amount::zero() {
                                 let mut count: Quantity = 0;
 
@@ -162,7 +162,7 @@ impl DiscountAction {
                                 None
                             }
                         }
-                        DiscountMethod::ChangePrice(p) => {
+                        DiscountMethod::SpecialPrice(p) => {
                             let mut count: Quantity = 0;
 
                             let rs = items
@@ -198,17 +198,17 @@ impl DiscountAction {
 }
 
 impl DiscountMethod {
-    pub fn value(v: Amount) -> Self {
-        Self::ValueDiscount(v.max(Amount::zero()))
+    pub fn fixed_off(v: Amount) -> Self {
+        Self::FixedOff(v.max(Amount::zero()))
     }
 
-    pub fn rate(v: Amount) -> Self {
+    pub fn percentage_off(v: Amount) -> Self {
         let r = v.max(Amount::zero()).min(amount_100()) / amount_100();
-        Self::RateDiscount(r)
+        Self::PercentageOff(r)
     }
 
-    pub fn price(v: Amount) -> Self {
-        Self::ChangePrice(v.max(Amount::zero()))
+    pub fn special_price(v: Amount) -> Self {
+        Self::SpecialPrice(v.max(Amount::zero()))
     }
 }
 
@@ -340,9 +340,9 @@ mod tests {
 
         #[test]
         fn value_100() {
-            let m = DiscountMethod::value(from_u(100));
+            let m = DiscountMethod::fixed_off(from_u(100));
 
-            if let ValueDiscount(v) = m {
+            if let FixedOff(v) = m {
                 assert_eq!(from_u(100), v);
             } else {
                 assert!(false);
@@ -351,9 +351,9 @@ mod tests {
 
         #[test]
         fn value_negative() {
-            let m = DiscountMethod::value(from_i(-100));
+            let m = DiscountMethod::fixed_off(from_i(-100));
 
-            if let ValueDiscount(v) = m {
+            if let FixedOff(v) = m {
                 assert_eq!(from_u(0), v);
             } else {
                 assert!(false);
@@ -362,9 +362,9 @@ mod tests {
 
         #[test]
         fn price_100() {
-            let m = DiscountMethod::price(from_u(100));
+            let m = DiscountMethod::special_price(from_u(100));
 
-            if let ChangePrice(v) = m {
+            if let SpecialPrice(v) = m {
                 assert_eq!(from_u(100), v);
             } else {
                 assert!(false);
@@ -373,9 +373,9 @@ mod tests {
 
         #[test]
         fn price_negative() {
-            let m = DiscountMethod::price(from_i(-100));
+            let m = DiscountMethod::special_price(from_i(-100));
 
-            if let ChangePrice(v) = m {
+            if let SpecialPrice(v) = m {
                 assert_eq!(from_i(0), v);
             } else {
                 assert!(false);
@@ -384,9 +384,9 @@ mod tests {
 
         #[test]
         fn rate_10() {
-            let m = DiscountMethod::rate(from_u(50));
+            let m = DiscountMethod::percentage_off(from_u(50));
 
-            if let RateDiscount(v) = m {
+            if let PercentageOff(v) = m {
                 assert_eq!(from_f(0.5), v);
             } else {
                 assert!(false);
@@ -395,9 +395,9 @@ mod tests {
 
         #[test]
         fn rate_over_100() {
-            let m = DiscountMethod::rate(from_u(200));
+            let m = DiscountMethod::percentage_off(from_u(200));
 
-            if let RateDiscount(v) = m {
+            if let PercentageOff(v) = m {
                 assert_eq!(from_u(1), v);
             } else {
                 assert!(false);
@@ -406,9 +406,9 @@ mod tests {
 
         #[test]
         fn rate_negative() {
-            let m = DiscountMethod::rate(from_i(-50));
+            let m = DiscountMethod::percentage_off(from_i(-50));
 
-            if let RateDiscount(v) = m {
+            if let PercentageOff(v) = m {
                 assert_eq!(from_u(0), v);
             } else {
                 assert!(false);
@@ -417,7 +417,7 @@ mod tests {
 
         #[test]
         fn whole_value_discount() {
-            let a = Whole(DiscountMethod::value(from_u(100)));
+            let a = Whole(DiscountMethod::fixed_off(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -427,7 +427,7 @@ mod tests {
 
             if let Some(SingleDiscount(d, ts, m)) = r {
                 assert_eq!(from_u(100), d);
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 if let RewardTarget::Group(ts) = ts {
                     assert_eq!(3, ts.len());
@@ -443,7 +443,7 @@ mod tests {
 
         #[test]
         fn whole_value_zero_discount() {
-            let a = Whole(DiscountMethod::value(from_u(0)));
+            let a = Whole(DiscountMethod::fixed_off(from_u(0)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -456,7 +456,7 @@ mod tests {
 
         #[test]
         fn whole_value_over_discount() {
-            let a = Whole(DiscountMethod::value(from_u(500)));
+            let a = Whole(DiscountMethod::fixed_off(from_u(500)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -466,7 +466,7 @@ mod tests {
 
             if let Some(SingleDiscount(d, ts, m)) = r {
                 assert_eq!(from_u(450), d);
-                assert_eq!(DiscountMethod::value(from_u(500)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(500)), m);
 
                 if let RewardTarget::Group(ts) = ts {
                     assert_eq!(3, ts.len());
@@ -482,7 +482,7 @@ mod tests {
 
         #[test]
         fn whole_value_discount_zero_subtotal() {
-            let a = Whole(DiscountMethod::value(from_u(500)));
+            let a = Whole(DiscountMethod::fixed_off(from_u(500)));
 
             let o1 = price_order("o1".into(), from_u(0));
 
@@ -493,7 +493,7 @@ mod tests {
 
         #[test]
         fn whole_value_discount_include_negative_price() {
-            let a = Whole(DiscountMethod::value(from_u(200)));
+            let a = Whole(DiscountMethod::fixed_off(from_u(200)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -503,7 +503,7 @@ mod tests {
 
             if let Some(SingleDiscount(d, _ts, m)) = r {
                 assert_eq!(from_u(50), d);
-                assert_eq!(DiscountMethod::value(from_u(200)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(200)), m);
             } else {
                 assert!(false);
             }
@@ -511,7 +511,7 @@ mod tests {
 
         #[test]
         fn whole_value_discount_negative_subtotal() {
-            let a = Whole(DiscountMethod::value(from_u(200)));
+            let a = Whole(DiscountMethod::fixed_off(from_u(200)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_i(-250));
@@ -524,7 +524,7 @@ mod tests {
 
         #[test]
         fn whole_rate_discount() {
-            let a = Whole(DiscountMethod::rate(from_u(10)));
+            let a = Whole(DiscountMethod::percentage_off(from_u(10)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -534,7 +534,7 @@ mod tests {
 
             if let Some(SingleDiscount(d, ts, m)) = r {
                 assert_eq!(from_u(45), d);
-                assert_eq!(DiscountMethod::rate(from_u(10)), m);
+                assert_eq!(DiscountMethod::percentage_off(from_u(10)), m);
 
                 if let RewardTarget::Group(ts) = ts {
                     assert_eq!(3, ts.len());
@@ -550,7 +550,7 @@ mod tests {
 
         #[test]
         fn whole_rate_discount_zero() {
-            let a = Whole(DiscountMethod::rate(from_u(0)));
+            let a = Whole(DiscountMethod::percentage_off(from_u(0)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -563,7 +563,7 @@ mod tests {
 
         #[test]
         fn whole_rate_discount_zero_subtotal() {
-            let a = Whole(DiscountMethod::rate(from_u(10)));
+            let a = Whole(DiscountMethod::percentage_off(from_u(10)));
 
             let o1 = price_order("o1".into(), from_u(0));
 
@@ -574,7 +574,7 @@ mod tests {
 
         #[test]
         fn whole_rate_discount_include_negative_price() {
-            let a = Whole(DiscountMethod::rate(from_u(10)));
+            let a = Whole(DiscountMethod::percentage_off(from_u(10)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -584,7 +584,7 @@ mod tests {
 
             if let Some(SingleDiscount(d, _ts, m)) = r {
                 assert_eq!(from_u(10), d);
-                assert_eq!(DiscountMethod::rate(from_u(10)), m);
+                assert_eq!(DiscountMethod::percentage_off(from_u(10)), m);
             } else {
                 assert!(false);
             }
@@ -592,7 +592,7 @@ mod tests {
 
         #[test]
         fn whole_rate_discount_subtotal_negative() {
-            let a = Whole(DiscountMethod::rate(from_u(10)));
+            let a = Whole(DiscountMethod::percentage_off(from_u(10)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -605,7 +605,7 @@ mod tests {
 
         #[test]
         fn whole_price() {
-            let a = Whole(DiscountMethod::price(from_u(400)));
+            let a = Whole(DiscountMethod::special_price(from_u(400)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -615,7 +615,7 @@ mod tests {
 
             if let Some(SingleDiscount(d, ts, m)) = r {
                 assert_eq!(from_u(400), d);
-                assert_eq!(DiscountMethod::price(from_u(400)), m);
+                assert_eq!(DiscountMethod::special_price(from_u(400)), m);
 
                 if let RewardTarget::Group(ts) = ts {
                     assert_eq!(3, ts.len());
@@ -631,7 +631,7 @@ mod tests {
 
         #[test]
         fn whole_price_over() {
-            let a = Whole(DiscountMethod::price(from_u(500)));
+            let a = Whole(DiscountMethod::special_price(from_u(500)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -644,7 +644,7 @@ mod tests {
 
         #[test]
         fn whole_price_same_subtotal() {
-            let a = Whole(DiscountMethod::price(from_u(450)));
+            let a = Whole(DiscountMethod::special_price(from_u(450)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -657,7 +657,7 @@ mod tests {
 
         #[test]
         fn whole_price_include_negative_price() {
-            let a = Whole(DiscountMethod::price(from_u(100)));
+            let a = Whole(DiscountMethod::special_price(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -674,7 +674,7 @@ mod tests {
 
         #[test]
         fn whole_price_subtotal_negative() {
-            let a = Whole(DiscountMethod::price(from_u(450)));
+            let a = Whole(DiscountMethod::special_price(from_u(450)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -687,7 +687,7 @@ mod tests {
 
         #[test]
         fn whole_price_zero_subtotal() {
-            let a = Whole(DiscountMethod::price(from_u(450)));
+            let a = Whole(DiscountMethod::special_price(from_u(450)));
 
             let o1 = price_order("o1".into(), from_u(0));
 
@@ -698,7 +698,7 @@ mod tests {
 
         #[test]
         fn each_value_discount() {
-            let a = DiscountAction::each(DiscountMethod::value(from_u(100)));
+            let a = DiscountAction::each(DiscountMethod::fixed_off(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -708,7 +708,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -728,7 +728,7 @@ mod tests {
 
         #[test]
         fn each_value_zero_discount() {
-            let a = DiscountAction::each(DiscountMethod::value(from_u(0)));
+            let a = DiscountAction::each(DiscountMethod::fixed_off(from_u(0)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(50));
@@ -740,7 +740,7 @@ mod tests {
 
         #[test]
         fn each_value_over_discount() {
-            let a = DiscountAction::each(DiscountMethod::value(from_u(100)));
+            let a = DiscountAction::each(DiscountMethod::fixed_off(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(50));
@@ -749,7 +749,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(2, d.len());
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 let (d2, i2) = d.get(1).unwrap();
                 assert_eq!(from_u(50), d2.to_owned().unwrap());
@@ -761,7 +761,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_include_negative_price() {
-            let a = DiscountAction::each(DiscountMethod::value(from_u(100)));
+            let a = DiscountAction::each(DiscountMethod::fixed_off(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -771,7 +771,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -791,7 +791,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_skip1() {
-            let a = DiscountAction::each_with_skip(DiscountMethod::value(from_u(100)), 1);
+            let a = DiscountAction::each_with_skip(DiscountMethod::fixed_off(from_u(100)), 1);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(50));
@@ -821,7 +821,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_skip1_only_zero_discount() {
-            let a = DiscountAction::each_with_skip(DiscountMethod::value(from_u(100)), 1);
+            let a = DiscountAction::each_with_skip(DiscountMethod::fixed_off(from_u(100)), 1);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(0));
@@ -833,7 +833,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_over_skip() {
-            let a = DiscountAction::each_with_skip(DiscountMethod::value(from_u(100)), 3);
+            let a = DiscountAction::each_with_skip(DiscountMethod::fixed_off(from_u(100)), 3);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(50));
@@ -846,7 +846,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_take2() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::value(from_u(100)), 0, 2);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 2);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -856,7 +856,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -876,7 +876,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_take3() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::value(from_u(100)), 0, 3);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 3);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -886,7 +886,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -906,7 +906,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_over_take4() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::value(from_u(100)), 0, 4);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 4);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -916,7 +916,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -936,7 +936,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_take_zero() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::value(from_u(100)), 0, 0);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 0, 0);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -949,7 +949,7 @@ mod tests {
 
         #[test]
         fn each_value_discount_skip1_take1() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::value(from_u(100)), 1, 1);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::fixed_off(from_u(100)), 1, 1);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -959,7 +959,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::value(from_u(100)), m);
+                assert_eq!(DiscountMethod::fixed_off(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert!(d1.is_none());
@@ -979,7 +979,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount() {
-            let a = DiscountAction::each(DiscountMethod::rate(from_u(20)));
+            let a = DiscountAction::each(DiscountMethod::percentage_off(from_u(20)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -989,7 +989,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::rate(from_u(20)), m);
+                assert_eq!(DiscountMethod::percentage_off(from_u(20)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(20), d1.to_owned().unwrap());
@@ -1009,7 +1009,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount_zero() {
-            let a = DiscountAction::each(DiscountMethod::rate(from_u(0)));
+            let a = DiscountAction::each(DiscountMethod::percentage_off(from_u(0)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1021,7 +1021,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount_include_negative_price() {
-            let a = DiscountAction::each(DiscountMethod::rate(from_u(20)));
+            let a = DiscountAction::each(DiscountMethod::percentage_off(from_u(20)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1031,7 +1031,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::rate(from_u(20)), m);
+                assert_eq!(DiscountMethod::percentage_off(from_u(20)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(20), d1.to_owned().unwrap());
@@ -1051,7 +1051,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount_skip1() {
-            let a = DiscountAction::each_with_skip(DiscountMethod::rate(from_u(20)), 1);
+            let a = DiscountAction::each_with_skip(DiscountMethod::percentage_off(from_u(20)), 1);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1061,7 +1061,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::rate(from_u(20)), m);
+                assert_eq!(DiscountMethod::percentage_off(from_u(20)), m);
 
                 // no discount by skip
                 let (d1, i1) = d.get(0).unwrap();
@@ -1082,7 +1082,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount_skip1_zero_discount() {
-            let a = DiscountAction::each_with_skip(DiscountMethod::rate(from_u(20)), 1);
+            let a = DiscountAction::each_with_skip(DiscountMethod::percentage_off(from_u(20)), 1);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(0));
@@ -1094,7 +1094,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount_take2() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::rate(from_u(20)), 0, 2);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::percentage_off(from_u(20)), 0, 2);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1104,7 +1104,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::rate(from_u(20)), m);
+                assert_eq!(DiscountMethod::percentage_off(from_u(20)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(20), d1.to_owned().unwrap());
@@ -1124,7 +1124,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount_skip1_take1() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::rate(from_u(20)), 1, 1);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::percentage_off(from_u(20)), 1, 1);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1134,7 +1134,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::rate(from_u(20)), m);
+                assert_eq!(DiscountMethod::percentage_off(from_u(20)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert!(d1.is_none());
@@ -1154,7 +1154,7 @@ mod tests {
 
         #[test]
         fn each_rate_discount_take_zero() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::rate(from_u(20)), 0, 0);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::percentage_off(from_u(20)), 0, 0);
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1166,7 +1166,7 @@ mod tests {
 
         #[test]
         fn each_price() {
-            let a = DiscountAction::each(DiscountMethod::price(from_u(100)));
+            let a = DiscountAction::each(DiscountMethod::special_price(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1176,7 +1176,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::price(from_u(100)), m);
+                assert_eq!(DiscountMethod::special_price(from_u(100)), m);
 
                 let (d1, _i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -1193,7 +1193,7 @@ mod tests {
 
         #[test]
         fn each_price_over() {
-            let a = DiscountAction::each(DiscountMethod::price(from_u(100)));
+            let a = DiscountAction::each(DiscountMethod::special_price(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(80));
@@ -1202,7 +1202,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(2, d.len());
-                assert_eq!(DiscountMethod::price(from_u(100)), m);
+                assert_eq!(DiscountMethod::special_price(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -1218,7 +1218,7 @@ mod tests {
 
         #[test]
         fn each_price_all_same_or_over() {
-            let a = DiscountAction::each(DiscountMethod::price(from_u(100)));
+            let a = DiscountAction::each(DiscountMethod::special_price(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(100));
             let o2 = price_order("o2".into(), from_u(80));
@@ -1230,7 +1230,7 @@ mod tests {
 
         #[test]
         fn each_price_include_negative_price() {
-            let a = DiscountAction::each(DiscountMethod::price(from_u(100)));
+            let a = DiscountAction::each(DiscountMethod::special_price(from_u(100)));
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1240,7 +1240,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::price(from_u(100)), m);
+                assert_eq!(DiscountMethod::special_price(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -1258,7 +1258,7 @@ mod tests {
 
         #[test]
         fn each_price_skip1() {
-            let a = DiscountAction::each_with_skip(DiscountMethod::price(from_u(100)), 1);
+            let a = DiscountAction::each_with_skip(DiscountMethod::special_price(from_u(100)), 1);
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1268,7 +1268,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::price(from_u(100)), m);
+                assert_eq!(DiscountMethod::special_price(from_u(100)), m);
 
                 // no change by skip
                 let (d1, i1) = d.get(0).unwrap();
@@ -1289,7 +1289,7 @@ mod tests {
 
         #[test]
         fn each_price_take2() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::price(from_u(100)), 0, 2);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::special_price(from_u(100)), 0, 2);
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1299,7 +1299,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::price(from_u(100)), m);
+                assert_eq!(DiscountMethod::special_price(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert_eq!(from_u(100), d1.to_owned().unwrap());
@@ -1319,7 +1319,7 @@ mod tests {
 
         #[test]
         fn each_price_take_zero() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::price(from_u(100)), 0, 0);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::special_price(from_u(100)), 0, 0);
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1332,7 +1332,7 @@ mod tests {
 
         #[test]
         fn each_price_skip1_take1() {
-            let a = DiscountAction::each_with_skip_take(DiscountMethod::price(from_u(100)), 1, 1);
+            let a = DiscountAction::each_with_skip_take(DiscountMethod::special_price(from_u(100)), 1, 1);
 
             let o1 = price_order("o1".into(), from_u(110));
             let o2 = price_order("o2".into(), from_u(150));
@@ -1342,7 +1342,7 @@ mod tests {
 
             if let Some(MultiDiscount(d, m)) = r {
                 assert_eq!(3, d.len());
-                assert_eq!(DiscountMethod::price(from_u(100)), m);
+                assert_eq!(DiscountMethod::special_price(from_u(100)), m);
 
                 let (d1, i1) = d.get(0).unwrap();
                 assert!(d1.is_none());
@@ -1378,7 +1378,7 @@ mod tests {
         fn bogo_free() {
             let rule = DiscountRule {
                 condition: Items(Item(vec!["item-1".into()])).qty_limit(2, Some(2)),
-                action: DiscountAction::each_with_skip(DiscountMethod::rate(from_u(100)), 1),
+                action: DiscountAction::each_with_skip(DiscountMethod::percentage_off(from_u(100)), 1),
             };
 
             let items = vec![
@@ -1396,7 +1396,7 @@ mod tests {
             if let Some(Reward::Discount(r)) = r {
                 if let DiscountReward::MultiDiscount(d, m) = r {
                     assert_eq!(2, d.len());
-                    assert_eq!(DiscountMethod::rate(from_u(100)), m);
+                    assert_eq!(DiscountMethod::percentage_off(from_u(100)), m);
 
                     let (d1, i1) = d.get(0).unwrap();
                     assert!(d1.is_none());
@@ -1418,7 +1418,7 @@ mod tests {
         fn bogo_half() {
             let rule = DiscountRule {
                 condition: Items(Item(vec!["item-1".into()])).qty_limit(2, Some(2)),
-                action: DiscountAction::each_with_skip(DiscountMethod::rate(from_u(50)), 1),
+                action: DiscountAction::each_with_skip(DiscountMethod::percentage_off(from_u(50)), 1),
             };
 
             let items = vec![
@@ -1436,7 +1436,7 @@ mod tests {
             if let Some(Reward::Discount(r)) = r {
                 if let DiscountReward::MultiDiscount(d, m) = r {
                     assert_eq!(2, d.len());
-                    assert_eq!(DiscountMethod::rate(from_u(50)), m);
+                    assert_eq!(DiscountMethod::percentage_off(from_u(50)), m);
 
                     let (d1, i1) = d.get(0).unwrap();
                     assert!(d1.is_none());
@@ -1461,7 +1461,7 @@ mod tests {
                     Item(vec!["item-2".into()]),
                     Item(vec!["item-2".into()]),
                 ]),
-                action: Whole(DiscountMethod::price(from_u(700))),
+                action: Whole(DiscountMethod::special_price(from_u(700))),
             };
 
             let items = vec![
@@ -1479,7 +1479,7 @@ mod tests {
             if let Some(Reward::Discount(r)) = r {
                 if let DiscountReward::SingleDiscount(p, is, m) = r {
                     assert_eq!(from_u(700), p);
-                    assert_eq!(DiscountMethod::price(from_u(700)), m);
+                    assert_eq!(DiscountMethod::special_price(from_u(700)), m);
 
                     if let RewardTarget::Group(is) = is {
                         assert_eq!(3, is.len());
