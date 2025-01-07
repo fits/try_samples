@@ -1,0 +1,8 @@
+[package]
+name = "sd1_download"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hf-hub = { version = "0.4.1", features = ["tokio", "rustls-tls"] }
+tokio = { version = "1.42.0", features = ["rt-multi-thread", "macros"] }
