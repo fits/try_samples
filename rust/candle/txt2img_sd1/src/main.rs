@@ -44,9 +44,9 @@ fn main() -> Result<()> {
     let vae = config.build_vae(vae_file, &device, dtype)?;
     let unet = config.build_unet(unet_file, &device, 4, use_flash_attn, dtype)?;
 
-    let scheduler = config.build_scheduler(n_steps)?;
+    let mut scheduler = config.build_scheduler(n_steps)?;
 
-    let timesteps = scheduler.timesteps();
+    let timesteps = scheduler.timesteps().to_vec();
 
     let init_latents = Tensor::randn(
         0f32,
