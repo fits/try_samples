@@ -1,0 +1,11 @@
+[package]
+name = "txt2img_sdxl"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+candle-core = "0.8.2"
+candle-nn = "0.8.2"
+candle-transformers = "0.8.2"
+image = "0.25.5"
+tokenizers = "0.21.0"
