@@ -9,8 +9,7 @@ import (
 func main() {
 	s := bufio.NewScanner(os.Stdin)
 
-	for {
-		s.Scan()
+	for s.Scan() {
 		t := s.Text()
 
 		if len(t) > 0 {
