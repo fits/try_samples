@@ -37,82 +37,91 @@ fn main() -> Result<()> {
 
     let config = StableDiffusionConfig::v1_5(None, task.height, task.width);
 
-    let tokenizer = Tokenizer::from_file(task.tokenizer)?;
-    let pad_id = tokenizer
-        .token_to_id(&pad_token)
-        .ok_or("not found eos")?;
-
-    let clip = build_clip_transformer(&config.clip, task.clip, &device, dtype)?;
-
     println!("clip");
 
-    let prompt_embeds = text_embeddings(
-        &device,
-        &clip,
-        &tokenizer,
-        &task.prompt,
-        config.clip.max_position_embeddings,
-        pad_id,
-    )?;
+    let (prompt_embeds, ng_prompt_embeds) = {
+        let tokenizer = Tokenizer::from_file(task.tokenizer)?;
+        let pad_id = tokenizer.token_to_id(&pad_token).ok_or("not found eos")?;
 
-    let ng_prompt_embeds = text_embeddings(
-        &device,
-        &clip,
-        &tokenizer,
-        &task.negative_prompt.unwrap_or("".into()),
-        config.clip.max_position_embeddings,
-        pad_id,
-    )?;
+        let clip = build_clip_transformer(&config.clip, task.clip, &device, dtype)?;
 
-    let vae = config.build_vae(task.vae, &device, dtype)?;
-    let unet = config.build_unet(task.unet, &device, 4, use_flash_attn, dtype)?;
+        let prompt_embeds = text_embeddings(
+            &device,
+            &clip,
+            &tokenizer,
+            &task.prompt,
+            config.clip.max_position_embeddings,
+            pad_id,
+        )?;
 
-    let mut scheduler = config.build_scheduler(task.steps)?;
+        let ng_prompt_embeds = text_embeddings(
+            &device,
+            &clip,
+            &tokenizer,
+            &task.negative_prompt.unwrap_or("".into()),
+            config.clip.max_position_embeddings,
+            pad_id,
+        )?;
 
-    let timesteps = scheduler.timesteps().to_vec();
-
-    let init_latents = Tensor::randn(
-        0f32,
-        1f32,
-        (1, 4, config.height / 8, config.width / 8),
-        &device,
-    )?;
-
-    let mut latents = (init_latents * scheduler.init_noise_sigma())?.to_dtype(dtype)?;
+        (prompt_embeds, ng_prompt_embeds)
+    };
 
     println!("unet");
 
-    for (i, &timestep) in timesteps.iter().enumerate() {
-        let input = scheduler.scale_model_input(latents.clone(), timestep)?;
+    let latents = {
+        let unet = config.build_unet(task.unet, &device, 4, use_flash_attn, dtype)?;
 
-        let noize_pred_text = unet.forward(&input, timestep as f64, &prompt_embeds)?;
-        let noize_pred_ng = unet.forward(&input, timestep as f64, &ng_prompt_embeds)?;
+        let mut scheduler = config.build_scheduler(task.steps)?;
 
-        let noize_pred = (((noize_pred_text - &noize_pred_ng)? * task.guidance_scale)? + noize_pred_ng)?;
+        let timesteps = scheduler.timesteps().to_vec();
 
-        latents = scheduler.step(&noize_pred, timestep, &latents)?;
+        let init_latents = Tensor::randn(
+            0f32,
+            1f32,
+            (1, 4, config.height / 8, config.width / 8),
+            &device,
+        )?;
 
-        println!("  done: {}/{}, timestep={timestep}", i + 1, task.steps);
-    }
+        let mut latents = (init_latents * scheduler.init_noise_sigma())?.to_dtype(dtype)?;
+
+        for (i, &timestep) in timesteps.iter().enumerate() {
+            let input = scheduler.scale_model_input(latents.clone(), timestep)?;
+
+            let noize_pred_text = unet.forward(&input, timestep as f64, &prompt_embeds)?;
+            let noize_pred_ng = unet.forward(&input, timestep as f64, &ng_prompt_embeds)?;
+
+            let noize_pred =
+                (((noize_pred_text - &noize_pred_ng)? * task.guidance_scale)? + noize_pred_ng)?;
+
+            latents = scheduler.step(&noize_pred, timestep, &latents)?;
+
+            println!("  done: {}/{}, timestep={timestep}", i + 1, task.steps);
+        }
+
+        latents
+    };
 
     println!("vae");
 
-    let img = {
-        let img = vae.decode(&(latents / vae_scale)?)?;
+    let imgbuf = {
+        let vae = config.build_vae(task.vae, &device, dtype)?;
 
-        let img_p = ((img + 1.)? / 2.)?.to_device(&Device::Cpu)?; // [-1, 1] => [0, 1]
-        (img_p.clamp(0f32, 1.)? * 255.)?.to_dtype(DType::U8)? // => [0, 255]
+        let img = {
+            let img = vae.decode(&(latents / vae_scale)?)?;
+
+            let img_p = ((img + 1.)? / 2.)?.to_device(&Device::Cpu)?; // [-1, 1] => [0, 1]
+            (img_p.clamp(0f32, 1.)? * 255.)?.to_dtype(DType::U8)? // => [0, 255]
+        };
+
+        img.squeeze(0)?
+            .permute((1, 2, 0))?
+            .flatten_all()?
+            .to_vec1::<u8>()?
     };
-
-    let buf = img
-        .squeeze(0)?
-        .permute((1, 2, 0))?
-        .flatten_all()?
-        .to_vec1::<u8>()?;
 
     image::save_buffer(
         task.output_file.unwrap_or("output.png".into()),
-        &buf,
+        &imgbuf,
         config.width as u32,
         config.height as u32,
         image::ColorType::Rgb8,
