@@ -1,7 +1,9 @@
 use datafusion::arrow::array::{new_empty_array, AsArray};
 use datafusion::arrow::datatypes::{DataType, Field};
 use datafusion::common::{plan_err, utils::arrays_into_list_array};
-use datafusion::logical_expr::{ColumnarValue, ScalarUDF, ScalarUDFImpl, Signature, Volatility};
+use datafusion::logical_expr::{
+    ColumnarValue, ScalarFunctionArgs, ScalarUDF, ScalarUDFImpl, Signature, Volatility,
+};
 use datafusion::prelude::*;
 
 use std::env;
@@ -61,19 +63,26 @@ impl ScalarUDFImpl for ExtractColumn {
         )))
     }
 
-    fn invoke(&self, args: &[ColumnarValue]) -> datafusion::error::Result<ColumnarValue> {
-        match &args[0] {
-            ColumnarValue::Array(a) => {
-                let r = a.as_list::<i32>().iter().map(|x| {
-                    x.and_then(|y| y.as_struct().column_by_name(&self.column.name()).cloned())
-                        .unwrap_or(new_empty_array(self.column.data_type()))
-                });
+    fn invoke_with_args(
+        &self,
+        args: ScalarFunctionArgs,
+    ) -> datafusion::error::Result<ColumnarValue> {
+        if let Some(v) = args.args.first() {
+            match v {
+                ColumnarValue::Array(a) => {
+                    let r = a.as_list::<i32>().iter().map(|x| {
+                        x.and_then(|y| y.as_struct().column_by_name(&self.column.name()).cloned())
+                            .unwrap_or(new_empty_array(self.column.data_type()))
+                    });
 
-                Ok(ColumnarValue::Array(Arc::new(arrays_into_list_array(r)?)))
+                    Ok(ColumnarValue::Array(Arc::new(arrays_into_list_array(r)?)))
+                }
+                _ => {
+                    plan_err!("invalid arguments")
+                }
             }
-            _ => {
-                plan_err!("invalid arguments")
-            }
+        } else {
+            plan_err!("empty args")
         }
     }
 }
