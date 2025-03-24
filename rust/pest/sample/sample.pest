@@ -1,0 +1,2 @@
+alpha = { 'a'..'z' }
+token = _{ alpha ~ alpha* }
