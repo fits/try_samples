@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "csv-parse": "^2.0.0",
+    "csv-parse": "^4.6.5",
     "iconv-lite": "^0.4.19"
   }
 }
