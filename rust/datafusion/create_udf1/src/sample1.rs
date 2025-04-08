@@ -1,5 +1,5 @@
 use datafusion::arrow::datatypes::DataType;
-use datafusion::common::internal_err;
+use datafusion::common::plan_err;
 use datafusion::error::Result;
 use datafusion::logical_expr::{ColumnarValue, Volatility};
 use datafusion::prelude::*;
@@ -18,7 +18,7 @@ fn append(args: &[ColumnarValue]) -> Result<ColumnarValue> {
             let r = a.clone().and_then(|x| b.clone().map(|y| x + &y));
             Ok(ColumnarValue::Scalar(ScalarValue::Utf8(r)))
         }
-        _ => internal_err!("unsupported arg types"),
+        _ => plan_err!("unsupported arg types"),
     }
 }
 
