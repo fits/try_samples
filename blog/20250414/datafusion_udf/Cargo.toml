@@ -1,0 +1,20 @@
+[package]
+name = "sample"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+datafusion = "46.0.1"
+tokio = { version = "1.0", features = ["rt-multi-thread"] }
+
+[[bin]]
+name = "sample1"
+path = "src/sample1.rs"
+
+[[bin]]
+name = "sample2"
+path = "src/sample2.rs"
+
+[[bin]]
+name = "sample3"
+path = "src/sample3.rs"
