@@ -1,0 +1,2 @@
+http = "https://github.com/WebAssembly/wasi-http/archive/main.tar.gz"
+keyvalue = "https://github.com/WebAssembly/wasi-keyvalue/archive/main.tar.gz"
