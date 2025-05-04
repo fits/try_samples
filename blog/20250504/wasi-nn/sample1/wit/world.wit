@@ -1,0 +1,8 @@
+package sample:eval;
+
+world eval {
+    import wasi:nn/graph@0.2.0-rc-2024-08-19;
+    import wasi:nn/tensor@0.2.0-rc-2024-08-19;
+
+    export wasi:cli/run@0.2.3;
+}
