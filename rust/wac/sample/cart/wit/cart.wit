@@ -1,0 +1,28 @@
+package sample:cart;
+
+interface types {
+    use sample:item/types.{item-id, price};
+
+    type cart-id = string;
+    type quantity = u32;
+
+    record cart-item {
+        item: item-id,
+        qty: quantity,
+        unit-price: price,
+    }
+
+    variant cart-state {
+        empty(cart-id),
+        active(tuple<cart-id, list<cart-item>>),
+    }
+
+    create: func(id: cart-id) -> cart-state;
+    add-item: func(state: cart-state, item: item-id, qty: quantity) -> option<cart-state>;
+}
+
+world cart {
+    import sample:item/types;
+
+    export types;
+}
