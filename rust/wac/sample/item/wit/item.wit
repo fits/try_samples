@@ -1,0 +1,12 @@
+package sample:item;
+
+interface types {
+    type item-id = string;
+    type price = s32;
+
+    find-price: func(item: item-id) -> option<price>;
+}
+
+world item {
+    export types;
+}

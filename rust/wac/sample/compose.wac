@@ -1,0 +1,9 @@
+package sample:composition;
+
+let item = new sample:item {};
+
+let cart = new sample:cart { "sample:item/types": item.types, ... };
+
+let app = new sample:app { "sample:cart/types": cart.types, ... };
+
+export app.run;
