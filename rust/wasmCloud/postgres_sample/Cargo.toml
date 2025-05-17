@@ -1,0 +1,11 @@
+[package]
+name = "pg_sample"
+edition = "2024"
+version = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasmcloud-component = "0.2.0"
+wit-bindgen = "0.42.1"
