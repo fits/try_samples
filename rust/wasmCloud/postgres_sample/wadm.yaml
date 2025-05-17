@@ -1,0 +1,49 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: pg_sample
+  annotations:
+    version: v0.0.1
+spec:
+  components:
+    - name: app
+      type: component
+      properties:
+        image: file://./build/pg_sample_s.wasm
+      traits:
+        - type: spreadscaler
+          properties:
+            instances: 1
+        - type: link
+          properties:
+            target: 
+              name: postgres
+              config:
+                - name: default-pg
+            namespace: wasmcloud
+            package: postgres
+            interfaces: [query]
+
+    - name: httpserver
+      type: capability
+      properties:
+        image: ghcr.io/wasmcloud/http-server:0.27.0
+      traits:
+        - type: link
+          properties:
+            target:
+              name: app
+            namespace: wasi
+            package: http
+            interfaces: [incoming-handler]
+            source:
+              config:
+                - name: default-http
+                  properties:
+                    address: 0.0.0.0:8000
+    - name: postgres
+      type: capability
+      properties:
+        image: ghcr.io/wasmcloud/sqldb-postgres:0.10.0
+        config:
+          - name: default-pg

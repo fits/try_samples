@@ -1,0 +1,6 @@
+package sample:pg;
+
+world runquery {
+   import wasmcloud:postgres/query@0.1.1-draft;
+   export wasi:http/incoming-handler@0.2.2;
+}
