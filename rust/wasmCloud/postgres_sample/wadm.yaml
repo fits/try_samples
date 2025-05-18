@@ -45,5 +45,3 @@ spec:
       type: capability
       properties:
         image: ghcr.io/wasmcloud/sqldb-postgres:0.10.0
-        config:
-          - name: default-pg
