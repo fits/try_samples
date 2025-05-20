@@ -60,15 +60,19 @@ namespace Example.Core
 
         private async Task HandleExceptionAsync(HttpContext ctx, Exception ex)
         {
-            logger.LogInformation($"handled Exception: {ex.GetType()}");
+            logger.LogInformation($"handled Exception: type={ex.GetType()}, message={ex.Message}");
 
-            ctx.Response.StatusCode = 500;
+            var err = new ExceptionWrappedError(ex);
 
-            await ctx.Response.WriteAsJsonAsync<Dictionary<string, object>>(new()
-            {
-                ["StatusCode"] = ctx.Response.StatusCode,
-                ["Message"] = ex.Message,
-            });
+            ctx.Response.StatusCode = err.StatusCode;
+
+            await ctx.Response.WriteAsJsonAsync<IBaseError>(err);
+        }
+
+        private record ExceptionWrappedError(Exception exception) : IBaseError
+        {
+            public int StatusCode => 500;
+            public string Message => exception.Message;
         }
     }
 
