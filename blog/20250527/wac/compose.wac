@@ -1,0 +1,9 @@
+package testapp:composition;
+
+let item = new testapp:item {};
+
+let cart = new testapp:cart { "testapp:item/types": item.types, ... };
+
+let app = new testapp:app { "testapp:cart/types": cart.types, ... };
+
+export app.run;
