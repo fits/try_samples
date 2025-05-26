@@ -1,0 +1,64 @@
+use exports::testapp::cart::types::{CartId, CartItem, CartState, Guest, ItemId, Quantity};
+use testapp::item::types::find;
+
+wit_bindgen::generate!({
+    world: "cart",
+    with: {
+        "testapp:item/types": generate,
+    }
+});
+
+struct Component;
+
+impl Guest for Component {
+    fn create(id: CartId) -> CartState {
+        CartState::Empty(id)
+    }
+
+    fn add_item(state: CartState, item_id: ItemId, qty: Quantity) -> Option<CartState> {
+        if qty == 0 {
+            return None;
+        }
+
+        find(&item_id).and_then(|item| {
+            let item = CartItem { item, qty };
+
+            add_cart_item(state, item)
+        })
+    }
+}
+
+export!(Component);
+
+fn add_cart_item(state: CartState, item: CartItem) -> Option<CartState> {
+    match state {
+        CartState::Empty(id) => Some(CartState::Active((id, vec![item]))),
+        CartState::Active((id, items)) => {
+            let new_items = insert_or_update(&items, item);
+            Some(CartState::Active((id, new_items)))
+        }
+    }
+}
+
+fn insert_or_update(src: &Vec<CartItem>, item: CartItem) -> Vec<CartItem> {
+    let mut res = vec![];
+    let mut upd = false;
+
+    for v in src {
+        if v.item.id == item.item.id {
+            res.push(CartItem {
+                qty: v.qty + item.qty,
+                ..v.clone()
+            });
+            upd = true;
+        } else {
+            res.push(v.clone());
+        }
+    }
+
+    if !upd {
+        res.push(item);
+    }
+
+    res
+}

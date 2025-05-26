@@ -1,0 +1,17 @@
+package testapp:item;
+
+interface types {
+    type item-id = string;
+    type price = s32;
+
+    record item {
+        id: item-id,
+        unit-price: price,
+    }
+
+    find: func(id: item-id) -> option<item>;
+}
+
+world item {
+    export types;
+}
