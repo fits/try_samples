@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
 
 var s = """
@@ -18,9 +19,20 @@ try
 {
     var c = JsonSerializer.Deserialize<C>(s);
     c?.Show();
-} catch(Exception ex)
+}
+catch(Exception ex)
 {
-    Console.WriteLine($"Deserialize Failed : {ex}");
+    Console.WriteLine($"*** C Deserialize Failed : {ex}");
+}
+
+try
+{
+    var d = JsonSerializer.Deserialize<D>(s);
+    d?.Show();
+}
+catch(Exception ex)
+{
+    Console.WriteLine($"*** D Deserialize Failed : {ex}");
 }
 
 record A(string Code, int Value);
@@ -41,6 +53,19 @@ class B
 class C
 {
     public required string Code { get; set; } = string.Empty;
+
+    public int Value { get; set; }
+
+    public void Show()
+    {
+        Console.WriteLine($"code={Code}, value={Value}");
+    }
+}
+
+class D
+{
+    [JsonRequired]
+    public string Code { get; set; } = string.Empty;
 
     public int Value { get; set; }
 
