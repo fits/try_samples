@@ -1,0 +1,9 @@
+[package]
+name = "embed1"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+surrealdb = { version = "2.3.6", features = ["kv-mem"] }
+tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
