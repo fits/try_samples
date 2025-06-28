@@ -43,5 +43,21 @@ async fn main() -> Result<()> {
     println!("* q2 = {:?}", res.take::<Vec<Document>>(1)?);
     println!("* q3 = {:?}", res.take::<Vec<Document>>(2)?);
 
+    println!("-----");
+
+    let mut res2 = db.query(q1).query(q2).query(q3).await?;
+
+    println!("* q1 = {:?}", res2.take::<Vec<Thing>>((0, "id"))?);
+    println!("* q2 = {:?}", res2.take::<Vec<Thing>>((1, "id"))?);
+    println!("* q3 = {:?}", res2.take::<Vec<Thing>>((2, "id"))?);
+
+    println!("-----");
+
+    let mut res3 = db.query(q1).query(q2).query(q3).await?;
+
+    println!("* q1 = {:?}", res3.take::<surrealdb::Value>(0)?);
+    println!("* q2 = {:?}", res3.take::<surrealdb::Value>(1)?);
+    println!("* q3 = {:?}", res3.take::<surrealdb::Value>(2)?);
+
     Ok(())
 }
