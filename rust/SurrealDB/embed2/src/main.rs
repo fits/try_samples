@@ -12,7 +12,7 @@ use std::io::{BufRead, BufReader};
 #[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct Document {
-    id: Option<Thing>,
+    id: Thing,
 }
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -53,11 +53,21 @@ async fn main() -> Result<()> {
 
     println!("-----");
 
-    let mut res3 = db.query(q1).query(q2).query(q3).await?;
+    let a = "SELECT id, attrs.code as code, attrs, variants FROM items WHERE id < items:4";
+    let b = "SELECT id, name, attrs.category FROM items WHERE attrs.category = 'A1'";
+    let c = "SELECT id, name FROM items WHERE variants[WHERE color = 'white']";
 
-    println!("* q1 = {:?}", res3.take::<surrealdb::Value>(0)?);
-    println!("* q2 = {:?}", res3.take::<surrealdb::Value>(1)?);
-    println!("* q3 = {:?}", res3.take::<surrealdb::Value>(2)?);
+    let mut res3 = db.query(a).query(b).query(c).await?;
+
+    let a_res: surrealdb::Value = res3.take(0)?;
+
+    println!("* a = {}, debug = {:?}", a_res.to_string(), a_res);
+    println!("* b = {}", res3.take::<surrealdb::Value>(1)?.to_string());
+    println!("* c = {}", res3.take::<surrealdb::Value>(2)?.to_string());
+
+    let mut res4 = db.query(a).await?;
+
+    println!("a = {:?}", res4.take::<Vec<Thing>>((0, "id"))?);
 
     Ok(())
 }
