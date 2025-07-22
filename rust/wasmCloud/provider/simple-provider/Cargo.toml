@@ -1,0 +1,12 @@
+[package]
+name = "simple-provider"
+version = "0.1.0"
+edition = "2024"
+description = "simple provider"
+
+[dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+wasmcloud-provider-sdk = "0.16"
+wit-bindgen-wrpc = "0.9"

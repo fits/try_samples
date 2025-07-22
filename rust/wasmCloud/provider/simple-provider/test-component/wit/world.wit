@@ -1,0 +1,12 @@
+package dev:example;
+
+interface types {
+    run: func() -> string;
+}
+
+world component {
+    import wasi:logging/logging@0.1.0-draft;
+    import simple:greeting/types;
+
+    export types;
+}

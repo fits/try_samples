@@ -1,0 +1,29 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: simple-provider-test
+  annotations:
+    version: v0.0.1
+spec:
+  components:
+    - name: test-component
+      type: component
+      properties:
+        image: file://./test-component/build/test_component_s.wasm
+      traits:
+        - type: spreadscaler
+          properties:
+            instances: 1
+        - type: link
+          properties:
+            target:
+              name: simple-provider
+            namespace: simple
+            package: greeting
+            interfaces: [types]
+
+    - name: simple-provider
+      type: capability
+      properties:
+        image: file://./build/simple-provider.par.gz
+        id: simple-provider
