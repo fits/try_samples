@@ -1,0 +1,10 @@
+[package]
+name = "test-component"
+edition = "2024"
+version = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wit-bindgen = "0.43.0"

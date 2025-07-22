@@ -1,0 +1,9 @@
+package simple:greeting;
+
+interface types {
+    hello: func(name: string) -> option<string>;
+}
+
+world provider {
+    export types;
+}
