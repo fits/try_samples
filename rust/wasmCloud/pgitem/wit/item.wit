@@ -1,0 +1,16 @@
+package example:pgitem;
+
+interface types {
+    type item-id = string;
+    type amount = s32;
+
+    set-price: func(id: item-id, price: amount) -> bool;
+    get-price: func(id: item-id) -> option<amount>;
+
+    test: func() -> string;
+}
+
+world item {
+    import wasmcloud:postgres/query@0.1.1-draft;
+    export types;
+}
