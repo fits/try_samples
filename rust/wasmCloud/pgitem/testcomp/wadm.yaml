@@ -1,0 +1,28 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: testcomp
+  annotations:
+    version: v0.0.1
+spec:
+  components:
+    - name: app
+      type: component
+      properties:
+        image: file://./build/testcomp_s.wasm
+      traits:
+        - type: spreadscaler
+          properties:
+            instances: 1
+        - type: link
+          properties:
+            target: pgitemapp
+            namespace: example
+            package: pgitem
+            interfaces: [types]
+    - name: pgitemapp
+      type: component
+      properties:
+        application:
+          name: pgitem
+          component: app

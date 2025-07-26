@@ -1,0 +1,12 @@
+name = "testcomp"
+version = "0.1.0"
+language = "rust"
+type = "component"
+
+[component]
+wit_world = "test"
+wasm_target = "wasm32-wasip2"
+
+[[registry.pull.sources]]
+target = "example:pgitem"
+source = "file://../wit/item.wit"
