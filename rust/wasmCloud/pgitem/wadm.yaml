@@ -4,6 +4,7 @@ metadata:
   name: pgitem
   annotations:
     version: v0.0.1
+    experimental.wasmcloud.dev/shared: 'true'
 spec:
   components:
     - name: app
