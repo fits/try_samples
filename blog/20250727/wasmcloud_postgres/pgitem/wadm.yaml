@@ -1,0 +1,30 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: pgitem1
+  annotations:
+    version: v0.0.1
+    experimental.wasmcloud.dev/shared: 'true'
+spec:
+  components:
+    - name: app
+      type: component
+      properties:
+        image: file://./build/pgitem_s.wasm
+      traits:
+        - type: spreadscaler
+          properties:
+            instances: 1
+        - type: link
+          properties:
+            target: 
+              name: postgres1
+              config:
+                - name: default-pg
+            namespace: wasmcloud
+            package: postgres
+            interfaces: [query]
+    - name: postgres1
+      type: capability
+      properties:
+        image: ghcr.io/wasmcloud/sqldb-postgres:0.10.0
