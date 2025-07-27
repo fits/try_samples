@@ -1,0 +1,10 @@
+package example:testcomp;
+
+interface types {
+    call: func() -> string;
+}
+
+world test {
+    import example:pgitem/types;
+    export types;
+}
