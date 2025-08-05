@@ -1,0 +1,7 @@
+.:1053 {
+    whoami
+}
+
+example.com {
+    file ./db.example.com
+}
