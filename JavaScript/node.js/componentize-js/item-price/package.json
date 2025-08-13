@@ -1,0 +1,13 @@
+{
+  "name": "item-price",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx componentize-js --wit wit -o component.wasm source.js"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@bytecodealliance/componentize-js": "^0.18.4"
+  }
+}
