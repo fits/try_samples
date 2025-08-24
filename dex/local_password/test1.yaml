@@ -1,0 +1,19 @@
+issuer: http://127.0.0.1:8080/dex
+storage:
+  type: memory
+web:
+  http: 127.0.0.1:8080
+enablePasswordDB: true
+staticClients:
+  - id: test-client
+    redirectURIs:
+      - http://example.com/oidc/callback
+    name: Test Client
+    secret: abc
+staticPasswords:
+  - email: user1@example.com
+    hash: $2y$10$w0n2LAfyPZbxHE6uMPLZQeHBCxGPhL6o.Acd7vHPz2kFHal9XGGz2
+    username: user1
+    userID: u1
+oauth2:
+  passwordConnector: local
