@@ -7,22 +7,18 @@ export const types = {
             return null
         }
 
-        if (state.length == 1) {
-            if (qty > 0) {
-                return [ state[0], [{ item, qty }] ]
-            }
-        }
-        else if (state.length == 2) {
-            const [ id, items ] = state
+        const [ id, items] = state
 
-            const [newItems, exists] = items.reduce(
+        if (items) {
+            const [ newItems, exists ] = items.reduce(
                 (acc, x) => {
-                    if (x.item === item) {
-                        return (qty > 0) ? 
-                            [ [ ...acc[0], { item, qty } ], true ] : 
-                            [ acc[0], true ]
+                    if (x.item !== item) {
+                        return [ [ ...acc[0], x ], acc[1] ]
                     }
-                    return [ [ ...acc[0], x ], acc[1] ]
+
+                    return (qty > 0) ? 
+                        [ [ ...acc[0], { item, qty } ], true ] : 
+                        [ acc[0], true ]
                 }, 
                 [[], false]
             )
@@ -37,6 +33,9 @@ export const types = {
             else {
                 return [ id ]
             }
+        }
+        else if (qty > 0) {
+            return [ state[0], [{ item, qty }] ]
         }
 
         return null
@@ -68,5 +67,11 @@ export const run = {
 
         const s8 = types.changeQty(s7, 'item-B', 0)
         console.log(s8)
+
+        const e1 = types.changeQty(s1, 'item-A', 0)
+        console.log(e1)
+
+        const e2 = types.changeQty(s1, 'item-A', -1)
+        console.log(e2)
     }
 }
