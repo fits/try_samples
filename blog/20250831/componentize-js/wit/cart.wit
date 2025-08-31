@@ -1,0 +1,25 @@
+package example:cart;
+
+interface types {
+    type cart-id = string;
+    type item-id = string;
+    type quantity = u32;
+
+    record cart-item {
+        item: item-id,
+        qty: quantity,
+    }
+
+    variant cart {
+        empty(cart-id),
+        active(tuple<cart-id, list<cart-item>>),
+    }
+
+    create: func(id: cart-id) -> cart;
+    change-qty: func(state: cart, item: item-id, qty: quantity) -> option<cart>;
+}
+
+world cart {
+    export types;
+    export wasi:cli/run@0.2.3;
+}
