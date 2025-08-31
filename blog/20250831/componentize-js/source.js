@@ -7,7 +7,7 @@ export const types = {
             return null
         }
 
-        const [ id, items] = state
+        const [ id, items ] = state
 
         if (items) {
             const [ newItems, exists ] = items.reduce(
@@ -30,9 +30,8 @@ export const types = {
             if (newItems.length > 0) {
                 return [ id, newItems ]
             }
-            else {
-                return [ id ]
-            }
+
+            return [ id ]
         }
         else if (qty > 0) {
             return [ state[0], [{ item, qty }] ]
