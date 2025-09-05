@@ -1,0 +1,8 @@
+[project]
+name = "create-jwt"
+version = "0.1.0"
+description = ""
+requires-python = ">=3.13"
+dependencies = [
+    "pyjwt>=2.10.1",
+]
