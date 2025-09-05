@@ -3,16 +3,23 @@ import { generateKeyPairSync } from 'node:crypto'
 
 const iss = Deno.args[1]
 
-const { privateKey } = generateKeyPairSync(
+const { publicKey, privateKey } = generateKeyPairSync(
     'rsa', 
     {
         modulusLength: 2048,
+        publicKeyEncoding: {
+            type: 'spki',
+            format: 'pem'
+        },
         privateKeyEncoding: {
             type: 'pkcs8',
             format: 'pem'
         }
     }
 )
+
+console.log('# public key')
+console.log(publicKey)
 
 console.log('# private key')
 console.log(privateKey)
