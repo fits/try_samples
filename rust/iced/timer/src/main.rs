@@ -1,6 +1,6 @@
 use iced::{
     Subscription,
-    widget::{Column, column, text},
+    widget::{Column, center, column, text},
 };
 use std::time::{Duration, Instant};
 
@@ -29,7 +29,7 @@ impl Timer {
             .map(|x| format!("{:.1}", x.as_secs_f32()))
             .unwrap_or("-".to_string());
 
-        column!(text(time),).spacing(20).padding(30)
+        column!(center(text(time)),).padding(30)
     }
 
     fn subscribe(&self) -> Subscription<Message> {
@@ -49,5 +49,6 @@ impl Default for Timer {
 fn main() -> iced::Result {
     iced::application("timer", Timer::update, Timer::view)
         .subscription(Timer::subscribe)
+        .window_size((320., 240.))
         .run()
 }
