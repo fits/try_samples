@@ -1,0 +1,8 @@
+{
+  "name": "simple",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.4"
+  }
+}
