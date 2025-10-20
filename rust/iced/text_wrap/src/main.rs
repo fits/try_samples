@@ -16,10 +16,32 @@ impl App {
             text(m1).size(16).width(100),
             text(m1).size(16).width(100).wrapping(Wrapping::None),
             text(m1).size(16).width(100).wrapping(Wrapping::WordOrGlyph),
+            text(m1).size(16).width(100).height(20),
+            text(m1)
+                .size(16)
+                .width(100)
+                .height(20)
+                .wrapping(Wrapping::None),
+            text(m1)
+                .size(16)
+                .width(100)
+                .height(20)
+                .wrapping(Wrapping::WordOrGlyph),
             text(m2).size(16),
             text(m2).size(16).width(100),
             text(m2).size(16).width(100).wrapping(Wrapping::None),
             text(m2).size(16).width(100).wrapping(Wrapping::WordOrGlyph),
+            text(m2).size(16).width(100).height(20),
+            text(m2)
+                .size(16)
+                .width(100)
+                .height(20)
+                .wrapping(Wrapping::None),
+            text(m2)
+                .size(16)
+                .width(100)
+                .height(20)
+                .wrapping(Wrapping::WordOrGlyph),
         ]
         .spacing(20)
         .into()
