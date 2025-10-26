@@ -1,0 +1,7 @@
+[package]
+name = "use_metal"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+candle-core = { version = "0.9.1", features = ["metal"] }
