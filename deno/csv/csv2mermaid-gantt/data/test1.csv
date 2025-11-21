@@ -1,0 +1,9 @@
+date,class,method,action
+2025-11-20T18:00:01.342Z,CartService,addItem,start
+2025-11-20T18:00:01.552Z,CartService,findItem,start
+2025-11-20T18:00:01.556Z,ItemService,findItem,start
+2025-11-20T18:00:01.559Z,ItemService,exportItems,start
+2025-11-20T18:00:01.563Z,ItemService,findItem,end
+2025-11-20T18:00:01.566Z,CartService,findItem,end
+2025-11-20T18:00:02.012Z,CartService,addItem,end
+2025-11-20T18:00:02.012Z,CartTracking,handler,end
