@@ -8,14 +8,14 @@ const csv = await Deno.readTextFile(Deno.args[0])
 
 const data = parse(csv, { skipFirstRow: true })
 
-const toActionPeriod = R.pipe(
-    R.map(R.props(['action', 'date'])),
-    R.fromPairs,
-)
-
 const groupByMethod = R.pipe(
     R.groupBy(R.prop('method')),
-    R.map(toActionPeriod),
+    R.map(
+        R.pipe(
+            R.project(['action', 'date']),
+            R.sortBy(R.prop('date')),
+        )
+    ),
 )
 
 const groupByClass = R.pipe(
@@ -23,16 +23,36 @@ const groupByClass = R.pipe(
     R.map(groupByMethod),
 )
 
-const formatDate = (dv) => R.pipe(
-    R.defaultTo(dv),
-    v => format(new Date(v), DATE_FORMAT)
-)
+const formatDate = (v) => format(new Date(v), DATE_FORMAT)
+
+const printTask = (name, start, end) => {
+    console.log(`${name} : ${formatDate(start)},${formatDate(end)}`)
+}
 
 const renderTask = (period) => (v, k) => {
-    const start = formatDate(period.start)(v.start)
-    const end = formatDate(period.end)(v.end)
+    const [remain, _] = R.reduce(
+        ([buf, offset], x) => {
+            if (R.propEq('start', 'action', x)) {
+                buf.push(x)
+            }
+            else if (R.propEq('end', 'action', x)) {
+                printTask(k, buf.shift()?.date ?? offset, x.date)
+                offset = x.date
+            }
+            return [buf, offset]
+        },
+        [[], period.start], 
+        v
+    )
 
-    console.log(`${k} : ${start},${end}`)
+    R.reduce(
+        (offset, x) => {
+            printTask(k, x.date, offset)
+            return x.date
+        },
+        period.end,
+        remain.reverse()
+    )
 }
 
 const renderSection = (period) => (v, k) => {
