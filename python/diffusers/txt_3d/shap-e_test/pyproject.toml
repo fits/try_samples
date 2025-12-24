@@ -1,0 +1,10 @@
+[project]
+name = "txt_3d"
+version = "0.1.0"
+description = "Shap-e text to 3D example"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "diffusers[torch]>=0.36.0",
+    "transformers>=4.57.3",
+]
