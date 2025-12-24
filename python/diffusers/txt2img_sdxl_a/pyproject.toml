@@ -1,0 +1,10 @@
+[project]
+name = "txt2img_sdxl_a"
+version = "0.1.0"
+description = "txt2img SDXL"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "diffusers[torch]>=0.36.0",
+    "transformers>=4.57.3",
+]
