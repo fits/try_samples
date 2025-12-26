@@ -1,0 +1,20 @@
+[package]
+name = "example"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+winit = "0.30.12"
+wry = "0.53.5"
+
+[[bin]]
+name = "app1"
+path = "src/app1.rs"
+
+[[bin]]
+name = "app2"
+path = "src/app2.rs"
+
+[[bin]]
+name = "app3"
+path = "src/app3.rs"
