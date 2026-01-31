@@ -1,0 +1,7 @@
+[package]
+name = "cuda_simple"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+candle-core = { version = "0.9.2", features=["cuda"] }
