@@ -9,11 +9,15 @@ public class InterceptorUtil
     {
         var returnType = invocation.Method.ReturnType;
 
-        if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+        if (returnType == typeof(Task))
+        {
+            invocation.ReturnValue = InterceptAsync(invocation, beforeTask, afterTask);
+        }
+        else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
         {
             var genericType = returnType.GetGenericArguments()[0];
 
-            var method = typeof(InterceptorUtil).GetMethod("InterceptAsync", BindingFlags.NonPublic | BindingFlags.Static);
+            var method = typeof(InterceptorUtil).GetMethod("InterceptGenericAsync", BindingFlags.NonPublic | BindingFlags.Static);
             var genericMethod = method!.MakeGenericMethod(genericType);
 
             invocation.ReturnValue = genericMethod.Invoke(null, new object?[]{invocation, beforeTask, afterTask});
@@ -24,7 +28,25 @@ public class InterceptorUtil
         }
     }
 
-    private static async Task<T> InterceptAsync<T>(IInvocation invocation, AdviceTask? beforeTask = null, AdviceTask? afterTask = null)
+    private static async Task InterceptAsync(IInvocation invocation, AdviceTask? beforeTask = null, AdviceTask? afterTask = null)
+    {
+        var proceed = invocation.CaptureProceedInfo();
+
+        if (beforeTask != null)
+        {
+            await beforeTask(invocation);
+        }
+        
+        proceed.Invoke();
+        await (Task)invocation.ReturnValue!;
+
+        if (afterTask != null)
+        {
+            await afterTask(invocation);
+        }
+    }
+
+    private static async Task<T> InterceptGenericAsync<T>(IInvocation invocation, AdviceTask? beforeTask = null, AdviceTask? afterTask = null)
     {
         var proceed = invocation.CaptureProceedInfo();
 
