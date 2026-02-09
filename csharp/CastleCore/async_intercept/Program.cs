@@ -19,14 +19,20 @@ var svc3 = new ProxyGenerator().CreateClassProxy<TestService>(new TestAsyncMetho
 var res3 = await svc3.CheckStatusAsync("t3_1");
 
 Console.WriteLine($"t3 result={res3}");
-Console.WriteLine($"t3 sync result={svc3.CheckStatus("t3_2")}");
+
+await svc3.CheckStatus2Async("t3_2");
+
+Console.WriteLine($"t3 sync result={svc3.CheckStatus("t3_3")}");
 
 var svc4 = new ProxyGenerator().CreateClassProxy<TestService>(new TestInterceptor1(), new TestInterceptor2(), new TestInterceptor3());
 
 var res4 = await svc4.CheckStatusAsync("t4_1");
 
 Console.WriteLine($"t4 result={res4}");
-Console.WriteLine($"t4 sync result={svc4.CheckStatus("t4_2")}");
+
+await svc4.CheckStatus2Async("t4_2");
+
+Console.WriteLine($"t4 sync result={svc4.CheckStatus("t4_3")}");
 
 
 public class TestService
@@ -42,6 +48,15 @@ public class TestService
         Console.WriteLine($"CheckStatusAsync sleep end: {target}, thread={Thread.CurrentThread.ManagedThreadId}");
 
         return $"ok-{target}";
+    }
+
+    public virtual async Task CheckStatus2Async(string target)
+    {
+        Console.WriteLine($"CheckStatus2Async sleep start: {target}, thread={Thread.CurrentThread.ManagedThreadId}");
+        
+        await Task.Delay(rand.Next(5, 200));
+
+        Console.WriteLine($"CheckStatus2Async sleep end: {target}, thread={Thread.CurrentThread.ManagedThreadId}");
     }
 
     public virtual string CheckStatus(string target)
