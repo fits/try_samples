@@ -3,7 +3,7 @@ use std::env::args;
 use tree_sitter::{Parser, WasmStore};
 use tree_sitter::wasmtime::{Engine, Result};
 
-const GRAMMER: &[u8] = include_bytes!("../../tree-sitter-simple/tree-sitter-simple.wasm");
+const GRAMMAR: &[u8] = include_bytes!("../../tree-sitter-simple/tree-sitter-simple.wasm");
 
 fn main() -> Result<()> {
     let code = args().nth(1).unwrap_or_default();
@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     let engine = Engine::default();
     let mut store = WasmStore::new(&engine)?;
 
-    let simple = store.load_language("simple", GRAMMER)?;
+    let simple = store.load_language("simple", GRAMMAR)?;
 
     let mut parser = Parser::new();
     parser.set_wasm_store(store)?;
