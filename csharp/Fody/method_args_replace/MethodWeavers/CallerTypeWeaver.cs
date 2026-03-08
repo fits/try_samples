@@ -14,8 +14,6 @@ public class CallerTypeWeaver : BaseModuleWeaver
         {
             foreach (var m in t.Methods)
             {
-                var ilProc = m.Body.GetILProcessor();
-
                 foreach (var inst in m.Body.Instructions)
                 {
                     if (inst.OpCode == OpCodes.Call && inst.Operand is MethodReference mr )
