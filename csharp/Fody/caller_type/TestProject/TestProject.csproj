@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="6.9.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <ProjectReference Include="..\CustomAttributes\CustomAttributes.csproj" />
+
+    <WeaverFiles Include="../CallerWeavers/bin/$(Configuration)/$(TargetFramework)/CallerWeavers.dll" WeaverClassNames="CallerTypeWeaver" />
+  </ItemGroup>
+
+</Project>
