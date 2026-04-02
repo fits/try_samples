@@ -1,0 +1,15 @@
+stateDiagram-v2
+
+    [*] --> one
+
+    one --> two
+
+    one --> three
+
+    three --> four
+
+    two --> [*]
+
+    four --> [*]
+
+    five
