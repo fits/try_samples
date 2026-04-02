@@ -1,0 +1,7 @@
+[package]
+name = "run_parser"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tree-sitter = { version = "0.26.8", features = ["wasm"] }
