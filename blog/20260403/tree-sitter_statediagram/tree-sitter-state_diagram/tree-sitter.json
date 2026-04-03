@@ -1,0 +1,30 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "state_diagram",
+      "camelcase": "StateDiagram",
+      "title": "StateDiagram",
+      "scope": "source.state_diagram",
+      "file-types": [
+        "state_diagram"
+      ],
+      "injection-regex": "^state_diagram$",
+      "class-name": "TreeSitterStateDiagram"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "description": "StateDiagram grammar"
+  },
+  "bindings": {
+    "c": false,
+    "go": false,
+    "java": false,
+    "node": false,
+    "python": false,
+    "rust": false,
+    "swift": false,
+    "zig": false
+  }
+}
