@@ -1,0 +1,11 @@
+{
+  "name": "ollama_client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "ollama": "^0.6.3"
+  }
+}
