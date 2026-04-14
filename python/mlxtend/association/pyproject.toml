@@ -1,0 +1,9 @@
+[project]
+name = "association"
+version = "0.1.0"
+description = ""
+readme = ""
+requires-python = ">=3.14"
+dependencies = [
+    "mlxtend>=0.24.0",
+]
