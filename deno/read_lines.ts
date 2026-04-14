@@ -1,6 +1,10 @@
-import { readLines } from 'https://deno.land/std/io/mod.ts'
+import { TextLineStream } from 'jsr:@std/streams/text-line-stream'
 
-for await (const line of readLines(Deno.stdin)) {
+const stream = Deno.stdin.readable
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(new TextLineStream())
+
+for await (const line of stream) {
     const d = line.trim()
 
     console.log(d)
