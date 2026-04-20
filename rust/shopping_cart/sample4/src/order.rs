@@ -8,13 +8,28 @@ pub type Quantity = usize;
 pub type Amount = Decimal;
 pub type Date = DateTime<Local>;
 
+pub trait ConstraintType<T>
+where
+    Self: Sized,
+    T: Debug + Clone + PartialEq,
+{
+    fn new(value: T) -> Option<Self>;
+    fn value(&self) -> &T;
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct NotBlankString {
     value: String,
 }
 
 impl NotBlankString {
-    pub fn new(value: &str) -> Option<Self> {
+    pub fn from_str(value: &str) -> Option<Self> {
+        Self::new(value.into())
+    }
+}
+
+impl ConstraintType<String> for NotBlankString {
+    fn new(value: String) -> Option<Self> {
         let value = value.trim();
 
         if value.is_empty() {
@@ -25,6 +40,10 @@ impl NotBlankString {
             })
         }
     }
+
+    fn value(&self) -> &String {
+        &self.value
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -33,15 +52,48 @@ pub struct OneOrMore {
 }
 
 impl OneOrMore {
-    pub fn new(value: Quantity) -> Option<Self> {
+    pub fn one() -> Self {
+        Self::new(1).unwrap()
+    }
+}
+
+impl ConstraintType<Quantity> for OneOrMore {
+    fn new(value: Quantity) -> Option<Self> {
         if value >= 1 {
             return Some(Self { value });
         }
         None
     }
 
-    pub fn one() -> Self {
-        Self { value: 1 }
+    fn value(&self) -> &Quantity {
+        &self.value
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct PositiveAmount {
+    value: Amount,
+}
+
+impl ConstraintType<Amount> for PositiveAmount {
+    fn new(value: Amount) -> Option<Self> {
+        if value.is_sign_positive() {
+            Some(Self { value })
+        } else {
+            None
+        }
+    }
+
+    fn value(&self) -> &Amount {
+        &self.value
+    }
+}
+
+impl TryFrom<Amount> for PositiveAmount {
+    type Error = String;
+
+    fn try_from(value: Amount) -> std::result::Result<Self, Self::Error> {
+        Self::new(value).ok_or(format!("{value} is not positive"))
     }
 }
 
@@ -86,7 +138,7 @@ pub enum OrderLine {
         by: Option<Who>,
         item: ItemId,
         qty: OneOrMore,
-        unit_price: Amount,
+        unit_price: PositiveAmount,
     },
     Cancelled {
         at: Date,
@@ -121,7 +173,7 @@ impl Order {
         &self,
         item: ItemId,
         qty: OneOrMore,
-        unit_price: Amount,
+        unit_price: PositiveAmount,
         by: Option<Who>,
     ) -> Result<Self> {
         match self {
@@ -248,9 +300,13 @@ pub enum OrderError {
 mod tests {
     use super::*;
 
+    fn to_positive(v: usize) -> PositiveAmount {
+        Amount::from_usize(v).unwrap().try_into().unwrap()
+    }
+
     #[test]
     fn new_notblankid() {
-        let r = NotBlankString::new("id1");
+        let r = NotBlankString::new("id1".into());
 
         assert!(r.is_some());
         assert_eq!("id1", r.unwrap().value);
@@ -258,7 +314,7 @@ mod tests {
 
     #[test]
     fn new_notblankid_with_blank() {
-        let r = NotBlankString::new("  ");
+        let r = NotBlankString::new("  ".into());
 
         assert!(r.is_none());
     }
@@ -287,6 +343,29 @@ mod tests {
     }
 
     #[test]
+    fn new_positiveamount() {
+        let r = PositiveAmount::new(Amount::ONE);
+
+        assert!(r.is_some());
+        assert_eq!(Amount::ONE, *r.unwrap().value());
+    }
+
+    #[test]
+    fn new_positiveamount_with_zero() {
+        let r = PositiveAmount::new(Amount::ZERO);
+
+        assert!(r.is_some());
+        assert_eq!(Amount::ZERO, *r.unwrap().value());
+    }
+
+    #[test]
+    fn new_positiveamount_with_negative() {
+        let r = PositiveAmount::new(Amount::from_isize(-12).unwrap());
+
+        assert!(r.is_none());
+    }
+
+    #[test]
     fn start() {
         let r = Order::start(None);
 
@@ -300,7 +379,7 @@ mod tests {
 
     #[test]
     fn start_by_system() {
-        let by = Some(Who::System(NotBlankString::new("test1")));
+        let by = Some(Who::System(NotBlankString::from_str("test1")));
         let r = Order::start(by.clone());
 
         if let Order::Started { by, .. } = r.clone() {
@@ -345,10 +424,10 @@ mod tests {
     fn order_item_to_started() {
         let s = Order::start(None);
 
-        let item = NotBlankString::new("item-1").unwrap();
+        let item = NotBlankString::from_str("item-1").unwrap();
         let qty = OneOrMore::one();
-        let unit_price = Amount::from_isize(1100).unwrap();
-        let by = Some(Who::User(NotBlankString::new("u1").unwrap()));
+        let unit_price = to_positive(1100);
+        let by = Some(Who::User(NotBlankString::from_str("u1").unwrap()));
 
         let r = s.order_item(item, qty, unit_price, by.clone());
 
@@ -377,7 +456,7 @@ mod tests {
                 assert_eq!(by, *by_2);
                 assert_eq!("item-1", i.value);
                 assert_eq!(1, q.value);
-                assert_eq!(1100, p.to_isize().unwrap());
+                assert_eq!(1100, p.value().to_usize().unwrap());
             } else {
                 assert!(false, "not found ordered-item");
             }
@@ -390,9 +469,9 @@ mod tests {
     fn order_item_to_cancelled() {
         let s = Order::start(None).cancel(None).unwrap();
 
-        let item = NotBlankString::new("item1").unwrap();
+        let item = NotBlankString::from_str("item1").unwrap();
         let qty = OneOrMore::one();
-        let unit_price = Amount::from_isize(1100).unwrap();
+        let unit_price = to_positive(1100);
         let by = Some(Who::Anonymous);
 
         let r = s.order_item(item, qty, unit_price, by);
@@ -412,15 +491,15 @@ mod tests {
             lines: vec![OrderLine::OrderedItem {
                 at: at.clone(),
                 by: None,
-                item: NotBlankString::new("item-1").unwrap(),
+                item: NotBlankString::from_str("item-1").unwrap(),
                 qty: OneOrMore::one(),
-                unit_price: Amount::from_isize(550).unwrap(),
+                unit_price: to_positive(550),
             }],
         };
 
-        let item = NotBlankString::new("item-2").unwrap();
+        let item = NotBlankString::from_str("item-2").unwrap();
         let qty = OneOrMore::new(3).unwrap();
-        let unit_price = Amount::from_isize(220).unwrap();
+        let unit_price = to_positive(220);
         let by = Some(Who::Anonymous);
 
         let r = s2.order_item(item, qty, unit_price, by);
@@ -450,7 +529,7 @@ mod tests {
                 assert_eq!(Some(Who::Anonymous), *by_2);
                 assert_eq!("item-2", i.value);
                 assert_eq!(3, q.value);
-                assert_eq!(220, p.to_isize().unwrap());
+                assert_eq!(220, p.value().to_usize().unwrap());
             } else {
                 assert!(false, "not found ordered-item");
             }
@@ -471,15 +550,15 @@ mod tests {
             lines: vec![OrderLine::OrderedItem {
                 at: at.clone(),
                 by: None,
-                item: NotBlankString::new("item-1").unwrap(),
+                item: NotBlankString::from_str("item-1").unwrap(),
                 qty: OneOrMore::one(),
-                unit_price: Amount::from_isize(550).unwrap(),
+                unit_price: to_positive(550),
             }],
         };
 
-        let item = NotBlankString::new("item-1").unwrap();
+        let item = NotBlankString::from_str("item-1").unwrap();
         let qty = OneOrMore::new(3).unwrap();
-        let unit_price = Amount::from_isize(440).unwrap();
+        let unit_price = to_positive(440);
 
         let r = s2.order_item(item, qty, unit_price, Some(Who::Anonymous));
 
@@ -508,7 +587,7 @@ mod tests {
                 assert_eq!(Some(Who::Anonymous), *by_2);
                 assert_eq!("item-1", i.value);
                 assert_eq!(3, q.value);
-                assert_eq!(440, p.to_isize().unwrap());
+                assert_eq!(440, p.value().to_usize().unwrap());
             } else {
                 assert!(false, "not found ordered-item");
             }
@@ -525,9 +604,9 @@ mod tests {
         let line = OrderLine::OrderedItem {
             at: at.clone(),
             by: None,
-            item: NotBlankString::new("item-1").unwrap(),
+            item: NotBlankString::from_str("item-1").unwrap(),
             qty: OneOrMore::one(),
-            unit_price: Amount::from_isize(550).unwrap(),
+            unit_price: to_positive(550),
         };
 
         let s2 = Order::Ordered {
@@ -576,17 +655,17 @@ mod tests {
         let line1 = OrderLine::OrderedItem {
             at: at.clone(),
             by: None,
-            item: NotBlankString::new("item-1").unwrap(),
+            item: NotBlankString::from_str("item-1").unwrap(),
             qty: OneOrMore::one(),
-            unit_price: Amount::from_isize(550).unwrap(),
+            unit_price: to_positive(550),
         };
 
         let line2 = OrderLine::OrderedItem {
             at: now(),
             by: None,
-            item: NotBlankString::new("item-2").unwrap(),
+            item: NotBlankString::from_str("item-2").unwrap(),
             qty: OneOrMore::new(3).unwrap(),
-            unit_price: Amount::from_isize(2200).unwrap(),
+            unit_price: to_positive(2200),
         };
 
         let s2 = Order::Ordered {
@@ -635,7 +714,7 @@ mod tests {
     fn cancel_ordered_item_to_cancelled() {
         let s = Order::start(None).cancel(None).unwrap();
 
-        let r = s.cancel_ordered_item(0, Some(Who::System(NotBlankString::new("test1"))));
+        let r = s.cancel_ordered_item(0, Some(Who::System(NotBlankString::from_str("test1"))));
 
         assert!(r.is_err(), "cancelled ordered item to cancelled state");
     }
@@ -652,9 +731,9 @@ mod tests {
             lines: vec![OrderLine::OrderedItem {
                 at: at.clone(),
                 by: None,
-                item: NotBlankString::new("item-1").unwrap(),
+                item: NotBlankString::from_str("item-1").unwrap(),
                 qty: OneOrMore::one(),
-                unit_price: Amount::from_isize(550).unwrap(),
+                unit_price: to_positive(550),
             }],
         };
 
@@ -671,9 +750,9 @@ mod tests {
         let line = OrderLine::OrderedItem {
             at: at.clone(),
             by: None,
-            item: NotBlankString::new("item-1").unwrap(),
+            item: NotBlankString::from_str("item-1").unwrap(),
             qty: OneOrMore::one(),
-            unit_price: Amount::from_isize(550).unwrap(),
+            unit_price: to_positive(550),
         };
 
         let s2 = Order::Ordered {
