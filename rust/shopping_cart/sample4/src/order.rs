@@ -8,6 +8,10 @@ pub type Quantity = usize;
 pub type Amount = Decimal;
 pub type Date = DateTime<Local>;
 
+pub type ItemId = NotBlankString;
+pub type UserId = NotBlankString;
+pub type PromotionId = NotBlankString;
+
 pub trait ConstraintType<T>
 where
     Self: Sized,
@@ -20,12 +24,6 @@ where
 #[derive(Debug, Clone, PartialEq)]
 pub struct NotBlankString {
     value: String,
-}
-
-impl NotBlankString {
-    pub fn from_str(value: &str) -> Option<Self> {
-        Self::new(value.into())
-    }
 }
 
 impl ConstraintType<String> for NotBlankString {
@@ -43,6 +41,14 @@ impl ConstraintType<String> for NotBlankString {
 
     fn value(&self) -> &String {
         &self.value
+    }
+}
+
+impl TryFrom<&str> for NotBlankString {
+    type Error = String;
+
+    fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
+        Self::new(value.into()).ok_or(format!("'{value}' is invalid"))
     }
 }
 
@@ -67,6 +73,14 @@ impl ConstraintType<Quantity> for OneOrMore {
 
     fn value(&self) -> &Quantity {
         &self.value
+    }
+}
+
+impl TryFrom<usize> for OneOrMore {
+    type Error = String;
+
+    fn try_from(value: usize) -> std::result::Result<Self, Self::Error> {
+        Self::new(value).ok_or("must be more than one".into())
     }
 }
 
@@ -97,19 +111,73 @@ impl TryFrom<Amount> for PositiveAmount {
     }
 }
 
+impl TryFrom<usize> for PositiveAmount {
+    type Error = String;
+
+    fn try_from(value: usize) -> std::result::Result<Self, Self::Error> {
+        let v = Amount::from_usize(value).ok_or("failed convert")?;
+        Self::try_from(v)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct UnderZeroAmount {
+    value: Amount,
+}
+
+impl ConstraintType<Amount> for UnderZeroAmount {
+    fn new(value: Amount) -> Option<Self> {
+        if value < Amount::ZERO {
+            Some(UnderZeroAmount { value })
+        } else {
+            None
+        }
+    }
+
+    fn value(&self) -> &Amount {
+        &self.value
+    }
+}
+
+impl TryFrom<isize> for UnderZeroAmount {
+    type Error = String;
+
+    fn try_from(value: isize) -> std::result::Result<Self, Self::Error> {
+        let v = Amount::from_isize(value).ok_or("failed convert")?;
+        Self::new(v).ok_or(format!("{value} is not strictly negative"))
+    }
+}
+
 pub trait EventSource {
     fn at(&self) -> &Date;
     fn by(&self) -> &Option<Who>;
 }
 
-pub type ItemId = NotBlankString;
-pub type UserId = NotBlankString;
+pub trait Subtotal<T> {
+    fn subtotal(&self) -> Option<T>;
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Who {
     Anonymous,
     User(UserId),
     System(Option<NotBlankString>),
+    Auto,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Dependence {
+    Single { index: usize },
+    Multi { indexes: Vec<usize> },
+}
+
+impl Dependence {
+    fn indexes(&self) -> Vec<usize> {
+        match self {
+            Self::Single { index } => vec![*index],
+            Self::Multi { indexes } => indexes.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -145,6 +213,13 @@ pub enum OrderLine {
         by: Option<Who>,
         target: Box<Self>,
     },
+    Discounted {
+        at: Date,
+        by: Option<Who>,
+        discount_value: UnderZeroAmount,
+        promotion: Option<PromotionId>,
+        dependencies: Option<Dependence>,
+    },
 }
 
 pub type Result<T> = std::result::Result<T, OrderError>;
@@ -160,7 +235,7 @@ impl Order {
 
     pub fn cancel(&self, by: Option<Who>) -> Result<Self> {
         match self {
-            Self::Cancelled { .. } => Self::already_cancelled("order"),
+            Self::Cancelled { .. } => OrderError::already_cancelled("order"),
             _ => Ok(Self::Cancelled {
                 at: now(),
                 by,
@@ -217,14 +292,16 @@ impl Order {
                     lines,
                 })
             }
-            Self::Cancelled { .. } => Self::invalid_operation("cancelled"),
+            Self::Cancelled { .. } => OrderError::invalid_operation("cancelled"),
         }
     }
 
     pub fn cancel_ordered_item(&self, index: usize, by: Option<Who>) -> Result<Self> {
         match self {
-            Order::Started { .. } => Self::invalid_operation("started order has not ordered item"),
-            Order::Cancelled { .. } => Self::invalid_operation("cancelled order"),
+            Order::Started { .. } => {
+                OrderError::invalid_operation("started order has not ordered item")
+            }
+            Order::Cancelled { .. } => OrderError::invalid_operation("cancelled order"),
             Order::Ordered {
                 at,
                 by: by_s,
@@ -238,11 +315,13 @@ impl Order {
                         OrderLine::OrderedItem { .. } => {
                             let mut new_lines = lines.clone();
 
-                            new_lines[index] = OrderLine::Cancelled {
-                                at: now(),
-                                by,
-                                target: Box::new(line.clone()),
-                            };
+                            for i in 0..new_lines.len() {
+                                if i == index {
+                                    new_lines[index] = line.cancel(by.clone())?;
+                                } else if new_lines[i].is_dependent(index) {
+                                    new_lines[i] = new_lines[i].cancel(Some(Who::Auto))?;
+                                }
+                            }
 
                             Ok(Order::Ordered {
                                 at: at.clone(),
@@ -252,26 +331,144 @@ impl Order {
                             })
                         }
                         OrderLine::Cancelled { .. } => {
-                            Self::already_cancelled(&format!("line index={index}"))
+                            OrderError::already_cancelled(&format!("line index={index}"))
+                        }
+                        OrderLine::Discounted { .. } => {
+                            OrderError::invalid_operation("discount is not ordered item")
                         }
                     }
                 } else {
-                    Self::not_found(&format!("line index={index}"))
+                    OrderError::not_found_line(&format!("line index={index}"))
                 }
             }
         }
     }
 
-    fn invalid_operation(msg: &str) -> Result<Self> {
-        Err(OrderError::InvalidOperation(Some(msg.into())))
+    pub fn discount(
+        &self,
+        discount_value: UnderZeroAmount,
+        dependencies: Option<Dependence>,
+        promotion: Option<PromotionId>,
+        by: Option<Who>,
+    ) -> Result<Self> {
+        match self {
+            Self::Started { .. } | Self::Cancelled { .. } => {
+                OrderError::invalid_operation("state is not ordered")
+            }
+            Self::Ordered {
+                at,
+                by: by_s,
+                target,
+                lines,
+            } => {
+                self.validate_discount(&discount_value, &dependencies, lines)?;
+
+                let mut new_lines = lines.clone();
+
+                new_lines.push(OrderLine::Discounted {
+                    at: now(),
+                    by,
+                    discount_value,
+                    promotion,
+                    dependencies,
+                });
+
+                Ok(Self::Ordered {
+                    at: at.clone(),
+                    by: by_s.clone(),
+                    target: target.clone(),
+                    lines: new_lines,
+                })
+            }
+        }
     }
 
-    fn already_cancelled(msg: &str) -> Result<Self> {
-        Err(OrderError::AlreadyCancelled(Some(msg.into())))
+    fn validate_discount(
+        &self,
+        discount_value: &UnderZeroAmount,
+        dependencies: &Option<Dependence>,
+        lines: &Vec<OrderLine>,
+    ) -> Result<()> {
+        if self.subtotal().unwrap_or(Amount::zero()) + discount_value.value < Amount::ZERO {
+            OrderError::over_discount("discount > subtotal")
+        } else {
+            if let Some(d) = dependencies {
+                let os = Self::pickup_ordered(lines, d.indexes())?;
+
+                if os.subtotal().unwrap_or(Amount::zero()) + discount_value.value < Amount::ZERO {
+                    return OrderError::over_discount("discount > subtotal");
+                }
+            }
+
+            Ok(())
+        }
     }
 
-    fn not_found(msg: &str) -> Result<Self> {
-        Err(OrderError::NotFoundLine(Some(msg.into())))
+    fn pickup_ordered<'a>(
+        lines: &'a Vec<OrderLine>,
+        indexes: Vec<usize>,
+    ) -> Result<Vec<&'a OrderLine>> {
+        if indexes.is_empty() {
+            //TODO
+            OrderError::invalid_operation("empty dependencies")
+        } else {
+            let mut res = vec![];
+
+            for i in indexes {
+                let line = lines.get(i);
+
+                if let Some(line) = line {
+                    if line.is_ordered() {
+                        res.push(line);
+                    } else {
+                        return OrderError::invalid_line("target line is not ordered item");
+                    }
+                } else {
+                    return OrderError::not_found_line(&format!("invalid index={i}"));
+                }
+            }
+
+            Ok(res)
+        }
+    }
+}
+
+impl OrderLine {
+    fn is_ordered(&self) -> bool {
+        match self {
+            Self::OrderedItem { .. } => true,
+            _ => false,
+        }
+    }
+
+    fn is_cancelled(&self) -> bool {
+        match self {
+            Self::Cancelled { .. } => true,
+            _ => false,
+        }
+    }
+
+    fn is_dependent(&self, index: usize) -> bool {
+        match self {
+            Self::Discounted { dependencies, .. } => match dependencies {
+                Some(Dependence::Single { index: x }) => *x == index,
+                Some(Dependence::Multi { indexes }) => indexes.contains(&index),
+                None => false,
+            },
+            _ => false,
+        }
+    }
+
+    fn cancel(&self, by: Option<Who>) -> Result<Self> {
+        if self.is_cancelled() {
+            OrderError::already_cancelled("order line")
+        } else {
+            Ok(Self::Cancelled {
+                at: now(),
+                by,
+                target: Box::new(self.clone()),
+            })
+        }
     }
 }
 
@@ -289,11 +486,86 @@ impl EventSource for Order {
     }
 }
 
+impl EventSource for OrderLine {
+    fn at(&self) -> &Date {
+        match self {
+            Self::OrderedItem { at, .. }
+            | Self::Cancelled { at, .. }
+            | Self::Discounted { at, .. } => at,
+        }
+    }
+
+    fn by(&self) -> &Option<Who> {
+        match self {
+            Self::OrderedItem { by, .. }
+            | Self::Cancelled { by, .. }
+            | Self::Discounted { by, .. } => by,
+        }
+    }
+}
+
+impl Subtotal<Amount> for Order {
+    fn subtotal(&self) -> Option<Amount> {
+        match self {
+            Self::Started { .. } | Self::Cancelled { .. } => None,
+            Self::Ordered { lines, .. } => Some(lines.iter().fold(Amount::ZERO, |acc, v| {
+                acc + v.subtotal().unwrap_or(Amount::ZERO)
+            })),
+        }
+    }
+}
+
+impl Subtotal<Amount> for OrderLine {
+    fn subtotal(&self) -> Option<Amount> {
+        match self {
+            Self::OrderedItem {
+                qty, unit_price, ..
+            } => Amount::from_usize(qty.value).map(|q| q * unit_price.value),
+            Self::Cancelled { .. } => None,
+            Self::Discounted { discount_value, .. } => Some(discount_value.value),
+        }
+    }
+}
+
+impl Subtotal<Amount> for Vec<&OrderLine> {
+    fn subtotal(&self) -> Option<Amount> {
+        let res = self.iter().fold(Amount::ZERO, |acc, v| {
+            acc + v.subtotal().unwrap_or(Amount::ZERO)
+        });
+
+        Some(res)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum OrderError {
     InvalidOperation(Option<String>),
     AlreadyCancelled(Option<String>),
     NotFoundLine(Option<String>),
+    OverDiscount(Option<String>),
+    InvalidLine(Option<String>),
+}
+
+impl OrderError {
+    fn over_discount<T>(msg: &str) -> Result<T> {
+        Err(OrderError::OverDiscount(Some(msg.into())))
+    }
+
+    fn not_found_line<T>(msg: &str) -> Result<T> {
+        Err(OrderError::NotFoundLine(Some(msg.into())))
+    }
+
+    fn invalid_operation<T>(msg: &str) -> Result<T> {
+        Err(OrderError::InvalidOperation(Some(msg.into())))
+    }
+
+    fn already_cancelled<T>(msg: &str) -> Result<T> {
+        Err(OrderError::AlreadyCancelled(Some(msg.into())))
+    }
+
+    fn invalid_line<T>(msg: &str) -> Result<T> {
+        Err(OrderError::InvalidLine(Some(msg.into())))
+    }
 }
 
 #[cfg(test)]
@@ -366,6 +638,33 @@ mod tests {
     }
 
     #[test]
+    fn new_underzeroamount() {
+        let r = UnderZeroAmount::new(Amount::NEGATIVE_ONE);
+
+        assert!(r.is_some());
+        assert_eq!(Amount::NEGATIVE_ONE, *r.unwrap().value());
+
+        let r2 = UnderZeroAmount::new(Amount::from_isize(-10).unwrap());
+
+        assert!(r2.is_some());
+        assert_eq!(Amount::from_isize(-10).unwrap(), *r2.unwrap().value());
+    }
+
+    #[test]
+    fn new_underzeroamount_with_zero() {
+        let r = UnderZeroAmount::new(Amount::ZERO);
+
+        assert!(r.is_none());
+    }
+
+    #[test]
+    fn new_underzeroamount_with_positive() {
+        let r = UnderZeroAmount::new(Amount::ONE);
+
+        assert!(r.is_none());
+    }
+
+    #[test]
     fn start() {
         let r = Order::start(None);
 
@@ -379,7 +678,7 @@ mod tests {
 
     #[test]
     fn start_by_system() {
-        let by = Some(Who::System(NotBlankString::from_str("test1")));
+        let by = Some(Who::System("test1".try_into().ok()));
         let r = Order::start(by.clone());
 
         if let Order::Started { by, .. } = r.clone() {
@@ -403,7 +702,7 @@ mod tests {
         if let Ok(Order::Cancelled { at, by, target }) = r {
             assert_eq!(Some(Who::Anonymous), by);
             assert_eq!(s, *target);
-            assert!(at >= *s.at());
+            assert!(at > *s.at());
         } else {
             assert!(false, "failed to cancel");
         }
@@ -424,10 +723,10 @@ mod tests {
     fn order_item_to_started() {
         let s = Order::start(None);
 
-        let item = NotBlankString::from_str("item-1").unwrap();
+        let item = "item-1".try_into().unwrap();
         let qty = OneOrMore::one();
         let unit_price = to_positive(1100);
-        let by = Some(Who::User(NotBlankString::from_str("u1").unwrap()));
+        let by = Some(Who::User("u1".try_into().unwrap()));
 
         let r = s.order_item(item, qty, unit_price, by.clone());
 
@@ -438,7 +737,7 @@ mod tests {
             lines,
         }) = r
         {
-            assert!(at_1 >= *s.at());
+            assert!(at_1 > *s.at());
             assert_eq!(by, by_1);
             assert_eq!(s, *target);
 
@@ -469,7 +768,7 @@ mod tests {
     fn order_item_to_cancelled() {
         let s = Order::start(None).cancel(None).unwrap();
 
-        let item = NotBlankString::from_str("item1").unwrap();
+        let item = "item1".try_into().unwrap();
         let qty = OneOrMore::one();
         let unit_price = to_positive(1100);
         let by = Some(Who::Anonymous);
@@ -491,13 +790,13 @@ mod tests {
             lines: vec![OrderLine::OrderedItem {
                 at: at.clone(),
                 by: None,
-                item: NotBlankString::from_str("item-1").unwrap(),
+                item: "item-1".try_into().unwrap(),
                 qty: OneOrMore::one(),
                 unit_price: to_positive(550),
             }],
         };
 
-        let item = NotBlankString::from_str("item-2").unwrap();
+        let item = "item-2".try_into().unwrap();
         let qty = OneOrMore::new(3).unwrap();
         let unit_price = to_positive(220);
         let by = Some(Who::Anonymous);
@@ -525,7 +824,7 @@ mod tests {
                 unit_price: p,
             }) = lines.last()
             {
-                assert!(*at_2 >= at_1);
+                assert!(*at_2 > at_1);
                 assert_eq!(Some(Who::Anonymous), *by_2);
                 assert_eq!("item-2", i.value);
                 assert_eq!(3, q.value);
@@ -550,13 +849,13 @@ mod tests {
             lines: vec![OrderLine::OrderedItem {
                 at: at.clone(),
                 by: None,
-                item: NotBlankString::from_str("item-1").unwrap(),
+                item: "item-1".try_into().unwrap(),
                 qty: OneOrMore::one(),
                 unit_price: to_positive(550),
             }],
         };
 
-        let item = NotBlankString::from_str("item-1").unwrap();
+        let item = "item-1".try_into().unwrap();
         let qty = OneOrMore::new(3).unwrap();
         let unit_price = to_positive(440);
 
@@ -583,7 +882,7 @@ mod tests {
                 unit_price: p,
             }) = lines.last()
             {
-                assert!(*at_2 >= at_1);
+                assert!(*at_2 > at_1);
                 assert_eq!(Some(Who::Anonymous), *by_2);
                 assert_eq!("item-1", i.value);
                 assert_eq!(3, q.value);
@@ -604,7 +903,7 @@ mod tests {
         let line = OrderLine::OrderedItem {
             at: at.clone(),
             by: None,
-            item: NotBlankString::from_str("item-1").unwrap(),
+            item: "item-1".try_into().unwrap(),
             qty: OneOrMore::one(),
             unit_price: to_positive(550),
         };
@@ -636,7 +935,7 @@ mod tests {
                 target: t_2,
             }) = lines.first()
             {
-                assert!(*at_2 >= at_1);
+                assert!(*at_2 > at_1);
                 assert_eq!(Some(Who::Anonymous), *by_2);
                 assert_eq!(line, **t_2);
             } else {
@@ -655,7 +954,7 @@ mod tests {
         let line1 = OrderLine::OrderedItem {
             at: at.clone(),
             by: None,
-            item: NotBlankString::from_str("item-1").unwrap(),
+            item: "item-1".try_into().unwrap(),
             qty: OneOrMore::one(),
             unit_price: to_positive(550),
         };
@@ -663,7 +962,7 @@ mod tests {
         let line2 = OrderLine::OrderedItem {
             at: now(),
             by: None,
-            item: NotBlankString::from_str("item-2").unwrap(),
+            item: "item-2".try_into().unwrap(),
             qty: OneOrMore::new(3).unwrap(),
             unit_price: to_positive(2200),
         };
@@ -714,7 +1013,7 @@ mod tests {
     fn cancel_ordered_item_to_cancelled() {
         let s = Order::start(None).cancel(None).unwrap();
 
-        let r = s.cancel_ordered_item(0, Some(Who::System(NotBlankString::from_str("test1"))));
+        let r = s.cancel_ordered_item(0, Some(Who::System("test1".try_into().ok())));
 
         assert!(r.is_err(), "cancelled ordered item to cancelled state");
     }
@@ -731,7 +1030,7 @@ mod tests {
             lines: vec![OrderLine::OrderedItem {
                 at: at.clone(),
                 by: None,
-                item: NotBlankString::from_str("item-1").unwrap(),
+                item: "item-1".try_into().unwrap(),
                 qty: OneOrMore::one(),
                 unit_price: to_positive(550),
             }],
@@ -750,7 +1049,7 @@ mod tests {
         let line = OrderLine::OrderedItem {
             at: at.clone(),
             by: None,
-            item: NotBlankString::from_str("item-1").unwrap(),
+            item: "item-1".try_into().unwrap(),
             qty: OneOrMore::one(),
             unit_price: to_positive(550),
         };
@@ -769,5 +1068,963 @@ mod tests {
         let r = s2.cancel_ordered_item(0, None);
 
         assert!(r.is_err(), "duplicate cancelled ordered item")
+    }
+
+    #[test]
+    fn subtotal_started() {
+        let s = Order::start(None);
+        assert!(s.subtotal().is_none());
+    }
+
+    #[test]
+    fn subtotal_cancelled() {
+        let s = Order::start(None).cancel(None).unwrap();
+        assert!(s.subtotal().is_none());
+    }
+
+    #[test]
+    fn subtotal_single_ordered() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![OrderLine::OrderedItem {
+                at: at.clone(),
+                by: None,
+                item: "item-1".try_into().unwrap(),
+                qty: OneOrMore::new(3).unwrap(),
+                unit_price: to_positive(550),
+            }],
+        };
+
+        let r = s2.subtotal();
+
+        assert!(r.is_some());
+        assert_eq!(Amount::from_usize(3 * 550), r);
+    }
+
+    #[test]
+    fn subtotal_multi_ordered() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.subtotal();
+
+        assert!(r.is_some());
+        assert_eq!(Amount::from_usize(3 * 550 + 2 * 250), r);
+    }
+
+    #[test]
+    fn subtotal_multi_ordered_with_cancelled() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::Cancelled {
+                    at: at.clone(),
+                    by: None,
+                    target: Box::new(OrderLine::OrderedItem {
+                        at: at.clone(),
+                        by: None,
+                        item: "item-3".try_into().unwrap(),
+                        qty: OneOrMore::new(1).unwrap(),
+                        unit_price: to_positive(120),
+                    }),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.subtotal();
+
+        assert!(r.is_some());
+        assert_eq!(Amount::from_usize(3 * 550 + 2 * 250), r);
+    }
+
+    #[test]
+    fn subtotal_line_ordereditem() {
+        let s = OrderLine::OrderedItem {
+            at: now(),
+            by: None,
+            item: "i-1".try_into().unwrap(),
+            qty: 3.try_into().unwrap(),
+            unit_price: 350.try_into().unwrap(),
+        };
+
+        let r = s.subtotal();
+
+        assert!(r.is_some());
+        assert_eq!(1050, r.unwrap().to_isize().unwrap());
+    }
+
+    #[test]
+    fn subtotal_line_cancelled() {
+        let s = OrderLine::Cancelled {
+            at: now(),
+            by: None,
+            target: Box::new(OrderLine::OrderedItem {
+                at: now(),
+                by: None,
+                item: "i-1".try_into().unwrap(),
+                qty: 3.try_into().unwrap(),
+                unit_price: 350.try_into().unwrap(),
+            }),
+        };
+
+        let r = s.subtotal();
+
+        assert!(r.is_none());
+    }
+
+    #[test]
+    fn subtotal_line_discount() {
+        let s = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-100).try_into().unwrap(),
+            promotion: None,
+            dependencies: None,
+        };
+
+        let r = s.subtotal();
+
+        assert!(r.is_some());
+        assert_eq!(-100, r.unwrap().to_isize().unwrap());
+    }
+
+    #[test]
+    fn subtotal_lines() {
+        let line1 = OrderLine::OrderedItem {
+            at: now(),
+            by: None,
+            item: "item-1".try_into().unwrap(),
+            qty: OneOrMore::one(),
+            unit_price: to_positive(550),
+        };
+
+        let line2 = OrderLine::Cancelled {
+            at: now(),
+            by: None,
+            target: Box::new(OrderLine::OrderedItem {
+                at: now(),
+                by: None,
+                item: "item-2".try_into().unwrap(),
+                qty: OneOrMore::new(2).unwrap(),
+                unit_price: to_positive(5000),
+            }),
+        };
+
+        let line3 = OrderLine::OrderedItem {
+            at: now(),
+            by: None,
+            item: "item-3".try_into().unwrap(),
+            qty: OneOrMore::new(3).unwrap(),
+            unit_price: to_positive(1000),
+        };
+
+        let line4 = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-100).try_into().unwrap(),
+            promotion: None,
+            dependencies: None,
+        };
+
+        let r = vec![&line1, &line2, &line3, &line4].subtotal();
+
+        assert!(r.is_some());
+        assert_eq!(3450, r.unwrap().to_isize().unwrap());
+    }
+
+    #[test]
+    fn discount_to_started() {
+        let s = Order::start(None);
+
+        let r = s.discount((-10).try_into().unwrap(), None, None, None);
+
+        assert!(r.is_err(), "discount started");
+    }
+
+    #[test]
+    fn discount_to_cancelled() {
+        let s = Order::start(None).cancel(None).unwrap();
+
+        let r = s.discount((-10).try_into().unwrap(), None, None, None);
+
+        assert!(r.is_err(), "discount cancelled");
+    }
+
+    #[test]
+    fn discount_nodependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-300).try_into().unwrap(),
+            None,
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        if let Ok(Order::Ordered { lines, .. }) = r {
+            assert_eq!(3, lines.len());
+
+            if let Some(OrderLine::Discounted {
+                at: at_1,
+                by,
+                discount_value,
+                promotion,
+                dependencies,
+            }) = lines.last()
+            {
+                assert!(*at_1 > at);
+                assert_eq!(Some(Who::Anonymous), *by);
+                assert_eq!(-300, discount_value.value.to_isize().unwrap());
+                assert_eq!("p1".to_string(), promotion.clone().unwrap().value);
+                assert_eq!(None, *dependencies);
+            } else {
+                assert!(false, "not discounted")
+            }
+        } else {
+            assert!(false, "failed to discount")
+        }
+    }
+
+    #[test]
+    fn discount_all_nodependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-2150).try_into().unwrap(),
+            None,
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        if let Ok(Order::Ordered { lines, .. }) = r {
+            assert_eq!(3, lines.len());
+
+            if let Some(OrderLine::Discounted { discount_value, .. }) = lines.last() {
+                assert_eq!(-2150, discount_value.value.to_isize().unwrap());
+            } else {
+                assert!(false, "not discounted")
+            }
+        } else {
+            assert!(false, "failed to discount")
+        }
+    }
+
+    #[test]
+    fn discount_over_nodependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-2151).try_into().unwrap(),
+            None,
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "permit over discount");
+    }
+
+    #[test]
+    fn discount_single_dependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-300).try_into().unwrap(),
+            Some(Dependence::Single { index: 1 }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        if let Ok(Order::Ordered { lines, .. }) = r {
+            assert_eq!(3, lines.len());
+
+            if let Some(OrderLine::Discounted {
+                discount_value,
+                dependencies,
+                ..
+            }) = lines.last()
+            {
+                assert_eq!(-300, discount_value.value.to_isize().unwrap());
+                assert_eq!(Some(Dependence::Single { index: 1 }), *dependencies);
+            } else {
+                assert!(false, "not discounted")
+            }
+        } else {
+            assert!(false, "failed to discount")
+        }
+    }
+
+    #[test]
+    fn discount_over_single_dependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-501).try_into().unwrap(),
+            Some(Dependence::Single { index: 1 }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "over discount dependent ordered");
+    }
+
+    #[test]
+    fn discount_over_single_dependent_with_invalid_index() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-100).try_into().unwrap(),
+            Some(Dependence::Single { index: 2 }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "out of range dependent index");
+    }
+
+    #[test]
+    fn discount_over_single_dependent_with_cancelled_index() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::Cancelled {
+                    at: at.clone(),
+                    by: None,
+                    target: Box::new(OrderLine::OrderedItem {
+                        at: at.clone(),
+                        by: None,
+                        item: "item-2".try_into().unwrap(),
+                        qty: OneOrMore::new(2).unwrap(),
+                        unit_price: to_positive(250),
+                    }),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-100).try_into().unwrap(),
+            Some(Dependence::Single { index: 1 }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "cencelled index");
+    }
+
+    #[test]
+    fn discount_multi_dependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-3".try_into().unwrap(),
+                    qty: OneOrMore::new(1).unwrap(),
+                    unit_price: to_positive(110),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-300).try_into().unwrap(),
+            Some(Dependence::Multi {
+                indexes: vec![0, 1],
+            }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        if let Ok(Order::Ordered { lines, .. }) = r {
+            assert_eq!(4, lines.len());
+
+            if let Some(OrderLine::Discounted {
+                discount_value,
+                dependencies,
+                ..
+            }) = lines.last()
+            {
+                assert_eq!(-300, discount_value.value.to_isize().unwrap());
+                assert_eq!(
+                    Some(Dependence::Multi {
+                        indexes: vec![0, 1]
+                    }),
+                    *dependencies
+                );
+            } else {
+                assert!(false, "not discounted")
+            }
+        } else {
+            assert!(false, "failed to discount")
+        }
+    }
+
+    #[test]
+    fn discount_multi_empty_dependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-3".try_into().unwrap(),
+                    qty: OneOrMore::new(1).unwrap(),
+                    unit_price: to_positive(110),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-300).try_into().unwrap(),
+            Some(Dependence::Multi { indexes: vec![] }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "permit empty dependent indexes");
+    }
+
+    #[test]
+    fn discount_over_multi_dependent() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-2".try_into().unwrap(),
+                    qty: OneOrMore::new(2).unwrap(),
+                    unit_price: to_positive(250),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-3".try_into().unwrap(),
+                    qty: OneOrMore::new(1).unwrap(),
+                    unit_price: to_positive(110),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-1761).try_into().unwrap(),
+            Some(Dependence::Multi {
+                indexes: vec![0, 2],
+            }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "over discount dependent lines");
+    }
+
+    #[test]
+    fn discount_multi_dependent_include_cancelled_index() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::Cancelled {
+                    at: at.clone(),
+                    by: None,
+                    target: Box::new(OrderLine::OrderedItem {
+                        at: at.clone(),
+                        by: None,
+                        item: "item-2".try_into().unwrap(),
+                        qty: OneOrMore::new(2).unwrap(),
+                        unit_price: to_positive(250),
+                    }),
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-3".try_into().unwrap(),
+                    qty: OneOrMore::new(1).unwrap(),
+                    unit_price: to_positive(110),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-300).try_into().unwrap(),
+            Some(Dependence::Multi {
+                indexes: vec![0, 1],
+            }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "permit cancelled dependent indexes");
+    }
+
+    #[test]
+    fn cancel_ordered_item_with_dependent_discount() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let line1 = OrderLine::OrderedItem {
+            at: at.clone(),
+            by: None,
+            item: "item-1".try_into().unwrap(),
+            qty: OneOrMore::one(),
+            unit_price: to_positive(550),
+        };
+
+        let line2 = OrderLine::OrderedItem {
+            at: now(),
+            by: None,
+            item: "item-2".try_into().unwrap(),
+            qty: OneOrMore::new(3).unwrap(),
+            unit_price: to_positive(2200),
+        };
+
+        let line3 = OrderLine::OrderedItem {
+            at: now(),
+            by: None,
+            item: "item-3".try_into().unwrap(),
+            qty: OneOrMore::new(2).unwrap(),
+            unit_price: to_positive(5000),
+        };
+
+        let line4 = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-500).try_into().unwrap(),
+            promotion: None,
+            dependencies: None,
+        };
+
+        let line5 = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-200).try_into().unwrap(),
+            promotion: None,
+            dependencies: Some(Dependence::Single { index: 0 }),
+        };
+
+        let line6 = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-600).try_into().unwrap(),
+            promotion: None,
+            dependencies: Some(Dependence::Multi {
+                indexes: vec![1, 2],
+            }),
+        };
+
+        let line7 = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-300).try_into().unwrap(),
+            promotion: None,
+            dependencies: Some(Dependence::Multi {
+                indexes: vec![2, 0],
+            }),
+        };
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![line1, line2, line3, line4, line5, line6, line7],
+        };
+
+        let r = s2.cancel_ordered_item(0, None);
+
+        if let Ok(Order::Ordered { lines, .. }) = r {
+            assert!(
+                lines.get(0).unwrap().is_cancelled(),
+                "no cancel ordered item"
+            );
+            assert!(
+                lines.get(4).unwrap().is_cancelled(),
+                "no cancel dependent discount"
+            );
+            assert!(
+                lines.get(6).unwrap().is_cancelled(),
+                "no cancel dependent discount"
+            );
+        } else {
+            assert!(false, "failed to cancel ordered item");
+        }
+    }
+
+    #[test]
+    fn cancel_selfline() {
+        let at = Local::now();
+
+        let line = OrderLine::OrderedItem {
+            at: at.clone(),
+            by: None,
+            item: "item-1".try_into().unwrap(),
+            qty: OneOrMore::one(),
+            unit_price: to_positive(550),
+        };
+
+        let r = line.cancel(Some(Who::Anonymous));
+
+        if let Ok(r) = r {
+            assert!(r.is_cancelled());
+            assert!(*r.at() > at);
+            assert_eq!(Some(Who::Anonymous), *r.by());
+        } else {
+            assert!(false, "failed to cancel order line");
+        }
+    }
+
+    #[test]
+    fn cancel_selfline_cancelled() {
+        let at = Local::now();
+
+        let line = OrderLine::Cancelled {
+            at: now(),
+            by: None,
+            target: Box::new(OrderLine::OrderedItem {
+                at: at.clone(),
+                by: None,
+                item: "item-1".try_into().unwrap(),
+                qty: OneOrMore::one(),
+                unit_price: to_positive(550),
+            }),
+        };
+
+        let r = line.cancel(Some(Who::Anonymous));
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn is_dependent_no_dependency() {
+        let line = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-500).try_into().unwrap(),
+            promotion: None,
+            dependencies: None,
+        };
+
+        assert_eq!(false, line.is_dependent(0));
+    }
+
+    #[test]
+    fn is_dependent_single() {
+        let line = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-500).try_into().unwrap(),
+            promotion: None,
+            dependencies: Some(Dependence::Single { index: 2 }),
+        };
+
+        assert_eq!(false, line.is_dependent(0));
+        assert_eq!(false, line.is_dependent(1));
+        assert!(line.is_dependent(2));
+        assert_eq!(false, line.is_dependent(3));
+    }
+
+    #[test]
+    fn is_dependent_multi() {
+        let line = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-500).try_into().unwrap(),
+            promotion: None,
+            dependencies: Some(Dependence::Multi {
+                indexes: vec![2, 0],
+            }),
+        };
+
+        assert!(line.is_dependent(0));
+        assert_eq!(false, line.is_dependent(1));
+        assert!(line.is_dependent(2));
+        assert_eq!(false, line.is_dependent(3));
+    }
+
+    #[test]
+    fn is_dependent_cancelled() {
+        let line = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-500).try_into().unwrap(),
+            promotion: None,
+            dependencies: Some(Dependence::Multi {
+                indexes: vec![2, 0],
+            }),
+        }
+        .cancel(None)
+        .unwrap();
+
+        assert_eq!(false, line.is_dependent(0));
+        assert_eq!(false, line.is_dependent(1));
+        assert_eq!(false, line.is_dependent(2));
+        assert_eq!(false, line.is_dependent(3));
+    }
+
+    #[test]
+    fn is_dependent_ordered() {
+        let line = OrderLine::OrderedItem {
+            at: now(),
+            by: None,
+            item: "item-1".try_into().unwrap(),
+            qty: OneOrMore::one(),
+            unit_price: to_positive(550),
+        };
+
+        assert_eq!(false, line.is_dependent(0));
     }
 }
