@@ -329,7 +329,7 @@ impl Order {
         }
     }
 
-    pub fn cancel_ordered_item(&self, index: usize, by: Option<Who>) -> Result<Self> {
+    pub fn cancel_line(&self, index: usize, by: Option<Who>) -> Result<Self> {
         match self {
             Order::Started { .. } => {
                 OrderError::invalid_operation("started order has not ordered item")
@@ -341,34 +341,26 @@ impl Order {
                 target,
                 lines,
             } => {
-                let line = lines.get(index);
+                if let Some(line) = lines.get(index) {
+                    if line.is_cancelled() {
+                        OrderError::already_cancelled(&format!("line index={index}"))
+                    } else {
+                        let mut new_lines = lines.clone();
 
-                if let Some(line) = line {
-                    match line {
-                        OrderLine::OrderedItem { .. } => {
-                            let mut new_lines = lines.clone();
-
-                            for i in 0..new_lines.len() {
-                                if i == index {
-                                    new_lines[index] = line.cancel(by.clone())?;
-                                } else if new_lines[i].is_dependent(index) {
-                                    new_lines[i] = new_lines[i].cancel(Some(Who::Auto))?;
-                                }
+                        for i in 0..new_lines.len() {
+                            if i == index {
+                                new_lines[i] = line.cancel(by.clone())?;
+                            } else if new_lines[i].is_dependent(index) {
+                                new_lines[i] = new_lines[i].cancel(Some(Who::Auto))?;
                             }
+                        }
 
-                            Ok(Order::Ordered {
-                                at: at.clone(),
-                                by: by_s.clone(),
-                                target: target.clone(),
-                                lines: new_lines,
-                            })
-                        }
-                        OrderLine::Cancelled { .. } => {
-                            OrderError::already_cancelled(&format!("line index={index}"))
-                        }
-                        OrderLine::Discounted { .. } => {
-                            OrderError::invalid_operation("discount is not ordered item")
-                        }
+                        Ok(Order::Ordered {
+                            at: at.clone(),
+                            by: by_s.clone(),
+                            target: target.clone(),
+                            lines: new_lines,
+                        })
                     }
                 } else {
                     OrderError::not_found_line(&format!("line index={index}"))
@@ -972,7 +964,7 @@ mod tests {
             lines: vec![line.clone()],
         };
 
-        let r = s2.cancel_ordered_item(0, Some(Who::Anonymous));
+        let r = s2.cancel_line(0, Some(Who::Anonymous));
 
         if let Ok(Order::Ordered {
             at: at_1,
@@ -1004,7 +996,7 @@ mod tests {
     }
 
     #[test]
-    fn cancel_ordered_item() {
+    fn cancel_line_ordered_item() {
         let s1 = Order::start(None);
         let at = Local::now();
 
@@ -1031,7 +1023,7 @@ mod tests {
             lines: vec![line1.clone(), line2.clone()],
         };
 
-        let r = s2.cancel_ordered_item(1, None);
+        let r = s2.cancel_line(1, None);
 
         if let Ok(Order::Ordered {
             at: at_1,
@@ -1058,25 +1050,71 @@ mod tests {
     }
 
     #[test]
-    fn cancel_ordered_item_to_started() {
+    fn cancel_line_discounted() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let line1 = OrderLine::OrderedItem {
+            at: at.clone(),
+            by: None,
+            item: "item-1".try_into().unwrap(),
+            qty: OneOrMore::one(),
+            unit_price: to_positive(550),
+        };
+
+        let line2 = OrderLine::OrderedItem {
+            at: now(),
+            by: None,
+            item: "item-2".try_into().unwrap(),
+            qty: OneOrMore::new(3).unwrap(),
+            unit_price: to_positive(2200),
+        };
+
+        let line3 = OrderLine::Discounted {
+            at: now(),
+            by: None,
+            discount_value: (-50).try_into().unwrap(),
+            promotion: None,
+            dependencies: Some(Dependence::Single { index: 0 }),
+        };
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![line1, line2, line3],
+        };
+
+        let r = s2.cancel_line(2, None);
+
+        if let Ok(Order::Ordered { lines, .. }) = r {
+            assert_eq!(3, lines.len());
+            assert!(lines.last().unwrap().is_cancelled());
+        } else {
+            assert!(false, "failed to cancel discounted");
+        }
+    }
+
+    #[test]
+    fn cancel_line_to_started() {
         let s = Order::start(None);
 
-        let r = s.cancel_ordered_item(0, None);
+        let r = s.cancel_line(0, None);
 
         assert!(r.is_err(), "cancelled ordered item to started state");
     }
 
     #[test]
-    fn cancel_ordered_item_to_cancelled() {
+    fn cancel_line_to_cancelled() {
         let s = Order::start(None).cancel(None).unwrap();
 
-        let r = s.cancel_ordered_item(0, Some(Who::System("test1".try_into().ok())));
+        let r = s.cancel_line(0, Some(Who::System("test1".try_into().ok())));
 
         assert!(r.is_err(), "cancelled ordered item to cancelled state");
     }
 
     #[test]
-    fn cancel_ordered_item_with_invalid_index() {
+    fn cancel_line_with_invalid_index() {
         let s1 = Order::start(None);
         let at = Local::now();
 
@@ -1093,13 +1131,13 @@ mod tests {
             }],
         };
 
-        let r = s2.cancel_ordered_item(1, None);
+        let r = s2.cancel_line(1, None);
 
         assert!(r.is_err(), "cancelled not exists ordered item");
     }
 
     #[test]
-    fn cancel_cancelled_ordered_item() {
+    fn cancel_line_cancelled_ordered_item() {
         let s1 = Order::start(None);
         let at = Local::now();
 
@@ -1122,7 +1160,7 @@ mod tests {
             }],
         };
 
-        let r = s2.cancel_ordered_item(0, None);
+        let r = s2.cancel_line(0, None);
 
         assert!(r.is_err(), "duplicate cancelled ordered item")
     }
@@ -1827,6 +1865,52 @@ mod tests {
     }
 
     #[test]
+    fn discount_multi_dependent_include_discounted_index() {
+        let s1 = Order::start(None);
+        let at = Local::now();
+
+        let s2 = Order::Ordered {
+            at: at.clone(),
+            by: None,
+            target: Box::new(s1.clone()),
+            lines: vec![
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-1".try_into().unwrap(),
+                    qty: OneOrMore::new(3).unwrap(),
+                    unit_price: to_positive(550),
+                },
+                OrderLine::Discounted {
+                    at: now(),
+                    by: None,
+                    discount_value: (-30).try_into().unwrap(),
+                    promotion: None,
+                    dependencies: None,
+                },
+                OrderLine::OrderedItem {
+                    at: at.clone(),
+                    by: None,
+                    item: "item-3".try_into().unwrap(),
+                    qty: OneOrMore::new(1).unwrap(),
+                    unit_price: to_positive(110),
+                },
+            ],
+        };
+
+        let r = s2.discount(
+            (-300).try_into().unwrap(),
+            Some(Dependence::Multi {
+                indexes: vec![0, 1].try_into().unwrap(),
+            }),
+            "p1".try_into().ok(),
+            Some(Who::Anonymous),
+        );
+
+        assert!(r.is_err(), "permit discounted dependent indexes");
+    }
+
+    #[test]
     fn cancel_ordered_item_with_dependent_discount() {
         let s1 = Order::start(None);
         let at = Local::now();
@@ -1898,7 +1982,7 @@ mod tests {
             lines: vec![line1, line2, line3, line4, line5, line6, line7],
         };
 
-        let r = s2.cancel_ordered_item(0, None);
+        let r = s2.cancel_line(0, None);
 
         if let Ok(Order::Ordered { lines, .. }) = r {
             assert!(
