@@ -418,7 +418,7 @@ impl Order {
             OrderError::over_discount("discount more than subtotal")
         } else {
             if let Some(d) = dependencies {
-                let os = Self::pickup_ordered(lines, d)?;
+                let os = Self::pickup_dependent_lines(lines, d)?;
 
                 if os.subtotal().unwrap_or(Amount::zero()) < discount_value.value.abs() {
                     return OrderError::over_discount(
@@ -431,13 +431,10 @@ impl Order {
         }
     }
 
-    fn pickup_ordered<'a>(
-        lines: &'a Vec<OrderLine>,
-        dep: &Dependence,
-    ) -> Result<Vec<&'a OrderLine>> {
+    fn pickup_dependent_lines<'a>(lines: &'a Vec<OrderLine>, d: &Dependence) -> Result<Vec<&'a OrderLine>> {
         let mut res = vec![];
 
-        let idx = match dep {
+        let idx = match d {
             Dependence::Single { index } => &vec![*index],
             Dependence::Multi { indexes } => indexes.value(),
         };
