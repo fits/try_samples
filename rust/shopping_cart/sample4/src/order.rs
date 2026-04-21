@@ -148,6 +148,48 @@ impl TryFrom<isize> for UnderZeroAmount {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct TwoOrMoreVec<T> {
+    value: Vec<T>,
+}
+
+impl<T> TwoOrMoreVec<T>
+where
+    T: PartialEq,
+{
+    fn contains(&self, x: &T) -> bool {
+        self.value.contains(x)
+    }
+}
+
+impl<T> ConstraintType<Vec<T>> for TwoOrMoreVec<T>
+where
+    T: Debug + Clone + PartialEq,
+{
+    fn new(value: Vec<T>) -> Option<Self> {
+        if value.len() >= 2 {
+            Some(Self { value })
+        } else {
+            None
+        }
+    }
+
+    fn value(&self) -> &Vec<T> {
+        &self.value
+    }
+}
+
+impl<T> TryFrom<Vec<T>> for TwoOrMoreVec<T>
+where
+    T: Debug + Clone + PartialEq,
+{
+    type Error = String;
+
+    fn try_from(value: Vec<T>) -> std::result::Result<Self, Self::Error> {
+        Self::new(value).ok_or("must be two or more elements".into())
+    }
+}
+
 pub trait EventSource {
     fn at(&self) -> &Date;
     fn by(&self) -> &Option<Who>;
@@ -168,16 +210,7 @@ pub enum Who {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Dependence {
     Single { index: usize },
-    Multi { indexes: Vec<usize> },
-}
-
-impl Dependence {
-    fn indexes(&self) -> Vec<usize> {
-        match self {
-            Self::Single { index } => vec![*index],
-            Self::Multi { indexes } => indexes.clone(),
-        }
-    }
+    Multi { indexes: TwoOrMoreVec<usize> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -389,14 +422,16 @@ impl Order {
         dependencies: &Option<Dependence>,
         lines: &Vec<OrderLine>,
     ) -> Result<()> {
-        if self.subtotal().unwrap_or(Amount::zero()) + discount_value.value < Amount::ZERO {
-            OrderError::over_discount("discount > subtotal")
+        if self.subtotal().unwrap_or(Amount::zero()) < discount_value.value.abs() {
+            OrderError::over_discount("discount more than subtotal")
         } else {
             if let Some(d) = dependencies {
-                let os = Self::pickup_ordered(lines, d.indexes())?;
+                let os = Self::pickup_ordered(lines, d)?;
 
-                if os.subtotal().unwrap_or(Amount::zero()) + discount_value.value < Amount::ZERO {
-                    return OrderError::over_discount("discount > subtotal");
+                if os.subtotal().unwrap_or(Amount::zero()) < discount_value.value.abs() {
+                    return OrderError::over_discount(
+                        "discount more than target order line's subtotal",
+                    );
                 }
             }
 
@@ -406,30 +441,30 @@ impl Order {
 
     fn pickup_ordered<'a>(
         lines: &'a Vec<OrderLine>,
-        indexes: Vec<usize>,
+        dep: &Dependence,
     ) -> Result<Vec<&'a OrderLine>> {
-        if indexes.is_empty() {
-            //TODO
-            OrderError::invalid_operation("empty dependencies")
-        } else {
-            let mut res = vec![];
+        let mut res = vec![];
 
-            for i in indexes {
-                let line = lines.get(i);
+        let idx = match dep {
+            Dependence::Single { index } => &vec![*index],
+            Dependence::Multi { indexes } => indexes.value(),
+        };
 
-                if let Some(line) = line {
-                    if line.is_ordered() {
-                        res.push(line);
-                    } else {
-                        return OrderError::invalid_line("target line is not ordered item");
-                    }
+        for i in idx {
+            let line = lines.get(*i);
+
+            if let Some(line) = line {
+                if line.is_ordered() {
+                    res.push(line);
                 } else {
-                    return OrderError::not_found_line(&format!("invalid index={i}"));
+                    return OrderError::invalid_line("target line is not ordered item");
                 }
+            } else {
+                return OrderError::not_found_line(&format!("invalid index={i}"));
             }
-
-            Ok(res)
         }
+
+        Ok(res)
     }
 }
 
@@ -660,6 +695,28 @@ mod tests {
     #[test]
     fn new_underzeroamount_with_positive() {
         let r = UnderZeroAmount::new(Amount::ONE);
+
+        assert!(r.is_none());
+    }
+
+    #[test]
+    fn new_twooremorevec() {
+        let r = TwoOrMoreVec::new(vec!["a", ""]);
+
+        assert!(r.is_some());
+        assert_eq!(vec!["a", ""], *r.unwrap().value());
+    }
+
+    #[test]
+    fn new_twooremorevec_with_single() {
+        let r = TwoOrMoreVec::new(vec![1]);
+
+        assert!(r.is_none());
+    }
+
+    #[test]
+    fn new_twooremorevec_with_empty() {
+        let r = TwoOrMoreVec::<&str>::new(vec![]);
 
         assert!(r.is_none());
     }
@@ -1297,7 +1354,7 @@ mod tests {
     }
 
     #[test]
-    fn discount_nodependent() {
+    fn discount_no_dependent() {
         let s1 = Order::start(None);
         let at = Local::now();
 
@@ -1355,7 +1412,7 @@ mod tests {
     }
 
     #[test]
-    fn discount_all_nodependent() {
+    fn discount_all_no_dependent() {
         let s1 = Order::start(None);
         let at = Local::now();
 
@@ -1402,7 +1459,7 @@ mod tests {
     }
 
     #[test]
-    fn discount_over_nodependent() {
+    fn discount_over_no_dependent() {
         let s1 = Order::start(None);
         let at = Local::now();
 
@@ -1643,7 +1700,7 @@ mod tests {
         let r = s2.discount(
             (-300).try_into().unwrap(),
             Some(Dependence::Multi {
-                indexes: vec![0, 1],
+                indexes: vec![0, 1].try_into().unwrap(),
             }),
             "p1".try_into().ok(),
             Some(Who::Anonymous),
@@ -1661,7 +1718,7 @@ mod tests {
                 assert_eq!(-300, discount_value.value.to_isize().unwrap());
                 assert_eq!(
                     Some(Dependence::Multi {
-                        indexes: vec![0, 1]
+                        indexes: vec![0, 1].try_into().unwrap()
                     }),
                     *dependencies
                 );
@@ -1671,50 +1728,6 @@ mod tests {
         } else {
             assert!(false, "failed to discount")
         }
-    }
-
-    #[test]
-    fn discount_multi_empty_dependent() {
-        let s1 = Order::start(None);
-        let at = Local::now();
-
-        let s2 = Order::Ordered {
-            at: at.clone(),
-            by: None,
-            target: Box::new(s1.clone()),
-            lines: vec![
-                OrderLine::OrderedItem {
-                    at: at.clone(),
-                    by: None,
-                    item: "item-1".try_into().unwrap(),
-                    qty: OneOrMore::new(3).unwrap(),
-                    unit_price: to_positive(550),
-                },
-                OrderLine::OrderedItem {
-                    at: at.clone(),
-                    by: None,
-                    item: "item-2".try_into().unwrap(),
-                    qty: OneOrMore::new(2).unwrap(),
-                    unit_price: to_positive(250),
-                },
-                OrderLine::OrderedItem {
-                    at: at.clone(),
-                    by: None,
-                    item: "item-3".try_into().unwrap(),
-                    qty: OneOrMore::new(1).unwrap(),
-                    unit_price: to_positive(110),
-                },
-            ],
-        };
-
-        let r = s2.discount(
-            (-300).try_into().unwrap(),
-            Some(Dependence::Multi { indexes: vec![] }),
-            "p1".try_into().ok(),
-            Some(Who::Anonymous),
-        );
-
-        assert!(r.is_err(), "permit empty dependent indexes");
     }
 
     #[test]
@@ -1754,7 +1767,7 @@ mod tests {
         let r = s2.discount(
             (-1761).try_into().unwrap(),
             Some(Dependence::Multi {
-                indexes: vec![0, 2],
+                indexes: vec![0, 2].try_into().unwrap(),
             }),
             "p1".try_into().ok(),
             Some(Who::Anonymous),
@@ -1804,7 +1817,7 @@ mod tests {
         let r = s2.discount(
             (-300).try_into().unwrap(),
             Some(Dependence::Multi {
-                indexes: vec![0, 1],
+                indexes: vec![0, 1].try_into().unwrap(),
             }),
             "p1".try_into().ok(),
             Some(Who::Anonymous),
@@ -1864,7 +1877,7 @@ mod tests {
             discount_value: (-600).try_into().unwrap(),
             promotion: None,
             dependencies: Some(Dependence::Multi {
-                indexes: vec![1, 2],
+                indexes: vec![1, 2].try_into().unwrap(),
             }),
         };
 
@@ -1874,7 +1887,7 @@ mod tests {
             discount_value: (-300).try_into().unwrap(),
             promotion: None,
             dependencies: Some(Dependence::Multi {
-                indexes: vec![2, 0],
+                indexes: vec![2, 0].try_into().unwrap(),
             }),
         };
 
@@ -1985,7 +1998,7 @@ mod tests {
             discount_value: (-500).try_into().unwrap(),
             promotion: None,
             dependencies: Some(Dependence::Multi {
-                indexes: vec![2, 0],
+                indexes: vec![2, 0].try_into().unwrap(),
             }),
         };
 
@@ -2003,7 +2016,7 @@ mod tests {
             discount_value: (-500).try_into().unwrap(),
             promotion: None,
             dependencies: Some(Dependence::Multi {
-                indexes: vec![2, 0],
+                indexes: vec![2, 0].try_into().unwrap(),
             }),
         }
         .cancel(None)
