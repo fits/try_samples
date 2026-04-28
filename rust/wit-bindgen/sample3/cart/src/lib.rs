@@ -1,55 +1,48 @@
-
 wit_bindgen::generate!("cart");
 
 struct Component;
 
-export_cart!(Component);
+export!(Component);
 
-impl Cart for Component {
-    fn create(id: CartId) -> CartData {
-        CartData::EmptyCart(EmptyCart { id: id.clone() })
+impl Guest for Component {
+    #[allow(async_fn_in_trait)]
+    fn create(id: CartId) -> CartState {
+        CartState::Empty(EmptyCart { id: id.clone() })
     }
 
-    fn add_item(state: CartData, item: ItemId, qty: Quantity) -> Option<CartData> {
+    #[allow(async_fn_in_trait)]
+    fn add_item(state: CartState, item: ItemId, qty: Quantity) -> Option<CartState> {
         if qty == 0 {
-            return None
+            return None;
         }
 
-        find_price(&item)
-            .and_then(|p|
-                add_cart_item(state, CartItem { item: item.clone(), qty, unit_price: p })
+        find_price(&item).and_then(|p| {
+            add_cart_item(
+                state,
+                CartItem {
+                    item: item.clone(),
+                    qty,
+                    unit_price: p,
+                },
             )
+        })
     }
 }
 
-fn add_cart_item(state: CartData, citem: CartItem) -> Option<CartData> {
+fn add_cart_item(state: CartState, citem: CartItem) -> Option<CartState> {
     match state {
-        CartData::EmptyCart(EmptyCart { id }) => {
-            Some(CartData::ActiveCart(ActiveCart { id: id.clone(), items: vec![citem] }))
-        }
-        CartData::ActiveCart(ActiveCart { id, items }) => {
-            let new_items = insert_or_update(&items, citem);
-            Some(CartData::ActiveCart(ActiveCart { id: id.clone(), items: new_items }))
-        }
-    }
-}
+        CartState::Empty(EmptyCart { id }) => Some(CartState::Active(ActiveCart {
+            id: id.clone(),
+            items: vec![citem],
+        })),
+        CartState::Active(ActiveCart { id, items }) => {
+            let mut new_items = items.clone();
+            new_items.push(citem);
 
-fn insert_or_update(src: &Vec<CartItem>, citem: CartItem) -> Vec<CartItem> {
-    let mut res = vec![];
-    let mut upd = false;
-
-    for v in src {
-        if v.item == citem.item {
-            res.push(CartItem { qty: v.qty + citem.qty, ..v.clone() });
-            upd = true;
-        } else {
-            res.push(v.clone());
+            Some(CartState::Active(ActiveCart {
+                id: id.clone(),
+                items: new_items,
+            }))
         }
     }
-
-    if !upd {
-        res.push(citem);
-    }
-
-    res
 }

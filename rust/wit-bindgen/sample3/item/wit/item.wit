@@ -1,8 +1,8 @@
-package sample:item
+package sample:item;
 
 world item {
-    type item-id = string
-    type amount = s32
+    type item-id = string;
+    type amount = s32;
 
-    export find-price: func(item: item-id) -> option<amount>
+    export find-price: func(item: item-id) -> option<amount>;
 }
