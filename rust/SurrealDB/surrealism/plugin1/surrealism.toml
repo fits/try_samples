@@ -1,0 +1,8 @@
+
+[package]
+organisation = "example"
+name = "plugin1"
+version = "0.1.0"
+
+[capabilities]
+allow_functions = ["fn::*"]
