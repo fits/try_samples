@@ -1,0 +1,9 @@
+
+[package]
+organisation = "example"
+name = "plugin2"
+version = "0.1.0"
+
+[capabilities]
+allow_functions = ["fn::*"]
+allow_arbitrary_queries = true
