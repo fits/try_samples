@@ -1,0 +1,8 @@
+
+[package]
+organisation = "example"
+name = "item"
+version = "1.0.0"
+
+[capabilities]
+allow_arbitrary_queries = true
