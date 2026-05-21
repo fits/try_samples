@@ -64,6 +64,17 @@ pub enum Order {
         settlements: Vec<Settlement>,
         start: Date,
     },
+    CancelledEmpty {
+        id: TransactionId,
+        start: Date,
+        cancelled: Date,
+    },
+    Cancelled {
+        id: TransactionId,
+        lines: Vec<OrderLine>,
+        start: Date,
+        cancelled: Date,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -351,6 +362,23 @@ impl Order {
             }
         } else {
             OrderError::invalid_refund(Some(refund))
+        }
+    }
+
+    pub fn cancel(&self) -> Result<Self> {
+        match self {
+            Self::Empty { id, start } => Ok(Self::CancelledEmpty {
+                id: id.clone(),
+                start: start.clone(),
+                cancelled: now(),
+            }),
+            Self::OnOrder { id, lines, start } => Ok(Self::Cancelled {
+                id: id.clone(),
+                lines: lines.clone(),
+                start: start.clone(),
+                cancelled: now(),
+            }),
+            _ => OrderError::invalid_state(),
         }
     }
 
@@ -1603,5 +1631,88 @@ mod tests {
         let r = state.refund(refund.clone());
 
         assert!(r.is_err());
+    }
+
+    #[test]
+    fn cancel_empy() {
+        let state = Order::Empty {
+            id: TransactionId("t1".into()),
+            start: now(),
+        };
+
+        let r = state.cancel();
+
+        assert!(r.is_ok());
+
+        if let Order::CancelledEmpty {
+            id,
+            start,
+            cancelled,
+        } = r.unwrap()
+        {
+            assert_eq!(TransactionId("t1".into()), id);
+            assert!(cancelled > start);
+        } else {
+            assert!(false, "not cancelledempty");
+        }
+    }
+
+    #[test]
+    fn cancel_onorder() {
+        let lines = vec![OrderLine::OrderItem(
+            Item {
+                item_id: "item-0".into(),
+                unit_price: dec!(1000),
+                method: None,
+            },
+            1,
+        )];
+
+        let state = Order::OnOrder {
+            id: TransactionId("ord-1".into()),
+            lines: lines.clone(),
+            start: now(),
+        };
+
+        let r = state.cancel();
+
+        assert!(r.is_ok());
+
+        if let Order::Cancelled {
+            id,
+            lines: r_lines,
+            start,
+            cancelled,
+        } = r.unwrap()
+        {
+            assert_eq!(TransactionId("ord-1".into()), id);
+            assert_eq!(lines, r_lines);
+            assert!(cancelled > start);
+        } else {
+            assert!(false, "not cancelled")
+        }
+    }
+
+    #[test]
+    fn cancel_other() {
+        assert!(Order::Nothing.cancel().is_err());
+
+        assert!(
+            Order::Checkout {
+                id: TransactionId("t1".into()),
+                billed: dec!(100),
+                lines: vec![OrderLine::OrderItem(
+                    Item {
+                        item_id: "item-1".into(),
+                        unit_price: dec!(100),
+                        method: None
+                    },
+                    1
+                )],
+                start: now()
+            }
+            .cancel()
+            .is_err()
+        );
     }
 }
