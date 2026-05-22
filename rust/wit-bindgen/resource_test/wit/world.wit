@@ -1,0 +1,30 @@
+package datetime-test:order;
+
+interface types {
+    type order-id = string;
+    type item-id = string;
+    type quantity = u32;
+    type datetime = string;
+
+    resource order {
+        constructor(id: order-id) -> result<order, error>;
+        order-item: func(item: item-id, qty: quantity) -> result<order, error>;
+        ordered-items: func() -> list<ordered-item>;
+    }
+
+    record ordered-item {
+        item: item-id,
+        qty: quantity,
+        at: datetime,
+    }
+
+    variant error {
+        invalid-id(order-id),
+        invalid-item(item-id),
+        zero-order,
+    }
+}
+
+world root {
+    export types;
+}
