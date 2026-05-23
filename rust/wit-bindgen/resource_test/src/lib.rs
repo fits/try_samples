@@ -1,5 +1,6 @@
-use chrono::prelude::*;
-use crate::exports::datetime_test::order::types::*;
+use crate::resource_test::order::types::*;
+use crate::resource_test::order::imports::now_datestring;
+use crate::exports::resource_test::order::exports::{Guest, GuestOrder, Order};
 
 wit_bindgen::generate!({
     world: "root",
@@ -48,7 +49,7 @@ impl GuestOrder for OrderState {
             let r = OrderedItem {
                 item: item.into(),
                 qty,
-                at: now(),
+                at: now_datestring(),
             };
 
             let mut state = self.clone();
@@ -62,8 +63,4 @@ impl GuestOrder for OrderState {
     fn ordered_items(&self) -> _rt::Vec<OrderedItem> {
         self.lines.clone()
     }
-}
-
-fn now() -> String {
-    format!("{}", Local::now().format("%+"))
 }

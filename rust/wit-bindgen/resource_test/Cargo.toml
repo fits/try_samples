@@ -7,5 +7,4 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-chrono = "0.4.44"
 wit-bindgen = "0.57.1"

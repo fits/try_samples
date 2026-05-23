@@ -1,16 +1,10 @@
-package datetime-test:order;
+package resource-test:order;
 
 interface types {
     type order-id = string;
     type item-id = string;
     type quantity = u32;
     type datetime = string;
-
-    resource order {
-        constructor(id: order-id) -> result<order, error>;
-        order-item: func(item: item-id, qty: quantity) -> result<order, error>;
-        ordered-items: func() -> list<ordered-item>;
-    }
 
     record ordered-item {
         item: item-id,
@@ -25,6 +19,25 @@ interface types {
     }
 }
 
+interface imports {
+    use types.{datetime};
+
+    now-datestring: func() -> datetime;
+}
+
+interface exports {
+    use types.{order-id, item-id, quantity, ordered-item, error};
+
+    resource order {
+        constructor(id: order-id) -> result<order, error>;
+        order-item: func(item: item-id, qty: quantity) -> result<order, error>;
+        ordered-items: func() -> list<ordered-item>;
+    }
+}
+
 world root {
-    export types;
+    use types.{datetime};
+
+    import imports;
+    export exports;
 }
