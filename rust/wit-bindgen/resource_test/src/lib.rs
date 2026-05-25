@@ -12,6 +12,8 @@ impl Guest for Host {
     type Order = OrderState;
 }
 
+export!(Host);
+
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 struct OrderState {
