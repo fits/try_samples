@@ -1,0 +1,42 @@
+package sample1:cart;
+
+interface types {
+    type cart-id = string;
+    type item-id = string;
+    type amount = f64;
+    type quantity = u32;
+
+    record cart-line {
+        item: item-id,
+        qty: quantity,
+        unit-price: amount,
+    }
+
+    variant error {
+        invalid-id(cart-id),
+        invalid-item(item-id),
+        notfound-item(item-id),
+        zero-qty,
+    }
+}
+
+interface imports {
+    use types.{item-id, amount};
+
+    find-price: func(item: item-id) -> option<amount>;
+}
+
+interface exports {
+    use types.{cart-id, item-id, quantity, cart-line, error};
+
+    resource cart {
+        constructor(id: cart-id) -> result<cart, error>;
+        add-item: func(item: item-id, qty: quantity) -> result<cart, error>;
+        get-lines: func() -> list<cart-line>;
+    }
+}
+
+world root {
+    import imports;
+    export exports;
+}
