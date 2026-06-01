@@ -24,3 +24,7 @@ printData(d)
 const d2 = create(456, d)
 
 console.log(`d2 id=${getId(d2)}, value.id=${getId(getValue(d2))}`)
+
+setValue(d2, null)
+
+printData(d2)
