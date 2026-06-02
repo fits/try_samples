@@ -1,4 +1,4 @@
-import { check } from './test1.wasm'
+import { check, ex1 } from './test1.wasm'
 
 check(5)
 console.log('5 ok')
@@ -12,6 +12,8 @@ try {
 } catch(e) {
     console.log('4 error')
     console.log(e)
+
+    console.log(`error arg=${e.getArg(ex1, 0)}`)
 }
 
 try {
@@ -20,4 +22,6 @@ try {
 } catch(e) {
     console.log('-1 error')
     console.log(e)
+
+    console.log(`error arg=${e.getArg(ex1, 0)}`)
 }
