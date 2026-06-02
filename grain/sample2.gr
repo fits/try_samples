@@ -1,0 +1,11 @@
+module Sample2
+
+from "exception" include Exception
+
+exception Error(Number)
+
+provide let check = (x: Number) => {
+    if (x < 5) {
+        throw Error(x)
+    }
+}
