@@ -1,8 +1,7 @@
-#[allow(unused_imports)]
 use gpui::prelude::*;
 use gpui::{
-    AppContext, Application, Bounds, MouseDownEvent, ParentElement, Render, Styled, Window,
-    WindowBounds, WindowOptions, div, px, size,
+    Application, Bounds, MouseButton, MouseDownEvent, Render, Window, WindowBounds, WindowOptions,
+    div, px, size, rgb, white,
 };
 
 struct Counter {
@@ -18,26 +17,22 @@ impl Counter {
 }
 
 impl Render for Counter {
-    fn render(
-        &mut self,
-        _window: &mut gpui::Window,
-        cx: &mut gpui::prelude::Context<Self>,
-    ) -> impl gpui::prelude::IntoElement {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         div()
             .size_full()
             .flex()
             .flex_col()
             .p_10()
-            .bg(gpui::white())
+            .bg(white())
             .justify_center()
             .child("Counter:")
             .child(
                 div()
-                    .bg(gpui::rgb(0xAAEEAA))
+                    .bg(rgb(0xAAEEAA))
                     .text_center()
                     .text_3xl()
                     .child(format!("{}", self.count))
-                    .on_mouse_down(gpui::MouseButton::Left, cx.listener(Self::count_up)),
+                    .on_mouse_down(MouseButton::Left, cx.listener(Self::count_up)),
             )
     }
 }
