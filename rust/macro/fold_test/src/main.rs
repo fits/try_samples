@@ -2,8 +2,6 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, quote};
 use syn::{Result, Signature, fold::Fold};
 
-use std::ops::Not;
-
 struct TraceReturnType;
 
 impl Fold for TraceReturnType {
@@ -92,11 +90,10 @@ impl Fold for SelfChecker {
     fn fold_path_segment(&mut self, i: syn::PathSegment) -> syn::PathSegment {
         println!("* fold_path_segment: {}", i.to_token_stream());
 
-        if self.0.not() {
-            self.0 = i.ident.to_string() == "Self";
-        }
-
         if self.0 {
+            i
+        } else if i.ident.to_string() == "Self" {
+            self.0 = true;
             i
         } else {
             syn::fold::fold_path_segment(self, i)
