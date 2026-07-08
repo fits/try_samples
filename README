@@ -69,6 +69,7 @@ The following highlights some of the key elements.
         * [Spring Boot](./groovy/spring-boot/), [Spring Batch](./groovy/spring-batch/), [Spring Web](./groovy/spring-web/)
     * Scala
         * [Spring Data](./scala/spring-data/)
+* [.NET Aspire](./dotnet_Aspire/)
 * [ASP.NET](./asp.net/)
 * Play Framework
     * [Java](./java/play2/)
@@ -115,6 +116,8 @@ The following highlights some of the key elements.
         * [Deno](./deno/graphql-js/)
         * [Node.js](./JavaScript/node.js/graphql/)
     * [Juniper](./rust/juniper/)
+    * [Amplify](./JavaScript/node.js/amplify/)
+        * [AmplifyAppSyncSimulator](./JavaScript/node.js/amplify-appsync-simulator/)
     * [graph-gophers/graphql-go](./go/graphql-go_graph-gophers/)
     * [graphql-go](./go/GraphQL-go/)
     * [graphql-java](./kotlin/graphql-java/)
@@ -139,6 +142,7 @@ The following highlights some of the key elements.
         * [Kotlin](./kotlin/deeplearning4j/)
     * [TensorFlow](./python/tensorflow/)
         * [Rust](./rust/TensorFlow/)
+    * [tch-rs](./rust/tch-rs/)
 * Generative AI
     * [diffusers](./python/diffusers/)
     * [transformers](./python/transformers/)
@@ -155,7 +159,8 @@ The following highlights some of the key elements.
 * [Kubernetes](./kubernetes/)
     * [Go Client](./go/kubernetes/)
     * [kube-rs](./rust/kube-rs/)
-    * [Lima k3s](./lima/)
+    * [k3s](./lima/)
+    * [Auth forward](./lima/k3s_forwardAuth/)
 * [AWS](aws)
     * [AWS CDK](./aws/CDK/)
 * [Docker](./docker/)
@@ -166,6 +171,11 @@ The following highlights some of the key elements.
 * [wasmCloud](./rust/wasmCloud/)
 * [Auth0](./auth0/)
 * [CUE](./go/CUE/)
+* [Grafana Tempo](./grafana/)
+* OpenTelemetry
+    * [Node.js](./JavaScript/node.js/OpenTelemetry/)
+    * [Go](./go/OpenTelemetry/)
+* [Jaeger](./JavaScript/node.js/jaeger-client/)
 
 ## DB, Message Broker
 
