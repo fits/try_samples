@@ -1,1 +1,213 @@
-技術調査のためのサンプル集
+# Technical Survey
+
+This repository collects various technical investigations and verifications.
+
+The following highlights some of the key elements.
+
+## Programming Language
+
+* [Rust](./rust/)
+* [Java](./java/)
+* [JavaScript](./JavaScript/), [TypeScript](./TypeScript/), [Node.js](./JavaScript/node.js/), [Deno](./deno/)
+* [Python](./python/), [IronPython](./IronPython/)
+* [Go](./go/)
+* [C#](./csharp/)
+* [Groovy](./groovy/)
+* [Scala](./scala/)
+* [Kotlin](./kotlin/)
+* [Ruby](./ruby/), [JRuby](./JRuby/)
+* [Haskell](./Haskell/)
+* [Elixir](./elixir/)
+* [F#](./fsharp/)
+* [PHP](./php/)
+* [R](./R/)
+* [Perl](./perl/)
+
+## Architecture, Data Modeling
+
+* DDD
+    * [cargo-tracker](./rust/cargo-tracker/)
+    * [Scala stock-management](./scala/DDD_functional-reactive/)
+    * [Scala cargo-tracker](./scala/cargo-tracker/)
+* Microservices
+    * [cargo-tracker](./rust/cargo-tracker/)
+    * [.NET Aspire cart](./dotnet_Aspire/)
+* ADT
+    * [Rust ADT](./rust/ADT/)
+    * [Rust shopping_cart](./rust/shopping_cart/)
+    * [Rust stock_management](./rust/stock_management_model/)
+    * [Rust POS](./rust/pos/)
+    * [TypeScript stock-management](./TypeScript/stock-management/)
+    * [Deno stock-management](./deno/stock-management/)
+    * [Deno sales_promotion](./deno/EC/sales_promotion/)
+    * [Go ADT](./go/ADT/)
+    * [Scala shipping_cart](./scala/shopping_cart/)
+    * [Kotlin ADT](./kotlin/algebraic_data_types/)
+    * [Kotlin stock_management](./kotlin/stock_management_model/)
+    * [event based stock-management](./Qiita/20210131/event-based_stock-management/)
+* Free Monad
+    * [Scala inventory-management](./scala/cats/free/)
+
+## Framework
+
+### Backend
+
+* Akka Framework
+    * [Java](./java/akka/)
+        * [Akka Persistence](./java/akka-persistence/), [Akka Stream](./java/akka-stream/)
+    * [Groovy](./groovy/akka/)
+    * [Scala](./scala/akka/)
+        * [Akka HTTP](./scala/akka-http/), [Akka Persistence](./scala/akka-persistence/), [Akka Stream](./scala/akka-stream/)
+    * [Kotlin](./kotlin/akka/)
+        * [Akka Cluster](./kotlin/akka-cluster/), [Akka Persistence](./kotlin/akka-persistence/)
+    * [Alpakka](./scala/akka-alpakka/)
+* Spring Framework
+    * [Java](./java/spring/)
+        * [Spring Boot](./java/SpringBoot/), [Spring Integration](./java/spring_integration/), [Spring Batch](./java/spring-batch/), [Spring AOP](./java/spring-aop/), [Spring Data](./java/spring-data/), [Spring Session](./java/spring-session/)
+    * [Kotlin](./kotlin/spring/)
+    * Groovy
+        * [Spring Boot](./groovy/spring-boot/), [Spring Batch](./groovy/spring-batch/), [Spring Web](./groovy/spring-web/)
+    * Scala
+        * [Spring Data](./scala/spring-data/)
+* [ASP.NET](./asp.net/)
+* Play Framework
+    * [Java](./java/play2/)
+    * Scala
+        * [Play2](./scala/play2/)
+        * [Play2 mini](./scala/play2-mini/)
+* [Fastify](./JavaScript/node.js/fastify/)
+    * [TypeScript](./TypeScript/fastify/)
+* [Express](./JavaScript/node.js/express/)
+* [Actix Web](./rust/actix-web/)
+* [Axum](./rust/axum/)
+* [Hyper](./rust/hyper/)
+* [Ktor](./kotlin/ktor/)
+* [Finch](./scala/finch/)
+* [Laravel](./php/laravel/)
+
+### Frontend
+
+* [Vue.js](./JavaScript/vue.js/)
+    * [TypeScript](./TypeScript/vue.js/)
+    * [Vite](./TypeScript/vite/vue/)
+* [Angular](./JavaScript/angular/), [Angular.JS](./JavaScript//angularjs/)
+* [React](./JavaScript/react/)
+    * [JSX](./TypeScript/JSX/)
+    * [preact](./TypeScript/preact/)
+* [Svelte](./TypeScript/svelte/)
+    * [Vite](./TypeScript/vite/svelte/)
+* [D3.js](./JavaScript/d3.js/)
+
+## RPC
+
+* gRPC
+    * [Go](./go/grpc/)
+    * [Node.js](./JavaScript/node.js/grpc/)
+    * [C#](./csharp/gRPC/)
+    * [Kotlin](./kotlin/grpc/)
+    * [Tonic](./rust/tonic/)
+    * [gRPC-Web](./JavaScript/gRPC-Web/)
+* GraphQL
+    * Apollo
+        * [TypeScript](./TypeScript/apollo/)
+        * [Node.js](./JavaScript/node.js/apollo/)
+    * GraphQL.js
+        * [Deno](./deno/graphql-js/)
+        * [Node.js](./JavaScript/node.js/graphql/)
+    * [Juniper](./rust/juniper/)
+    * [graph-gophers/graphql-go](./go/graphql-go_graph-gophers/)
+    * [graphql-go](./go/GraphQL-go/)
+    * [graphql-java](./kotlin/graphql-java/)
+* GraphQL over gRPC
+    * [Go](./go/grpc/GraphQL_over_gRPC/)
+    * [Node.js](./JavaScript/node.js/grpc/GraphQL_over_gRPC/)
+* libp2p
+    * [Go](./go/libp2p/)
+    * [Node.js](./JavaScript/node.js/libp2p/)
+* OpenAPI, swagger
+    * [Node.js](./JavaScript/node.js/swagger/)
+    * [TypeScript](./TypeScript/openapi-typescript/)
+    * [SpringFox](./kotlin/springfox/)
+
+## AI/ML, Data Analysis
+
+* DeepLearning
+    * [Keras](./python/keras/)
+        * [Keras.js](./JavaScript/node.js/keras-js/)
+    * [Burn](./rust/burn/)
+    * [Deeplearning4j](./java/deeplearning4j/)
+        * [Kotlin](./kotlin/deeplearning4j/)
+    * [TensorFlow](./python/tensorflow/)
+        * [Rust](./rust/TensorFlow/)
+* Generative AI
+    * [diffusers](./python/diffusers/)
+    * [transformers](./python/transformers/)
+    * [Candle](./rust/candle/)
+* [Reinforcement Learning](./python/reinforcement_learning/)
+    * [RLlib](./python/RLlib/)
+    * [keras-rl](./python/keras-rl/)
+* Data Analysis
+    * [data](./data/)
+    * [open_data](./open_data/)
+
+## Infrastructure
+
+* [Kubernetes](./kubernetes/)
+    * [Go Client](./go/kubernetes/)
+    * [kube-rs](./rust/kube-rs/)
+    * [Lima k3s](./lima/)
+* [AWS](aws)
+    * [AWS CDK](./aws/CDK/)
+* [Docker](./docker/)
+* [Envoy](./envoy/)
+* [Nginx](./nginx/)
+* [Pulumi](./pulumi/)
+* [Dapr](./dapr/)
+* [wasmCloud](./rust/wasmCloud/)
+* [Auth0](./auth0/)
+* [CUE](./go/CUE/)
+
+## DB, Message Broker
+
+MySQL/MariaDB, MongoDB, SQLite, Redis, NATS, Kafka used in many code are omitted.
+
+* [SurrealDB](./rust/SurrealDB/)
+* DuckDB
+    * [Node.js](./JavaScript/node.js/duckdb/)
+    * [Python](./python/duckdb/)
+* Neo4j
+    * [tinkerpop](./kotlin/tinkerpop/)
+* [NoSQL(Cassandra, etc)](./noSQL/)
+* [stock-assign Redis, MongoDB, DynamoDB, Elasticsearch](./TypeScript/stock-assign/)
+
+## etc
+
+* [Blog Code](./blog/)
+* [WebAssembly](./WebAssembly/)
+    * [Rust](./rust/WebAssembly/)
+    * [Deno](./deno/WebAssembly/)
+    * [Node.js](./JavaScript/node.js/WebAssembly/)
+    * [Go](./go/WebAssembly/)
+    * [wasmtime](./rust/wasmtime/)
+    * [wasmer](./rust/wasmer/)
+    * [wasm-tools](./rust/wasm-tools/)
+* GPU
+    * [WGPU](./rust/wgpu/)
+    * [WebGPU](./deno/webgpu/)
+    * OpenCL
+        * [Aparapi](./java/aparapi/)
+        * [Node FFI](./JavaScript/node.js/node-ffi/)
+        * [Docker pocl](./docker/fedora_pocl/)
+* AOP
+    * [AspectJ](./java/aspectj/)
+    * [Spring AOP](./java/spring-aop/)
+    * [JBoss AOP](./java/jbossAOP/)
+* Functional Programming
+    * [CATS](./scala/cats/)
+    * [Scalaz](./scala/scalaz/)
+    * ramda
+        * [Node.js](./JavaScript/node.js/ramda/)
+        * [Deno](./deno/ramda/)
+        * [TypeScript](./TypeScript/ramda/)
+    * [fp-ts](./TypeScript/fp-ts/)
+        * [Deno](./deno/fp-ts/)
