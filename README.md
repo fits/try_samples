@@ -221,3 +221,21 @@ MySQL/MariaDB, MongoDB, SQLite, Redis, NATS, Kafka used in many code are omitted
         * [TypeScript](./TypeScript/ramda/)
     * [fp-ts](./TypeScript/fp-ts/)
         * [Deno](./deno/fp-ts/)
+* Parser
+    * [tree-sitter](./rust/tree-sitter/)
+    * [antlr](./java/antlr/)
+    * [pest](./rust/pest/)
+    * peggy
+        * [Deno](./deno/peggy/)
+        * [TypeScript](./TypeScript/peggy/)
+    * RParsec
+        * [Ruby](./ruby/rparsec/)
+        * [JRuby](./jruby/rparsec/)
+    * Parser Combinator
+        * [Scala](./scala/parser_combinator/)
+        * [F#](./fsharp/parser_combinator/)
+        * [Haskell](./Haskell/parser_combinator/)
+    * javac parser
+        * [Groovy](./groovy/javac_parser/)
+        * [Java](./java/annotation_processor/)
+    * [go/parser](./go/parser/)
