@@ -15,10 +15,7 @@ struct NonEmptyStock<ID, QTY> {
     qty: QTY,
 }
 
-trait StockFunc<ID, QTY>
-where
-    Self: Sized,
-{
+trait StockFunc<ID, QTY> {
     fn id(&self) -> ID;
     fn qty(&self) -> Option<QTY>;
     fn restock(&self, q: QTY) -> Option<Stock<ID, QTY>>;
