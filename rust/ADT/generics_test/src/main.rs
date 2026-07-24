@@ -1,15 +1,15 @@
 use std::{fmt::Debug, ops::Add};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 enum Stock<ID, QTY> {
     Empty(EmptyStock<ID>),
     NonEmpty(NonEmptyStock<ID, QTY>),
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct EmptyStock<ID>(ID);
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct NonEmptyStock<ID, QTY> {
     id: ID,
     qty: QTY,
@@ -116,6 +116,30 @@ impl<ID, QTY> From<NonEmptyStock<ID, QTY>> for Stock<ID, QTY> {
     }
 }
 
+impl<ID, QTY> TryFrom<Stock<ID, QTY>> for EmptyStock<ID> {
+    type Error = ();
+
+    fn try_from(value: Stock<ID, QTY>) -> Result<Self, Self::Error> {
+        if let Stock::Empty(x) = value {
+            Ok(x)
+        } else {
+            Err(())
+        }
+    }
+}
+
+impl<ID, QTY> TryFrom<Stock<ID, QTY>> for NonEmptyStock<ID, QTY> {
+    type Error = ();
+
+    fn try_from(value: Stock<ID, QTY>) -> Result<Self, Self::Error> {
+        if let Stock::NonEmpty(x) = value {
+            Ok(x)
+        } else {
+            Err(())
+        }
+    }
+}
+
 fn print_stock<ID, QTY>(s: &Stock<ID, QTY>)
 where
     ID: Clone + Debug,
@@ -128,6 +152,10 @@ fn main() {
     let s1: Stock<&str, u32> = EmptyStock("item-A").into();
     print_stock(&s1);
     println!("s1 restock 0 = {:?}", s1.restock(0));
+    println!(
+        "s1 to empty-stock = {:?}",
+        EmptyStock::<&str>::try_from(s1.clone())
+    );
 
     let s2 = s1.restock(3).unwrap();
     print_stock(&s2);
