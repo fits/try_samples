@@ -1,0 +1,8 @@
+[package]
+name = "counter_zed_src"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gpui = { git = "https://github.com/zed-industries/zed", version = "0.2.2", tag = "v1.13.1" }
+gpui_platform = { git = "https://github.com/zed-industries/zed", version = "0.1.0", tag = "v1.13.1", features = ["font-kit"] }
