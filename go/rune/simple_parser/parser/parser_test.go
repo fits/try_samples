@@ -147,3 +147,23 @@ func TestIsEos(t *testing.T) {
 		t.Error("failed parse ident")
 	}
 }
+
+func TestNewWithEmpty(t *testing.T) {
+	p := parser.NewParser("")
+
+	if p.IsNotEos() {
+		t.Error("not eos")
+	}
+}
+
+func TestNewWithSpace(t *testing.T) {
+	p := parser.NewParser("    ")
+
+	if p.ParseIdent() {
+		t.Error("parsed ident")
+	}
+
+	if p.IsNotEos() {
+		t.Error("not eos")
+	}
+}
