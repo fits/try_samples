@@ -25,4 +25,8 @@ fn main() {
         "{:?}",
         Option::unit(1).bind(|x| Option::unit("a").bind(|y| Option::unit((x, y))))
     );
+
+    let x1 = Option::unit(1).bind(|x| Monad::unit((x + 1, true)));
+
+    println!("{:?}", x1);
 }
