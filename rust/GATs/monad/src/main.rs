@@ -20,4 +20,9 @@ fn main() {
         .bind(|x| vec![x * 2, x * 3, x * 4]);
 
     println!("{:?}, {:?}", v1, v2);
+
+    println!(
+        "{:?}",
+        Option::unit(1).bind(|x| Option::unit("a").bind(|y| Option::unit((x, y))))
+    );
 }
