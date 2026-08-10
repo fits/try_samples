@@ -1,0 +1,20 @@
+[package]
+name = "example"
+version = "0.1.0"
+edition = "2024"
+default-run = "example1"
+
+[dependencies]
+macuru = { git = "https://github.com/fits/macuru" }
+
+[[bin]]
+name = "example1"
+path = "src/example1.rs"
+
+[[bin]]
+name = "example2"
+path = "src/example2.rs"
+
+[[bin]]
+name = "example3"
+path = "src/example3.rs"
