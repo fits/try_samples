@@ -20,6 +20,7 @@ pub type ChangeOwnership = Move<Target, Owner>;
 adt!(
     Movement = ChangeLocation | ChangeOwnership | Serial derive Debug, Clone with MovementFunc {
         fn cart_items(&self, c: &Cart) -> Vec<(Item, Quantity)>;
+        fn last_move(&self) -> Self;
     }
 );
 
@@ -37,6 +38,10 @@ fn eq_cart_location(loc: &Location, c: &Cart) -> bool {
 impl MovementFunc for ChangeOwnership {
     fn cart_items(&self, _c: &Cart) -> Vec<(Item, Quantity)> {
         Vec::new()
+    }
+
+    fn last_move(&self) -> Movement {
+        self.clone().into()
     }
 }
 
@@ -57,6 +62,10 @@ impl MovementFunc for ChangeLocation {
         } else {
             Vec::new()
         }
+    }
+
+    fn last_move(&self) -> Movement {
+        self.clone().into()
     }
 }
 
@@ -80,6 +89,10 @@ impl MovementFunc for Serial {
 
             a
         }
+    }
+
+    fn last_move(&self) -> Movement {
+        self.1.last_move()
     }
 }
 
@@ -114,11 +127,11 @@ pub struct Anywhere;
 pub struct Cart(CartId);
 
 adt!(
-    Warehouse = PhisicalWarehouse | VirtualWarehouse derive Debug, Clone, PartialEq
+    Warehouse = PhysicalWarehouse | VirtualWarehouse derive Debug, Clone, PartialEq
 );
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct PhisicalWarehouse(WarehourseId);
+pub struct PhysicalWarehouse(WarehourseId);
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VirtualWarehouse(WarehourseId);
@@ -206,6 +219,10 @@ impl CartState {
                 Err(format!("not found item: id={}", item.0).into())
             }
         }
+    }
+
+    pub fn last_move(&self) -> Movement {
+        self.history.last_move()
     }
 }
 
@@ -577,5 +594,158 @@ mod tests {
 
         assert_eq!("B2", i2.0.0);
         assert_eq!(1, i2.1);
+    }
+
+    #[test]
+    fn last_move_changeownership() {
+        let id = "cart1".to_string();
+
+        let m: Movement = ChangeOwnership {
+            target: Cart(id.clone()).into(),
+            from: System.into(),
+            to: Anonymous.into(),
+            qty: None,
+        }
+        .into();
+
+        let r = m.last_move();
+
+        if let Ok(x) = ChangeOwnership::try_from(r) {
+            assert_eq!(Target::from(Cart(id.clone())), x.target);
+            assert_eq!(Owner::from(System), x.from);
+            assert_eq!(Owner::from(Anonymous), x.to);
+            assert!(x.qty.is_none());
+        } else {
+            assert!(false, "invalid last_move")
+        }
+    }
+
+    #[test]
+    fn last_move_changelocation() {
+        let id = "cart1".to_string();
+
+        let m: Movement = ChangeLocation {
+            target: Item("A1".into()).into(),
+            from: Anywhere.into(),
+            to: Cart(id.clone()).into(),
+            qty: Some(2),
+        }
+        .into();
+
+        let r = m.last_move();
+
+        if let Ok(x) = ChangeLocation::try_from(r) {
+            assert_eq!(Target::from(Item("A1".into())), x.target);
+            assert_eq!(Location::from(Anywhere), x.from);
+            assert_eq!(Location::from(Cart(id.clone())), x.to);
+            assert_eq!(Some(2), x.qty);
+        } else {
+            assert!(false, "invalid last_move")
+        }
+    }
+
+    #[test]
+    fn last_move_serial() {
+        let id = "cart1".to_string();
+
+        let m: Movement = serial(
+            serial(
+                serial(
+                    ChangeOwnership {
+                        target: Cart(id.clone()).into(),
+                        from: System.into(),
+                        to: Anonymous.into(),
+                        qty: None,
+                    }
+                    .into(),
+                    ChangeLocation {
+                        target: Item("A1".into()).into(),
+                        from: Anywhere.into(),
+                        to: Cart(id.clone()).into(),
+                        qty: Some(2),
+                    }
+                    .into(),
+                ),
+                ChangeLocation {
+                    target: Item("B2".into()).into(),
+                    from: Anywhere.into(),
+                    to: Cart(id.clone()).into(),
+                    qty: Some(1),
+                }
+                .into(),
+            ),
+            ChangeLocation {
+                target: Item("A1".into()).into(),
+                from: Anywhere.into(),
+                to: Cart(id.clone()).into(),
+                qty: Some(3),
+            }
+            .into(),
+        );
+
+        let r = m.last_move();
+
+        if let Ok(x) = ChangeLocation::try_from(r) {
+            assert_eq!(Target::from(Item("A1".into())), x.target);
+            assert_eq!(Location::from(Anywhere), x.from);
+            assert_eq!(Location::from(Cart(id.clone())), x.to);
+            assert_eq!(Some(3), x.qty);
+        } else {
+            assert!(false, "invalid last_move")
+        }
+    }
+
+    #[test]
+    fn last_move_from_cart() {
+        let id = "cart-1".to_string();
+
+        let c = CartState {
+            id: id.clone(),
+            history: serial(
+                serial(
+                    serial(
+                        ChangeOwnership {
+                            target: Cart(id.clone()).into(),
+                            from: System.into(),
+                            to: Anonymous.into(),
+                            qty: None,
+                        }
+                        .into(),
+                        ChangeLocation {
+                            target: Item("A1".into()).into(),
+                            from: Anywhere.into(),
+                            to: Cart(id.clone()).into(),
+                            qty: Some(2),
+                        }
+                        .into(),
+                    ),
+                    ChangeLocation {
+                        target: Item("B2".into()).into(),
+                        from: Anywhere.into(),
+                        to: Cart(id.clone()).into(),
+                        qty: Some(1),
+                    }
+                    .into(),
+                ),
+                ChangeLocation {
+                    target: Item("A1".into()).into(),
+                    from: Anywhere.into(),
+                    to: Cart(id.clone()).into(),
+                    qty: Some(3),
+                }
+                .into(),
+            ),
+        };
+
+        let r = c.last_move();
+
+        if let Ok(x) = ChangeLocation::try_from(r) {
+            assert_eq!(Target::from(Item("A1".into())), x.target);
+            assert_eq!(Location::from(Anywhere), x.from);
+            assert_eq!(Location::from(Cart("cart-1".into())), x.to);
+            assert_eq!(Some(3), x.qty);
+        } else {
+            assert!(false, "failed last move")
+        }
     }
 }
