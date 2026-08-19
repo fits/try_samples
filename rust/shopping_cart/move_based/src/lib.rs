@@ -145,18 +145,22 @@ pub struct CartState {
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 impl CartState {
-    pub fn new(cart_id: CartId, user: Owner) -> Self {
-        let history = ChangeOwnership {
-            target: Cart(cart_id.clone()).into(),
-            from: System.into(),
-            to: user.into(),
-            qty: None,
-        }
-        .into();
+    pub fn new(cart_id: CartId, user: Owner) -> Result<Self> {
+        if cart_id.is_empty() {
+            Err("cart_id is emply".into())
+        } else {
+            let history = ChangeOwnership {
+                target: Cart(cart_id.clone()).into(),
+                from: System.into(),
+                to: user.into(),
+                qty: None,
+            }
+            .into();
 
-        Self {
-            id: cart_id,
-            history,
+            Ok(Self {
+                id: cart_id,
+                history,
+            })
         }
     }
 
@@ -238,6 +242,10 @@ mod tests {
     fn create_cart() {
         let c = CartState::new("cart-1".into(), Anonymous.into());
 
+        assert!(c.is_ok());
+
+        let c = c.unwrap();
+
         assert_eq!("cart-1", c.id);
 
         if let Ok(m) = ChangeOwnership::try_from(c.history.clone()) {
@@ -251,7 +259,7 @@ mod tests {
 
     #[test]
     fn add_item_cart() {
-        let c = CartState::new("cart-1".into(), Anonymous.into());
+        let c = CartState::new("cart-1".into(), Anonymous.into()).unwrap();
 
         let r = c.add_item(Item("A1".into()), 1);
 
