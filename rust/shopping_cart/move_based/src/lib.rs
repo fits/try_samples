@@ -152,11 +152,11 @@ impl CartState {
     }
 
     pub fn add_item(&self, item: Item, qty: Quantity) -> Result<Self> {
-        let Self { id, history } = self;
-
         if qty < 1 {
             Err("must be qty >= 1".into())
         } else {
+            let Self { id, history } = self;
+
             let m: Movement = ChangeLocation {
                 target: item.into(),
                 from: Anywhere.into(),
@@ -171,6 +171,40 @@ impl CartState {
                 id: id.clone(),
                 history: new_history,
             })
+        }
+    }
+
+    pub fn remove_item(&self, item: Item, qty: Quantity) -> Result<Self> {
+        if qty < 1 {
+            Err("must be qty >= 1".into())
+        } else {
+            let items = self.items();
+
+            if let Some((_, q)) = items.iter().find(|x| x.0 == item) {
+                if *q >= qty {
+                    let Self { id, history } = self;
+
+                    let m: Movement = ChangeLocation {
+                        target: item.into(),
+                        from: Cart(id.clone()).into(),
+                        to: Anywhere.into(),
+                        qty: Some(qty),
+                    }
+                    .into();
+
+                    let new_history: Movement =
+                        Serial(Box::new(history.clone()), Box::new(m)).into();
+
+                    Ok(Self {
+                        id: id.clone(),
+                        history: new_history,
+                    })
+                } else {
+                    Err(format!("over remove: current={}, remove={}", q, qty).into())
+                }
+            } else {
+                Err(format!("not found item: id={}", item.0).into())
+            }
         }
     }
 }
@@ -204,8 +238,6 @@ mod tests {
 
         let r = c.add_item(Item("A1".into()), 1);
 
-        println!("{:?}", r);
-
         if let Ok(m) = r.map(|x| x.history) {
             let Serial(_, m) = Serial::try_from(m).unwrap();
             let m = ChangeLocation::try_from(m.as_ref().clone()).unwrap();
@@ -217,6 +249,162 @@ mod tests {
         } else {
             assert!(false, "failed add item")
         }
+    }
+
+    #[test]
+    fn remove_item_cart() {
+        let id = "cart-1".to_string();
+
+        let c = CartState {
+            id: id.clone(),
+            history: serial(
+                ChangeOwnership {
+                    target: Cart(id.clone()).into(),
+                    from: System.into(),
+                    to: Anonymous.into(),
+                    qty: None,
+                }
+                .into(),
+                ChangeLocation {
+                    target: Item("A1".into()).into(),
+                    from: Anywhere.into(),
+                    to: Cart(id.clone()).into(),
+                    qty: Some(2),
+                }
+                .into(),
+            ),
+        };
+
+        let r = c.remove_item(Item("A1".into()), 1);
+
+        if let Ok(m) = r.map(|x| x.history) {
+            let Serial(_, m) = Serial::try_from(m).unwrap();
+            let m = ChangeLocation::try_from(m.as_ref().clone()).unwrap();
+
+            assert_eq!(Target::from(Item("A1".into())), m.target);
+            assert_eq!(Location::from(Cart("cart-1".into())), m.from);
+            assert_eq!(Location::from(Anywhere), m.to);
+            assert_eq!(Some(1), m.qty);
+        } else {
+            assert!(false, "failed remove item")
+        }
+    }
+
+    #[test]
+    fn remove_item_cart_multi_items() {
+        let id = "cart-1".to_string();
+
+        let c = CartState {
+            id: id.clone(),
+            history: serial(
+                serial(
+                    serial(
+                        ChangeOwnership {
+                            target: Cart(id.clone()).into(),
+                            from: System.into(),
+                            to: Anonymous.into(),
+                            qty: None,
+                        }
+                        .into(),
+                        ChangeLocation {
+                            target: Item("A1".into()).into(),
+                            from: Anywhere.into(),
+                            to: Cart(id.clone()).into(),
+                            qty: Some(2),
+                        }
+                        .into(),
+                    ),
+                    ChangeLocation {
+                        target: Item("B2".into()).into(),
+                        from: Anywhere.into(),
+                        to: Cart(id.clone()).into(),
+                        qty: Some(1),
+                    }
+                    .into(),
+                ),
+                ChangeLocation {
+                    target: Item("A1".into()).into(),
+                    from: Anywhere.into(),
+                    to: Cart(id.clone()).into(),
+                    qty: Some(3),
+                }
+                .into(),
+            ),
+        };
+
+        let r = c.remove_item(Item("A1".into()), 5);
+
+        if let Ok(m) = r.map(|x| x.history) {
+            let Serial(_, m) = Serial::try_from(m).unwrap();
+            let m = ChangeLocation::try_from(m.as_ref().clone()).unwrap();
+
+            assert_eq!(Target::from(Item("A1".into())), m.target);
+            assert_eq!(Location::from(Cart("cart-1".into())), m.from);
+            assert_eq!(Location::from(Anywhere), m.to);
+            assert_eq!(Some(5), m.qty);
+
+            assert_eq!(1, m.cart_items(&Cart(id.clone())).len());
+        } else {
+            assert!(false, "failed remove item")
+        }
+    }
+
+    #[test]
+    fn remove_item_cart_over() {
+        let id = "cart-1".to_string();
+
+        let c = CartState {
+            id: id.clone(),
+            history: serial(
+                ChangeOwnership {
+                    target: Cart(id.clone()).into(),
+                    from: System.into(),
+                    to: Anonymous.into(),
+                    qty: None,
+                }
+                .into(),
+                ChangeLocation {
+                    target: Item("A1".into()).into(),
+                    from: Anywhere.into(),
+                    to: Cart(id.clone()).into(),
+                    qty: Some(2),
+                }
+                .into(),
+            ),
+        };
+
+        let r = c.remove_item(Item("A1".into()), 3);
+
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn remove_not_exist_item_cart() {
+        let id = "cart-1".to_string();
+
+        let c = CartState {
+            id: id.clone(),
+            history: serial(
+                ChangeOwnership {
+                    target: Cart(id.clone()).into(),
+                    from: System.into(),
+                    to: Anonymous.into(),
+                    qty: None,
+                }
+                .into(),
+                ChangeLocation {
+                    target: Item("A1".into()).into(),
+                    from: Anywhere.into(),
+                    to: Cart(id.clone()).into(),
+                    qty: Some(2),
+                }
+                .into(),
+            ),
+        };
+
+        let r = c.remove_item(Item("B2".into()), 1);
+
+        assert!(r.is_err());
     }
 
     #[test]
