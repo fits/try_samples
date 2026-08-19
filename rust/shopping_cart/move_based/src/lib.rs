@@ -2,7 +2,7 @@ use macuru::adt;
 
 pub type Quantity = isize;
 pub type ItemId = String;
-pub type WarehourseId = String;
+pub type WarehouseId = String;
 pub type CartId = String;
 pub type UserId = String;
 
@@ -127,14 +127,14 @@ pub struct Anywhere;
 pub struct Cart(CartId);
 
 adt!(
-    Warehouse = PhysicalWarehouse | VirtualWarehouse derive Debug, Clone, PartialEq
+    Warehouse = PhysicalWarehouse | LogicalWarehouse derive Debug, Clone, PartialEq
 );
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct PhysicalWarehouse(WarehourseId);
+pub struct PhysicalWarehouse(WarehouseId);
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct VirtualWarehouse(WarehourseId);
+pub struct LogicalWarehouse(WarehouseId);
 
 #[derive(Debug, Clone)]
 pub struct CartState {
