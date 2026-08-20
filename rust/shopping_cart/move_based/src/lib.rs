@@ -18,14 +18,14 @@ pub type ChangeLocation = Move<Target, Location>;
 pub type ChangeOwnership = Move<Target, Owner>;
 
 adt!(
-    Movement = ChangeLocation | ChangeOwnership | Serial derive Debug, Clone with MovementFunc {
+    Movement = ChangeLocation | ChangeOwnership | Consecutive derive Debug, Clone with MovementFunc {
         fn cart_items(&self, c: &Cart) -> Vec<(Item, Quantity)>;
         fn last_move(&self) -> Self;
     }
 );
 
 #[derive(Debug, Clone)]
-pub struct Serial(Box<Movement>, Box<Movement>);
+pub struct Consecutive(Box<Movement>, Box<Movement>);
 
 fn eq_cart_location(loc: &Location, c: &Cart) -> bool {
     if let Ok(x) = Cart::try_from(loc.clone()) {
@@ -69,7 +69,7 @@ impl MovementFunc for ChangeLocation {
     }
 }
 
-impl MovementFunc for Serial {
+impl MovementFunc for Consecutive {
     fn cart_items(&self, c: &Cart) -> Vec<(Item, Quantity)> {
         let a = self.0.cart_items(c);
         let b = self.1.cart_items(c);
@@ -93,6 +93,12 @@ impl MovementFunc for Serial {
 
     fn last_move(&self) -> Movement {
         self.1.last_move()
+    }
+}
+
+impl Into<Movement> for (Movement, Movement) {
+    fn into(self) -> Movement {
+        Consecutive(Box::new(self.0), Box::new(self.1)).into()
     }
 }
 
@@ -182,7 +188,7 @@ impl CartState {
             }
             .into();
 
-            let new_history: Movement = Serial(Box::new(history.clone()), Box::new(m)).into();
+            let new_history: Movement = Consecutive(Box::new(history.clone()), Box::new(m)).into();
 
             Ok(Self {
                 id: id.clone(),
@@ -210,7 +216,7 @@ impl CartState {
                     .into();
 
                     let new_history: Movement =
-                        Serial(Box::new(history.clone()), Box::new(m)).into();
+                        Consecutive(Box::new(history.clone()), Box::new(m)).into();
 
                     Ok(Self {
                         id: id.clone(),
@@ -234,8 +240,8 @@ impl CartState {
 mod tests {
     use super::*;
 
-    fn serial(a: Movement, b: Movement) -> Movement {
-        Serial(Box::new(a), Box::new(b)).into()
+    fn cons(a: Movement, b: Movement) -> Movement {
+        (a, b).into()
     }
 
     #[test]
@@ -264,7 +270,7 @@ mod tests {
         let r = c.add_item(Item("A1".into()), 1);
 
         if let Ok(m) = r.map(|x| x.history) {
-            let Serial(_, m) = Serial::try_from(m).unwrap();
+            let Consecutive(_, m) = Consecutive::try_from(m).unwrap();
             let m = ChangeLocation::try_from(m.as_ref().clone()).unwrap();
 
             assert_eq!(Target::from(Item("A1".into())), m.target);
@@ -282,7 +288,7 @@ mod tests {
 
         let c = CartState {
             id: id.clone(),
-            history: serial(
+            history: cons(
                 ChangeOwnership {
                     target: Cart(id.clone()).into(),
                     from: System.into(),
@@ -303,7 +309,7 @@ mod tests {
         let r = c.remove_item(Item("A1".into()), 1);
 
         if let Ok(m) = r.map(|x| x.history) {
-            let Serial(_, m) = Serial::try_from(m).unwrap();
+            let Consecutive(_, m) = Consecutive::try_from(m).unwrap();
             let m = ChangeLocation::try_from(m.as_ref().clone()).unwrap();
 
             assert_eq!(Target::from(Item("A1".into())), m.target);
@@ -321,9 +327,9 @@ mod tests {
 
         let c = CartState {
             id: id.clone(),
-            history: serial(
-                serial(
-                    serial(
+            history: cons(
+                cons(
+                    cons(
                         ChangeOwnership {
                             target: Cart(id.clone()).into(),
                             from: System.into(),
@@ -360,7 +366,7 @@ mod tests {
         let r = c.remove_item(Item("A1".into()), 5);
 
         if let Ok(m) = r.map(|x| x.history) {
-            let Serial(_, m) = Serial::try_from(m).unwrap();
+            let Consecutive(_, m) = Consecutive::try_from(m).unwrap();
             let m = ChangeLocation::try_from(m.as_ref().clone()).unwrap();
 
             assert_eq!(Target::from(Item("A1".into())), m.target);
@@ -380,7 +386,7 @@ mod tests {
 
         let c = CartState {
             id: id.clone(),
-            history: serial(
+            history: cons(
                 ChangeOwnership {
                     target: Cart(id.clone()).into(),
                     from: System.into(),
@@ -409,7 +415,7 @@ mod tests {
 
         let c = CartState {
             id: id.clone(),
-            history: serial(
+            history: cons(
                 ChangeOwnership {
                     target: Cart(id.clone()).into(),
                     from: System.into(),
@@ -519,7 +525,7 @@ mod tests {
     fn items_single() {
         let id = "cart-2".to_string();
 
-        let history: Movement = serial(
+        let history: Movement = cons(
             ChangeOwnership {
                 target: Cart(id.clone()).into(),
                 from: System.into(),
@@ -552,9 +558,9 @@ mod tests {
     fn items_multi() {
         let id = "cart-2".to_string();
 
-        let history: Movement = serial(
-            serial(
-                serial(
+        let history: Movement = cons(
+            cons(
+                cons(
                     ChangeOwnership {
                         target: Cart(id.clone()).into(),
                         from: System.into(),
@@ -653,12 +659,12 @@ mod tests {
     }
 
     #[test]
-    fn last_move_serial() {
+    fn last_move_cons() {
         let id = "cart1".to_string();
 
-        let m: Movement = serial(
-            serial(
-                serial(
+        let m: Movement = cons(
+            cons(
+                cons(
                     ChangeOwnership {
                         target: Cart(id.clone()).into(),
                         from: System.into(),
@@ -709,9 +715,9 @@ mod tests {
 
         let c = CartState {
             id: id.clone(),
-            history: serial(
-                serial(
-                    serial(
+            history: cons(
+                cons(
+                    cons(
                         ChangeOwnership {
                             target: Cart(id.clone()).into(),
                             from: System.into(),
