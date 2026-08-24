@@ -1,8 +1,6 @@
 mod core;
 use core::*;
 
-use macuru::{MonadLike, mdo};
-
 #[derive(Debug, Clone)]
 pub struct CartState {
     cart: Cart,
@@ -40,15 +38,12 @@ impl CartState {
         if qty < 1 {
             Err(format!("must be qty >= 1, qty={}", qty).into())
         } else {
-            let xs = mdo!(
-                a <- self.items() where a.item == item && a.qty > 0
-                yield a
-            );
+            let items = self.items();
 
             let mut remain_qty = qty;
             let mut new_history = self.history.clone();
 
-            for x in xs {
+            for x in items.iter().filter(|x| x.item == item && x.qty > 0) {
                 let q = std::cmp::min(x.qty, remain_qty);
 
                 new_history = (
@@ -178,6 +173,29 @@ mod tests {
 
         assert!(r.is_ok());
         assert!(r.unwrap().items().is_empty());
+    }
+
+    #[test]
+    fn remove_item_zero() {
+        let item1 = Item::new("A1".into(), dec!(100)).unwrap();
+
+        let loc1 = Warehouse::new_logical("stock-1".into()).unwrap();
+        let loc2 = Warehouse::new_logical("stock-2".into()).unwrap();
+        let loc3 = Warehouse::new_logical("stock-3".into()).unwrap();
+
+        let s = mdo!(
+            a <- CartState::new("cart-1".into(), Anonymous.into())
+            b <- a.add_item(item1.clone(), 1, loc1.clone().into())
+            c <- b.add_item(item1.clone(), 1, loc2.clone().into())
+            d <- c.add_item(item1.clone(), 1, loc3.clone().into())
+
+            yield d
+        )
+        .unwrap();
+
+        let r = s.remove_item(item1.clone(), 0);
+
+        assert!(r.is_err());
     }
 
     #[test]
