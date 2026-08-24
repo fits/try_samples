@@ -40,28 +40,31 @@ impl CartState {
         } else {
             let items = self.items();
 
-            let mut remain_qty = qty;
-            let mut new_history = self.history.clone();
+            let (remain_qty, new_history) = items
+                .iter()
+                .filter(|x| x.item == item && x.qty > 0)
+                .fold((qty, self.history.clone()), |acc, x| {
+                    if acc.0 == 0 {
+                        acc
+                    } else {
+                        let q = std::cmp::min(x.qty, acc.0);
+                        let m = ChangeLocation::new(
+                            item.clone(),
+                            self.cart.clone().into(),
+                            x.from.clone(),
+                            q,
+                        );
 
-            for x in items.iter().filter(|x| x.item == item && x.qty > 0) {
-                let q = std::cmp::min(x.qty, remain_qty);
-
-                new_history = (
-                    new_history,
-                    ChangeLocation::new(item.clone(), self.cart.clone().into(), x.from.clone(), q)?
-                        .into(),
-                )
-                    .into();
-
-                remain_qty -= q;
-
-                if remain_qty == 0 {
-                    break;
-                }
-            }
+                        if let Ok(m) = m {
+                            (acc.0 - q, (acc.1, m.into()).into())
+                        } else {
+                            acc
+                        }
+                    }
+                });
 
             if remain_qty > 0 {
-                Err("over remove".into())
+                Err("failed remove item".into())
             } else {
                 Ok(Self {
                     cart: self.cart.clone(),
