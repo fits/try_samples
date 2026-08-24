@@ -1,0 +1,9 @@
+[package]
+name = "move_based2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = "0.4"
+macuru = { git = "https://github.com/fits/macuru" }
+rust_decimal = { version = "1.42", features = ["macros"] }
