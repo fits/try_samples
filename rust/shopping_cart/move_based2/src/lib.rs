@@ -1,10 +1,27 @@
+use macuru::adt;
+
 mod core;
 use core::*;
 
+adt!(
+    CartState = EmptyCart | ActiveCart derive Debug, Clone with CartFunc {
+        fn add_item(&self, item: Item, qty: Quantity, from: Location) -> Result<Self>;
+        fn remove_item(&self, item: Item, qty: Quantity) -> Result<Self>;
+        fn items(&self) -> Vec<CartInItem>;
+    }
+);
+
 #[derive(Debug, Clone)]
-pub struct CartState {
+pub struct EmptyCart {
     cart: Cart,
     history: Movement,
+}
+
+#[derive(Debug, Clone)]
+pub struct ActiveCart {
+    cart: Cart,
+    history: Movement,
+    items: Vec<CartInItem>,
 }
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -13,34 +30,81 @@ impl CartState {
     pub fn new(cart_id: CartId, user: Owner) -> Result<Self> {
         let cart = Cart::new(cart_id)?;
 
-        let history = ChangeOwner::new(cart.clone().into(), System.into(), user, 1)?;
+        let m = ChangeOwner::new(cart.clone().into(), System.into(), user, 1)?;
 
-        Ok(Self {
+        Ok(EmptyCart {
             cart,
-            history: history.into(),
-        })
+            history: m.into(),
+        }
+        .into())
     }
+}
 
-    pub fn add_item(&self, item: Item, qty: Quantity, from: Location) -> Result<Self> {
+fn invalid_state<T>() -> Result<T> {
+    Err("invalid state".into())
+}
+
+impl CartFunc for EmptyCart {
+    fn add_item(&self, item: Item, qty: Quantity, from: Location) -> Result<CartState> {
         let Self { cart, history } = self;
 
         let m: Movement = ChangeLocation::new(item, from, cart.clone().into(), qty)?.into();
 
         let new_history: Movement = (history.clone(), m).into();
+        let new_items = new_history.items_in_cart(&self.cart);
 
-        Ok(Self {
-            cart: cart.clone(),
-            history: new_history,
-        })
+        if new_items.is_empty() {
+            invalid_state()
+        } else {
+            Ok(ActiveCart {
+                cart: cart.clone(),
+                history: new_history,
+                items: new_items,
+            }
+            .into())
+        }
     }
 
-    pub fn remove_item(&self, item: Item, qty: Quantity) -> Result<Self> {
+    fn remove_item(&self, _item: Item, _qty: Quantity) -> Result<CartState> {
+        invalid_state()
+    }
+
+    fn items(&self) -> Vec<CartInItem> {
+        Vec::new()
+    }
+}
+
+impl CartFunc for ActiveCart {
+    fn add_item(&self, item: Item, qty: Quantity, from: Location) -> Result<CartState> {
+        let Self {
+            cart,
+            history,
+            items,
+        } = self;
+
+        let m: Movement = ChangeLocation::new(item, from, cart.clone().into(), qty)?.into();
+
+        let new_history: Movement = (history.clone(), m).into();
+        let new_items = new_history.items_in_cart(&self.cart);
+
+        if *items == new_items {
+            invalid_state()
+        } else {
+            Ok(Self {
+                cart: cart.clone(),
+                history: new_history,
+                items: new_items,
+            }
+            .into())
+        }
+    }
+
+    fn remove_item(&self, item: Item, qty: Quantity) -> Result<CartState> {
         if qty < 1 {
             Err(format!("must be qty >= 1, qty={}", qty).into())
         } else {
-            let items = self.items();
-
-            let (remain_qty, new_history) = items
+            let (remain_qty, new_history) = self
+                .items
                 .iter()
                 .filter(|x| x.item == item && x.qty > 0)
                 .fold((qty, self.history.clone()), |acc, x| {
@@ -66,16 +130,28 @@ impl CartState {
             if remain_qty > 0 {
                 Err("failed remove item".into())
             } else {
-                Ok(Self {
-                    cart: self.cart.clone(),
-                    history: new_history,
-                })
+                let new_items = new_history.items_in_cart(&self.cart);
+
+                if new_items.is_empty() {
+                    Ok(EmptyCart {
+                        cart: self.cart.clone(),
+                        history: new_history,
+                    }
+                    .into())
+                } else {
+                    Ok(Self {
+                        cart: self.cart.clone(),
+                        history: new_history,
+                        items: new_items,
+                    }
+                    .into())
+                }
             }
         }
     }
 
-    pub fn items(&self) -> Vec<CartInItem> {
-        self.history.items_in_cart(&self.cart)
+    fn items(&self) -> Vec<CartInItem> {
+        self.items.clone()
     }
 }
 
@@ -87,9 +163,13 @@ mod tests {
 
     #[test]
     fn new_state() {
-        let s = CartState::new("cart-1".into(), Anonymous.into());
+        let r = CartState::new("cart-1".into(), Anonymous.into());
 
-        assert!(s.is_ok());
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert!(EmptyCart::try_from(r).is_ok());
     }
 
     #[test]
@@ -102,6 +182,10 @@ mod tests {
         let r = s.add_item(item, 1, w.into());
 
         assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert!(ActiveCart::try_from(r).is_ok());
     }
 
     #[test]
@@ -175,7 +259,11 @@ mod tests {
         let r = s.remove_item(item1.clone(), 3);
 
         assert!(r.is_ok());
-        assert!(r.unwrap().items().is_empty());
+
+        let r = r.unwrap();
+
+        assert!(r.items().is_empty());
+        assert!(EmptyCart::try_from(r).is_ok());
     }
 
     #[test]

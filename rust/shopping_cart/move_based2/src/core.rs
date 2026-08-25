@@ -16,10 +16,11 @@ pub struct Move<T, I> {
     from: I,
     to: I,
     qty: Quantity,
+    #[allow(unused)]
     at: Date,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CartInItem {
     pub item: Item,
     pub qty: Quantity,
