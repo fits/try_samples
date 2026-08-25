@@ -45,8 +45,8 @@ adt!(
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Item {
-    id: ItemId,
-    unit_price: Amount,
+    pub id: ItemId,
+    pub unit_price: Amount,
 }
 
 adt!(

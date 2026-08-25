@@ -1,4 +1,5 @@
 use macuru::adt;
+use rust_decimal::prelude::*;
 
 mod core;
 use core::*;
@@ -9,6 +10,7 @@ adt!(
         fn remove_item(&self, item: Item, qty: Quantity) -> Result<Self>;
         fn items(&self) -> Vec<CartInItem>;
         fn cancel(&self) -> Result<Self>;
+        fn subtotal(&self) -> Amount;
     }
 );
 
@@ -87,6 +89,10 @@ impl CartFunc for EmptyCart {
             history: self.history.clone(),
         }
         .into())
+    }
+
+    fn subtotal(&self) -> Amount {
+        Amount::zero()
     }
 }
 
@@ -193,6 +199,12 @@ impl CartFunc for ActiveCart {
             invalid_state()
         }
     }
+
+    fn subtotal(&self) -> Amount {
+        self.items.iter().fold(Amount::zero(), |acc, x| {
+            acc + (x.item.unit_price * Amount::from_isize(x.qty).unwrap_or_default())
+        })
+    }
 }
 
 impl CartFunc for CanceledCart {
@@ -211,6 +223,10 @@ impl CartFunc for CanceledCart {
     fn cancel(&self) -> Result<CartState> {
         invalid_state()
     }
+
+    fn subtotal(&self) -> Amount {
+        Amount::zero()
+    }
 }
 
 fn move_out_item(t: &CartInItem, cart: &Cart) -> Result<Movement> {
@@ -222,7 +238,6 @@ fn move_out_item(t: &CartInItem, cart: &Cart) -> Result<Movement> {
 mod tests {
     use super::*;
     use macuru::{MonadLike, mdo};
-    use rust_decimal::prelude::*;
 
     #[test]
     fn new_state() {
@@ -436,5 +451,46 @@ mod tests {
         let c = CanceledCart::try_from(r);
 
         assert!(c.is_ok());
+    }
+
+    #[test]
+    fn subtotal_empty() {
+        let s = CartState::new("cart-1".into(), Anonymous.into()).unwrap();
+
+        assert_eq!(Amount::zero(), s.subtotal());
+    }
+
+    #[test]
+    fn subtotal_canceled() {
+        let s = mdo!(
+            a <- CartState::new("cart-1".into(), Anonymous.into())
+            b <- a.cancel()
+            yield b
+        );
+
+        assert_eq!(Amount::zero(), s.unwrap().subtotal());
+    }
+
+    #[test]
+    fn subtotal_active() {
+        let item1 = Item::new("A1".into(), dec!(100)).unwrap();
+        let item2 = Item::new("B2".into(), dec!(200)).unwrap();
+
+        let loc1 = Warehouse::new_logical("stock-1".into()).unwrap();
+        let loc2 = Warehouse::new_logical("stock-2".into()).unwrap();
+
+        let s = mdo!(
+            a <- CartState::new("cart-1".into(), Anonymous.into())
+            b <- a.add_item(item1.clone(), 3, loc1.clone().into())
+            c <- b.add_item(item2.clone(), 2, loc1.clone().into())
+            d <- c.add_item(item1.clone(), 1, loc2.clone().into())
+            e <- d.remove_item(item2.clone(), 1)
+            f <- e.add_item(item1.clone(), 2, loc1.clone().into())
+            g <- f.remove_item(item1.clone(), 3)
+
+            yield g
+        );
+
+        assert_eq!(dec!(500), s.unwrap().subtotal());
     }
 }
