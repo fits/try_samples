@@ -4,10 +4,11 @@ mod core;
 use core::*;
 
 adt!(
-    CartState = EmptyCart | ActiveCart derive Debug, Clone with CartFunc {
+    CartState = EmptyCart | ActiveCart | CanceledCart derive Debug, Clone with CartFunc {
         fn add_item(&self, item: Item, qty: Quantity, from: Location) -> Result<Self>;
         fn remove_item(&self, item: Item, qty: Quantity) -> Result<Self>;
         fn items(&self) -> Vec<CartInItem>;
+        fn cancel(&self) -> Result<Self>;
     }
 );
 
@@ -22,6 +23,13 @@ pub struct ActiveCart {
     cart: Cart,
     history: Movement,
     items: Vec<CartInItem>,
+}
+
+#[allow(unused)]
+#[derive(Debug, Clone)]
+pub struct CanceledCart {
+    cart: Cart,
+    history: Movement,
 }
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -71,6 +79,14 @@ impl CartFunc for EmptyCart {
 
     fn items(&self) -> Vec<CartInItem> {
         Vec::new()
+    }
+
+    fn cancel(&self) -> Result<CartState> {
+        Ok(CanceledCart {
+            cart: self.cart.clone(),
+            history: self.history.clone(),
+        }
+        .into())
     }
 }
 
@@ -153,6 +169,53 @@ impl CartFunc for ActiveCart {
     fn items(&self) -> Vec<CartInItem> {
         self.items.clone()
     }
+
+    fn cancel(&self) -> Result<CartState> {
+        let items = self.items.clone();
+
+        let fst_item = items.first().ok_or("empty item")?;
+
+        let mut m: Movement = move_out_item(fst_item, &self.cart)?;
+
+        for x in items.iter().skip(1) {
+            m = (m, move_out_item(x, &self.cart)?).into();
+        }
+
+        let new_history: Movement = (self.history.clone(), m).into();
+
+        if new_history.items_in_cart(&self.cart).is_empty() {
+            Ok(CanceledCart {
+                cart: self.cart.clone(),
+                history: new_history,
+            }
+            .into())
+        } else {
+            invalid_state()
+        }
+    }
+}
+
+impl CartFunc for CanceledCart {
+    fn add_item(&self, _item: Item, _qty: Quantity, _from: Location) -> Result<CartState> {
+        invalid_state()
+    }
+
+    fn remove_item(&self, _item: Item, _qty: Quantity) -> Result<CartState> {
+        invalid_state()
+    }
+
+    fn items(&self) -> Vec<CartInItem> {
+        Vec::new()
+    }
+
+    fn cancel(&self) -> Result<CartState> {
+        invalid_state()
+    }
+}
+
+fn move_out_item(t: &CartInItem, cart: &Cart) -> Result<Movement> {
+    ChangeLocation::new(t.item.clone(), cart.clone().into(), t.from.clone(), t.qty)
+        .map(Movement::from)
 }
 
 #[cfg(test)]
@@ -315,5 +378,63 @@ mod tests {
 
         let i2 = r.last().unwrap();
         assert_eq!(3, i2.qty);
+    }
+
+    #[test]
+    fn cancel_empty() {
+        let s = CartState::new("cart-1".into(), Anonymous.into()).unwrap();
+
+        let r = s.cancel();
+
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert!(CanceledCart::try_from(r).is_ok());
+    }
+
+    #[test]
+    fn cancel_canceled() {
+        let s = mdo!(
+            a <- CartState::new("cart-1".into(), Anonymous.into())
+            b <- a.cancel()
+            yield b
+        );
+
+        let r = s.unwrap().cancel();
+
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn cancel_active() {
+        let item1 = Item::new("A1".into(), dec!(100)).unwrap();
+        let item2 = Item::new("B2".into(), dec!(200)).unwrap();
+
+        let loc1 = Warehouse::new_logical("stock-1".into()).unwrap();
+        let loc2 = Warehouse::new_logical("stock-2".into()).unwrap();
+
+        let s = mdo!(
+            a <- CartState::new("cart-1".into(), Anonymous.into())
+            b <- a.add_item(item1.clone(), 1, loc1.clone().into())
+            c <- b.add_item(item2.clone(), 3, loc1.clone().into())
+            d <- c.add_item(item1.clone(), 2, loc1.clone().into())
+            e <- d.add_item(item1.clone(), 1, loc2.clone().into())
+
+            yield e
+        )
+        .unwrap();
+
+        let r = s.cancel();
+
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert!(r.items().is_empty());
+
+        let c = CanceledCart::try_from(r);
+
+        assert!(c.is_ok());
     }
 }
