@@ -1,4 +1,4 @@
-use macuru::adt;
+use macuru::{MonadLike, adt, mdo};
 use rust_decimal::prelude::*;
 
 mod core;
@@ -40,7 +40,7 @@ impl CartState {
     pub fn new(cart_id: CartId, user: Owner) -> Result<Self> {
         let cart = Cart::new(cart_id)?;
 
-        let m = ChangeOwner::new(cart.clone().into(), System.into(), user, 1)?;
+        let m = ChangeOwner::new(cart.clone().into(), System.into(), user)?;
 
         Ok(EmptyCart {
             cart,
@@ -58,7 +58,8 @@ impl CartFunc for EmptyCart {
     fn add_item(&self, item: Item, qty: Quantity, from: Location) -> Result<CartState> {
         let Self { cart, history } = self;
 
-        let m: Movement = ChangeLocation::new(item, from, cart.clone().into(), qty)?.into();
+        let m: Movement =
+            ChangeLocation::new((item, qty).try_into()?, from, cart.clone().into())?.into();
 
         let new_history: Movement = (history.clone(), m).into();
         let new_items = new_history.items_in_cart(&self.cart);
@@ -104,7 +105,8 @@ impl CartFunc for ActiveCart {
             items,
         } = self;
 
-        let m: Movement = ChangeLocation::new(item, from, cart.clone().into(), qty)?.into();
+        let m: Movement =
+            ChangeLocation::new((item, qty).try_into()?, from, cart.clone().into())?.into();
 
         let new_history: Movement = (history.clone(), m).into();
         let new_items = new_history.items_in_cart(&self.cart);
@@ -128,17 +130,21 @@ impl CartFunc for ActiveCart {
             let (remain_qty, new_history) = self
                 .items
                 .iter()
-                .filter(|x| x.item == item && x.qty > 0)
+                .filter(|x| *x.item.item() == item && x.item.qty() > 0)
                 .fold((qty, self.history.clone()), |acc, x| {
                     if acc.0 == 0 {
                         acc
                     } else {
-                        let q = std::cmp::min(x.qty, acc.0);
-                        let m = ChangeLocation::new(
-                            item.clone(),
-                            self.cart.clone().into(),
-                            x.from.clone(),
-                            q,
+                        let q = std::cmp::min(x.item.qty(), acc.0);
+
+                        let m = mdo!(
+                            t <- (item.clone(), q).try_into()
+                            m <- ChangeLocation::new(
+                                t,
+                                self.cart.clone().into(),
+                                x.from.clone(),
+                            )
+                            yield m
                         );
 
                         if let Ok(m) = m {
@@ -202,7 +208,7 @@ impl CartFunc for ActiveCart {
 
     fn subtotal(&self) -> Amount {
         self.items.iter().fold(Amount::zero(), |acc, x| {
-            acc + (x.item.unit_price * Amount::from_isize(x.qty).unwrap_or_default())
+            acc + (x.item.item().unit_price * Amount::from_isize(x.item.qty()).unwrap_or_default())
         })
     }
 }
@@ -230,14 +236,12 @@ impl CartFunc for CanceledCart {
 }
 
 fn move_out_item(t: &CartInItem, cart: &Cart) -> Result<Movement> {
-    ChangeLocation::new(t.item.clone(), cart.clone().into(), t.from.clone(), t.qty)
-        .map(Movement::from)
+    ChangeLocation::new(t.item.clone(), cart.clone().into(), t.from.clone()).map(Movement::from)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use macuru::{MonadLike, mdo};
 
     #[test]
     fn new_state() {
@@ -290,7 +294,7 @@ mod tests {
 
         let t = r.unwrap().items();
         assert_eq!(3, t.len());
-        assert_eq!(1, t.first().unwrap().qty);
+        assert_eq!(1, t.first().unwrap().item.qty());
     }
 
     #[test]
@@ -389,10 +393,10 @@ mod tests {
         assert_eq!(2, r.len());
 
         let i1 = r.first().unwrap();
-        assert_eq!(2, i1.qty);
+        assert_eq!(2, i1.item.qty());
 
         let i2 = r.last().unwrap();
-        assert_eq!(3, i2.qty);
+        assert_eq!(3, i2.item.qty());
     }
 
     #[test]

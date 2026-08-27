@@ -15,15 +15,13 @@ pub struct Move<T, I> {
     target: T,
     from: I,
     to: I,
-    qty: Quantity,
     #[allow(unused)]
     at: Date,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CartInItem {
-    pub item: Item,
-    pub qty: Quantity,
+    pub item: OrderItem,
     pub from: Location,
 }
 
@@ -33,15 +31,21 @@ adt!(
     }
 );
 
-pub type ChangeLocation = Move<Item, Location>;
+pub type ChangeLocation = Move<OrderItem, Location>;
 pub type ChangeOwner = Move<OwnerTarget, Owner>;
 
 #[derive(Debug, Clone)]
 pub struct Consecutive(Box<Movement>, Box<Movement>);
 
 adt!(
-    OwnerTarget = Item | Cart derive Debug, Clone, PartialEq
+    OwnerTarget = OrderItem | Cart derive Debug, Clone, PartialEq
 );
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct OrderItem {
+    item: Item,
+    qty: Quantity,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Item {
@@ -98,19 +102,57 @@ impl<T, I> Move<T, I>
 where
     I: PartialEq,
 {
-    pub fn new(target: T, from: I, to: I, qty: Quantity) -> Result<Self> {
-        if qty <= 0 {
-            Err(format!("must be qty > 0, qty={}", qty).into())
-        } else if from == to {
+    pub fn new(target: T, from: I, to: I) -> Result<Self> {
+        if from == to {
             Err("no move, from is to".into())
         } else {
             Ok(Self {
                 target,
                 from,
                 to,
-                qty,
                 at: now(),
             })
+        }
+    }
+}
+
+impl OrderItem {
+    pub fn new(item_id: ItemId, unit_price: Amount, qty: Quantity) -> Result<Self> {
+        let item = Item::new(item_id, unit_price)?;
+
+        Self::try_from((item, qty))
+    }
+
+    pub fn item(&self) -> &Item {
+        &self.item
+    }
+
+    pub fn qty(&self) -> Quantity {
+        self.qty
+    }
+
+    pub fn invert_sign(&self) -> Self {
+        Self {
+            item: self.item.clone(),
+            qty: self.qty * -1,
+        }
+    }
+
+    pub fn eq_item(&self, target: &Self) -> bool {
+        self.item == target.item
+    }
+}
+
+impl TryFrom<(Item, Quantity)> for OrderItem {
+    type Error = Box<dyn std::error::Error>;
+
+    fn try_from(value: (Item, Quantity)) -> std::result::Result<Self, Self::Error> {
+        let (item, qty) = value;
+
+        if qty < 1 {
+            Err(format!("must be qty >= 1, qty={}", qty).into())
+        } else {
+            Ok(Self { item, qty })
         }
     }
 }
@@ -163,13 +205,11 @@ impl MovementFunc for ChangeLocation {
         if is_cart_location(&self.to, cart) {
             vec![CartInItem {
                 item: self.target.clone(),
-                qty: self.qty,
                 from: self.from.clone(),
             }]
         } else if is_cart_location(&self.from, cart) {
             vec![CartInItem {
-                item: self.target.clone(),
-                qty: self.qty * -1,
+                item: self.target.invert_sign(),
                 from: self.to.clone(),
             }]
         } else {
@@ -198,19 +238,19 @@ impl MovementFunc for Consecutive {
                 if let Some((i, x)) = a
                     .iter()
                     .enumerate()
-                    .find(|(_, x)| x.item == t.item && x.from == t.from)
+                    .find(|(_, x)| x.item.eq_item(&t.item) && x.from == t.from)
                 {
-                    if x.qty + t.qty == 0 {
+                    if x.item.qty + t.item.qty == 0 {
                         a.remove(i);
                     } else {
-                        a.get_mut(i).unwrap().qty += t.qty;
+                        a.get_mut(i).unwrap().item.qty += t.item.qty;
                     }
                 } else {
                     a.push(t);
                 }
             }
 
-            a.sort_by_key(|x| x.item.id.clone());
+            a.sort_by_key(|x| x.item.item.id.clone());
 
             a
         }
@@ -234,38 +274,18 @@ mod tests {
 
     #[test]
     fn new_changeowner() {
-        let item = Item {
-            id: "A1".into(),
-            unit_price: dec!(1100),
-        };
+        let t = OrderItem::new("A1".into(), dec!(1100), 1).unwrap();
 
-        let r = ChangeOwner::new(item.into(), System.into(), Anonymous.into(), 1);
+        let r = ChangeOwner::new(t.into(), System.into(), Anonymous.into());
 
         assert!(r.is_ok());
     }
 
     #[test]
-    fn new_changelocation_zero_qty() {
-        let item = Item {
-            id: "A1".into(),
-            unit_price: dec!(1100),
-        };
-
-        let w: Warehouse = LogicalWarehouse("s-1".into()).into();
-
-        let r = ChangeLocation::new(item, w.into(), Cart("cart-1".into()).into(), 0);
-
-        assert!(r.is_err());
-    }
-
-    #[test]
     fn new_changeowner_not_move() {
-        let item = Item {
-            id: "A1".into(),
-            unit_price: dec!(1100),
-        };
+        let t = OrderItem::new("A1".into(), dec!(1100), 1).unwrap();
 
-        let r = ChangeOwner::new(item.into(), System.into(), System.into(), 1);
+        let r = ChangeOwner::new(t.into(), System.into(), System.into());
 
         assert!(r.is_err());
     }
@@ -292,10 +312,24 @@ mod tests {
     }
 
     #[test]
+    fn new_order_item() {
+        let r = OrderItem::new("A1".into(), dec!(100), 1);
+
+        assert!(r.is_ok());
+    }
+
+    #[test]
+    fn new_order_item_with_qty_zero() {
+        let r = OrderItem::new("A1".into(), dec!(-100), 0);
+
+        assert!(r.is_err());
+    }
+
+    #[test]
     fn items_in_cart_changeowner() {
         let cart = Cart("cart-1".into());
 
-        let m = ChangeOwner::new(cart.clone().into(), System.into(), Anonymous.into(), 1).unwrap();
+        let m = ChangeOwner::new(cart.clone().into(), System.into(), Anonymous.into()).unwrap();
 
         let r = m.items_in_cart(&cart);
 
@@ -306,15 +340,11 @@ mod tests {
     fn items_in_cart_changelocation() {
         let cart = Cart("cart-1".into());
 
-        let item = Item {
-            id: "A1".into(),
-            unit_price: dec!(1100),
-        };
+        let t = OrderItem::new("A1".into(), dec!(1100), 2).unwrap();
 
         let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
 
-        let m =
-            ChangeLocation::new(item.clone().into(), w.clone(), cart.clone().into(), 2).unwrap();
+        let m = ChangeLocation::new(t.clone().into(), w.clone(), cart.clone().into()).unwrap();
 
         let r = m.items_in_cart(&cart);
 
@@ -322,8 +352,7 @@ mod tests {
 
         let it = r.first().unwrap();
 
-        assert_eq!(item, it.item);
-        assert_eq!(2, it.qty);
+        assert_eq!(t, it.item);
         assert_eq!(w, it.from);
     }
 
@@ -331,14 +360,11 @@ mod tests {
     fn items_in_cart_changelocation_other_cart() {
         let cart = Cart("cart-1".into());
 
-        let item = Item {
-            id: "A1".into(),
-            unit_price: dec!(1100),
-        };
+        let t = OrderItem::new("A1".into(), dec!(1100), 2).unwrap();
 
         let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
 
-        let m = ChangeLocation::new(item.clone().into(), w.clone(), cart.into(), 2).unwrap();
+        let m = ChangeLocation::new(t.clone().into(), w.clone(), cart.into()).unwrap();
 
         let r = m.items_in_cart(&Cart("cart-2".into()));
 
@@ -349,15 +375,11 @@ mod tests {
     fn items_in_cart_changelocation_out() {
         let cart = Cart("cart-1".into());
 
-        let item = Item {
-            id: "A1".into(),
-            unit_price: dec!(1100),
-        };
+        let t = OrderItem::new("A1".into(), dec!(1100), 3).unwrap();
 
         let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
 
-        let m =
-            ChangeLocation::new(item.clone().into(), cart.clone().into(), w.clone(), 3).unwrap();
+        let m = ChangeLocation::new(t.clone().into(), cart.clone().into(), w.clone()).unwrap();
 
         let r = m.items_in_cart(&cart);
 
@@ -365,8 +387,7 @@ mod tests {
 
         let it = r.first().unwrap();
 
-        assert_eq!(item, it.item);
-        assert_eq!(-3, it.qty);
+        assert_eq!(t.invert_sign(), it.item);
         assert_eq!(w, it.from);
     }
 
@@ -374,18 +395,15 @@ mod tests {
     fn items_in_cart_cons_simple() {
         let cart = Cart("cart-1".into());
 
-        let item1 = Item {
-            id: "A1".into(),
-            unit_price: dec!(1100),
-        };
+        let t = OrderItem::new("A1".into(), dec!(1100), 2).unwrap();
 
         let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
 
         let m = cons(
-            ChangeOwner::new(cart.clone().into(), System.into(), Anonymous.into(), 1)
+            ChangeOwner::new(cart.clone().into(), System.into(), Anonymous.into())
                 .unwrap()
                 .into(),
-            ChangeLocation::new(item1.clone().into(), w.clone(), cart.clone().into(), 2)
+            ChangeLocation::new(t.clone().into(), w.clone(), cart.clone().into())
                 .unwrap()
                 .into(),
         );
@@ -396,8 +414,7 @@ mod tests {
 
         let i1 = r.first().unwrap();
 
-        assert_eq!(item1, i1.item);
-        assert_eq!(2, i1.qty);
+        assert_eq!(t, i1.item);
         assert_eq!(w, i1.from);
     }
 
@@ -419,16 +436,28 @@ mod tests {
 
         let m = cons(
             cons(
-                ChangeLocation::new(item1.clone().into(), w.clone(), cart.clone().into(), 2)
-                    .unwrap()
-                    .into(),
-                ChangeLocation::new(item2.clone().into(), w.clone(), cart.clone().into(), 1)
-                    .unwrap()
-                    .into(),
-            ),
-            ChangeLocation::new(item1.clone().into(), w.clone(), cart.clone().into(), 3)
+                ChangeLocation::new(
+                    (item1.clone(), 2).try_into().unwrap(),
+                    w.clone(),
+                    cart.clone().into(),
+                )
                 .unwrap()
                 .into(),
+                ChangeLocation::new(
+                    (item2.clone(), 1).try_into().unwrap(),
+                    w.clone(),
+                    cart.clone().into(),
+                )
+                .unwrap()
+                .into(),
+            ),
+            ChangeLocation::new(
+                (item1.clone(), 3).try_into().unwrap(),
+                w.clone(),
+                cart.clone().into(),
+            )
+            .unwrap()
+            .into(),
         );
 
         let r = m.items_in_cart(&cart);
@@ -437,14 +466,14 @@ mod tests {
 
         let i1 = r.first().unwrap();
 
-        assert_eq!(item1, i1.item);
-        assert_eq!(5, i1.qty);
+        assert_eq!(item1, i1.item.item);
+        assert_eq!(5, i1.item.qty);
         assert_eq!(w, i1.from);
 
         let i2 = r.last().unwrap();
 
-        assert_eq!(item2, i2.item);
-        assert_eq!(1, i2.qty);
+        assert_eq!(item2, i2.item.item);
+        assert_eq!(1, i2.item.qty);
         assert_eq!(w, i2.from);
     }
 
@@ -467,16 +496,28 @@ mod tests {
 
         let m = cons(
             cons(
-                ChangeLocation::new(item1.clone().into(), w.clone(), cart.clone().into(), 2)
-                    .unwrap()
-                    .into(),
-                ChangeLocation::new(item2.clone().into(), w.clone(), cart.clone().into(), 1)
-                    .unwrap()
-                    .into(),
-            ),
-            ChangeLocation::new(item1.clone().into(), w2.clone(), cart.clone().into(), 3)
+                ChangeLocation::new(
+                    (item1.clone(), 2).try_into().unwrap(),
+                    w.clone(),
+                    cart.clone().into(),
+                )
                 .unwrap()
                 .into(),
+                ChangeLocation::new(
+                    (item2.clone(), 1).try_into().unwrap(),
+                    w.clone(),
+                    cart.clone().into(),
+                )
+                .unwrap()
+                .into(),
+            ),
+            ChangeLocation::new(
+                (item1.clone(), 3).try_into().unwrap(),
+                w2.clone(),
+                cart.clone().into(),
+            )
+            .unwrap()
+            .into(),
         );
 
         let r = m.items_in_cart(&cart);
@@ -485,20 +526,20 @@ mod tests {
 
         let i1 = r.first().unwrap();
 
-        assert_eq!(item1, i1.item);
-        assert_eq!(2, i1.qty);
+        assert_eq!(item1, i1.item.item);
+        assert_eq!(2, i1.item.qty);
         assert_eq!(w, i1.from);
 
         let i2 = r.get(1).unwrap();
 
-        assert_eq!(item1, i2.item);
-        assert_eq!(3, i2.qty);
+        assert_eq!(item1, i2.item.item);
+        assert_eq!(3, i2.item.qty);
         assert_eq!(w2, i2.from);
 
         let i3 = r.last().unwrap();
 
-        assert_eq!(item2, i3.item);
-        assert_eq!(1, i3.qty);
+        assert_eq!(item2, i3.item.item);
+        assert_eq!(1, i3.item.qty);
         assert_eq!(w, i3.from);
     }
 
@@ -521,25 +562,45 @@ mod tests {
         let m = cons(
             cons(
                 cons(
-                    ChangeLocation::new(item1.clone().into(), w.clone(), cart.clone().into(), 2)
-                        .unwrap()
-                        .into(),
-                    ChangeLocation::new(item2.clone().into(), w.clone(), cart.clone().into(), 1)
-                        .unwrap()
-                        .into(),
+                    ChangeLocation::new(
+                        (item1.clone(), 2).try_into().unwrap(),
+                        w.clone(),
+                        cart.clone().into(),
+                    )
+                    .unwrap()
+                    .into(),
+                    ChangeLocation::new(
+                        (item2.clone(), 1).try_into().unwrap(),
+                        w.clone(),
+                        cart.clone().into(),
+                    )
+                    .unwrap()
+                    .into(),
                 ),
                 cons(
-                    ChangeLocation::new(item1.clone().into(), w.clone(), cart.clone().into(), 3)
-                        .unwrap()
-                        .into(),
-                    ChangeLocation::new(item2.clone().into(), cart.clone().into(), w.clone(), 1)
-                        .unwrap()
-                        .into(),
+                    ChangeLocation::new(
+                        (item1.clone(), 3).try_into().unwrap(),
+                        w.clone(),
+                        cart.clone().into(),
+                    )
+                    .unwrap()
+                    .into(),
+                    ChangeLocation::new(
+                        (item2.clone(), 1).try_into().unwrap(),
+                        cart.clone().into(),
+                        w.clone(),
+                    )
+                    .unwrap()
+                    .into(),
                 ),
             ),
-            ChangeLocation::new(item1.clone().into(), cart.clone().into(), w.clone(), 1)
-                .unwrap()
-                .into(),
+            ChangeLocation::new(
+                (item1.clone(), 1).try_into().unwrap(),
+                cart.clone().into(),
+                w.clone(),
+            )
+            .unwrap()
+            .into(),
         );
 
         let r = m.items_in_cart(&cart);
@@ -548,8 +609,8 @@ mod tests {
 
         let i1 = r.first().unwrap();
 
-        assert_eq!(item1, i1.item);
-        assert_eq!(4, i1.qty);
+        assert_eq!(item1, i1.item.item);
+        assert_eq!(4, i1.item.qty);
         assert_eq!(w, i1.from);
     }
 }
