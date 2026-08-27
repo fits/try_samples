@@ -28,6 +28,7 @@ pub struct CartInItem {
 adt!(
     Movement = ChangeLocation | ChangeOwner | Consecutive derive Debug, Clone with MovementFunc {
         fn items_in_cart(&self, target: &Cart) -> Vec<CartInItem>;
+        fn cart_subtotal(&self, target: &Cart) -> Amount;
     }
 );
 
@@ -131,7 +132,7 @@ impl OrderItem {
         self.qty
     }
 
-    pub fn invert_sign(&self) -> Self {
+    pub fn qty_invert(&self) -> Self {
         Self {
             item: self.item.clone(),
             qty: self.qty * -1,
@@ -140,6 +141,10 @@ impl OrderItem {
 
     pub fn eq_item(&self, target: &Self) -> bool {
         self.item == target.item
+    }
+
+    pub fn subtotal(&self) -> Amount {
+        self.item.unit_price * Decimal::from_isize(self.qty).unwrap_or_default()
     }
 }
 
@@ -201,19 +206,29 @@ impl Warehouse {
 }
 
 impl MovementFunc for ChangeLocation {
-    fn items_in_cart(&self, cart: &Cart) -> Vec<CartInItem> {
-        if is_cart_location(&self.to, cart) {
+    fn items_in_cart(&self, target: &Cart) -> Vec<CartInItem> {
+        if is_cart_location(&self.to, target) {
             vec![CartInItem {
                 item: self.target.clone(),
                 from: self.from.clone(),
             }]
-        } else if is_cart_location(&self.from, cart) {
+        } else if is_cart_location(&self.from, target) {
             vec![CartInItem {
-                item: self.target.invert_sign(),
+                item: self.target.qty_invert(),
                 from: self.to.clone(),
             }]
         } else {
             Vec::new()
+        }
+    }
+
+    fn cart_subtotal(&self, target: &Cart) -> Amount {
+        if is_cart_location(&self.to, target) {
+            self.target.subtotal()
+        } else if is_cart_location(&self.from, target) {
+            self.target.qty_invert().subtotal()
+        } else {
+            Amount::zero()
         }
     }
 }
@@ -221,6 +236,10 @@ impl MovementFunc for ChangeLocation {
 impl MovementFunc for ChangeOwner {
     fn items_in_cart(&self, _target: &Cart) -> Vec<CartInItem> {
         Vec::new()
+    }
+
+    fn cart_subtotal(&self, _target: &Cart) -> Amount {
+        Amount::zero()
     }
 }
 
@@ -254,6 +273,10 @@ impl MovementFunc for Consecutive {
 
             a
         }
+    }
+
+    fn cart_subtotal(&self, target: &Cart) -> Amount {
+        self.0.cart_subtotal(target) + self.1.cart_subtotal(target)
     }
 }
 
@@ -387,7 +410,7 @@ mod tests {
 
         let it = r.first().unwrap();
 
-        assert_eq!(t.invert_sign(), it.item);
+        assert_eq!(t.qty_invert(), it.item);
         assert_eq!(w, it.from);
     }
 
@@ -612,5 +635,148 @@ mod tests {
         assert_eq!(item1, i1.item.item);
         assert_eq!(4, i1.item.qty);
         assert_eq!(w, i1.from);
+    }
+
+    #[test]
+    fn cart_subtotal_changeowner() {
+        let cart = Cart("cart-1".into());
+
+        let m = ChangeOwner::new(cart.clone().into(), System.into(), Anonymous.into()).unwrap();
+
+        let r = m.cart_subtotal(&cart);
+
+        assert_eq!(Amount::zero(), r);
+    }
+
+    #[test]
+    fn cart_subtotal_changelocation() {
+        let cart = Cart("cart-1".into());
+
+        let t = OrderItem::new("A1".into(), dec!(1100), 2).unwrap();
+
+        let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
+
+        let m = ChangeLocation::new(t.clone().into(), w.clone(), cart.clone().into()).unwrap();
+
+        let r = m.cart_subtotal(&cart);
+
+        assert_eq!(dec!(2200), r);
+    }
+
+    #[test]
+    fn cart_subtotal_changelocation_other_cart() {
+        let cart = Cart("cart-1".into());
+
+        let t = OrderItem::new("A1".into(), dec!(1100), 2).unwrap();
+
+        let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
+
+        let m = ChangeLocation::new(t.clone().into(), w.clone(), cart.into()).unwrap();
+
+        let r = m.cart_subtotal(&Cart("cart-2".into()));
+
+        assert_eq!(Amount::zero(), r);
+    }
+
+    #[test]
+    fn cart_subtotal_changelocation_out() {
+        let cart = Cart("cart-1".into());
+
+        let t = OrderItem::new("A1".into(), dec!(1100), 3).unwrap();
+
+        let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
+
+        let m = ChangeLocation::new(t.clone().into(), cart.clone().into(), w.clone()).unwrap();
+
+        let r = m.cart_subtotal(&cart);
+
+        assert_eq!(dec!(-3300), r);
+    }
+
+    #[test]
+    fn cart_subtotal_cons_simple() {
+        let cart = Cart("cart-1".into());
+
+        let t = OrderItem::new("A1".into(), dec!(1100), 2).unwrap();
+
+        let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
+
+        let m = cons(
+            ChangeOwner::new(cart.clone().into(), System.into(), Anonymous.into())
+                .unwrap()
+                .into(),
+            ChangeLocation::new(t.clone().into(), w.clone(), cart.clone().into())
+                .unwrap()
+                .into(),
+        );
+
+        let r = m.cart_subtotal(&cart);
+
+        assert_eq!(dec!(2200), r);
+    }
+
+    #[test]
+    fn cart_subtotal_cons_inout() {
+        let cart = Cart("cart-1".into());
+
+        let item1 = Item {
+            id: "A1".into(),
+            unit_price: dec!(1100),
+        };
+
+        let item2 = Item {
+            id: "B2".into(),
+            unit_price: dec!(220),
+        };
+
+        let w: Location = Warehouse::new_logical("stock-1".into()).unwrap().into();
+
+        let m = cons(
+            cons(
+                cons(
+                    ChangeLocation::new(
+                        (item1.clone(), 2).try_into().unwrap(),
+                        w.clone(),
+                        cart.clone().into(),
+                    )
+                    .unwrap()
+                    .into(),
+                    ChangeLocation::new(
+                        (item2.clone(), 1).try_into().unwrap(),
+                        w.clone(),
+                        cart.clone().into(),
+                    )
+                    .unwrap()
+                    .into(),
+                ),
+                cons(
+                    ChangeLocation::new(
+                        (item1.clone(), 3).try_into().unwrap(),
+                        w.clone(),
+                        cart.clone().into(),
+                    )
+                    .unwrap()
+                    .into(),
+                    ChangeLocation::new(
+                        (item2.clone(), 1).try_into().unwrap(),
+                        cart.clone().into(),
+                        w.clone(),
+                    )
+                    .unwrap()
+                    .into(),
+                ),
+            ),
+            ChangeLocation::new(
+                (item1.clone(), 1).try_into().unwrap(),
+                cart.clone().into(),
+                w.clone(),
+            )
+            .unwrap()
+            .into(),
+        );
+
+        let r = m.cart_subtotal(&cart);
+
+        assert_eq!(dec!(4400), r);
     }
 }

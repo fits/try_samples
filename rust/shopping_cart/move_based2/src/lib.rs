@@ -25,6 +25,7 @@ pub struct ActiveCart {
     cart: Cart,
     history: Movement,
     items: Vec<CartInItem>,
+    subtotal: Amount,
 }
 
 #[allow(unused)]
@@ -67,10 +68,13 @@ impl CartFunc for EmptyCart {
         if new_items.is_empty() {
             invalid_state()
         } else {
+            let subtotal = new_history.cart_subtotal(&self.cart);
+
             Ok(ActiveCart {
                 cart: cart.clone(),
                 history: new_history,
                 items: new_items,
+                subtotal,
             }
             .into())
         }
@@ -103,6 +107,7 @@ impl CartFunc for ActiveCart {
             cart,
             history,
             items,
+            ..
         } = self;
 
         let m: Movement =
@@ -114,10 +119,13 @@ impl CartFunc for ActiveCart {
         if *items == new_items {
             invalid_state()
         } else {
+            let subtotal = new_history.cart_subtotal(&self.cart);
+
             Ok(Self {
                 cart: cart.clone(),
                 history: new_history,
                 items: new_items,
+                subtotal,
             }
             .into())
         }
@@ -167,10 +175,13 @@ impl CartFunc for ActiveCart {
                     }
                     .into())
                 } else {
+                    let subtotal = new_history.cart_subtotal(&self.cart);
+
                     Ok(Self {
                         cart: self.cart.clone(),
                         history: new_history,
                         items: new_items,
+                        subtotal,
                     }
                     .into())
                 }
@@ -207,9 +218,7 @@ impl CartFunc for ActiveCart {
     }
 
     fn subtotal(&self) -> Amount {
-        self.items.iter().fold(Amount::zero(), |acc, x| {
-            acc + (x.item.item().unit_price * Amount::from_isize(x.item.qty()).unwrap_or_default())
-        })
+        self.subtotal
     }
 }
 
