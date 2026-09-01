@@ -175,7 +175,7 @@ impl MoveResourceFunc for Placed {
 }
 
 adt!(
-    Resource = Product | Cart | Order | Payment derive Debug, Clone, PartialEq
+    Resource = Product | Cart | Order | Payment | ShippingFee derive Debug, Clone, PartialEq
 );
 
 impl Resource {
@@ -244,6 +244,19 @@ impl ProductFunc for BundleItems {
         self.items
             .iter()
             .fold(Amount::default(), |acc, x| acc + x.subtotal())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ShippingFee(Amount);
+
+impl ShippingFee {
+    pub fn new(cost: Amount) -> Result<Self> {
+        if cost < 0 {
+            Err(format!("cost >= 0, cost={}", cost).into())
+        } else {
+            Ok(Self(cost))
+        }
     }
 }
 
@@ -379,7 +392,7 @@ impl MovementFunc for Promise {
     }
 
     fn calc_cost(&self, target: &Location) -> Option<Amount> {
-        todo!()
+        self.0.calc_cost(target)
     }
 }
 
@@ -389,7 +402,14 @@ impl MovementFunc for Exchange {
     }
 
     fn calc_cost(&self, target: &Location) -> Option<Amount> {
-        todo!()
+        let a = self.0.calc_cost(target);
+        let b = self.1.calc_cost(target);
+
+        if a.is_none() {
+            b
+        } else {
+            a.map(|x| x + b.unwrap_or_default())
+        }
     }
 }
 
@@ -471,6 +491,16 @@ impl Cart {
 pub struct Address {
     zip_code: String,
     address: String,
+}
+
+impl Address {
+    pub fn new(zip_code: String, address: String) -> Result<Self> {
+        if zip_code.is_empty() || address.is_empty() {
+            Err("must not be empty zip_code and address".into())
+        } else {
+            Ok(Self { zip_code, address })
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

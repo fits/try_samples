@@ -20,5 +20,18 @@ fn main() -> Result<()> {
     let s4 = OrderState::new("order-1".into(), s3, Anonymous.into())?;
     println!("s4 = {:?}", s4);
 
+    let s5 = s4.delivery(Address::new("123-4567".into(), "TEST ADDRESS".into())?, Some(550))?;
+    println!("s5 = {:?}", s5);
+
+    println!("s5 balance = {}", s5.balance());
+
+    let s6 = s5.add_payment(Payment::new_credit("P-12".into(), 3740)?)?;
+    println!("s6 = {:?}", s6);
+
+    println!("s6 balance = {}", s6.balance());
+
+    let s7 = s6.confirm()?;
+    println!("s7 = {:?}", s7);
+
     Ok(())
 }

@@ -74,6 +74,7 @@ adt!(
         fn balance(&self) -> Amount;
         fn add_payment(&self, payment: Payment) -> Result<Self>;
         fn confirm(&self) -> Result<Self>;
+        fn delivery(&self, address: Address, fee: Option<Amount>) -> Result<Self>;
     }
 );
 
@@ -81,6 +82,7 @@ adt!(
 pub struct Checkout {
     order: Order,
     history: Movement,
+    delivery: Option<Movement>,
 }
 
 #[derive(Debug, Clone)]
@@ -121,6 +123,7 @@ impl OrderState {
             Ok(Checkout {
                 order,
                 history: c.history.clone().cons(order_history),
+                delivery: None,
             }
             .into())
         } else {
@@ -133,7 +136,13 @@ impl OrderStateFunc for Checkout {
     fn balance(&self) -> Amount {
         let loc: Location = self.order.clone().into();
 
-        self.history.calc_cost(&loc).unwrap_or_default()
+        let mut res = self.history.calc_cost(&loc).unwrap_or_default();
+
+        if let Some(x) = &self.delivery {
+            res += x.calc_cost(&loc).unwrap_or_default();
+        }
+
+        res
     }
 
     fn add_payment(&self, payment: Payment) -> Result<OrderState> {
@@ -146,9 +155,15 @@ impl OrderStateFunc for Checkout {
             let target = MoveResource::new(payment.into(), System.into(), Some(Unknown.into()));
             let m = Movement::new_with_location(target, self.order.clone().into(), Some(cost))?;
 
+            let mut history = self.history.clone();
+
+            if let Some(x) = &self.delivery {
+                history = history.cons(x.clone());
+            }
+
             Ok(Paying {
                 order: self.order.clone(),
-                history: self.history.clone(),
+                history,
                 payments: m,
             }
             .into())
@@ -164,6 +179,55 @@ impl OrderStateFunc for Checkout {
             Ok(Confirmed {
                 order: self.order.clone(),
                 history: self.history.clone(),
+            }
+            .into())
+        }
+    }
+
+    fn delivery(&self, address: Address, fee: Option<Amount>) -> Result<OrderState> {
+        if let Some(x) = fee
+            && x <= 0
+        {
+            Err(format!("invalid shipping fee, fee={}", x).into())
+        } else {
+            let loc: Location = self.order.clone().into();
+
+            let items = self
+                .history
+                .latest_target()?
+                .iter()
+                .filter_map(|x| {
+                    if x.location() == Some(&loc) {
+                        Product::try_from(x.resource().clone()).ok()
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            let target = MoveResource::new(
+                Product::new_bundle(None, items)?.into(),
+                System.into(),
+                loc.clone().into(),
+            );
+
+            let mut delivery = Movement::new_with_location(target, address.into(), None)?.promise();
+
+            if let Some(x) = fee {
+                let ship_fee = MoveResource::new(
+                    ShippingFee::new(x)?.into(),
+                    System.into(),
+                    Some(Unknown.into()),
+                );
+
+                let m = Movement::new_with_location(ship_fee, loc.into(), Some(x))?;
+
+                delivery = delivery.exchange(m);
+            }
+
+            Ok(Self {
+                delivery: Some(delivery),
+                ..self.clone()
             }
             .into())
         }
@@ -189,9 +253,8 @@ impl OrderStateFunc for Paying {
             let m = Movement::new_with_location(target, self.order.clone().into(), Some(cost))?;
 
             Ok(Self {
-                order: self.order.clone(),
-                history: self.history.clone(),
                 payments: self.payments.clone().cons(m),
+                ..self.clone()
             }
             .into())
         }
@@ -210,6 +273,10 @@ impl OrderStateFunc for Paying {
             .into())
         }
     }
+
+    fn delivery(&self, _address: Address, _fee: Option<Amount>) -> Result<OrderState> {
+        Err("can not change delivery to paying order".into())
+    }
 }
 
 impl OrderStateFunc for Confirmed {
@@ -223,6 +290,10 @@ impl OrderStateFunc for Confirmed {
 
     fn confirm(&self) -> Result<OrderState> {
         Err("can not confirm the confirmed order".into())
+    }
+
+    fn delivery(&self, _address: Address, _fee: Option<Amount>) -> Result<OrderState> {
+        Err("can not change delivery to confirmed order".into())
     }
 }
 
@@ -402,6 +473,101 @@ mod tests {
         .unwrap();
 
         let r = o1.confirm();
+
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn delivery() {
+        let o1 = mdo!(
+            p1 <- Product::new_single("A-item".into(), 1000, 2)
+            p2 <- Product::new_single("B-item".into(), 2300, 3)
+            p3 <- Product::new_single("C-item".into(), 450, 1)
+            w1 <- Warehouse::new_logical("stock-1".into())
+
+            c1 <- CartState::new("cart-1".into(), Anonymous.into())
+            c2 <- c1.add_item(p1.clone(), w1.clone().into())
+            c3 <- c2.add_item(p2.clone(), w1.clone().into())
+            c4 <- c3.add_item(p3.clone(), w1.clone().into())
+
+            o1 <- OrderState::new("order-1".into(), c4, Anonymous.into())
+
+            yield o1
+        )
+        .unwrap();
+
+        let addr = Address::new("123".into(), "abc".into()).unwrap();
+        let r = o1.delivery(addr, None);
+
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert_eq!(9350, r.balance());
+
+        if let Ok(x) = Checkout::try_from(r) {
+            assert!(x.delivery.is_some());
+        } else {
+            assert!(false, "invalid type");
+        }
+    }
+
+    #[test]
+    fn delivery_with_cost() {
+        let o1 = mdo!(
+            p1 <- Product::new_single("A-item".into(), 1000, 2)
+            p2 <- Product::new_single("B-item".into(), 2300, 3)
+            p3 <- Product::new_single("C-item".into(), 450, 1)
+            w1 <- Warehouse::new_logical("stock-1".into())
+
+            c1 <- CartState::new("cart-1".into(), Anonymous.into())
+            c2 <- c1.add_item(p1.clone(), w1.clone().into())
+            c3 <- c2.add_item(p2.clone(), w1.clone().into())
+            c4 <- c3.add_item(p3.clone(), w1.clone().into())
+
+            o1 <- OrderState::new("order-1".into(), c4, Anonymous.into())
+
+            yield o1
+        )
+        .unwrap();
+
+        let addr = Address::new("123".into(), "abc".into()).unwrap();
+        let r = o1.delivery(addr, Some(550));
+
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert_eq!(9900, r.balance());
+
+        if let Ok(x) = Checkout::try_from(r) {
+            assert!(x.delivery.is_some());
+        } else {
+            assert!(false, "invalid type");
+        }
+    }
+
+    #[test]
+    fn delivery_with_negative_cost() {
+        let o1 = mdo!(
+            p1 <- Product::new_single("A-item".into(), 1000, 2)
+            p2 <- Product::new_single("B-item".into(), 2300, 3)
+            p3 <- Product::new_single("C-item".into(), 450, 1)
+            w1 <- Warehouse::new_logical("stock-1".into())
+
+            c1 <- CartState::new("cart-1".into(), Anonymous.into())
+            c2 <- c1.add_item(p1.clone(), w1.clone().into())
+            c3 <- c2.add_item(p2.clone(), w1.clone().into())
+            c4 <- c3.add_item(p3.clone(), w1.clone().into())
+
+            o1 <- OrderState::new("order-1".into(), c4, Anonymous.into())
+
+            yield o1
+        )
+        .unwrap();
+
+        let addr = Address::new("123".into(), "abc".into()).unwrap();
+        let r = o1.delivery(addr, Some(-550));
 
         assert!(r.is_err());
     }
