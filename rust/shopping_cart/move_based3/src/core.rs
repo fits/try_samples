@@ -8,6 +8,7 @@ pub type WarehouseId = String;
 pub type ItemId = String;
 pub type BundleId = String;
 pub type OrderId = String;
+pub type PaymentId = String;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -174,7 +175,7 @@ impl MoveResourceFunc for Placed {
 }
 
 adt!(
-    Resource = Product | Cart | Order derive Debug, Clone, PartialEq
+    Resource = Product | Cart | Order | Payment derive Debug, Clone, PartialEq
 );
 
 impl Resource {
@@ -250,6 +251,7 @@ adt!(
     Movement = ChangeOwner | ChangeLocation | Consecutive | Promise | Exchange derive Debug, Clone
     with MovementFunc {
         fn latest_target(&self) -> Result<Vec<MoveResource>>;
+        fn calc_cost(&self, target: &Location) -> Option<Amount>;
     }
 );
 
@@ -315,12 +317,20 @@ impl MovementFunc for ChangeOwner {
         let target = self.target.next_owner(self.to.clone())?;
         Ok(vec![target])
     }
+
+    fn calc_cost(&self, _target: &Location) -> Option<Amount> {
+        None
+    }
 }
 
 impl MovementFunc for ChangeLocation {
     fn latest_target(&self) -> Result<Vec<MoveResource>> {
         let target = self.target.next_location(self.to.clone())?;
         Ok(vec![target])
+    }
+
+    fn calc_cost(&self, target: &Location) -> Option<Amount> {
+        if self.to == *target { self.cost } else { None }
     }
 }
 
@@ -350,16 +360,35 @@ impl MovementFunc for Consecutive {
             Ok(a)
         }
     }
+
+    fn calc_cost(&self, target: &Location) -> Option<Amount> {
+        let a = self.0.calc_cost(target);
+        let b = self.1.calc_cost(target);
+
+        if a.is_none() {
+            b
+        } else {
+            a.map(|x| x + b.unwrap_or_default())
+        }
+    }
 }
 
 impl MovementFunc for Promise {
     fn latest_target(&self) -> Result<Vec<MoveResource>> {
         todo!()
     }
+
+    fn calc_cost(&self, target: &Location) -> Option<Amount> {
+        todo!()
+    }
 }
 
 impl MovementFunc for Exchange {
     fn latest_target(&self) -> Result<Vec<MoveResource>> {
+        todo!()
+    }
+
+    fn calc_cost(&self, target: &Location) -> Option<Amount> {
         todo!()
     }
 }
@@ -421,18 +450,6 @@ impl Warehouse {
     }
 }
 
-fn error_empty_id<T>() -> Result<T> {
-    Err("id must not be empy".into())
-}
-
-fn error_not_supported<T>() -> Result<T> {
-    Err("not supported".into())
-}
-
-fn error_no_move<T>() -> Result<T> {
-    Err("no move, from is to".into())
-}
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct Cart(CartId);
 
@@ -471,6 +488,78 @@ impl Order {
     pub fn id(&self) -> &OrderId {
         &self.0
     }
+}
+
+adt!(
+    Payment = Credit | Emoney derive Debug, Clone, PartialEq with PaymentFunc {
+        fn amount_billed(&self) -> Amount;
+    }
+);
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Credit {
+    id: PaymentId,
+    amount_billed: Amount,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Emoney {
+    id: PaymentId,
+    amount_billed: Amount,
+}
+
+impl Payment {
+    pub fn new_credit(id: PaymentId, billed: Amount) -> Result<Self> {
+        if id.is_empty() {
+            error_empty_id()
+        } else if billed <= 0 {
+            Err(format!("invalid amount billed, billed={}", billed).into())
+        } else {
+            Ok(Credit {
+                id,
+                amount_billed: billed,
+            }
+            .into())
+        }
+    }
+
+    pub fn new_emoney(id: PaymentId, billed: Amount) -> Result<Self> {
+        if id.is_empty() {
+            error_empty_id()
+        } else if billed <= 0 {
+            Err(format!("invalid amount billed, billed={}", billed).into())
+        } else {
+            Ok(Emoney {
+                id,
+                amount_billed: billed,
+            }
+            .into())
+        }
+    }
+}
+
+impl PaymentFunc for Credit {
+    fn amount_billed(&self) -> Amount {
+        self.amount_billed
+    }
+}
+
+impl PaymentFunc for Emoney {
+    fn amount_billed(&self) -> Amount {
+        self.amount_billed
+    }
+}
+
+fn error_empty_id<T>() -> Result<T> {
+    Err("id must not be empy".into())
+}
+
+fn error_not_supported<T>() -> Result<T> {
+    Err("not supported".into())
+}
+
+fn error_no_move<T>() -> Result<T> {
+    Err("no move, from is to".into())
 }
 
 #[cfg(test)]

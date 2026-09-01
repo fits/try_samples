@@ -70,7 +70,11 @@ impl CartStateFunc for CanceledCart {
 }
 
 adt!(
-    OrderState = Checkout | Paying | Confirmed derive Debug, Clone
+    OrderState = Checkout | Paying | Confirmed derive Debug, Clone with OrderStateFunc {
+        fn balance(&self) -> Amount;
+        fn add_payment(&self, payment: Payment) -> Result<Self>;
+        fn confirm(&self) -> Result<Self>;
+    }
 );
 
 #[derive(Debug, Clone)]
@@ -80,10 +84,17 @@ pub struct Checkout {
 }
 
 #[derive(Debug, Clone)]
-pub struct Paying;
+pub struct Paying {
+    order: Order,
+    history: Movement,
+    payments: Movement,
+}
 
 #[derive(Debug, Clone)]
-pub struct Confirmed;
+pub struct Confirmed {
+    order: Order,
+    history: Movement,
+}
 
 impl OrderState {
     pub fn new(id: OrderId, cart: CartState, owner: Owner) -> Result<Self> {
@@ -115,6 +126,103 @@ impl OrderState {
         } else {
             Err("can not create order".into())
         }
+    }
+}
+
+impl OrderStateFunc for Checkout {
+    fn balance(&self) -> Amount {
+        let loc: Location = self.order.clone().into();
+
+        self.history.calc_cost(&loc).unwrap_or_default()
+    }
+
+    fn add_payment(&self, payment: Payment) -> Result<OrderState> {
+        let balance = self.balance();
+        let cost = payment.amount_billed() * -1;
+
+        if balance + cost < 0 {
+            Err("over payment".into())
+        } else {
+            let target = MoveResource::new(payment.into(), System.into(), Some(Unknown.into()));
+            let m = Movement::new_with_location(target, self.order.clone().into(), Some(cost))?;
+
+            Ok(Paying {
+                order: self.order.clone(),
+                history: self.history.clone(),
+                payments: m,
+            }
+            .into())
+        }
+    }
+
+    fn confirm(&self) -> Result<OrderState> {
+        let balance = self.balance();
+
+        if balance != 0 {
+            Err(format!("balance is not zero. balance={}", balance).into())
+        } else {
+            Ok(Confirmed {
+                order: self.order.clone(),
+                history: self.history.clone(),
+            }
+            .into())
+        }
+    }
+}
+
+impl OrderStateFunc for Paying {
+    fn balance(&self) -> Amount {
+        let loc: Location = self.order.clone().into();
+
+        self.history.calc_cost(&loc).unwrap_or_default()
+            + self.payments.calc_cost(&loc).unwrap_or_default()
+    }
+
+    fn add_payment(&self, payment: Payment) -> Result<OrderState> {
+        let balance = self.balance();
+        let cost = payment.amount_billed() * -1;
+
+        if balance + cost < 0 {
+            Err("over payment".into())
+        } else {
+            let target = MoveResource::new(payment.into(), System.into(), Some(Unknown.into()));
+            let m = Movement::new_with_location(target, self.order.clone().into(), Some(cost))?;
+
+            Ok(Self {
+                order: self.order.clone(),
+                history: self.history.clone(),
+                payments: self.payments.clone().cons(m),
+            }
+            .into())
+        }
+    }
+
+    fn confirm(&self) -> Result<OrderState> {
+        let balance = self.balance();
+
+        if balance != 0 {
+            Err(format!("balance is not zero. balance={}", balance).into())
+        } else {
+            Ok(Confirmed {
+                order: self.order.clone(),
+                history: self.history.clone().cons(self.payments.clone()),
+            }
+            .into())
+        }
+    }
+}
+
+impl OrderStateFunc for Confirmed {
+    fn balance(&self) -> Amount {
+        0
+    }
+
+    fn add_payment(&self, _payment: Payment) -> Result<OrderState> {
+        Err("can not add payment to the confirmed order".into())
+    }
+
+    fn confirm(&self) -> Result<OrderState> {
+        Err("can not confirm the confirmed order".into())
     }
 }
 
@@ -159,7 +267,11 @@ mod tests {
 
         let r = OrderState::new("order-1".into(), cart, Anonymous.into());
 
-        assert!(r.is_ok())
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert_eq!(9350, r.balance());
     }
 
     #[test]
@@ -178,5 +290,119 @@ mod tests {
         let r = OrderState::new("order-1".into(), cart, Anonymous.into());
 
         assert!(r.is_err())
+    }
+
+    #[test]
+    fn partial_payment() {
+        let o1 = mdo!(
+            p1 <- Product::new_single("A-item".into(), 1000, 2)
+            p2 <- Product::new_single("B-item".into(), 2300, 3)
+            p3 <- Product::new_single("C-item".into(), 450, 1)
+            w1 <- Warehouse::new_logical("stock-1".into())
+
+            c1 <- CartState::new("cart-1".into(), Anonymous.into())
+            c2 <- c1.add_item(p1.clone(), w1.clone().into())
+            c3 <- c2.add_item(p2.clone(), w1.clone().into())
+            c4 <- c3.add_item(p3.clone(), w1.clone().into())
+
+            o1 <- OrderState::new("order-1".into(), c4, Anonymous.into())
+
+            yield o1
+        )
+        .unwrap();
+
+        let p = Payment::new_credit("123".into(), 5000).unwrap();
+        let r = o1.add_payment(p);
+
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert_eq!(4350, r.balance());
+    }
+
+    #[test]
+    fn over_payment() {
+        let o1 = mdo!(
+            p1 <- Product::new_single("A-item".into(), 1000, 2)
+            p2 <- Product::new_single("B-item".into(), 2300, 3)
+            p3 <- Product::new_single("C-item".into(), 450, 1)
+            w1 <- Warehouse::new_logical("stock-1".into())
+
+            c1 <- CartState::new("cart-1".into(), Anonymous.into())
+            c2 <- c1.add_item(p1.clone(), w1.clone().into())
+            c3 <- c2.add_item(p2.clone(), w1.clone().into())
+            c4 <- c3.add_item(p3.clone(), w1.clone().into())
+
+            o1 <- OrderState::new("order-1".into(), c4, Anonymous.into())
+
+            yield o1
+        )
+        .unwrap();
+
+        let p = Payment::new_credit("123".into(), 10000).unwrap();
+        let r = o1.add_payment(p);
+
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn confirm() {
+        let o1 = mdo!(
+            p1 <- Product::new_single("A-item".into(), 1000, 2)
+            p2 <- Product::new_single("B-item".into(), 2300, 3)
+            p3 <- Product::new_single("C-item".into(), 450, 1)
+            w1 <- Warehouse::new_logical("stock-1".into())
+            py1 <- Payment::new_credit("PAY-1".into(), 5000)
+            py2 <- Payment::new_credit("PAY-2".into(), 4350)
+
+            c1 <- CartState::new("cart-1".into(), Anonymous.into())
+            c2 <- c1.add_item(p1.clone(), w1.clone().into())
+            c3 <- c2.add_item(p2.clone(), w1.clone().into())
+            c4 <- c3.add_item(p3.clone(), w1.clone().into())
+
+            o1 <- OrderState::new("order-1".into(), c4, Anonymous.into())
+            o2 <- o1.add_payment(py1.clone())
+            o3 <- o2.add_payment(py2.clone())
+
+            yield o3
+        )
+        .unwrap();
+
+        let r = o1.confirm();
+
+        assert!(r.is_ok());
+
+        let r = r.unwrap();
+
+        assert_eq!(0, r.balance());
+    }
+
+    #[test]
+    fn confirm_remain() {
+        let o1 = mdo!(
+            p1 <- Product::new_single("A-item".into(), 1000, 2)
+            p2 <- Product::new_single("B-item".into(), 2300, 3)
+            p3 <- Product::new_single("C-item".into(), 450, 1)
+            w1 <- Warehouse::new_logical("stock-1".into())
+            py1 <- Payment::new_credit("PAY-1".into(), 5000)
+            py2 <- Payment::new_credit("PAY-2".into(), 2350)
+
+            c1 <- CartState::new("cart-1".into(), Anonymous.into())
+            c2 <- c1.add_item(p1.clone(), w1.clone().into())
+            c3 <- c2.add_item(p2.clone(), w1.clone().into())
+            c4 <- c3.add_item(p3.clone(), w1.clone().into())
+
+            o1 <- OrderState::new("order-1".into(), c4, Anonymous.into())
+            o2 <- o1.add_payment(py1.clone())
+            o3 <- o2.add_payment(py2.clone())
+
+            yield o3
+        )
+        .unwrap();
+
+        let r = o1.confirm();
+
+        assert!(r.is_err());
     }
 }
