@@ -1,26 +1,31 @@
 use surrealdb::Surreal;
 use surrealdb::engine::local::Mem;
-use surrealdb::sql::Thing;
-
-use serde::{Deserialize, Serialize};
+use surrealdb::types::{RecordId, SurrealValue};
 
 #[allow(dead_code)]
-#[derive(Debug, Deserialize, Serialize)]
-struct Item {
-    #[serde(skip_serializing)]
-    id: Option<Thing>,
+#[derive(Debug, SurrealValue)]
+struct ItemData {
     name: String,
     price: usize,
     attrs: Attribute,
     variants: Vec<Variation>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, SurrealValue)]
+struct Item {
+    id: RecordId,
+    name: String,
+    price: usize,
+    attrs: Attribute,
+    variants: Vec<Variation>,
+}
+
+#[derive(Debug, SurrealValue)]
 struct Attribute {
     category: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, SurrealValue)]
 struct Variation {
     color: String,
 }
@@ -32,8 +37,7 @@ async fn main() -> surrealdb::Result<()> {
 
     let v1: Option<Item> = db
         .create("items")
-        .content(Item {
-            id: None,
+        .content(ItemData {
             name: "item-1".to_string(),
             price: 1200,
             attrs: Attribute {
@@ -46,8 +50,7 @@ async fn main() -> surrealdb::Result<()> {
     println!("* created: {:?}", v1);
 
     db.create::<Option<Item>>(("items", "i2"))
-        .content(Item {
-            id: None,
+        .content(ItemData {
             name: "item-2".to_string(),
             price: 2340,
             attrs: Attribute {
@@ -65,8 +68,7 @@ async fn main() -> surrealdb::Result<()> {
         .await?;
 
     db.create::<Option<Item>>(("items", "i3"))
-        .content(Item {
-            id: None,
+        .content(ItemData {
             name: "item-3".to_string(),
             price: 450,
             attrs: Attribute {
@@ -79,8 +81,7 @@ async fn main() -> surrealdb::Result<()> {
         .await?;
 
     db.create::<Option<Item>>(("items", "i4"))
-        .content(Item {
-            id: None,
+        .content(ItemData {
             name: "item-4".to_string(),
             price: 56,
             attrs: Attribute {
