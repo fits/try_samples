@@ -1,4 +1,3 @@
-
 use surrealdb::Surreal;
 use surrealdb::engine::local::{Db, Mem};
 use surrealdb::types::SurrealValue;
@@ -71,9 +70,18 @@ async fn insert_data(db: &Surreal<Db>) -> surrealdb::Result<()> {
     let item2 = Item::Single(s2.clone());
     let item3 = Item::Bundle(b1.clone());
 
-    let r1 = db.create::<Option<Item>>((ITEM_TABLE, item1.id().as_str())).content(item1).await?;
-    let r2 = db.create::<Option<Item>>((ITEM_TABLE, item2.id().as_str())).content(item2).await?;
-    let r3 = db.create::<Option<Item>>((ITEM_TABLE, item3.id().as_str())).content(item3).await?;
+    let r1 = db
+        .create::<Option<Item>>((ITEM_TABLE, item1.id().as_str()))
+        .content(item1)
+        .await?;
+    let r2 = db
+        .create::<Option<Item>>((ITEM_TABLE, item2.id().as_str()))
+        .content(item2)
+        .await?;
+    let r3 = db
+        .create::<Option<Item>>((ITEM_TABLE, item3.id().as_str()))
+        .content(item3)
+        .await?;
 
     println!("created: {:?}", r1);
     println!("created: {:?}", r2);

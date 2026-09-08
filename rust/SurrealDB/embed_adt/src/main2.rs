@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 use surrealdb::Surreal;
 use surrealdb::engine::local::{Db, Mem};
@@ -47,15 +46,14 @@ impl SurrealValue for Item {
     }
 
     fn from_value(value: Value) -> Result<Self, surrealdb::Error>
-        where
-            Self: Sized {
-
+    where
+        Self: Sized,
+    {
         if let Value::Object(mut x) = value {
             x.remove("id");
 
             let res = SerdeWrapper::<Item>::from_value(x.into())?;
             Ok(res.0)
-
         } else {
             Err(surrealdb::Error::internal("no object".into()))
         }
@@ -97,9 +95,18 @@ async fn insert_data(db: &Surreal<Db>) -> surrealdb::Result<()> {
     let item2 = Item::Single(s2.clone());
     let item3 = Item::Bundle(b1.clone());
 
-    let r1 = db.create::<Option<Item>>((ITEM_TABLE, item1.id().as_str())).content(item1).await?;
-    let r2 = db.create::<Option<Item>>((ITEM_TABLE, item2.id().as_str())).content(item2).await?;
-    let r3 = db.create::<Option<Item>>((ITEM_TABLE, item3.id().as_str())).content(item3).await?;
+    let r1 = db
+        .create::<Option<Item>>((ITEM_TABLE, item1.id().as_str()))
+        .content(item1)
+        .await?;
+    let r2 = db
+        .create::<Option<Item>>((ITEM_TABLE, item2.id().as_str()))
+        .content(item2)
+        .await?;
+    let r3 = db
+        .create::<Option<Item>>((ITEM_TABLE, item3.id().as_str()))
+        .content(item3)
+        .await?;
 
     println!("created: {:?}", r1);
     println!("created: {:?}", r2);
