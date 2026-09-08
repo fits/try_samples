@@ -50,8 +50,7 @@ impl SurrealValue for Item {
         where
             Self: Sized {
 
-        if let Value::Object(x) = value {
-            let mut x = x.clone();
+        if let Value::Object(mut x) = value {
             x.remove("id");
 
             let res = SerdeWrapper::<Item>::from_value(x.into())?;
