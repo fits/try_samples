@@ -5,7 +5,6 @@ use surrealdb::types::{RecordId, SurrealValue};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-#[allow(dead_code)]
 #[derive(Debug, SurrealValue)]
 struct Document {
     id: RecordId,
