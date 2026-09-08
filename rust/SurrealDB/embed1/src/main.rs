@@ -2,7 +2,6 @@ use surrealdb::Surreal;
 use surrealdb::engine::local::Mem;
 use surrealdb::types::{RecordId, SurrealValue};
 
-#[allow(dead_code)]
 #[derive(Debug, SurrealValue)]
 struct ItemData {
     name: String,
