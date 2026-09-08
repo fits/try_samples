@@ -1,18 +1,14 @@
 use surrealdb::Surreal;
 use surrealdb::engine::local::Mem;
-use surrealdb::sql::Thing;
-
-use serde::Deserialize;
-
-use serde_json::Value;
+use surrealdb::types::{RecordId, SurrealValue};
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 #[allow(dead_code)]
-#[derive(Debug, Deserialize)]
+#[derive(Debug, SurrealValue)]
 struct Document {
-    id: Thing,
+    id: RecordId,
 }
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -26,8 +22,8 @@ async fn main() -> Result<()> {
 
     for line in BufReader::new(File::open(file)?).lines() {
         if let Ok(s) = line {
-            let v: Value = serde_json::from_str(&s)?;
-            let r: Option<Document> = db.create("items").content(v).await?;
+            let v: serde_json::Value = serde_json::from_str(&s)?;
+            let r: Option<serde_json::Value> = db.create("items").content(v).await?;
 
             println!("* registerd: {:?}", r);
         }
@@ -47,9 +43,9 @@ async fn main() -> Result<()> {
 
     let mut res2 = db.query(q1).query(q2).query(q3).await?;
 
-    println!("* q1 = {:?}", res2.take::<Vec<Thing>>((0, "id"))?);
-    println!("* q2 = {:?}", res2.take::<Vec<Thing>>((1, "id"))?);
-    println!("* q3 = {:?}", res2.take::<Vec<Thing>>((2, "id"))?);
+    println!("* q1 = {:?}", res2.take::<Vec<RecordId>>((0, "id"))?);
+    println!("* q2 = {:?}", res2.take::<Vec<RecordId>>((1, "id"))?);
+    println!("* q3 = {:?}", res2.take::<Vec<RecordId>>((2, "id"))?);
 
     println!("-----");
 
@@ -59,15 +55,15 @@ async fn main() -> Result<()> {
 
     let mut res3 = db.query(a).query(b).query(c).await?;
 
-    let a_res: surrealdb::Value = res3.take(0)?;
+    let a_res: surrealdb::types::Value = res3.take(0)?;
 
-    println!("* a = {}, debug = {:?}", a_res.to_string(), a_res);
-    println!("* b = {}", res3.take::<surrealdb::Value>(1)?.to_string());
-    println!("* c = {}", res3.take::<surrealdb::Value>(2)?.to_string());
+    println!("* a = {}, debug = {:?}", a_res.clone().into_json_value(), a_res);
+    println!("* b = {}", res3.take::<surrealdb::types::Value>(1)?.into_json_value());
+    println!("* c = {}", res3.take::<surrealdb::types::Value>(2)?.into_json_value());
 
     let mut res4 = db.query(a).await?;
 
-    println!("a = {:?}", res4.take::<Vec<Thing>>((0, "id"))?);
+    println!("a = {:?}", res4.take::<Vec<RecordId>>((0, "id"))?);
 
     Ok(())
 }
