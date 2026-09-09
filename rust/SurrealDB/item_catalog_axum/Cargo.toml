@@ -1,0 +1,10 @@
+[package]
+name = "item_catalog_axum"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+surrealdb = { version = "3.2.4", features = ["kv-surrealkv"] }
+tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread"] }
+serde = "1"
+axum = "0.8.9"
