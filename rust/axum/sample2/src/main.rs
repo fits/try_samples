@@ -11,7 +11,6 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 use std::collections::HashMap;
-use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
 
 #[derive(Debug, Clone, Serialize)]
@@ -25,32 +24,33 @@ struct CreateItem {
     value: i32,
 }
 
-#[derive(Default, Clone)]
-struct Store(Arc<RwLock<HashMap<Uuid, Item>>>);
+#[derive(Default)]
+struct Store(RwLock<HashMap<Uuid, Item>>);
+
+type AnyError = Box<dyn std::error::Error>;
 
 #[tokio::main]
-async fn main() {
-    let addr: SocketAddr = "127.0.0.1:8080".parse().unwrap();
-
-    let store = Store::default();
+async fn main() -> Result<(), AnyError> {
+    let store = Arc::new(Store::default());
 
     let app = Router::new()
         .route("/", get(home_handler))
         .route("/items", post(item_create))
-        .route("/items/:id", get(item_get))
+        .route("/items/{id}", get(item_get))
         .with_state(store);
 
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await?;
+
+    axum::serve(listener, app).await?;
+
+    Ok(())
 }
 
 async fn home_handler() -> Json<Value> {
     Json(json!({ "description": "json sample" }))
 }
 
-async fn item_create(State(store): State<Store>, Json(input): Json<CreateItem>) -> Result<impl IntoResponse, StatusCode> {
+async fn item_create(State(store): State<Arc<Store>>, Json(input): Json<CreateItem>) -> Result<impl IntoResponse, StatusCode> {
     let item = Item {
         id: Uuid::new_v4(),
         value: input.value,
@@ -63,7 +63,7 @@ async fn item_create(State(store): State<Store>, Json(input): Json<CreateItem>) 
     Ok((StatusCode::CREATED, Json(item)))
 }
 
-async fn item_get(Path(id): Path<Uuid>, State(store): State<Store>) -> Result<impl IntoResponse, StatusCode> {
+async fn item_get(Path(id): Path<Uuid>, State(store): State<Arc<Store>>) -> Result<impl IntoResponse, StatusCode> {
     let s = store.0.read().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     if let Some(d) = s.get(&id) {
