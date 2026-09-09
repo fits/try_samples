@@ -2,6 +2,7 @@
 name = "sample2"
 version = "0.1.0"
 edition = "2024"
+default-run = "main"
 
 [dependencies]
 axum = "0.8.9"
@@ -9,3 +10,11 @@ tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 uuid = { version = "1", features = ["serde", "v4"] }
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[[bin]]
+name = "main2"
+path = "src/main2.rs"
