@@ -12,7 +12,9 @@ use surrealdb::types::{RecordId, SurrealValue};
 use std::sync::Arc;
 
 const ITEMS_TABLE: &str = "items";
+const CART_TABLE: &str = "cart";
 
+type CartId = String;
 type ItemCode = String;
 type Amount = i64;
 type Quantity = i64;
@@ -22,6 +24,23 @@ struct Item {
     code: ItemCode,
     unit_price: Amount,
     qty: Quantity,
+}
+
+#[derive(Debug, Clone, SurrealValue, Serialize)]
+struct Cart {
+    cart_id: CartId,
+    items: Vec<CartItem>,
+}
+
+#[derive(Debug, Clone, SurrealValue, Serialize, Deserialize)]
+struct CartItem {
+    item_code: ItemCode,
+    qty: Quantity,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct CreateCart {
+    cart_id: CartId,
 }
 
 struct Context(Surreal<Db>);
@@ -51,6 +70,60 @@ impl Context {
             .await?
             .take(0)
     }
+
+    async fn create_cart(
+        &self,
+        input: CreateCart,
+    ) -> Result<Option<Cart>, surrealdb::types::Error> {
+        let id = (CART_TABLE, input.cart_id.as_str());
+
+        let cart = Cart {
+            cart_id: input.cart_id.clone(),
+            items: Vec::new(),
+        };
+
+        self.0.create(id).content(cart).await
+    }
+
+    async fn select_cart(&self, cart_id: CartId) -> Result<Option<Cart>, surrealdb::types::Error> {
+        let id = (CART_TABLE, cart_id);
+        self.0.select(id).await
+    }
+
+    async fn add_item_to_cart(
+        &self,
+        cart_id: CartId,
+        item: CartItem,
+    ) -> Result<Option<Cart>, surrealdb::types::Error> {
+        let q = r#"
+            {
+                IF !record::exists($cart_id) {
+                    THROW "not foud cart"
+                };
+
+                UPDATE $item_id SET qty -= $cart_item.qty;
+
+                IF $item_id.qty < 0 {
+                    THROW "out of stock"
+                };
+
+                UPDATE $cart_id PATCH [
+                    { op: 'add', path: '/items', value: $cart_item }
+                ];
+            };
+        "#;
+
+        self.0
+            .query(q)
+            .bind(("cart_id", RecordId::new(CART_TABLE, cart_id)))
+            .bind((
+                "item_id",
+                RecordId::new(ITEMS_TABLE, item.item_code.as_str()),
+            ))
+            .bind(("cart_item", item))
+            .await?
+            .take(0)
+    }
 }
 
 type AppError = Box<dyn std::error::Error>;
@@ -64,8 +137,11 @@ async fn main() -> Result<(), AppError> {
 
     let app = Router::new()
         .route("/items", post(create_item))
-        .route("/items/{code}", get(find_item))
+        .route("/items/{code}", get(get_item))
         .route("/items/{code}/charge/{qty}", put(charge_qty))
+        .route("/cart", post(create_cart))
+        .route("/cart/{cart_id}", get(get_cart))
+        .route("/cart/{cart_id}/items", put(add_item_to_cart))
         .layer(Extension(ctx));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await?;
@@ -96,7 +172,7 @@ async fn create_item(
     }
 }
 
-async fn find_item(
+async fn get_item(
     Path(code): Path<ItemCode>,
     Extension(ctx): Extension<Arc<Context>>,
 ) -> Result<Json<Item>, StatusCode> {
@@ -115,6 +191,53 @@ async fn charge_qty(
         let res = ctx.charge_qty(code, qty).await.map_err(to_server_error)?;
 
         res.map(Json).ok_or(StatusCode::NOT_FOUND)
+    }
+}
+
+async fn create_cart(
+    Extension(ctx): Extension<Arc<Context>>,
+    Json(input): Json<CreateCart>,
+) -> Result<Json<Cart>, StatusCode> {
+    if input.cart_id.trim().is_empty() {
+        Err(StatusCode::BAD_REQUEST)
+    } else {
+        let res = ctx.create_cart(input).await.map_err(|e| {
+            println!("create cart error: {}", e);
+
+            if e.is_already_exists() {
+                StatusCode::BAD_REQUEST
+            } else {
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
+        })?;
+
+        res.map(Json).ok_or(StatusCode::INTERNAL_SERVER_ERROR)
+    }
+}
+
+async fn get_cart(
+    Path(cart_id): Path<CartId>,
+    Extension(ctx): Extension<Arc<Context>>,
+) -> Result<Json<Cart>, StatusCode> {
+    let res = ctx.select_cart(cart_id).await.map_err(to_server_error)?;
+
+    res.map(Json).ok_or(StatusCode::NOT_FOUND)
+}
+
+async fn add_item_to_cart(
+    Path(cart_id): Path<CartId>,
+    Extension(ctx): Extension<Arc<Context>>,
+    Json(input): Json<CartItem>,
+) -> Result<Json<Cart>, StatusCode> {
+    if cart_id.trim().is_empty() || input.item_code.trim().is_empty() || input.qty <= 0 {
+        Err(StatusCode::BAD_REQUEST)
+    } else {
+        let res = ctx
+            .add_item_to_cart(cart_id, input)
+            .await
+            .map_err(to_server_error)?;
+
+        res.map(Json).ok_or(StatusCode::INTERNAL_SERVER_ERROR)
     }
 }
 
