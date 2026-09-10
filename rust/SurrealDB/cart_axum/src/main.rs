@@ -1,6 +1,6 @@
 use axum::extract::Path;
 use axum::http::StatusCode;
-use axum::routing::{get, post};
+use axum::routing::{get, post, put};
 use axum::{Extension, Json, Router};
 
 use serde::{Deserialize, Serialize};
@@ -65,7 +65,7 @@ async fn main() -> Result<(), AppError> {
     let app = Router::new()
         .route("/items", post(create_item))
         .route("/items/{code}", get(find_item))
-        .route("/items/{code}/charge/{qty}", get(charge_qty))
+        .route("/items/{code}/charge/{qty}", put(charge_qty))
         .layer(Extension(ctx));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await?;
