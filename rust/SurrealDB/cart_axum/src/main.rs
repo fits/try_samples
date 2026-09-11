@@ -90,6 +90,7 @@ impl Context {
         self.0.select(id).await
     }
 
+    #[allow(dead_code)]
     async fn add_item_to_cart(
         &self,
         cart_id: CartId,
@@ -123,6 +124,47 @@ impl Context {
             .bind(("cart_item", item))
             .await?
             .take(0)
+    }
+
+    async fn add_item_to_cart_alt(
+        &self,
+        cart_id: CartId,
+        input: CartItem,
+    ) -> Result<Option<Cart>, surrealdb::types::Error> {
+        let tr = self.0.clone().begin().await?;
+
+        let not_found = |msg: &str| surrealdb::types::Error::not_found(msg.into(), None);
+
+        let item_id = (ITEMS_TABLE, input.item_code.as_str());
+        let mut item: Item = tr.select(item_id).await?.ok_or(not_found("not found item"))?;
+
+        if item.qty < input.qty {
+            tr.cancel().await?;
+
+            Err(surrealdb::types::Error::not_allowed(
+                "out of stock".into(),
+                None,
+            ))
+        } else {
+            item.qty -= input.qty;
+
+            let _: Item = tr
+                .update(item_id)
+                .content(item)
+                .await?
+                .ok_or(surrealdb::types::Error::internal("failed update item".into()))?;
+
+            let cart_id = (CART_TABLE, cart_id.as_str());
+
+            let mut cart: Cart = tr.select(cart_id).await?.ok_or(not_found("not found cart"))?;
+            cart.items.push(input);
+
+            let res: Option<Cart> = tr.update(cart_id).content(cart).await?;
+
+            tr.commit().await?;
+
+            Ok(res)
+        }
     }
 }
 
@@ -233,7 +275,8 @@ async fn add_item_to_cart(
         Err(StatusCode::BAD_REQUEST)
     } else {
         let res = ctx
-            .add_item_to_cart(cart_id, input)
+            // .add_item_to_cart(cart_id, input)
+            .add_item_to_cart_alt(cart_id, input)
             .await
             .map_err(to_server_error)?;
 
