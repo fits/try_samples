@@ -1,0 +1,10 @@
+[package]
+name = "cart_adt_axum"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+surrealdb = { version = "3.2", features = ["kv-surrealkv"] }
+tokio = { version = "1.53", features = ["macros", "rt-multi-thread"] }
+serde = "1"
+axum = "0.8"
