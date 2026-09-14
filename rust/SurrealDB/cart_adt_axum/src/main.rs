@@ -286,12 +286,17 @@ async fn add_item_to_cart(
 
     while retry < MAX_RETRY {
         if retry > 0 {
-            println!("trancation conflict retry: times={}, cart={}, input={:?}", retry, cart_id, input);
+            println!(
+                "trancation conflict retry: times={}, cart={}, input={:?}",
+                retry, cart_id, input
+            );
         }
 
         res = ctx.add_item_to_cart(cart_id.clone(), input.clone()).await;
 
-        if let Err(e) = &res && is_conflict_transaction(e) {
+        if let Err(e) = &res
+            && is_conflict_transaction(e)
+        {
             retry += 1;
         } else {
             break;
@@ -299,9 +304,7 @@ async fn add_item_to_cart(
     }
 
     match res {
-        Ok(x) => {
-            x.map(Json).ok_or(StatusCode::INTERNAL_SERVER_ERROR)
-        }
+        Ok(x) => x.map(Json).ok_or(StatusCode::INTERNAL_SERVER_ERROR),
         Err(e) => {
             println!("cart add_item error: {}", e);
 
@@ -319,11 +322,12 @@ async fn add_item_to_cart(
 }
 
 fn is_conflict_transaction(e: &surrealdb::types::Error) -> bool {
-    e.to_string().starts_with("Transaction conflict:")
+    // println!("{:?}", e);
+    // e.to_string().starts_with("Transaction conflict:")
+    e.message().starts_with("Transaction conflict:")
 }
 
 fn to_server_error(e: surrealdb::types::Error) -> StatusCode {
     println!("error: {}", e);
     StatusCode::INTERNAL_SERVER_ERROR
 }
-
