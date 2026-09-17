@@ -32,7 +32,8 @@ output = model(**inputs)
 
 print(output)
 
-cls_id = output.logits.argmax(dim=-1)
+cls_id = output.logits.argmax()
+# cls_id = output.logits.argmax(dim=-1)
 
 res = model.config.id2label[cls_id.item()]
 
