@@ -1,33 +1,13 @@
-use candle_core::{D, Device, Tensor};
-use candle_nn::{
-    AdamW, Linear, Module, Optimizer, ParamsAdamW, VarBuilder, VarMap, linear, loss, ops,
-};
+use candle_core::{D, Device};
+use candle_nn::{AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap, loss, ops};
 
 mod dataset;
 use dataset::Dataset;
 
+mod model;
+use model::Model;
+
 const EPOCH: usize = 100;
-
-struct Model {
-    layer1: Linear,
-    layer2: Linear,
-}
-
-impl Model {
-    fn new(hidden_num: usize, vs: &VarBuilder) -> Result<Self, AppError> {
-        let layer1 = linear(4, hidden_num, vs.pp("layer1"))?;
-        let layer2 = linear(hidden_num, 3, vs.pp("layer2"))?;
-
-        Ok(Self { layer1, layer2 })
-    }
-
-    fn forward(&self, xs: &Tensor) -> Result<Tensor, AppError> {
-        let xs1 = self.layer1.forward(xs)?.relu()?;
-        let xs2 = self.layer2.forward(&xs1)?;
-
-        Ok(xs2)
-    }
-}
 
 type AppError = Box<dyn std::error::Error>;
 
@@ -74,6 +54,8 @@ fn main() -> Result<(), AppError> {
             loss.to_scalar::<f32>()?,
         );
     }
+
+    varmap.save("model.safetensors")?;
 
     Ok(())
 }
