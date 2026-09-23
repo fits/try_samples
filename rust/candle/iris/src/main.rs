@@ -1,5 +1,5 @@
 use candle_core::{D, Device};
-use candle_nn::{AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap, loss, ops};
+use candle_nn::{AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap, loss};
 
 mod dataset;
 use dataset::Dataset;
@@ -32,9 +32,10 @@ fn main() -> Result<(), AppError> {
 
     for epoch in 0..EPOCH {
         let output = model.forward(&train_data.data)?;
-        let output = ops::log_softmax(&output, D::Minus1)?;
+        // let output = ops::log_softmax(&output, D::Minus1)?;
+        // let loss = loss::nll(&output, &train_data.labels)?;
 
-        let loss = loss::nll(&output, &train_data.labels)?;
+        let loss = loss::cross_entropy(&output, &train_data.labels)?;
 
         adam.backward_step(&loss)?;
 
