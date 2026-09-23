@@ -11,8 +11,16 @@ pub struct Model {
 
 impl Model {
     pub fn new(vs: &VarBuilder) -> Result<Self, AppError> {
-        let layer1 = linear(4, 8, vs.pp("layer1"))?;
+        let l1 = vs.pp("layer1");
+
+        let layer1 = linear(4, 8, l1.clone())?;
         let layer2 = linear(8, 3, vs.pp("layer2"))?;
+
+        println!(
+            "* layer1 weight={}, bias={}",
+            l1.contains_tensor("weight"),
+            l1.contains_tensor("bias")
+        ); // true, true
 
         Ok(Self { layer1, layer2 })
     }
@@ -29,7 +37,13 @@ fn main() -> Result<(), AppError> {
     let _ = Model::new(&vs)?;
 
     println!("after model new: {:?}", varmap.all_vars());
-    println!("* layer1={}, layer2={}", vs.contains_tensor("layer1"), vs.contains_tensor("layer2")); // false, false
+
+    println!(
+        "* weight={}, bias={}",
+        vs.contains_tensor("weight"),
+        vs.contains_tensor("bias")
+    ); // false, false
+
     println!("* a1={}", vs.contains_tensor("a1")); // false
 
     let _ = vs.get((2, 1), "a1")?;
