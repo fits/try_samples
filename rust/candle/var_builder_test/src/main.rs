@@ -1,0 +1,42 @@
+use candle_core::Device;
+use candle_nn::{Linear, VarBuilder, VarMap, linear};
+
+type AppError = Box<dyn std::error::Error>;
+
+#[allow(dead_code)]
+pub struct Model {
+    layer1: Linear,
+    layer2: Linear,
+}
+
+impl Model {
+    pub fn new(vs: &VarBuilder) -> Result<Self, AppError> {
+        let layer1 = linear(4, 8, vs.pp("layer1"))?;
+        let layer2 = linear(8, 3, vs.pp("layer2"))?;
+
+        Ok(Self { layer1, layer2 })
+    }
+}
+
+fn main() -> Result<(), AppError> {
+    let device = Device::Cpu;
+
+    let varmap = VarMap::new();
+    let vs = VarBuilder::from_varmap(&varmap, candle_core::DType::F32, &device);
+
+    println!("before model new: {:?}", varmap.all_vars());
+
+    let _ = Model::new(&vs)?;
+
+    println!("after model new: {:?}", varmap.all_vars());
+    println!("* layer1={}, layer2={}", vs.contains_tensor("layer1"), vs.contains_tensor("layer2")); // false, false
+    println!("* a1={}", vs.contains_tensor("a1")); // false
+
+    let _ = vs.get((2, 1), "a1")?;
+
+    println!("after vs.get: {:?}", varmap.all_vars());
+
+    println!("* a1={}", vs.contains_tensor("a1")); // true
+
+    Ok(())
+}

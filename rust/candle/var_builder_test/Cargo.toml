@@ -1,0 +1,8 @@
+[package]
+name = "var_builder_test"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+candle-core = "0.11.0"
+candle-nn = "0.11.0"
