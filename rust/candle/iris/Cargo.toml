@@ -15,5 +15,13 @@ name = "train"
 path = "./src/train.rs"
 
 [[bin]]
+name = "train2"
+path = "./src/train2.rs"
+
+[[bin]]
 name = "eval"
 path = "./src/eval.rs"
+
+[[bin]]
+name = "eval2"
+path = "./src/eval2.rs"
