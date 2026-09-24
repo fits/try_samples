@@ -32,11 +32,11 @@ fn main() -> Result<(), AppError> {
     let varmap = VarMap::new();
     let vs = VarBuilder::from_varmap(&varmap, candle_core::DType::F32, &device);
 
-    println!("before model new: {:?}", varmap.all_vars());
+    println!("before model new: {:?}", varmap.data());
 
     let _ = Model::new(&vs)?;
 
-    println!("after model new: {:?}", varmap.all_vars());
+    println!("after model new: {:?}", varmap.data());
 
     println!(
         "* weight={}, bias={}",
@@ -48,7 +48,7 @@ fn main() -> Result<(), AppError> {
 
     let _ = vs.get((2, 1), "a1")?;
 
-    println!("after vs.get: {:?}", varmap.all_vars());
+    println!("after vs.get: {:?}", varmap.data());
 
     println!("* a1={}", vs.contains_tensor("a1")); // true
 
