@@ -24,6 +24,10 @@ fn main() -> Result<()> {
 
     println!("t3b={:?}, value={:?}", t3b, t3b_v);
 
+    let t3c = t3.i(1)?;
+
+    println!("t3c={t3c:?}");
+
     let t4 = Tensor::cat(&[&t1, &t2], 0);
 
     println!("t4={:?}", t4);
