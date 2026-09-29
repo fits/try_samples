@@ -2,10 +2,25 @@
 name = "mamba_text_gen"
 version = "0.1.0"
 edition = "2024"
+default-run = "main"
 
 [dependencies]
 candle-core = { version = "0.11", features = ["metal"] }
 candle-nn = { version = "0.11", features = ["metal"] }
 candle-transformers = { version = "0.11", features = ["metal"] }
+memmap2 = "0.9.11"
+safetensors = "0.8.0"
 serde_json = "1.0"
 tokenizers = "0.23"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[[bin]]
+name = "main1"
+path = "src/main1.rs"
+
+[[bin]]
+name = "main2"
+path = "src/main2.rs"
