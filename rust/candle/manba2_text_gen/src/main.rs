@@ -68,14 +68,14 @@ fn main() -> Result<()> {
     let mut output_token_ids = vec![];
 
     for _index in 0..max_sample_len {
-        let logits = next_logits
+        let mut logits = next_logits
             .ok_or("no token result")?
             .squeeze(0)?
             .to_dtype(DType::F32)?;
 
         let st = output_token_ids.len().saturating_sub(repeat_last_n);
 
-        candle_transformers::utils::apply_repeat_penalty(
+        logits = candle_transformers::utils::apply_repeat_penalty(
             &logits,
             repeat_penalty,
             &output_token_ids[st..],
