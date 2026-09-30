@@ -23,8 +23,9 @@ fn main() -> Result<()> {
     let temperature = Some(0.7);
     let top_p = Some(0.9);
 
-    let repeat_penalty = 1.2;
-    let repeat_last_n = 64;
+    let repeat_penalty = 1.1;
+    let repeat_last_n = 32;
+    let repeat_ngram_size = 4;
 
     let mut args = env::args().skip(1);
 
@@ -32,7 +33,10 @@ fn main() -> Result<()> {
 
     let max_sample_len: usize = args.next().and_then(|x| x.parse().ok()).unwrap_or(100);
 
-    let seed = args.next().and_then(|x| x.parse().ok()).unwrap_or(123);
+    let seed = args
+        .next()
+        .and_then(|x| x.parse().ok())
+        .unwrap_or(123456789);
 
     let tokenizer = Tokenizer::from_file("model/tokenizer.json")?;
 
@@ -70,18 +74,20 @@ fn main() -> Result<()> {
     let mut output_token_ids = vec![];
 
     for _index in 0..max_sample_len {
-        let logits = next_logits
+        let mut logits = next_logits
             .ok_or("no token result")?
             .squeeze(0)?
             .to_dtype(DType::F32)?;
 
         let st = output_token_ids.len().saturating_sub(repeat_last_n);
 
-        candle_transformers::utils::apply_repeat_penalty(
+        logits = candle_transformers::utils::apply_repeat_penalty(
             &logits,
             repeat_penalty,
             &output_token_ids[st..],
         )?;
+
+        logits = apply_ngram_repeat_penalty(&logits, repeat_ngram_size, &output_token_ids)?;
 
         let token_id = logits_proc.sample(&logits)?;
 
@@ -99,12 +105,14 @@ fn main() -> Result<()> {
         next_logits = Some(model.forward(&input, &mut state)?);
     }
 
-    save_state(&state, state_file, &device)?;
+    save_state(&state, state_file)?;
 
     Ok(())
 }
 
-fn save_state(state: &State, file: &str, device: &Device) -> Result<()> {
+fn save_state(state: &State, file: &str) -> Result<()> {
+    let device = state.hs.first().map(|x| x.device()).ok_or("no tensor")?;
+
     let hs_data = state
         .hs
         .iter()
@@ -160,4 +168,42 @@ fn load_state(state: &mut State, file: &str, device: &Device) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn apply_ngram_repeat_penalty(
+    logits: &Tensor,
+    ngram_size: usize,
+    token_ids: &Vec<u32>,
+) -> Result<Tensor> {
+    if ngram_size >= 2 && token_ids.len() > ngram_size {
+        let idx = token_ids.len() - (ngram_size - 1);
+
+        if let Some(prefix) = token_ids.get(idx..) {
+            let mut ng_ts = vec![];
+
+            for ts in token_ids.windows(ngram_size) {
+                if ts.starts_with(prefix) {
+                    ng_ts.push(ts.last().unwrap());
+                }
+            }
+
+            if !ng_ts.is_empty() {
+                let device = logits.device();
+                let mut logits = logits.to_dtype(DType::F32)?.to_vec1::<f32>()?;
+
+                for t in ng_ts {
+                    if let Some(x) = logits.get_mut(*t as usize) {
+                        *x = f32::NEG_INFINITY;
+                    }
+                }
+
+                let shape = logits.len();
+                let res = Tensor::from_vec(logits, shape, device)?;
+
+                return Ok(res);
+            }
+        }
+    }
+
+    Ok(logits.to_owned())
 }
