@@ -16,9 +16,10 @@ const KEY_CONV_STATES: &str = "conv-states-";
 const KEY_POS: &str = "pos";
 
 const TEMPERATURE: Option<f64> = Some(0.7);
-const TOP_P: Option<f64> = Some(0.9);
+const TOP_P: Option<f64> = Some(0.7);
 const REPEAT_PENALTY: f32 = 1.1;
 const REPEAT_LAST_N: usize = 32;
+const REPEAT_PENALTY_MIN_TOKEN_SIZE: Option<usize> = Some(5);
 
 fn main() -> Result<()> {
     let device = Device::new_metal(0)?;
@@ -28,11 +29,11 @@ fn main() -> Result<()> {
 
     let prompt = args.next().ok_or("prompt")?;
 
-    let output_state_file = args.next();
-    let input_state_file = args.next();
-
     let max_sample_len: usize = args.next().and_then(|x| x.parse().ok()).unwrap_or(100);
     let seed = args.next().and_then(|x| x.parse().ok()).unwrap_or(12345);
+
+    let output_state_file = args.next();
+    let input_state_file = args.next();
 
     let tokenizer = Tokenizer::from_file("model/tokenizer.json")?;
 
@@ -77,8 +78,13 @@ fn main() -> Result<()> {
             .squeeze(0)?
             .to_dtype(DType::F32)?;
 
-        let logits =
-            apply_repeat_penalty(&logits, REPEAT_LAST_N, REPEAT_PENALTY, &output_token_ids)?;
+        let logits = apply_repeat_penalty(
+            &logits,
+            REPEAT_LAST_N,
+            REPEAT_PENALTY,
+            &output_token_ids,
+            REPEAT_PENALTY_MIN_TOKEN_SIZE,
+        )?;
 
         let token_id = logits_proc.sample(&logits)?;
 
@@ -161,8 +167,9 @@ fn apply_repeat_penalty(
     repeat_last_n: usize,
     repeat_penalty: f32,
     token_ids: &Vec<u32>,
+    min_token_size: Option<usize>,
 ) -> Result<Tensor> {
-    if repeat_last_n >= 2 {
+    if token_ids.len() >= min_token_size.unwrap_or_default().max(1) {
         let idx = token_ids.len().saturating_sub(repeat_last_n);
 
         utils::apply_repeat_penalty(&logits, repeat_penalty, &token_ids[idx..])
