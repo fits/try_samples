@@ -6,8 +6,8 @@ prompt = sys.argv[1]
 
 def main():
     params = SamplingParams(temperature=0.1, top_p=0.7, max_tokens=50)
-
-    llm = LLM(model=model_id, gpu_memory_utilization=0.8)
+    # enforce_eager=True: disable CUDA graph capturing
+    llm = LLM(model=model_id, gpu_memory_utilization=0.8, enforce_eager=True)
 
     res = llm.enqueue(prompt, params)
 
